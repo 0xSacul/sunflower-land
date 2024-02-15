@@ -146,7 +146,9 @@ function detectPlaceableCollision(state: GameState, boundingBox: BoundingBox) {
   }));
 
   const budsBoundingBox = Object.values(buds ?? {})
-    .filter((bud) => !!bud.coordinates)
+    .filter(
+      (bud) => !!bud.coordinates && (!bud.location || bud.location === "farm")
+    )
     .map((item) => ({
       x: item.coordinates!.x,
       y: item.coordinates!.y,
@@ -186,7 +188,11 @@ export const HOME_BOUNDS: Record<IslandType, BoundingBox> = {
   },
 };
 
-const NON_COLLIDING_OBJECTS: InventoryItemName[] = ["Rug"];
+const NON_COLLIDING_OBJECTS: InventoryItemName[] = [
+  "Rug",
+  "Sunrise Bloom Rug",
+  "Flower Rug",
+];
 function detectHomeCollision({
   state,
   position,
@@ -233,7 +239,7 @@ function detectHomeCollision({
   });
 
   const budsBoundingBox = Object.values(state.buds ?? {})
-    .filter((bud) => !!bud.coordinates)
+    .filter((bud) => !!bud.coordinates && bud.location === "home")
     .map((item) => ({
       x: item.coordinates!.x,
       y: item.coordinates!.y,

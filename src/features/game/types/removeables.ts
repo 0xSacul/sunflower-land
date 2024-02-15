@@ -17,6 +17,9 @@ import { isFruitGrowing } from "features/game/events/landExpansion/fruitHarveste
 import { CompostName, isComposting } from "./composters";
 import { getDailyFishingCount } from "./fishing";
 import { GoblinState } from "features/game/lib/goblinMachine";
+import { FLOWERS, FLOWER_SEEDS } from "./flowers";
+import { getCurrentHoneyProduced } from "../expansion/components/resources/beehive/beehiveMachine";
+import { DEFAULT_HONEY_PRODUCTION_TIME } from "../lib/updateBeehives";
 
 type RESTRICTION_REASON =
   | "No restriction"
@@ -36,8 +39,10 @@ type RESTRICTION_REASON =
   | "Magic Bean is planted"
   | "Bananas are growing"
   | "In use"
+  | "Recently fished"
   | "Recently used"
-  | "Locked during festive season";
+  | "Locked during festive season"
+  | "Bees are busy";
 
 export type Restriction = [boolean, RESTRICTION_REASON];
 type RemoveCondition = (gameState: GameState) => Restriction;
@@ -154,6 +159,13 @@ function areAnyGoldsMined(game: GameState): Restriction {
   return [goldMined, "Gold is mined"];
 }
 
+function areAnyCrimstonessMined(game: GameState): Restriction {
+  const crimstoneMined = Object.values(game.crimstones ?? {}).some(
+    (crimstone) => !canMine(crimstone)
+  );
+  return [crimstoneMined, "Crimstone is mined"];
+}
+
 function areAnyMineralsMined(game: GameState): Restriction {
   const areStonesMined = areAnyStonesMined(game);
   const areIronsMined = areAnyIronsMined(game);
@@ -200,7 +212,33 @@ function areAnyComposting(game: GameState): Restriction {
 }
 
 function hasFishedToday(game: GameState): Restriction {
-  return [getDailyFishingCount(game) !== 0, "In use"];
+  return [getDailyFishingCount(game) !== 0, "Recently fished"];
+}
+
+function isFlowersGrowing(game: GameState): boolean {
+  return Object.values(game.flowers.flowerBeds).some((flowerBed) => {
+    const flower = flowerBed.flower;
+
+    if (!flower) return false;
+
+    return (
+      flower.plantedAt +
+        FLOWER_SEEDS()[FLOWERS[flower.name].seed].plantSeconds * 1000 >=
+      Date.now()
+    );
+  });
+}
+
+function isBeehivesFull(game: GameState): boolean {
+  // 0.9 Small buffer in case of any rounding errors
+  return Object.values(game.beehives).every(
+    (hive) =>
+      getCurrentHoneyProduced(hive) >= DEFAULT_HONEY_PRODUCTION_TIME * 0.9
+  );
+}
+
+function isProducingHoney(game: GameState): Restriction {
+  return [isFlowersGrowing(game) && !isBeehivesFull(game), "Bees are busy"];
 }
 
 function isFertiliserApplied(
@@ -222,7 +260,10 @@ export const canShake = (shakenAt?: number) => {
 };
 
 function hasShakenManeki(game: GameState): Restriction {
-  const manekiNekos = game.collectibles["Maneki Neko"] ?? [];
+  const manekiNekos = [
+    ...(game.collectibles["Maneki Neko"] ?? []),
+    ...(game.home.collectibles["Maneki Neko"] ?? []),
+  ];
   const hasShakenRecently = manekiNekos.some((maneki) => {
     const shakenAt = maneki.shakenAt || 0;
 
@@ -258,6 +299,7 @@ export const REMOVAL_RESTRICTIONS: Partial<
   Rooster: (game) => areAnyChickensFed(game),
   Bale: (game) => areAnyChickensFed(game),
   "Banana Chicken": (game) => areFruitsGrowing(game, "Banana"),
+  "Crim Peckster": (game) => areAnyCrimstonessMined(game),
 
   // Crop Boosts
   Nancy: (game) => areAnyCropsGrowing(game),
@@ -291,6 +333,7 @@ export const REMOVAL_RESTRICTIONS: Partial<
   "Black Bearry": (game) => areFruitsGrowing(game, "Blueberry"),
   "Lady Bug": (game) => areFruitsGrowing(game, "Apple"),
   Nana: (game) => areFruitsGrowing(game, "Banana"),
+  "Immortal Pear": (game) => areAnyFruitsGrowing(game),
 
   // Composter boosts
   "Soil Krabby": (game) => areAnyComposting(game),
@@ -335,6 +378,9 @@ export const REMOVAL_RESTRICTIONS: Partial<
   // Fishing Boosts
   Alba: (game) => hasFishedToday(game),
   Walrus: (game) => hasFishedToday(game),
+
+  // Honey
+  "Queen Bee": (game) => isProducingHoney(game),
 };
 
 export const BUD_REMOVAL_RESTRICTIONS: Record<

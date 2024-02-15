@@ -2,16 +2,18 @@ import cloneDeep from "lodash.clonedeep";
 import Decimal from "decimal.js-light";
 import { GameState } from "features/game/types/game";
 import {
-  HONEY_PRODUCTION_TIME,
+  DEFAULT_HONEY_PRODUCTION_TIME,
   updateBeehives,
 } from "features/game/lib/updateBeehives";
 import { getKeys } from "features/game/types/craftables";
 import { trackActivity } from "features/game/types/bumpkinActivity";
+import { isWearableActive } from "features/game/lib/wearables";
+import { translate } from "lib/i18n/translate";
 
-export enum HARVEST_BEEHIVE_ERRORS {
-  BEEHIVE_NOT_PLACED = "This beehive is not placed.",
-  NO_HONEY = "This beehive has no honey.",
-}
+export const HARVEST_BEEHIVE_ERRORS = {
+  BEEHIVE_NOT_PLACED: "harvestBeeHive.notPlaced",
+  NO_HONEY: "harvestBeeHive.noHoney",
+};
 
 export type HarvestBeehiveAction = {
   type: "beehive.harvested";
@@ -45,8 +47,21 @@ const applySwarmBoostToCrops = (
       };
     }
 
-    return acc;
+    return { ...acc, [cropId]: cropPlot };
   }, {} as GameState["crops"]);
+};
+
+const getTotalHoneyProduced = (game: GameState, honeyProduced: number) => {
+  let multiplier = 1;
+  if (isWearableActive({ name: "Bee Suit", game })) {
+    multiplier += 0.1;
+  }
+
+  if (isWearableActive({ name: "Honeycomb Shield", game })) {
+    multiplier += 1;
+  }
+
+  return honeyProduced * multiplier;
 };
 
 export function harvestBeehive({
@@ -57,15 +72,11 @@ export function harvestBeehive({
   const stateCopy = cloneDeep(state) as GameState;
 
   if (!stateCopy.bumpkin) {
-    throw new Error("You do not have a Bumpkin");
+    throw new Error(translate("no.have.bumpkin"));
   }
 
   // Update beehives before harvesting to set honey produced
-  const freshBeehives = updateBeehives({
-    beehives: stateCopy.beehives,
-    flowerBeds: stateCopy.flowers.flowerBeds,
-    createdAt,
-  });
+  const freshBeehives = updateBeehives({ game: stateCopy, createdAt });
 
   stateCopy.beehives = freshBeehives;
 
@@ -77,9 +88,12 @@ export function harvestBeehive({
     throw new Error(HARVEST_BEEHIVE_ERRORS.NO_HONEY);
   }
 
-  const totalHoneyProduced =
-    stateCopy.beehives[action.id].honey.produced / HONEY_PRODUCTION_TIME;
-  const isFull = totalHoneyProduced >= 1;
+  const honeyProduced =
+    stateCopy.beehives[action.id].honey.produced /
+    DEFAULT_HONEY_PRODUCTION_TIME;
+  const isFull = honeyProduced >= 1;
+
+  const totalHoneyProduced = getTotalHoneyProduced(stateCopy, honeyProduced);
 
   stateCopy.beehives[action.id].honey.produced = 0;
   stateCopy.beehives[action.id].honey.updatedAt = createdAt;
@@ -103,11 +117,7 @@ export function harvestBeehive({
     new Decimal(totalHoneyProduced)
   );
 
-  const updatedBeehives = updateBeehives({
-    beehives: stateCopy.beehives,
-    flowerBeds: stateCopy.flowers.flowerBeds,
-    createdAt,
-  });
+  const updatedBeehives = updateBeehives({ game: stateCopy, createdAt });
 
   stateCopy.beehives = updatedBeehives;
 

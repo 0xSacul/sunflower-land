@@ -63,6 +63,7 @@ export const PromotingModal: React.FC<Props> = ({
   const inventory = useSelector(gameService, _inventory);
 
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showPurchased, setShowPurchased] = useState(hasPurchased);
 
   let price = hasDiscount ? "35" : "50";
 
@@ -82,14 +83,15 @@ export const PromotingModal: React.FC<Props> = ({
           <p className="text-sm my-2">{`Are you sure you want to purchase the banner for ${price} Block Bucks?`}</p>
           <div className="flex">
             <Button className="mr-1" onClick={onCloseConfirmation}>
-              {t("noThanks")}
+              {t("no.thanks")}
             </Button>
             <Button
               onClick={() => {
                 gameService.send("banner.purchased", {
                   name: "Spring Blossom Banner",
                 });
-                onCloseConfirmation();
+                setShowConfirmation(false);
+                setShowPurchased(true);
               }}
             >
               {t("season.buyNow")}
@@ -99,7 +101,7 @@ export const PromotingModal: React.FC<Props> = ({
       );
     }
 
-    if (hasPurchased) {
+    if (showPurchased) {
       return (
         <>
           <div className="flex flex-col p-2">
@@ -113,7 +115,10 @@ export const PromotingModal: React.FC<Props> = ({
               />
               <p className="text-sm">{t("season.goodLuck")}</p>
             </div>
-            <p className="text-sm">{t("season.accessTo")}</p>
+            <p className="text-sm">
+              {t("season.access")}
+              {":"}
+            </p>
             <ul className="list-disc">
               <li className="text-xs ml-4">{t("season.discount")}</li>
               <li className="text-xs ml-4">{t("season.banner")}</li>
@@ -122,13 +127,17 @@ export const PromotingModal: React.FC<Props> = ({
               <li className="text-xs ml-4">{t("season.boostXP")}</li>
             </ul>
 
+            <Label className="my-2" type="default" icon={SUNNYSIDE.icons.drag}>
+              {t("season.place.land")}
+            </Label>
+
             <a
               href="https://docs.sunflower-land.com/player-guides/seasons/catch-the-kraken#catch-the-kraken-banner"
               target="_blank"
               rel="noopener noreferrer"
               className="underline text-xxs pb-1 pt-0.5 hover:text-blue-500"
             >
-              {t("readMore")}
+              {t("read.more")}
             </a>
           </div>
           <div className="flex">
@@ -142,7 +151,7 @@ export const PromotingModal: React.FC<Props> = ({
 
     const msLeft = SEASONS["Spring Blossom"].startDate.getTime() - Date.now();
     const secondsLeft = msLeft / 1000;
-    const insuficientBlockBucks = inventory["Block Buck"]?.lessThan(price);
+    const insuficientBlockBucks = !inventory["Block Buck"]?.gte(price);
 
     return (
       <>
@@ -169,7 +178,7 @@ export const PromotingModal: React.FC<Props> = ({
                         height: `${PIXEL_SCALE * 8}px`,
                       }}
                     />
-                    <p className="line-through ml-2">65</p>
+                    <p className="line-through ml-2">{"65"}</p>
                     <p className="ml-2">{price}</p>
                   </div>
                   <Label type="danger">
@@ -180,12 +189,15 @@ export const PromotingModal: React.FC<Props> = ({
                 </>
               ) : (
                 <div className="flex my-1">
-                  <p>65</p>
+                  <p>{"65"}</p>
                 </div>
               )}
             </div>
           </div>
-          <p className="text-sm">{t("season.includes")}</p>
+          <p className="text-sm">
+            {t("season.includes")}
+            {":"}
+          </p>
           <ul className="list-disc">
             <li className="text-sm ml-4">{t("season.banner")}</li>
             <li className="text-sm ml-4">{t("season.wearableAirdrop")}</li>
@@ -215,20 +227,20 @@ export const PromotingModal: React.FC<Props> = ({
             Sold out
           </Label> */}
           <a
-            href="https://docs.sunflower-land.com/player-guides/seasons/catch-the-kraken#catch-the-kraken-banner"
+            href="https://docs.sunflower-land.com/player-guides/seasons/spring-blossom#spring-blossom-banner"
             target="_blank"
             rel="noopener noreferrer"
             className="underline text-xxs pb-1 pt-0.5 hover:text-blue-500"
           >
-            {t("readMore")}
+            {t("read.more")}
           </a>
         </div>
         <div className="flex">
           <Button className="mr-1" onClick={onCloseConfirmation}>
-            {t("noThanks")}
+            {t("no.thanks")}
           </Button>
           <Button
-            disabled={secondsLeft < 0 || insuficientBlockBucks}
+            disabled={insuficientBlockBucks}
             onClick={() => {
               setShowConfirmation(true);
             }}

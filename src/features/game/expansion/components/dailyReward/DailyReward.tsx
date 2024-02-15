@@ -25,7 +25,7 @@ const _dailyRewards = (state: MachineState) => state.context.state.dailyRewards;
 const _isRevealed = (state: MachineState) => state.matches("revealed");
 
 export const DailyReward: React.FC = () => {
-  const { gameService } = useContext(Context);
+  const { gameService, showAnimations } = useContext(Context);
   const [showIntro, setShowIntro] = useState(true);
   const dailyRewards = useSelector(gameService, _dailyRewards);
   const bumpkin = useSelector(gameService, _bumpkin);
@@ -121,7 +121,7 @@ export const DailyReward: React.FC = () => {
     if (chestState.matches("locked")) {
       return (
         <CloseButtonPanel
-          title={t("reward.title")}
+          title={t("reward.daily.reward")}
           onClose={() => setShowModal(false)}
         >
           <div className="flex flex-col items-center px-2">
@@ -132,7 +132,7 @@ export const DailyReward: React.FC = () => {
                 </Label>
                 <p className="text-xxs mt-2">
                   {t("reward.nextBonus")}
-                  {getNextBonus}
+                  {":"} {getNextBonus}
                   {t("reward.streak")}
                 </p>
               </>
@@ -155,7 +155,7 @@ export const DailyReward: React.FC = () => {
     if (chestState.matches("unlocked")) {
       return (
         <CloseButtonPanel
-          title={t("reward.title")}
+          title={t("reward.daily.reward")}
           onClose={() => setShowModal(false)}
         >
           <div className="flex flex-col items-center p-2">
@@ -175,7 +175,7 @@ export const DailyReward: React.FC = () => {
     if (chestState.matches("error")) {
       return (
         <CloseButtonPanel
-          title="Something went wrong!"
+          title={t("error.wentWrong")}
           onClose={() => setShowModal(false)}
         >
           <div className="flex flex-col items-center p-2">
@@ -225,7 +225,7 @@ export const DailyReward: React.FC = () => {
     if (chestState.matches("unlocking")) {
       return (
         <Panel>
-          <Loading text="Unlocking" />
+          <Loading text={t("unlocking")} />
         </Panel>
       );
     }
@@ -265,7 +265,7 @@ export const DailyReward: React.FC = () => {
         {!chestState.matches("opened") && (
           <img
             src={SUNNYSIDE.icons.expression_alerted}
-            className="absolute animate-float"
+            className={"absolute" + (showAnimations ? " animate-float" : "")}
             style={{
               width: `${PIXEL_SCALE * 4}px`,
               top: `${PIXEL_SCALE * -14}px`,
@@ -286,10 +286,10 @@ export const DailyReward: React.FC = () => {
                 }}
               />
               <p className="text-sm text-center">
-                Connect a Web3 Wallet for a daily reward.
+                {t("reward.connectWeb3Wallet")}
               </p>
             </div>
-            <Button onClick={() => setShowIntro(false)}>Continue</Button>
+            <Button onClick={() => setShowIntro(false)}>{t("continue")}</Button>
           </CloseButtonPanel>
         )}
         {!showIntro && (

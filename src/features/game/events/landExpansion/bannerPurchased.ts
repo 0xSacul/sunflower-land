@@ -6,8 +6,8 @@ import {
   SEASONS,
   SeasonalBanner,
   getSeasonByBanner,
-  getSeasonalBanner,
 } from "features/game/types/seasons";
+import { translate } from "lib/i18n/translate";
 
 export type PurchaseBannerAction = {
   type: "banner.purchased";
@@ -29,7 +29,7 @@ export function purchaseBanner({
   const { bumpkin, inventory } = stateCopy;
 
   if (bumpkin === undefined) {
-    throw new Error("You do not have a Bumpkin");
+    throw new Error(translate("no.have.bumpkin"));
   }
 
   if (!(action.name in BANNERS)) {
@@ -46,7 +46,7 @@ export function purchaseBanner({
   const isPreSeason = createdAt < seasonStartDate.getTime();
 
   let price = new Decimal(65);
-  const hasPreviousBanner = !!inventory[getSeasonalBanner()];
+  const hasPreviousBanner = !!inventory["Catch the Kraken Banner"];
 
   if (isPreSeason) {
     if (hasPreviousBanner) {

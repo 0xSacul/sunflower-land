@@ -28,6 +28,7 @@ import { Bumpkin, IslandType } from "features/game/types/game";
 import { HOME_BOUNDS } from "features/game/expansion/placeable/lib/collisionDetection";
 import { Bud } from "features/island/buds/Bud";
 import { InteriorBumpkins } from "./components/InteriorBumpkins";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 const selectGameState = (state: MachineState) => state.context.state;
 const isLandscaping = (state: MachineState) => state.matches("landscaping");
@@ -40,6 +41,8 @@ const BACKGROUND_IMAGE: Record<IslandType, string> = {
 
 export const Home: React.FC = () => {
   const { gameService, showTimers } = useContext(Context);
+
+  const { t } = useAppTranslation();
 
   // memorize game grid and only update it when the stringified value changes
 
@@ -93,7 +96,7 @@ export const Home: React.FC = () => {
               y={y}
               height={height}
               width={width}
-              z={name === "Rug" ? 0 : 1}
+              z={name.includes("Rug") ? 0 : 1}
             >
               <Collectible
                 location="home"
@@ -105,6 +108,7 @@ export const Home: React.FC = () => {
                 x={coordinates.x}
                 y={coordinates.y}
                 grid={gameGrid}
+                game={state}
               />
             </MapPlacement>
           );
@@ -200,10 +204,10 @@ export const Home: React.FC = () => {
                     <InteriorBumpkins game={state} />
                   </div>
                   <Button
-                    className="absolute -bottom-24"
+                    className="absolute -bottom-16"
                     onClick={() => navigate("/")}
                   >
-                    Exit
+                    {t("exit")}
                   </Button>
                 </>
               )}

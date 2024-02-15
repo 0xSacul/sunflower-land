@@ -5,6 +5,7 @@ import { GameState, Inventory } from "./game";
 import { SFLDiscount } from "../lib/SFLDiscount";
 import { BoostTreasure, DecorationTreasure } from "./treasure";
 import { getCurrentSeason } from "./seasons";
+import { translate } from "lib/i18n/translate";
 
 export type AchievementDecorationName =
   | "Chef Bear"
@@ -51,6 +52,7 @@ export type ShopDecorationName =
   | LandscapingDecorationName;
 
 export type SeasonalDecorationName =
+  | "Blossombeard"
   | "Clementine"
   | "Cobalt"
   | "Dawn Umbrella Seat"
@@ -84,7 +86,8 @@ export type EventDecorationName =
   | "Festive Tree"
   | "Bumpkin Nutcracker"
   | "White Festive Fox"
-  | "Grinx's Hammer";
+  | "Grinx's Hammer"
+  | "Earn Alliance Banner";
 
 export type PotionHouseDecorationName =
   | "Giant Potato"
@@ -104,6 +107,14 @@ export type DecorationName =
   | InteriorDecorationName;
 
 export const DECORATION_DIMENSIONS: Record<DecorationName, Dimensions> = {
+  "Earn Alliance Banner": {
+    width: 1,
+    height: 2,
+  },
+  Blossombeard: {
+    width: 1,
+    height: 1,
+  },
   Wardrobe: {
     height: 1,
     width: 1,
@@ -157,7 +168,7 @@ export const DECORATION_DIMENSIONS: Record<DecorationName, Dimensions> = {
     width: 1,
   },
   "Chef Bear": {
-    height: 2,
+    height: 1,
     width: 1,
   },
   "Construction Bear": {
@@ -173,7 +184,7 @@ export const DECORATION_DIMENSIONS: Record<DecorationName, Dimensions> = {
     width: 1,
   },
   "Bear Trap": {
-    height: 2,
+    height: 1,
     width: 1,
   },
   "Brilliant Bear": {
@@ -194,7 +205,7 @@ export const DECORATION_DIMENSIONS: Record<DecorationName, Dimensions> = {
   },
   "Rich Bear": {
     height: 1,
-    width: 2,
+    width: 1,
   },
   "Rainbow Artist Bear": {
     width: 1,
@@ -213,19 +224,19 @@ export const DECORATION_DIMENSIONS: Record<DecorationName, Dimensions> = {
     width: 1,
   },
   "T-Rex Skull": {
-    height: 2,
+    height: 1,
     width: 2,
   },
   "Sunflower Coin": {
-    height: 2,
+    height: 1,
     width: 2,
   },
   Foliant: {
-    height: 2,
+    height: 1,
     width: 2,
   },
   "Skeleton King Staff": {
-    height: 2,
+    height: 1,
     width: 2,
   },
   "Lifeguard Bear": {
@@ -249,11 +260,11 @@ export const DECORATION_DIMENSIONS: Record<DecorationName, Dimensions> = {
     width: 1,
   },
   Galleon: {
-    height: 2,
+    height: 1,
     width: 2,
   },
   "Dinosaur Bone": {
-    height: 2,
+    height: 1,
     width: 2,
   },
   "Human Bear": {
@@ -477,11 +488,11 @@ export const BASIC_DECORATIONS: () => Record<
     name: "White Tulips",
     sfl: new Decimal(0.25),
     ingredients: {},
-    description: "Keep the smell of goblins away.",
+    description: translate("description.white.tulips"),
   },
   "Potted Sunflower": {
     name: "Potted Sunflower",
-    description: "Brighten up your land.",
+    description: translate("description.potted.sunflower"),
     sfl: new Decimal(0.25),
     ingredients: {
       Sunflower: new Decimal(100),
@@ -489,7 +500,7 @@ export const BASIC_DECORATIONS: () => Record<
   },
   "Potted Potato": {
     name: "Potted Potato",
-    description: "Potato blood runs through your Bumpkin.",
+    description: translate("description.potted.potato"),
     sfl: new Decimal(0.625),
     ingredients: {
       Potato: new Decimal(200),
@@ -497,7 +508,7 @@ export const BASIC_DECORATIONS: () => Record<
   },
   "Potted Pumpkin": {
     name: "Potted Pumpkin",
-    description: "Pumpkins for Bumpkins",
+    description: translate("description.potted.pumpkin"),
     sfl: new Decimal(2.5),
     ingredients: {
       Pumpkin: new Decimal(200),
@@ -505,21 +516,20 @@ export const BASIC_DECORATIONS: () => Record<
   },
   Cactus: {
     name: "Cactus",
-    description: "Saves water and makes your farm look stunning!",
+    description: translate("description.cactus"),
     sfl: new Decimal(0.25),
     ingredients: {},
   },
   "Basic Bear": {
     name: "Basic Bear",
-    description: "A basic bear. Use this at Goblin Retreat to build a bear!",
+    description: translate("description.basic.bear"),
     sfl: new Decimal(0.625),
     ingredients: {},
   },
 
   "Bonnie's Tombstone": {
     name: "Bonnie's Tombstone",
-    description:
-      "A spooky addition to any farm, Bonnie's Human Tombstone will send shivers down your spine.",
+    description: translate("description.bonnies.tombstone"),
     sfl: marketRate(0),
     ingredients: {
       Stone: new Decimal(10),
@@ -528,7 +538,7 @@ export const BASIC_DECORATIONS: () => Record<
 
   "Grubnash's Tombstone": {
     name: "Grubnash's Tombstone",
-    description: "Add some mischievous charm with Grubnash's Goblin Tombstone.",
+    description: translate("description.grubnashs.tombstone"),
     sfl: marketRate(0),
     ingredients: {
       Stone: new Decimal(20),
@@ -537,7 +547,7 @@ export const BASIC_DECORATIONS: () => Record<
   },
   "Town Sign": {
     name: "Town Sign",
-    description: "Show your farm ID with pride!",
+    description: translate("description.town.sign"),
     sfl: marketRate(0),
     ingredients: {},
     limit: 1,
@@ -550,13 +560,13 @@ export const LANDSCAPING_DECORATIONS: () => Record<
 > = () => ({
   "Dirt Path": {
     name: "Dirt Path",
-    description: "Keep your farmer boots clean with a well trodden path.",
+    description: translate("description.dirt.path"),
     sfl: new Decimal(0.625),
     ingredients: {},
   },
   Bush: {
     name: "Bush",
-    description: "What's lurking in the bushes?",
+    description: translate("description.bush"),
     sfl: new Decimal(1.25),
     ingredients: {
       Wood: new Decimal(5),
@@ -564,7 +574,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   Fence: {
     name: "Fence",
-    description: "Add a touch of rustic charm to your farm.",
+    description: translate("description.fence"),
     sfl: new Decimal(0.125),
     ingredients: {
       Wood: new Decimal(5),
@@ -572,7 +582,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Stone Fence": {
     name: "Stone Fence",
-    description: "Embrace the timeless elegance of a stone fence.",
+    description: translate("description.stone.fence"),
     sfl: new Decimal(0.25),
     ingredients: {
       Stone: new Decimal(5),
@@ -580,7 +590,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Pine Tree": {
     name: "Pine Tree",
-    description: "Standing tall and mighty, a needle-clad dream.",
+    description: translate("description.pine.tree"),
     sfl: new Decimal(1.25),
     ingredients: {
       Wood: new Decimal(7),
@@ -588,7 +598,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   Shrub: {
     name: "Shrub",
-    description: "Enhance your in-game landscaping with a beautiful shrub",
+    description: translate("description.shrub"),
     sfl: new Decimal(0.625),
     ingredients: {
       Wood: new Decimal(3),
@@ -596,8 +606,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Field Maple": {
     name: "Field Maple",
-    description:
-      "A petite charmer that spreads its leaves like a delicate green canopy.",
+    description: translate("description.field.maple"),
     sfl: new Decimal(0.625),
     ingredients: {
       Wood: new Decimal(20),
@@ -605,7 +614,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Red Maple": {
     name: "Red Maple",
-    description: "Fiery foliage and a heart full of autumnal warmth.",
+    description: translate("description.red.maple"),
     sfl: new Decimal(0.625),
     ingredients: {
       Wood: new Decimal(3),
@@ -614,7 +623,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Golden Maple": {
     name: "Golden Maple",
-    description: "Radiating brilliance with its shimmering golden leaves.",
+    description: translate("description.golden.maple"),
     sfl: new Decimal(0.625),
     ingredients: {
       Wood: new Decimal(3),
@@ -623,8 +632,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Crimson Cap": {
     name: "Crimson Cap",
-    description:
-      "A towering and vibrant mushroom, the Crimson Cap Giant Mushroom will bring life to your farm.",
+    description: translate("description.crimson.cap"),
     sfl: new Decimal(50),
     ingredients: {
       "Wild Mushroom": new Decimal(20),
@@ -632,7 +640,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Toadstool Seat": {
     name: "Toadstool Seat",
-    description: "Sit back and relax on the whimsical Toadstool Mushroom Seat.",
+    description: translate("description.toadstool.seat"),
     sfl: new Decimal(0),
     ingredients: {
       "Wild Mushroom": new Decimal(5),
@@ -640,8 +648,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Chestnut Fungi Stool": {
     name: "Chestnut Fungi Stool",
-    description:
-      "The Chestnut Fungi Stool is a sturdy and rustic addition to any farm.",
+    description: translate("description.chestnut.fungi.stool"),
     sfl: new Decimal(5),
     ingredients: {
       "Toadstool Seat": new Decimal(1),
@@ -650,8 +657,7 @@ export const LANDSCAPING_DECORATIONS: () => Record<
   },
   "Mahogany Cap": {
     name: "Mahogany Cap",
-    description:
-      "Add a touch of sophistication with the Mahogany Cap Giant Mushroom.",
+    description: translate("description.mahogany.cap"),
     sfl: new Decimal(5),
     ingredients: {
       "Crimson Cap": new Decimal(1),
@@ -673,8 +679,7 @@ export const SEASONAL_DECORATIONS: (
       sfl: SFLDiscount(state, new Decimal(5)),
       from: new Date("2023-08-01"),
       to: new Date("2023-11-01"),
-      description:
-        "Enchant your farm with flickering spectral flames during Witches' Eve.",
+      description: translate("description.candles"),
       ingredients: {
         "Crow Feather": new Decimal(5),
       },
@@ -684,7 +689,7 @@ export const SEASONAL_DECORATIONS: (
       sfl: new Decimal(0),
       from: new Date("2023-08-01"),
       to: new Date("2023-09-01"),
-      description: "Summon spirits and add eerie charm to your farm.",
+      description: translate("description.haunted.stump"),
       ingredients: {
         "Crow Feather": new Decimal(100),
       },
@@ -694,7 +699,7 @@ export const SEASONAL_DECORATIONS: (
       sfl: SFLDiscount(state, new Decimal(50)),
       from: new Date("2023-09-01"),
       to: new Date("2023-10-01"),
-      description: "A hauntingly fun addition to your farm's decor!",
+      description: translate("description.spooky.tree"),
       ingredients: {
         "Crow Feather": new Decimal(500),
       },
@@ -704,8 +709,7 @@ export const SEASONAL_DECORATIONS: (
       sfl: SFLDiscount(state, new Decimal(50)),
       from: new Date("2023-10-01"),
       to: new Date("2023-11-01"),
-      description:
-        "A perpetually roving eyeball, always vigilant and ever-watchful!",
+      description: translate("description.observer"),
       ingredients: {
         "Crow Feather": new Decimal(500),
       },
@@ -715,7 +719,7 @@ export const SEASONAL_DECORATIONS: (
       sfl: new Decimal(0),
       from: new Date("2023-10-01"),
       to: new Date("2023-11-01"),
-      description: "A crow perched atop a mysterious rock.",
+      description: translate("description.crow.rock"),
       ingredients: {
         "Crow Feather": new Decimal(250),
       },
@@ -725,71 +729,9 @@ export const SEASONAL_DECORATIONS: (
       sfl: SFLDiscount(state, new Decimal(5)),
       from: new Date("2023-10-01"),
       to: new Date("2023-11-01"),
-      description:
-        "A memento of the beloved maze from the 2023 Witches' Eve season.",
+      description: translate("description.mini.corn.maze"),
       ingredients: {
         "Crow Feather": new Decimal(50),
-      },
-    },
-  }),
-  ...(getCurrentSeason(date) === "Catch the Kraken" && {
-    "Lifeguard Ring": {
-      name: "Lifeguard Ring",
-      sfl: SFLDiscount(state, new Decimal(10)),
-      from: new Date("2024-01-01"),
-      to: new Date("2024-02-01"),
-      description: "Stay afloat with style, your seaside savior!",
-      ingredients: {
-        "Mermaid Scale": new Decimal(50),
-      },
-    },
-    Surfboard: {
-      name: "Surfboard",
-      from: new Date("2023-12-01"),
-      to: new Date("2024-01-01"),
-      description: "Ride the waves of wonder, beach bliss on board!",
-      ingredients: {
-        "Mermaid Scale": new Decimal(100),
-      },
-    },
-    "Hideaway Herman": {
-      name: "Hideaway Herman",
-      sfl: SFLDiscount(state, new Decimal(15)),
-      from: new Date("2024-01-01"),
-      to: new Date("2024-02-01"),
-      description: "Herman's here to hide, but always peeks for a party!",
-      ingredients: {
-        "Mermaid Scale": new Decimal(350),
-      },
-    },
-    "Shifty Sheldon": {
-      name: "Shifty Sheldon",
-      sfl: SFLDiscount(state, new Decimal(50)),
-      from: new Date("2023-12-01"),
-      to: new Date("2024-01-01"),
-      description:
-        "Sheldon's sly, always scuttling to the next sandy surprise!",
-      ingredients: {
-        "Mermaid Scale": new Decimal(500),
-      },
-    },
-    "Tiki Torch": {
-      name: "Tiki Torch",
-      from: new Date("2023-11-01"),
-      to: new Date("2023-12-01"),
-      description: "Light the night, tropical vibes burning bright!",
-      ingredients: {
-        "Mermaid Scale": new Decimal(5),
-      },
-    },
-    "Beach Umbrella": {
-      name: "Beach Umbrella",
-      sfl: SFLDiscount(state, new Decimal(20)),
-      from: new Date("2023-11-01"),
-      to: new Date("2023-12-01"),
-      description: "Shade, shelter, and seaside chic in one sunny setup!",
-      ingredients: {
-        "Mermaid Scale": new Decimal(250),
       },
     },
   }),
@@ -801,7 +743,7 @@ export const POTION_HOUSE_DECORATIONS: () => Record<
 > = () => ({
   "Magic Bean": {
     name: "Magic Bean",
-    description: "What will grow?",
+    description: translate("description.magic.bean"),
     sfl: new Decimal(0),
     ingredients: {
       "Potion Ticket": new Decimal(2000),
@@ -809,7 +751,7 @@ export const POTION_HOUSE_DECORATIONS: () => Record<
   },
   "Giant Potato": {
     name: "Giant Potato",
-    description: "A giant potato.",
+    description: translate("description.giant.potato"),
     sfl: new Decimal(0),
     ingredients: {
       "Potion Ticket": new Decimal(500),
@@ -817,7 +759,7 @@ export const POTION_HOUSE_DECORATIONS: () => Record<
   },
   "Giant Pumpkin": {
     name: "Giant Pumpkin",
-    description: "A giant pumpkin.",
+    description: translate("description.giant.pumpkin"),
     sfl: new Decimal(0),
     ingredients: {
       "Potion Ticket": new Decimal(750),
@@ -825,7 +767,7 @@ export const POTION_HOUSE_DECORATIONS: () => Record<
   },
   "Giant Cabbage": {
     name: "Giant Cabbage",
-    description: "A giant cabbage.",
+    description: translate("description.giant.cabbage"),
     sfl: new Decimal(0),
     ingredients: {
       "Potion Ticket": new Decimal(1000),

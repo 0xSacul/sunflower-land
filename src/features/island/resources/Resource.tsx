@@ -26,6 +26,7 @@ import { Crimstone } from "features/game/expansion/components/resources/crimston
 import { Beehive } from "features/game/expansion/components/resources/beehive/Beehive";
 import { FlowerBed } from "../flowers/FlowerBed";
 import { Sunstone } from "features/game/expansion/components/resources/sunstone/Sunstone";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 export interface ResourceProps {
   name: ResourceName;
@@ -163,12 +164,12 @@ export const READONLY_RESOURCE_COMPONENTS: Record<
   ),
   "Sunstone Rock": () => (
     <img
-      src={SUNNYSIDE.resource.iron_rock}
+      src={ITEM_DETAILS["Sunstone Rock"].image}
       className="absolute h-auto w-full"
       style={{
-        width: `${PIXEL_SCALE * 18}px`,
-        bottom: `${PIXEL_SCALE * 7}px`,
-        left: `${PIXEL_SCALE * 7}px`,
+        width: `${PIXEL_SCALE * 24}px`,
+        bottom: `${PIXEL_SCALE * 1}px`,
+        left: `${PIXEL_SCALE * 4}px`,
       }}
     />
   ),
@@ -202,6 +203,7 @@ const LockedResource: React.FC<ResourceProps> = (props) => {
   const [showPopover, setShowPopover] = useState(false);
 
   const Component = RESOURCE_COMPONENTS[props.name];
+  const { t } = useAppTranslation();
 
   return (
     <div
@@ -219,12 +221,12 @@ const LockedResource: React.FC<ResourceProps> = (props) => {
           <InnerPanel className="absolute whitespace-nowrap w-fit z-50">
             <div className="flex items-center space-x-2 mx-1 p-1">
               <SquareIcon icon={lockIcon} width={5} />
-              <span className="text-xxs mb-0.5">AoE Locked</span>
+              <span className="text-xxs mb-0.5">{t("aoe.locked")}</span>
             </div>
           </InnerPanel>
         </div>
       )}
-      <div className="relative">
+      <div className="relative w-full h-full pointer-events-none">
         <Component {...props} />
       </div>
     </div>

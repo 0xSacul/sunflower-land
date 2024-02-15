@@ -1,4 +1,4 @@
-import { GameState, InventoryItemName, IslandType } from "../types/game";
+import { GameState, InventoryItemName, IslandType } from "./game";
 import { Coordinates } from "../expansion/components/MapPlacement";
 import { TOTAL_EXPANSION_NODES } from "../expansion/lib/expansionNodes";
 
@@ -28,7 +28,13 @@ export function getPlayerGroup(id: string): 0 | 1 | 2 {
   return groupId as 0 | 1 | 2;
 }
 
-function getBasicLand({ id, expansion }: { id: number; expansion: number }) {
+export function getBasicLand({
+  id,
+  expansion,
+}: {
+  id: number;
+  expansion: number;
+}) {
   if (expansion === 4) {
     return LAND_4_LAYOUT;
   }
@@ -49,13 +55,19 @@ function getBasicLand({ id, expansion }: { id: number; expansion: number }) {
     return LAND_8_LAYOUT;
   }
 
-  if (expansion >= 9 && expansion <= 11) {
-    const group = getPlayerGroup(id.toString());
-    const positionInPack = (expansion + group) % 3;
-
-    return LAND_PACK_TWO[positionInPack];
+  if (expansion === 9) {
+    return LAND_9_LAYOUT;
   }
 
+  if (expansion === 10) {
+    return LAND_10_LAYOUT;
+  }
+
+  if (expansion === 11) {
+    return LAND_11_LAYOUT;
+  }
+
+  // LEGACY - can remove from Feb 1st
   if (expansion >= 12 && expansion <= 14) {
     const group = getPlayerGroup(id.toString());
     const positionInPack = (expansion + group) % 3;
@@ -266,7 +278,12 @@ export const LAND_5_LAYOUT: Layout = {
       y: -1,
     },
   ],
-  trees: [],
+  trees: [
+    {
+      x: -3,
+      y: 2,
+    },
+  ],
 } as Layout;
 
 export const LAND_6_LAYOUT: Layout = {
@@ -378,12 +395,12 @@ export const LAND_9_LAYOUT: Layout = {
   id: "9",
   plots: [
     {
-      x: 1,
-      y: 2,
+      x: 0,
+      y: 3,
     },
     {
-      x: 0,
-      y: 2,
+      x: 1,
+      y: 3,
     },
   ],
   fruitPatches: [],
@@ -435,7 +452,6 @@ export const LAND_10_LAYOUT: Layout = {
     },
   ],
 } as Layout;
-
 export const LAND_11_LAYOUT: Layout = {
   id: "11",
   plots: [
@@ -474,7 +490,6 @@ export const LAND_11_LAYOUT: Layout = {
     },
   ],
 } as Layout;
-
 export const LAND_12_LAYOUT: Layout = {
   id: "12",
   plots: [],
@@ -821,14 +836,6 @@ export const SPRING_LAND_5_LAYOUT: Layout = {
       x: -1,
       y: 0,
     },
-    {
-      x: -2,
-      y: -1,
-    },
-    {
-      x: -1,
-      y: -1,
-    },
   ],
   fruitPatches: [
     {
@@ -936,7 +943,7 @@ export const SPRING_LAND_7_LAYOUT: Layout = {
   crimstones: [
     {
       x: -1,
-      y: -2,
+      y: -1,
     },
   ],
   sunstones: [],
@@ -1083,12 +1090,7 @@ export const SPRING_LAND_11_LAYOUT: Layout = {
       y: 2,
     },
   ],
-  crimstones: [
-    {
-      x: -1,
-      y: 0,
-    },
-  ],
+
   sunstones: [],
   trees: [
     {
@@ -1213,7 +1215,12 @@ export const SPRING_LAND_15_LAYOUT: Layout = {
       y: 0,
     },
   ],
-  crimstones: [],
+  crimstones: [
+    {
+      x: -1,
+      y: 1,
+    },
+  ],
   sunstones: [],
   trees: [
     {
@@ -1241,12 +1248,7 @@ export const SPRING_LAND_16_LAYOUT: Layout = {
   ],
   iron: [],
   stones: [],
-  crimstones: [
-    {
-      x: -3,
-      y: 0,
-    },
-  ],
+
   sunstones: [],
   trees: [
     {
@@ -1333,7 +1335,12 @@ export const SPRING_LAND_19_LAYOUT: Layout = {
   gold: [],
   iron: [],
   stones: [],
-  crimstones: [],
+  crimstones: [
+    {
+      x: -3,
+      y: 0,
+    },
+  ],
   sunstones: [],
   trees: [],
   beehives: [],
@@ -1367,7 +1374,7 @@ export const SPRING_LAND_20_LAYOUT: Layout = {
   id: "spring_20",
 };
 
-const SPRING_LAYOUTS: Record<number, Layout> = {
+export const SPRING_LAYOUTS: Record<number, Layout> = {
   5: SPRING_LAND_5_LAYOUT,
   6: SPRING_LAND_6_LAYOUT,
   7: SPRING_LAND_7_LAYOUT,
@@ -1637,7 +1644,7 @@ const SPRING_LAND_5_REQUIREMENTS: Requirements = {
     Wood: 20,
   },
   seconds: 60,
-  bumpkinLevel: 15,
+  bumpkinLevel: 11,
 };
 
 const SPRING_LAND_6_REQUIREMENTS: Requirements = {
@@ -1647,7 +1654,7 @@ const SPRING_LAND_6_REQUIREMENTS: Requirements = {
     Gold: 2,
   },
   seconds: 5 * 60,
-  bumpkinLevel: 17,
+  bumpkinLevel: 13,
 };
 
 const SPRING_LAND_7_REQUIREMENTS: Requirements = {
@@ -1657,18 +1664,18 @@ const SPRING_LAND_7_REQUIREMENTS: Requirements = {
     Iron: 5,
     "Block Buck": 1,
   },
-  seconds: 4 * 60 * 60,
-  bumpkinLevel: 19,
+  seconds: 30 * 60,
+  bumpkinLevel: 16,
 };
 
 const SPRING_LAND_8_REQUIREMENTS: Requirements = {
   resources: {
     Wood: 20,
-    Crimstone: 2,
+    Crimstone: 1,
     "Block Buck": 1,
   },
-  seconds: 8 * 60 * 60,
-  bumpkinLevel: 21,
+  seconds: 2 * 60 * 60,
+  bumpkinLevel: 20,
 };
 
 const SPRING_LAND_9_REQUIREMENTS: Requirements = {
@@ -1677,7 +1684,7 @@ const SPRING_LAND_9_REQUIREMENTS: Requirements = {
     Gold: 5,
     "Block Buck": 1,
   },
-  seconds: 12 * 60 * 60,
+  seconds: 2 * 60 * 60,
   bumpkinLevel: 23,
 };
 
@@ -1687,7 +1694,7 @@ const SPRING_LAND_10_REQUIREMENTS: Requirements = {
     Crimstone: 3,
     "Block Buck": 1,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 4 * 60 * 60,
   bumpkinLevel: 25,
 };
 
@@ -1699,7 +1706,7 @@ const SPRING_LAND_11_REQUIREMENTS: Requirements = {
     Crimstone: 1,
     "Block Buck": 1,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 8 * 60 * 60,
   bumpkinLevel: 27,
 };
 
@@ -1710,7 +1717,7 @@ const SPRING_LAND_12_REQUIREMENTS: Requirements = {
     Crimstone: 3,
     "Block Buck": 2,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 12 * 60 * 60,
   bumpkinLevel: 29,
 };
 
@@ -1722,7 +1729,7 @@ const SPRING_LAND_13_REQUIREMENTS: Requirements = {
     Gold: 10,
     "Block Buck": 2,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 12 * 60 * 60,
 
   bumpkinLevel: 32,
 };
@@ -1745,7 +1752,7 @@ const SPRING_LAND_15_REQUIREMENTS: Requirements = {
     Stone: 10,
     Iron: 10,
     Gold: 5,
-    Crimstone: 3,
+    Crimstone: 5,
     "Block Buck": 2,
   },
   seconds: 24 * 60 * 60,
@@ -1758,7 +1765,7 @@ const SPRING_LAND_16_REQUIREMENTS: Requirements = {
     Wood: 100,
     Stone: 10,
     Gold: 5,
-    Crimstone: 5,
+    Crimstone: 8,
     "Block Buck": 2,
   },
   seconds: 24 * 60 * 60,
@@ -1772,10 +1779,10 @@ const SPRING_LAND_17_REQUIREMENTS: Requirements = {
     Stone: 20,
     Iron: 10,
     Gold: 5,
-    Crimstone: 5,
+    Crimstone: 12,
     "Block Buck": 2,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 36 * 60 * 60,
 
   bumpkinLevel: 47,
 };
@@ -1786,10 +1793,10 @@ const SPRING_LAND_18_REQUIREMENTS: Requirements = {
     Stone: 20,
     Iron: 10,
     Gold: 5,
-    Crimstone: 5,
+    Crimstone: 16,
     "Block Buck": 2,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 36 * 60 * 60,
 
   bumpkinLevel: 51,
 };
@@ -1800,10 +1807,10 @@ const SPRING_LAND_19_REQUIREMENTS: Requirements = {
     Stone: 10,
     Iron: 5,
     Gold: 5,
-    Crimstone: 5,
+    Crimstone: 20,
     "Block Buck": 2,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 36 * 60 * 60,
 
   bumpkinLevel: 53,
 };
@@ -1814,10 +1821,10 @@ const SPRING_LAND_20_REQUIREMENTS: Requirements = {
     Stone: 5,
     Iron: 5,
     Gold: 5,
-    Crimstone: 10,
+    Crimstone: 24,
     "Block Buck": 2,
   },
-  seconds: 24 * 60 * 60,
+  seconds: 48 * 60 * 60,
 
   bumpkinLevel: 55,
 };
@@ -1833,6 +1840,7 @@ export const EXPANSION_REQUIREMENTS: Record<
     7: LAND_7_REQUIREMENTS,
     8: LAND_8_REQUIREMENTS,
     9: LAND_9_REQUIREMENTS,
+    // LEGACY - used for refunding expansions - do not remove
     10: LAND_10_REQUIREMENTS,
     11: LAND_11_REQUIREMENTS,
     12: LAND_12_REQUIREMENTS,
@@ -1869,4 +1877,57 @@ export const EXPANSION_REQUIREMENTS: Record<
   desert: {
     // TODO
   },
+};
+
+/**
+ * Minimum Bumpkin level to work on a land.
+ * Prevents abuse of bumpkin swapping and reuse
+ */
+export const BUMPKIN_EXPANSIONS_LEVEL: Record<
+  IslandType,
+  Record<number, number>
+> = {
+  basic: {
+    3: 1,
+    4: 1,
+    5: 1,
+    6: 1,
+    7: 1,
+    8: 3,
+    9: 3,
+    10: 5,
+    11: 12,
+    12: 17,
+    13: 20,
+    14: 23,
+    15: 25,
+    16: 30,
+    17: 30,
+    18: 30,
+    19: 40,
+    20: 40,
+    21: 45,
+    22: 45,
+    23: 50,
+  },
+  spring: {
+    4: 10,
+    5: 10,
+    6: 10,
+    7: 15,
+    8: 17,
+    9: 20,
+    10: 23,
+    11: 25,
+    12: 25,
+    13: 30,
+    14: 30,
+    15: 35,
+    16: 35,
+    17: 40,
+    18: 40,
+    19: 45,
+    20: 50,
+  },
+  desert: {},
 };

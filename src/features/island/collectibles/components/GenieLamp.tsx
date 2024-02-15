@@ -15,6 +15,7 @@ import genieImg from "assets/npcs/genie.png";
 import { setImageWidth } from "lib/images";
 import { Button } from "components/ui/Button";
 import { CloseButtonPanel } from "features/game/components/CloseablePanel";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 interface Props {
   id: string;
@@ -32,6 +33,8 @@ export const GenieLamp: React.FC<Props> = ({ id }) => {
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
+
+  const { t } = useAppTranslation();
 
   const rub = () => {
     setIsConfirming(false);
@@ -75,7 +78,7 @@ export const GenieLamp: React.FC<Props> = ({ id }) => {
         <CloseButtonPanel
           className="z-10"
           onClose={() => setIsConfirming(false)}
-          title="Ready to make a wish?"
+          title={t("genieLamp.ready.wish")}
         >
           <div className="flex flex-col items-center p-2">
             <img
@@ -90,23 +93,26 @@ export const GenieLamp: React.FC<Props> = ({ id }) => {
                 height: "24px",
               }}
             >
-              {wishesRemaining} wish{wishesRemaining > 1 && "es"} remaining!
+              {wishesRemaining} {t("wish")}
+              {wishesRemaining > 1 && "es"} {t("remaining")}
+              {"!"}
             </span>
             {!hasBeenRubbed && (
               <span className="text-center text-xs mb-1">
-                {"You cannot withdraw the lamp once it has been rubbed. "}
+                {t("genieLamp.cannotWithdraw")}
+                {"."}
                 <a
                   className="underline"
                   href="https://docs.sunflower-land.com/player-guides/islands/treasure-island#genie-lamp"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Read more
+                  {t("read.more")}
                 </a>
               </span>
             )}
           </div>
-          <Button onClick={rub}>Make a wish</Button>
+          <Button onClick={rub}>{t("make.wish")}</Button>
         </CloseButtonPanel>
       </Modal>
 

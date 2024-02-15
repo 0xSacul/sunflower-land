@@ -9,6 +9,9 @@ import {
 } from "features/game/types/stylist";
 import { Context } from "features/game/GameProvider";
 import { useActor } from "@xstate/react";
+import { hasFeatureAccess } from "lib/flags";
+import { MegaStore } from "../megastore/MegaStore";
+import { hasSeasonStarted } from "features/game/types/seasons";
 
 interface Props {
   onClose: () => void;
@@ -21,6 +24,13 @@ export const Stylist: React.FC<Props> = ({ onClose }) => {
     },
   ] = useActor(gameService);
   const [tab, setTab] = useState(0);
+
+  if (
+    hasSeasonStarted("Spring Blossom") ||
+    hasFeatureAccess(state, "MEGA_STORE")
+  ) {
+    return <MegaStore onClose={onClose} />;
+  }
 
   return (
     <CloseButtonPanel

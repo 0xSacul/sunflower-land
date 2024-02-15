@@ -17,8 +17,7 @@ import { Panel } from "components/ui/Panel";
 import { Success } from "../components/Success";
 import { Syncing } from "../components/Syncing";
 
-import logo from "assets/brand/logo_v2.png";
-import winterLogo from "assets/brand/winter_logo.png";
+import dragonLogo from "assets/brand/dragon_logo.gif";
 import sparkle from "assets/fx/sparkle2.gif";
 import ocean from "assets/decorations/ocean.webp";
 
@@ -54,8 +53,9 @@ import { Label } from "components/ui/Label";
 import { SUNNYSIDE } from "assets/sunnyside";
 import { CONFIG } from "lib/config";
 import { Home } from "features/home/Home";
-import { hasFeatureAccess } from "lib/flags";
 import { Wallet } from "features/wallet/Wallet";
+import { WeakBumpkin } from "features/island/bumpkin/WeakBumpkin";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 export const AUTO_SAVE_INTERVAL = 1000 * 30; // autosave every 30 seconds
 const SHOW_MODAL: Record<StateValues, boolean> = {
@@ -71,6 +71,7 @@ const SHOW_MODAL: Record<StateValues, boolean> = {
   hoarding: true,
   landscaping: false,
   noBumpkinFound: true,
+  weakBumpkin: true,
   swarming: true,
   coolingDown: true,
   gameRules: true,
@@ -124,6 +125,7 @@ const isPurchasing = (state: MachineState) =>
   state.matches({ buyingBlockBucks: "transacting" });
 const isNoBumpkinFound = (state: MachineState) =>
   state.matches("noBumpkinFound");
+const isWeakBumpkin = (state: MachineState) => state.matches("weakBumpkin");
 const isCoolingDown = (state: MachineState) => state.matches("coolingDown");
 const isGameRules = (state: MachineState) => state.matches("gameRules");
 const isDepositing = (state: MachineState) => state.matches("depositing");
@@ -145,16 +147,14 @@ const isRefundingAuction = (state: MachineState) =>
 const isPromoing = (state: MachineState) => state.matches("promo");
 const isBlacklisted = (state: MachineState) => state.matches("blacklisted");
 const hasAirdrop = (state: MachineState) => state.matches("airdrop");
-const accessHome = (state: MachineState) =>
-  hasFeatureAccess(state.context.state, "HOME");
+const hasSpecialOffer = (state: MachineState) => state.matches("specialOffer");
 
 const GameContent = () => {
   const { gameService } = useContext(Context);
 
   const visiting = useSelector(gameService, isVisiting);
   const landToVisitNotFound = useSelector(gameService, isLandToVisitNotFound);
-  const canAccessHome = useSelector(gameService, accessHome);
-
+  const { t } = useAppTranslation();
   if (landToVisitNotFound) {
     return (
       <>
@@ -175,7 +175,9 @@ const GameContent = () => {
               }}
             >
               <div className="flex flex-col items-center">
-                <h2 className="text-center">Island Not Found!</h2>
+                <h2 className="text-center">
+                  {t("visitislandNotFound.title")}
+                </h2>
                 <img src={land} className="h-9 my-3" />
               </div>
               <VisitLandExpansionForm />
@@ -205,7 +207,7 @@ const GameContent = () => {
           <Route path="/" element={<Land />} />
           {/* Legacy route */}
           <Route path="/farm" element={<Land />} />
-          {canAccessHome && <Route path="/home" element={<Home />} />}
+          <Route path="/home" element={<Home />} />
           <Route path="/helios" element={<Helios key="helios" />} />
           <Route path="*" element={<IslandNotFound />} />
         </Routes>
@@ -239,6 +241,7 @@ export const GameWrapper: React.FC = ({ children }) => {
   const hoarding = useSelector(gameService, isHoarding);
   const swarming = useSelector(gameService, isSwarming);
   const noBumpkinFound = useSelector(gameService, isNoBumpkinFound);
+  const weakBumpkin = useSelector(gameService, isWeakBumpkin);
   const coolingDown = useSelector(gameService, isCoolingDown);
   const gameRules = useSelector(gameService, isGameRules);
   const depositing = useSelector(gameService, isDepositing);
@@ -254,7 +257,9 @@ export const GameWrapper: React.FC = ({ children }) => {
   const promo = useSelector(gameService, isPromoing);
   const blacklisted = useSelector(gameService, isBlacklisted);
   const airdrop = useSelector(gameService, hasAirdrop);
+  const specialOffer = useSelector(gameService, hasSpecialOffer);
 
+  const { t } = useAppTranslation();
   useInterval(() => {
     gameService.send("SAVE");
   }, AUTO_SAVE_INTERVAL);
@@ -320,27 +325,25 @@ export const GameWrapper: React.FC = ({ children }) => {
                     right: `${PIXEL_SCALE * 0}px`,
                   }}
                 />
-                {Date.now() > new Date("2023-12-10").getTime() &&
-                Date.now() < new Date("2023-12-27").getTime() ? (
-                  <>
-                    <img id="logo" src={winterLogo} className="w-full mb-1" />
-                    <div className="flex items-center justify-center">
-                      <Label icon={SUNNYSIDE.icons.stopwatch} type="vibrant">
-                        Christmas event!
-                      </Label>
-                      <Label type="default" className="ml-2">
-                        {CONFIG.RELEASE_VERSION?.split("-")[0]}
-                      </Label>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <img id="logo" src={logo} className="w-full" />
-                    <Label type="default" className="mx-auto">
+                <>
+                  <img id="logo" src={dragonLogo} className="w-full" />
+                  <div className="flex justify-center">
+                    <Label type="default">
                       {CONFIG.RELEASE_VERSION?.split("-")[0]}
                     </Label>
-                  </>
-                )}
+
+                    {Date.now() > new Date("2024-02-09").getTime() &&
+                      Date.now() < new Date("2024-02-16").getTime() && (
+                        <Label
+                          secondaryIcon={SUNNYSIDE.icons.stopwatch}
+                          type="vibrant"
+                          className="ml-2"
+                        >
+                          {t("event.LunarNewYear")}
+                        </Label>
+                      )}
+                  </div>
+                </>
               </div>
             </div>
             <Panel>
@@ -386,6 +389,7 @@ export const GameWrapper: React.FC = ({ children }) => {
               <NoBumpkin />
             </Wallet>
           )}
+          {weakBumpkin && <WeakBumpkin />}
 
           {coolingDown && <Cooldown />}
           {gameRules && <Rules />}
@@ -397,6 +401,7 @@ export const GameWrapper: React.FC = ({ children }) => {
           {minting && <Minting />}
           {promo && <Promo />}
           {airdrop && <AirdropPopup />}
+          {specialOffer && <SpecialOffer />}
         </Panel>
       </Modal>
 

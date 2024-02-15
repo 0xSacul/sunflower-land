@@ -1,5 +1,6 @@
 import Decimal from "decimal.js-light";
 import { TOTAL_EXPANSION_NODES } from "features/game/expansion/lib/expansionNodes";
+import { EXPIRY_COOLDOWNS } from "features/game/lib/collectibleBuilt";
 import { getKeys } from "features/game/types/craftables";
 import {
   GameState,
@@ -9,7 +10,7 @@ import {
 } from "features/game/types/game";
 
 import cloneDeep from "lodash.clonedeep";
-import { expansionRequirements } from "./revealLand";
+import { translate } from "lib/i18n/translate";
 
 export type UpgradeFarmAction = {
   type: "farm.upgraded";
@@ -290,7 +291,7 @@ const INITIAL_LAND: Pick<
       width: 1,
       height: 1,
       stone: {
-        amount: 0,
+        amount: 2,
         minedAt: 0,
       },
     },
@@ -302,7 +303,7 @@ const INITIAL_LAND: Pick<
       width: 1,
       height: 1,
       stone: {
-        amount: 0,
+        amount: 1,
         minedAt: 0,
       },
     },
@@ -383,6 +384,50 @@ function springUpgrade(state: GameState) {
     }
   });
 
+  game.airdrops = [
+    ...(game.airdrops ?? []),
+    {
+      id: "spring-upgrade-reward",
+      coordinates: {
+        x: -1,
+        y: 7,
+      },
+      createdAt: 0,
+      items: {
+        Blossombeard: 1,
+      },
+      sfl: 0,
+      wearables: {},
+      message: translate("islandupgrade.welcomePetalParadise"),
+    },
+  ];
+
+  return game;
+}
+
+/**
+ * Any stale items that are still on the island or home
+ */
+export function expireItems({
+  game,
+  createdAt,
+}: {
+  game: GameState;
+  createdAt: number;
+}) {
+  const inActiveTimeWarps = [
+    ...(game.collectibles["Time Warp Totem"] ?? []),
+    ...(game.home.collectibles["Time Warp Totem"] ?? []),
+  ].filter(
+    (totem) =>
+      totem.createdAt + (EXPIRY_COOLDOWNS["Time Warp Totem"] ?? 0) < createdAt
+  ).length;
+
+  if (inActiveTimeWarps > 0) {
+    const previous = game.inventory["Time Warp Totem"] ?? new Decimal(0);
+    game.inventory["Time Warp Totem"] = previous.sub(inActiveTimeWarps);
+  }
+
   return game;
 }
 
@@ -411,6 +456,9 @@ export function upgrade({ state, action, createdAt = Date.now() }: Options) {
     game.inventory[name as InventoryItemName] = amount.minus(required);
   });
 
+  // Remove any time sensitive items that have expired
+  game = expireItems({ game, createdAt });
+
   // Clear all in progress items
   game.collectibles = {};
   game.buildings = {};
@@ -418,7 +466,7 @@ export function upgrade({ state, action, createdAt = Date.now() }: Options) {
   game.fishing.wharf = {};
   game.mushrooms = {
     mushrooms: {},
-    spawnedAt: createdAt,
+    spawnedAt: game.mushrooms?.spawnedAt ?? 0,
   };
   game.buds = getKeys(game.buds ?? {}).reduce(
     (acc, key) => ({
@@ -456,11 +504,6 @@ export function upgrade({ state, action, createdAt = Date.now() }: Options) {
       ...game,
       ...INITIAL_LAND,
     };
-
-  game.expansionRequirements = expansionRequirements({
-    level: (game.inventory["Basic Land"]?.toNumber() ?? 0) + 1,
-    game,
-  });
 
   return {
     ...game,

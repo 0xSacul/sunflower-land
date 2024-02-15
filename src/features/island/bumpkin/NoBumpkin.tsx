@@ -10,9 +10,15 @@ import { wallet } from "lib/blockchain/wallet";
 import { OuterPanel } from "components/ui/Panel";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import { DynamicNFT } from "features/bumpkins/components/DynamicNFT";
+import { BUMPKIN_EXPANSIONS_LEVEL } from "features/game/types/expansions";
+import { useActor } from "@xstate/react";
+import { Label } from "components/ui/Label";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 export const NoBumpkin: React.FC = () => {
+  const { t } = useAppTranslation();
   const { gameService } = useContext(Context);
+  const [gameState] = useActor(gameService);
 
   const [selectedBumpkinId, setSelectedBumpkinId] = useState<number>();
 
@@ -20,6 +26,11 @@ export const NoBumpkin: React.FC = () => {
   const [farmBumpkins, setFarmBumpkins] = useState<OnChainBumpkin[]>();
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const requiredLevel =
+    BUMPKIN_EXPANSIONS_LEVEL[gameState.context.state.island.type][
+      gameState.context.state.inventory["Basic Land"]?.toNumber() ?? 3
+    ];
 
   useEffect(() => {
     const load = async () => {
@@ -72,7 +83,7 @@ export const NoBumpkin: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-2">
-        <p className="loading">Loading</p>
+        <p className="loading">{t("loading")}</p>
       </div>
     );
   }
@@ -81,11 +92,9 @@ export const NoBumpkin: React.FC = () => {
     return (
       <>
         <div className="p-2">
-          <p className="mb-2 text-center">
-            Awesome, your Bumpkin is ready to farm!
-          </p>
+          <p className="mb-2 text-center">{t("noBumpkin.readyToFarm")}</p>
         </div>
-        <Button onClick={refresh}>Play</Button>
+        <Button onClick={refresh}>{t("noBumpkin.play")}</Button>
       </>
     );
   }
@@ -94,16 +103,18 @@ export const NoBumpkin: React.FC = () => {
     return (
       <>
         <div className="flex items-center flex-col p-2">
-          <span>You are missing your Bumpkin</span>
+          <span> {t("noBumpkin.missingBumpkin")}</span>
           <img src={SUNNYSIDE.icons.heart} className="w-20 my-2" />
+          <p className="text-sm my-2">{t("noBumpkin.bumpkinNFT")}</p>
+          <p className="text-sm my-2">{t("noBumpkin.bumpkinHelp")}</p>
+          <Label
+            type="danger"
+            className="mx-auto my-2"
+          >{`Level ${requiredLevel} required`}</Label>
           <p className="text-sm my-2">
-            A Bumpkin is an NFT that is minted on the Blockchain.
+            {t("noBumpkin.mintBumpkin")}
+            {":"}
           </p>
-          <p className="text-sm my-2">
-            You need a Bumpkin to help you plant, harvest, chop, mine and expand
-            your land.
-          </p>
-          <p className="text-sm my-2">You can get a Bumpkin from OpenSea:</p>
           <p className="text-xs sm:text-sm text-shadow text-white p-1">
             <a
               className="underline"
@@ -115,7 +126,7 @@ export const NoBumpkin: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              OpenSea
+              {t("opensea")}
             </a>
           </p>
         </div>
@@ -126,9 +137,9 @@ export const NoBumpkin: React.FC = () => {
   return (
     <>
       <div className="p-2">
-        <p className="mb-3 text-center">Wow, look at all those Bumpkins!</p>
+        <p className="mb-3 text-center">{t("noBumpkin.allBumpkins")}</p>
         <p className="mb-2 text-center text-xs">
-          Which Bumpkin would you like to play with?
+          {t("noBumpkin.chooseBumpkin")}
         </p>
         <div className="flex flex-wrap max-h-48 overflow-y-scroll">
           {(walletBumpkins ?? []).map((bumpkin) => {
@@ -159,9 +170,17 @@ export const NoBumpkin: React.FC = () => {
             );
           })}
         </div>
+        <p className="text-sm my-2">
+          {t("noBumpkin.advancedIsland")}
+          {":"}
+        </p>
+        <Label
+          type="danger"
+          className="mx-auto my-2"
+        >{`Level ${requiredLevel} required`}</Label>
       </div>
       <Button disabled={!selectedBumpkinId} onClick={deposit}>
-        Deposit
+        {t("noBumpkin.deposit")}
       </Button>
     </>
   );

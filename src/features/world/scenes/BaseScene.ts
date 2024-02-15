@@ -21,8 +21,8 @@ import {
 } from "../mmoMachine";
 import { Player, PlazaRoomState } from "../types/Room";
 import { playerModalManager } from "../ui/PlayerModals";
-import { hasFeatureAccess } from "lib/flags";
 import { GameState } from "features/game/types/game";
+import { translate } from "lib/i18n/translate";
 import { Room } from "colyseus.js";
 
 import defaultTilesetConfig from "assets/map/tileset.json";
@@ -31,6 +31,7 @@ import {
   AudioLocalStorageKeys,
   getCachedAudioSetting,
 } from "../../game/lib/audio";
+import { MachineInterpreter } from "features/game/lib/gameMachine";
 
 type SceneTransitionData = {
   previousSceneId: SceneId;
@@ -55,6 +56,8 @@ type BaseSceneOptions = {
     tilesetUrl?: string;
     json: any;
     padding?: [number, number];
+    imageKey?: string;
+    defaultTilesetConfig?: any;
   };
   mmo?: {
     enabled: boolean;
@@ -133,7 +136,7 @@ export abstract class BaseScene extends Phaser.Scene {
 
   constructor(options: BaseSceneOptions) {
     if (!options.name) {
-      throw new Error("Missing name in config");
+      throw new Error(translate("base.missing"));
     }
 
     const defaultedOptions: Required<BaseSceneOptions> = {
@@ -154,21 +157,15 @@ export abstract class BaseScene extends Phaser.Scene {
     if (this.options.map?.json) {
       const json = {
         ...this.options.map.json,
-        tilesets: defaultTilesetConfig.tilesets,
+        tilesets:
+          this.options.map.defaultTilesetConfig ??
+          defaultTilesetConfig.tilesets,
       };
       this.load.tilemapTiledJSON(this.options.name, json);
     }
 
     if (this.options.map?.tilesetUrl)
       this.load.image("community-tileset", this.options.map.tilesetUrl);
-
-    // Shut down the sound when the scene changes
-    const event = this.events.once("shutdown", () => {
-      this.sound.getAllPlaying().forEach((sound) => {
-        sound.destroy();
-      });
-      this.soundEffects = [];
-    });
   }
 
   init(data: SceneTransitionData) {
@@ -241,7 +238,7 @@ export abstract class BaseScene extends Phaser.Scene {
       : // Standard tileset
         (this.map.addTilesetImage(
           "Sunnyside V3",
-          "tileset",
+          this.options.map.imageKey ?? "tileset",
           16,
           16,
           1,
@@ -493,6 +490,10 @@ export abstract class BaseScene extends Phaser.Scene {
     return this.registry.get("id") as number;
   }
 
+  public get gameService() {
+    return this.registry.get("gameService") as MachineInterpreter;
+  }
+
   public get username() {
     return this.gameState.username;
   }
@@ -523,7 +524,7 @@ export abstract class BaseScene extends Phaser.Scene {
       );
 
       if (distance > 50) {
-        entity.speak("You are too far away");
+        entity.speak(translate("base.far.away"));
         return;
       }
 
@@ -594,10 +595,7 @@ export abstract class BaseScene extends Phaser.Scene {
 
           // Change scenes
           const warpTo = (obj2 as any).data?.list?.warp;
-          if (
-            warpTo &&
-            (warpTo !== "beach" || hasFeatureAccess(this.gameState, "BEACH"))
-          ) {
+          if (warpTo) {
             this.currentPlayer?.stopSpeaking();
             this.cameras.main.fadeOut(1000);
 

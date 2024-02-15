@@ -16,7 +16,7 @@ import { Section } from "lib/utils/hooks/useScrollIntoView";
 import { HomeBumpkins } from "./HomeBumpkins";
 
 export const House: React.FC<BuildingProps> = ({ isBuilt, onRemove }) => {
-  const { gameService } = useContext(Context);
+  const { gameService, showAnimations } = useContext(Context);
   const [gameState] = useActor(gameService);
 
   const [showHeart, setShowHeart] = useState(false);
@@ -72,7 +72,7 @@ export const House: React.FC<BuildingProps> = ({ isBuilt, onRemove }) => {
       </BuildingImageWrapper>
       <div
         className="absolute"
-        style={{ left: `${PIXEL_SCALE * 7}px`, top: `${PIXEL_SCALE * 14}px` }}
+        style={{ left: `${PIXEL_SCALE * 7}px`, top: `${PIXEL_SCALE * -16}px` }}
       >
         <DailyReward />
       </div>
@@ -80,7 +80,7 @@ export const House: React.FC<BuildingProps> = ({ isBuilt, onRemove }) => {
       <div
         className="absolute w-full"
         style={{
-          top: `${PIXEL_SCALE * 16}px`,
+          bottom: `${PIXEL_SCALE * 0}px`,
           left: `${PIXEL_SCALE * 4}px`,
           height: `${PIXEL_SCALE * 32}px`,
         }}
@@ -100,7 +100,10 @@ export const House: React.FC<BuildingProps> = ({ isBuilt, onRemove }) => {
 
       <img
         src={SUNNYSIDE.icons.heart}
-        className="absolute animate-float transition-opacity pointer-events-none"
+        className={
+          "absolute transition-opacity pointer-events-none" +
+          (showAnimations ? " animate-float" : "")
+        }
         style={{
           width: `${PIXEL_SCALE * 10}px`,
           top: `${PIXEL_SCALE * 10}px`,

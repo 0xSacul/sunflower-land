@@ -29,6 +29,7 @@ import {
   GoblinBlacksmithItemName,
   GoblinPirateItemName,
   HeliosBlacksmithItem,
+  MegaStoreCollectibleName,
   PotionHouseItemName,
   PurchasableItems,
   SoldOutCollectibleName,
@@ -115,14 +116,43 @@ const fruits: Record<FruitName, () => boolean> = {
   Apple: () => true,
   Blueberry: () => true,
   Orange: () => true,
-  Banana: () => canWithdrawTimebasedItem(new Date("2024-02-01")),
+  Banana: () => true,
 };
 
 const flowers: Record<FlowerName, () => boolean> = {
-  "Flower 1": () => false,
-  "Flower 2": () => false,
-  "Flower 3": () => false,
-  "Flower 4": () => false,
+  "Red Pansy": () => false,
+  "Yellow Pansy": () => false,
+  "Purple Pansy": () => false,
+  "White Pansy": () => false,
+  "Blue Pansy": () => false,
+  "Red Cosmos": () => false,
+  "Yellow Cosmos": () => false,
+  "Purple Cosmos": () => false,
+  "White Cosmos": () => false,
+  "Blue Cosmos": () => false,
+  "Red Balloon Flower": () => false,
+  "Yellow Balloon Flower": () => false,
+  "Purple Balloon Flower": () => false,
+  "White Balloon Flower": () => false,
+  "Blue Balloon Flower": () => false,
+  "Red Carnation": () => false,
+  "Yellow Carnation": () => false,
+  "Purple Carnation": () => false,
+  "White Carnation": () => false,
+  "Blue Carnation": () => false,
+  "Prism Petal": () => false,
+  "Primula Enigma": () => false,
+  "Celestial Frostbloom": () => false,
+  "Red Daffodil": () => false,
+  "Yellow Daffodil": () => false,
+  "Purple Daffodil": () => false,
+  "White Daffodil": () => false,
+  "Blue Daffodil": () => false,
+  "Red Lotus": () => false,
+  "Yellow Lotus": () => false,
+  "Purple Lotus": () => false,
+  "White Lotus": () => false,
+  "Blue Lotus": () => false,
 };
 
 const beans: Record<BeanName, () => boolean> = {
@@ -188,9 +218,9 @@ const heliosBlacksmith: Record<HeliosBlacksmithItem, () => boolean> = {
   "Grain Grinder": () => true,
   Kernaldo: () => true,
   Poppy: () => true,
-  Nana: () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
-  "Soil Krabby": () => canWithdrawTimebasedItem(new Date("2024-01-02")), // Available until 2024/01/01
-  "Skill Shrimpy": () => canWithdrawTimebasedItem(new Date("2024-02-02")), // Available until 2024/02/01
+  Nana: () => true,
+  "Soil Krabby": () => true,
+  "Skill Shrimpy": () => true,
 };
 
 const commodities: Record<CommodityName, () => boolean> = {
@@ -203,10 +233,10 @@ const commodities: Record<CommodityName, () => boolean> = {
   Stone: () => true,
   Iron: () => true,
   Gold: () => true,
-  Crimstone: () => true,
+  Crimstone: () => false,
+  Sunstone: () => false,
   Diamond: () => false,
 
-  Sunstone: () => false,
   Honey: () => false,
   Egg: () => true,
 };
@@ -232,6 +262,7 @@ const mutantChickens: Record<MutantChicken, () => boolean> = {
   "Speed Chicken": () => true,
   "El Pollo Veloz": () => true,
   "Banana Chicken": () => true,
+  "Crim Peckster": () => true,
 };
 
 const flags: Record<Flag, () => boolean> = {
@@ -328,6 +359,10 @@ const coupons: Record<Coupons, () => boolean> = {
   "Farmhand Coupon": () => false,
   Farmhand: () => false,
   "Tulip Bulb": () => false,
+  "Treasure Key": () => false,
+  "Luxury Key": () => false,
+  "Rare Key": () => false,
+  "Prize Ticket": () => false,
 };
 
 const buildings: Record<BuildingName, () => boolean> = {
@@ -482,6 +517,7 @@ const decorations: Record<ShopDecorationName, () => boolean> = {
 };
 
 const seasonalDecorations: Record<SeasonalDecorationName, () => boolean> = {
+  Blossombeard: () => false,
   Clementine: () => true,
   Cobalt: () => true,
   "Dawn Umbrella Seat": () => true,
@@ -494,12 +530,12 @@ const seasonalDecorations: Record<SeasonalDecorationName, () => boolean> = {
   Observer: () => true,
   "Crow Rock": () => true,
   "Mini Corn Maze": () => true,
-  "Beach Umbrella": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
-  "Hideaway Herman": () => canWithdrawTimebasedItem(new Date("2024-02-02")), // Available until 2024/02/01
-  "Lifeguard Ring": () => canWithdrawTimebasedItem(new Date("2024-02-02")), // Available until 2024/02/01
-  "Shifty Sheldon": () => canWithdrawTimebasedItem(new Date("2024-01-02")), // Available until 2024/01/01
-  "Tiki Torch": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
-  Surfboard: () => canWithdrawTimebasedItem(new Date("2024-01-02")), // Available until 2024/01/01
+  "Beach Umbrella": () => true,
+  "Hideaway Herman": () => true,
+  "Lifeguard Ring": () => true,
+  "Shifty Sheldon": () => true,
+  "Tiki Torch": () => true,
+  Surfboard: () => true,
 };
 
 const mutantCrop: Record<MutantCropName, () => boolean> = {
@@ -600,12 +636,16 @@ const soldOut: Record<SoldOutCollectibleName, () => boolean> = {
   "Queen Cornelia": () => true,
   "White Crow": () => true,
 
-  Walrus: () => canWithdrawTimebasedItem(new Date("2024-01-30")), // Last Auction 2024/01/28 5pm UTC
-  Alba: () => canWithdrawTimebasedItem(new Date("2024-01-21")), // Last Auction 2024/01/19 3pm UTC
-  "Knowledge Crab": () => canWithdrawTimebasedItem(new Date("2024-01-09")), // Last Auction 2024/01/07 3pm UTC
-  Anchor: () => canWithdrawTimebasedItem(new Date("2024-01-18")), // Last Auction 2024/01/16 3pm UTC
-  "Rubber Ducky": () => canWithdrawTimebasedItem(new Date("2024-01-12")), // Last Auction 2024/01/10 5pm UTC
-  "Kraken Head": () => canWithdrawTimebasedItem(new Date("2024-01-24")), // Last Auction 2024/01/22 5pm UTC
+  Walrus: () => true,
+  Alba: () => true,
+  "Knowledge Crab": () => true,
+  Anchor: () => true,
+  "Rubber Ducky": () => true,
+  "Kraken Head": () => true,
+  "Blossom Royale": () => canWithdrawTimebasedItem(new Date("2024-04-25")), // Last Auction 2024/04/24 5pm UTC
+  "Humming Bird": () => canWithdrawTimebasedItem(new Date("2024-04-22")), // Last Auction 2024/04/21 5pm UTC
+  "Hungry Caterpillar": () => canWithdrawTimebasedItem(new Date("2024-03-31")), // Last Auction 2024/03/30 5pm UTC
+  "Queen Bee": () => canWithdrawTimebasedItem(new Date("2024-03-19")), // Last Auction 2024/03/18 5pm UTC
 };
 
 const achievementDecoration: Record<AchievementDecorationName, () => boolean> =
@@ -697,10 +737,11 @@ const eventDecoration: Record<EventDecorationName, () => boolean> = {
   "Sapo Travessuras": () => true,
   "Time Warp Totem": () => false,
 
-  "Bumpkin Nutcracker": () => canWithdrawTimebasedItem(new Date("2023-12-27")),
+  "Bumpkin Nutcracker": () => true,
   "Festive Tree": () => false,
   "Grinx's Hammer": () => true,
   "White Festive Fox": () => true,
+  "Earn Alliance Banner": () => true,
 };
 
 const lanterns: Record<LanternName, () => boolean> = {
@@ -795,11 +836,22 @@ const fish: Record<FishName | MarineMarvelName, () => boolean> = {
   Angelfish: () => false,
   Halibut: () => false,
   Parrotfish: () => false,
+  "Crimson Carp": () => false,
 };
 
 const interiors: Record<InteriorDecorationName, () => boolean> = {
   Rug: () => false,
   Wardrobe: () => false,
+};
+
+const megastore: Record<MegaStoreCollectibleName, () => boolean> = {
+  Rainbow: () => canWithdrawTimebasedItem(new Date("2024-05-01")),
+  Capybara: () => canWithdrawTimebasedItem(new Date("2024-04-01")),
+  "Enchanted Rose": () => canWithdrawTimebasedItem(new Date("2024-04-01")),
+  "Flower Fox": () => canWithdrawTimebasedItem(new Date("2024-04-01")),
+  "Sunrise Bloom Rug": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
+  "Flower Rug": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
+  "Flower Cart": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
 };
 
 export const WITHDRAWABLES: Record<InventoryItemName, () => boolean> = {
@@ -842,6 +894,7 @@ export const WITHDRAWABLES: Record<InventoryItemName, () => boolean> = {
   ...purchasables,
   "Basic Land": () => false,
   ...lanterns,
+  ...megastore,
 
   // non-withdrawables
   ...skills,
@@ -1079,46 +1132,41 @@ export const BUMPKIN_WITHDRAWABLES: Record<
   "Feather Hat": () => true,
   "Valoria Wreath": () => true,
   "Earn Alliance Sombrero": () => true,
-  "Fresh Catch Vest": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
-  "Fish Pro Vest": () => canWithdrawTimebasedItem(new Date("2024-01-02")), // Available until 2024/01/01
-  "Reel Fishing Vest": () => canWithdrawTimebasedItem(new Date("2024-02-02")), // Available until 2024/02/01
-  "Clown Shirt": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
+  "Fresh Catch Vest": () => true,
+  "Fish Pro Vest": () => true,
+  "Reel Fishing Vest": () => true,
+  "Clown Shirt": () => true,
   "Luminous Anglerfish Topper": () => false,
-  "Abyssal Angler Hat": () => canWithdrawTimebasedItem(new Date("2024-01-06")), // Last Auction 2024/01/04 5pm UTC
+  "Abyssal Angler Hat": () => true,
   Harpoon: () => false,
-  "Ancient Rod": (state) =>
-    canWithdrawBoostedWearable("Ancient Rod", state) &&
-    canWithdrawTimebasedItem(new Date("2024-01-27")), // Last Auction 2024/01/25 3pm UTC
+  "Ancient Rod": (state) => canWithdrawBoostedWearable("Ancient Rod", state),
   "Fishing Hat": () => false,
   Trident: () => false,
   "Bucket O' Worms": () => false,
   "Coconut Mask": () => false,
   "Crab Trap": () => false,
-  "Seaside Tank Top": () => canWithdrawTimebasedItem(new Date("2024-01-02")), // Available until 2024/01/01
+  "Seaside Tank Top": () => true,
   "Fish Trap": () => false,
-  "Fishing Pants": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
+  "Fishing Pants": () => true,
   "Angler Waders": () => false,
-  "Fishing Spear": () => canWithdrawTimebasedItem(new Date("2024-01-02")), // Available until 2024/01/01
-  "Flip Flops": () => canWithdrawTimebasedItem(new Date("2024-02-02")),
-  Wellies: () => canWithdrawTimebasedItem(new Date("2024-02-02")),
-  "Saw Fish": () => canWithdrawTimebasedItem(new Date("2024-02-02")),
-  "Skinning Knife": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
+  "Fishing Spear": () => true,
+  "Flip Flops": () => true,
+  Wellies: () => true,
+  "Saw Fish": () => true,
+  "Skinning Knife": () => true,
   "Sunflower Rod": () => false,
-  "Tackle Box": () => canWithdrawTimebasedItem(new Date("2024-02-02")),
-  "Infernal Rod": () => canWithdrawTimebasedItem(new Date("2024-02-02")),
+  "Tackle Box": () => true,
+  "Infernal Rod": () => true,
   "Mermaid Potion": () => false,
   "Squirrel Monkey Potion": () => false,
-  "Koi Fish Hat": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
-  "Normal Fish Hat": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
-  "Stockeye Salmon Onesie": () =>
-    canWithdrawTimebasedItem(new Date("2024-02-02")), // Available until 2024/02/01
-  "Tiki Armor": () => canWithdrawTimebasedItem(new Date("2023-12-02")), // Available until 2023/12/01
-  "Tiki Mask": () => canWithdrawTimebasedItem(new Date("2024-01-02")), // Available until 2024/01/01
-  "Tiki Pants": () => canWithdrawTimebasedItem(new Date("2024-02-02")), // Available until 2024/02/01
+  "Koi Fish Hat": () => true,
+  "Normal Fish Hat": () => true,
+  "Stockeye Salmon Onesie": () => true,
+  "Tiki Armor": () => true,
+  "Tiki Mask": () => true,
+  "Tiki Pants": () => true,
   "Banana Amulet": (state) =>
-    canWithdrawBoostedWearable("Banana Amulet", state) &&
-    canWithdrawTimebasedItem(new Date("2024-01-15")), // Last Auction 2024/01/13 3pm UTC
-
+    canWithdrawBoostedWearable("Banana Amulet", state),
   "Banana Onesie": () => true,
   "Basic Dumbo": () => false,
   "Companion Cap": () => false,
@@ -1128,21 +1176,60 @@ export const BUMPKIN_WITHDRAWABLES: Record<
   "Pickaxe Shark": () => false,
   "Seedling Hat": () => false,
   "Stormy Dumbo": () => false,
-  "Ugly Christmas Sweater": () =>
-    canWithdrawTimebasedItem(new Date("2023-12-21")), // Available until 2024/01/01
-
-  "Candy Cane": () => canWithdrawTimebasedItem(new Date("2023-12-27")),
-  "Elf Hat": () => canWithdrawTimebasedItem(new Date("2023-12-27")),
+  "Ugly Christmas Sweater": () => true,
+  "Candy Cane": () => true,
+  "Elf Hat": () => true,
   "Elf Potion": () => false,
   "Elf Shoes": () => false,
-  "Elf Suit": () => canWithdrawTimebasedItem(new Date("2023-12-27")),
-  "Santa Beard": () => canWithdrawTimebasedItem(new Date("2023-12-27")),
-  "Santa Suit": () => canWithdrawTimebasedItem(new Date("2023-12-27")),
+  "Elf Suit": () => true,
+  "Santa Beard": () => true,
+  "Santa Suit": () => true,
 
   "Butterfly Wings": () => false,
   "Cozy Hoodie": () => false,
-  "New Years Tiara": () => canWithdrawTimebasedItem(new Date("2024-01-03")),
+  "New Years Tiara": () => true,
   "Northern Lights Background": () => false,
   "Short Shorts": () => false,
   "Winter Jacket": () => false,
+
+  // Spring Blossom
+  "Beehive Staff": () => canWithdrawTimebasedItem(new Date("2024-04-01")),
+  "Bee Smoker": () => canWithdrawTimebasedItem(new Date("2024-05-01")),
+  "Bee Suit": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
+  "Bee Wings": () => canWithdrawTimebasedItem(new Date("2024-05-01")),
+  "Beekeeper Hat": () => canWithdrawTimebasedItem(new Date("2024-05-01")),
+  "Beekeeper Suit": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
+  "Crimstone Boots": () => false,
+  "Crimstone Pants": () => false,
+  "Crimstone Armor": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
+  "Gardening Overalls": () => canWithdrawTimebasedItem(new Date("2024-05-01")),
+  "Crimstone Hammer": () => canWithdrawTimebasedItem(new Date("2024-04-13")), // Last Auction 2024/04/12 3pm UTC
+  "Crimstone Amulet": () => canWithdrawTimebasedItem(new Date("2024-04-19")), // Last Auction 2024/04/18 5pm UTC
+  "Full Bloom Shirt": () => canWithdrawTimebasedItem(new Date("2024-05-01")),
+  "Blue Blossom Shirt": () => canWithdrawTimebasedItem(new Date("2024-03-07")), // Last Auction 2024/03/06 3pm UTC
+  "Fairy Sandals": () => false,
+  "Daisy Tee": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
+  "Propeller Hat": () => canWithdrawTimebasedItem(new Date("2024-04-04")), // Last Auction 2024/04/03 5pm UTC,
+  "Honeycomb Shield": () => canWithdrawTimebasedItem(new Date("2024-04-10")), // Last Auction 2024/04/09 5pm UTC
+  "Hornet Mask": () => canWithdrawTimebasedItem(new Date("2024-04-16")), // Last Auction 2024/04/15 3pm UTC
+  "Flower Crown": () => canWithdrawTimebasedItem(new Date("2024-03-10")), // Last Auction 2024/03/10 3pm UTC
+  "Blue Monarch Dress": () => canWithdrawTimebasedItem(new Date("2024-04-01")),
+  "Green Monarch Dress": () => false,
+  "Orange Monarch Dress": () =>
+    canWithdrawTimebasedItem(new Date("2024-05-01")),
+  "Blue Monarch Shirt": () => canWithdrawTimebasedItem(new Date("2024-04-01")),
+  "Green Monarch Shirt": () => false,
+  "Orange Monarch Shirt": () =>
+    canWithdrawTimebasedItem(new Date("2024-05-01")),
+  "Queen Bee Crown": () => canWithdrawTimebasedItem(new Date("2024-03-01")),
+  "Rose Dress": () => false,
+  "Blue Rose Dress": () => false,
+
+  "Lucky Red Hat": () => canWithdrawTimebasedItem(new Date("2024-02-14")),
+  "Lucky Red Suit": () => canWithdrawTimebasedItem(new Date("2024-02-14")),
+  "Chicken Hat": () => false,
+
+  "Love's Topper": () => canWithdrawTimebasedItem(new Date("2024-02-15")),
+  "Valentine's Field Background": () =>
+    canWithdrawTimebasedItem(new Date("2024-02-15")),
 };

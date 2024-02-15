@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import { GRID_WIDTH_PX, PIXEL_SCALE } from "features/game/lib/constants";
 
@@ -6,6 +6,7 @@ import dragonfly from "assets/decorations/dragonfly.gif";
 
 import goblinSwimming from "assets/npcs/goblin_swimming.gif";
 import cossies from "assets/decorations/cossies.png";
+import mushroomIsland from "assets/land/mushroom_island.png";
 
 import { MapPlacement } from "./MapPlacement";
 import { Snorkler } from "./water/Snorkler";
@@ -18,6 +19,7 @@ import { TravelTeaser } from "./TravelTeaser";
 import { DiscordBoat } from "./DiscordBoat";
 import { IslandUpgrader } from "./IslandUpgrader";
 import { GameState } from "features/game/types/game";
+import { Context } from "features/game/GameProvider";
 
 interface Props {
   townCenterBuilt: boolean;
@@ -30,6 +32,8 @@ export const WaterComponent: React.FC<Props> = ({
   expansionCount,
   gameState,
 }) => {
+  const { showAnimations } = useContext(Context);
+
   // As the land gets bigger, push the water decorations out
   const offset = Math.ceil((Math.sqrt(expansionCount) * LAND_WIDTH) / 2);
 
@@ -51,7 +55,7 @@ export const WaterComponent: React.FC<Props> = ({
             bottom: `${PIXEL_SCALE * 4}px`,
           }}
           src={dragonfly}
-          className="animate-float"
+          className={showAnimations ? " animate-float" : ""}
         />
       </MapPlacement>
 
@@ -92,6 +96,18 @@ export const WaterComponent: React.FC<Props> = ({
             transform: "scaleX(-1)",
             left: `${16 * PIXEL_SCALE}px`,
             zIndex: 2,
+          }}
+        />
+      </MapPlacement>
+
+      <MapPlacement x={-20} y={6} width={4}>
+        <img
+          src={mushroomIsland}
+          className="absolute"
+          style={{
+            width: `${PIXEL_SCALE * 54}px`,
+            left: `${PIXEL_SCALE * -3}px`,
+            top: 0,
           }}
         />
       </MapPlacement>

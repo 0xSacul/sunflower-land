@@ -12,7 +12,6 @@ import { MachineState } from "features/game/lib/gameMachine";
 import Decimal from "decimal.js-light";
 import { canMine } from "features/game/expansion/lib/utils";
 import { getBumpkinLevel } from "features/game/lib/level";
-import { getBumpkinLevelRequiredForNode } from "features/game/expansion/lib/expansionNodes";
 import { DepletedSunstone } from "./components/DepletedSunstone";
 import { RecoveredSunstone } from "./components/RecoveredSunstone";
 import { DepletingSunstone } from "./components/DepletingSunstone";
@@ -28,6 +27,19 @@ const selectInventory = (state: MachineState) => state.context.state.inventory;
 
 const compareResource = (prev: Rock, next: Rock) => {
   return JSON.stringify(prev) === JSON.stringify(next);
+};
+
+export const getSunstoneStage = (minesLeft: number) => {
+  if (minesLeft === 10) return 1;
+  if (minesLeft === 9) return 2;
+  if (minesLeft === 8) return 3;
+  if (minesLeft === 7) return 4;
+  if (minesLeft === 6) return 5;
+  if (minesLeft === 5) return 6;
+  if (minesLeft === 4) return 7;
+  if (minesLeft === 3) return 8;
+  if (minesLeft === 2) return 9;
+  return 10;
 };
 
 const _bumpkinLevel = (state: MachineState) =>
@@ -83,17 +95,9 @@ export const Sunstone: React.FC<Props> = ({ id, index }) => {
   const timeLeft = getTimeLeft(resource.stone.minedAt, SUNSTONE_RECOVERY_TIME);
   const mined = !canMine(resource, SUNSTONE_RECOVERY_TIME);
 
-  const bumpkinLevelRequired = getBumpkinLevelRequiredForNode(
-    index,
-    "Sunstone Rock"
-  );
-  const bumpkinLevel = useSelector(gameService, _bumpkinLevel);
-  const bumpkinTooLow = bumpkinLevel < bumpkinLevelRequired;
-
   useUiRefresher({ active: mined });
 
   const strike = () => {
-    if (bumpkinTooLow) return;
     if (!hasTool) return;
 
     setTouchCount((count) => count + 1);
@@ -129,18 +133,25 @@ export const Sunstone: React.FC<Props> = ({ id, index }) => {
       {!mined && (
         <div ref={divRef} className="absolute w-full h-full" onClick={strike}>
           <RecoveredSunstone
-            bumpkinLevelRequired={bumpkinLevelRequired}
             hasTool={hasTool}
             touchCount={touchCount}
+            minesLeft={resource.minesLeft}
           />
         </div>
       )}
 
       {/* Depleting resource animation */}
-      {collecting && <DepletingSunstone resourceAmount={collectedAmount} />}
+      {collecting && (
+        <DepletingSunstone
+          resourceAmount={collectedAmount}
+          minesLeft={resource.minesLeft}
+        />
+      )}
 
       {/* Depleted resource */}
-      {mined && <DepletedSunstone timeLeft={timeLeft} />}
+      {mined && (
+        <DepletedSunstone timeLeft={timeLeft} minesLeft={resource.minesLeft} />
+      )}
     </div>
   );
 };

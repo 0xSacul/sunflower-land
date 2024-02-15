@@ -13,6 +13,7 @@ import { Airdrop, GameState } from "features/game/types/game";
 import cloneDeep from "lodash.clonedeep";
 import { getKeys } from "features/game/types/craftables";
 import { pickEmptyPosition } from "features/game/expansion/placeable/lib/collisionDetection";
+import { isCollectibleBuilt } from "features/game/lib/collectibleBuilt";
 
 export type RevealLandAction = {
   type: "land.revealed";
@@ -110,8 +111,8 @@ export function revealLand({
   // Add Crimstone
   land.crimstones?.forEach((coords) => {
     game.crimstones[randomUUID().slice(0, 8)] = {
-      height: 1,
-      width: 1,
+      height: 2,
+      width: 2,
       x: coords.x + origin.x,
       y: coords.y + origin.y,
       stone: { amount: 1, minedAt: 0 },
@@ -160,8 +161,8 @@ export function revealLand({
   land.sunstones?.forEach((coords) => {
     const id = Object.keys(game.sunstones).length;
     game.sunstones[id] = {
-      height: 1,
-      width: 1,
+      height: 2,
+      width: 2,
       x: coords.x + origin.x,
       y: coords.y + origin.y,
       stone: { amount: 1, minedAt: 0 },
@@ -231,19 +232,6 @@ export function revealLand({
     };
   }, {} as GameState["stones"]);
 
-  game.stones = getKeys(game.stones).reduce((acc, id) => {
-    return {
-      ...acc,
-      [id]: {
-        ...game.stones[id],
-        stone: {
-          ...game.stones[id].stone,
-          minedAt: createdAt - 12 * 60 * 60 * 1000,
-        },
-      },
-    };
-  }, {} as GameState["stones"]);
-
   game.iron = getKeys(game.iron).reduce((acc, id) => {
     return {
       ...acc,
@@ -270,11 +258,6 @@ export function revealLand({
     };
   }, {} as GameState["gold"]);
 
-  game.expansionRequirements = expansionRequirements({
-    level: inventory["Basic Land"].toNumber() + 1,
-    game,
-  });
-
   // Add any rewards
   const rewards = getRewards({ game, createdAt });
   const previous = game.airdrops ?? [];
@@ -286,13 +269,9 @@ export function revealLand({
   };
 }
 
-export const expansionRequirements = ({
-  level,
-  game,
-}: {
-  level: number;
-  game: GameState;
-}) => {
+export const expansionRequirements = ({ game }: { game: GameState }) => {
+  const level = (game.inventory["Basic Land"]?.toNumber() ?? 3) + 1;
+
   const requirements = EXPANSION_REQUIREMENTS[game.island.type][level];
 
   if (!requirements) {
@@ -302,7 +281,7 @@ export const expansionRequirements = ({
   let resources = requirements.resources;
 
   // Half resource costs
-  if (game.collectibles["Grinx's Hammer"]) {
+  if (isCollectibleBuilt({ name: "Grinx's Hammer", game })) {
     resources = getKeys(resources).reduce(
       (acc, key) => ({
         ...acc,

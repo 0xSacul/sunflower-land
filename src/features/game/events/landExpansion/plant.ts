@@ -3,7 +3,6 @@ import Decimal from "decimal.js-light";
 
 import { CropName, CROPS } from "../../types/crops";
 import {
-  Buildings,
   Bumpkin,
   CropPlot,
   GameState,
@@ -40,6 +39,7 @@ import {
 import { getBumpkinLevel } from "features/game/lib/level";
 import { isBuildingEnabled } from "features/game/expansion/lib/buildingRequirements";
 import { isWearableActive } from "features/game/lib/wearables";
+import { translate } from "lib/i18n/translate";
 
 export type LandExpansionPlantAction = {
   type: "seed.planted";
@@ -118,7 +118,6 @@ export const getCropTime = ({
   crop,
   inventory,
   game,
-  bumpkin,
   buds,
   plot,
   fertiliser,
@@ -126,14 +125,14 @@ export const getCropTime = ({
   crop: CropName;
   inventory: Inventory;
   game: GameState;
-  bumpkin: Bumpkin;
   buds: NonNullable<GameState["buds"]>;
   plot?: CropPlot;
   fertiliser?: CropCompostName;
 }) => {
-  const { skills, equipped } = bumpkin;
-  const { necklace } = equipped;
   let seconds = CROPS()[crop]?.harvestSeconds ?? 0;
+  if (game.bumpkin === undefined) return seconds;
+
+  const { skills } = game.bumpkin;
 
   // Legacy Seed Specialist skill: 10% reduction
   if (inventory["Seed Specialist"]?.gte(1)) {
@@ -149,7 +148,7 @@ export const getCropTime = ({
   }
 
   // Bumpkin Wearable Boost
-  if (crop === "Carrot" && necklace === "Carrot Amulet") {
+  if (crop === "Carrot" && isWearableActive({ name: "Carrot Amulet", game })) {
     seconds = seconds * 0.8;
   }
 
@@ -240,8 +239,6 @@ type GetPlantedAtArgs = {
   crop: CropName;
   inventory: Inventory;
   game: GameState;
-  buildings: Buildings;
-  bumpkin: Bumpkin;
   createdAt: number;
   plot: CropPlot;
   buds: NonNullable<GameState["buds"]>;
@@ -255,8 +252,6 @@ export function getPlantedAt({
   crop,
   inventory,
   game,
-  buildings,
-  bumpkin,
   buds,
   createdAt,
   plot,
@@ -269,7 +264,6 @@ export function getPlantedAt({
     crop,
     inventory,
     game: game,
-    bumpkin,
     buds,
     plot,
     fertiliser,
@@ -289,7 +283,6 @@ export function getCropYieldAmount({
   inventory,
   game,
   buds,
-  bumpkin,
   fertiliser,
 }: {
   crop: CropName;
@@ -297,11 +290,12 @@ export function getCropYieldAmount({
   inventory: Inventory;
   game: GameState;
   buds: NonNullable<GameState["buds"]>;
-  bumpkin: Bumpkin;
   fertiliser?: CropCompostName;
 }): number {
   let amount = 1;
-  const { skills } = bumpkin;
+  if (game.bumpkin === undefined) return amount;
+
+  const { skills } = game.bumpkin;
 
   if (
     crop === "Cauliflower" &&
@@ -533,17 +527,11 @@ export function plant({
   createdAt = Date.now(),
 }: Options): GameState {
   const stateCopy = cloneDeep(state);
-  const {
-    crops: plots,
-    bumpkin,
-    collectibles,
-    inventory,
-    buildings,
-  } = stateCopy;
+  const { crops: plots, bumpkin, inventory } = stateCopy;
   const buds = stateCopy.buds ?? {};
 
   if (bumpkin === undefined) {
-    throw new Error("You do not have a Bumpkin");
+    throw new Error(translate("no.have.bumpkin"));
   }
 
   if (!action.index) {
@@ -588,8 +576,6 @@ export function plant({
         crop: cropName,
         inventory,
         game: stateCopy,
-        buildings,
-        bumpkin,
         createdAt,
         plot,
         buds,
@@ -600,7 +586,6 @@ export function plant({
         crop: cropName,
         inventory,
         game: stateCopy,
-        bumpkin,
         plot,
         buds,
         fertiliser: plot.fertiliser?.name,

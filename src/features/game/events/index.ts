@@ -63,10 +63,6 @@ import {
 } from "./landExpansion/claimAchievement";
 import { buyChicken, BuyChickenAction } from "./landExpansion/buyChicken";
 import { placeChicken, PlaceChickenAction } from "./landExpansion/placeChicken";
-import {
-  fulfillGrubOrder,
-  FulFillGrubOrderAction,
-} from "./landExpansion/fulfillGrubOrder";
 import { craftTool, CraftToolAction } from "./landExpansion/craftTool";
 import {
   buyDecoration,
@@ -252,6 +248,24 @@ import {
 } from "./landExpansion/placeSunstone";
 import { moveSunstone, MoveSunstoneAction } from "./landExpansion/moveSunstone";
 import { mineSunstone, MineSunstoneAction } from "./landExpansion/mineSunstone";
+import {
+  discoverFlowerPage,
+  FlowerPageDiscoveredAction,
+} from "./landExpansion/discoverFlowerPage";
+import {
+  FlowerShopTradedAction,
+  tradeFlowerShop,
+} from "./landExpansion/tradeFlowerShop";
+import {
+  buyMegaStoreItem,
+  BuyMegaStoreItemAction,
+} from "./landExpansion/buyMegaStoreItem";
+import {
+  completeSpecialEventTask,
+  CompleteSpecialEventTaskAction,
+} from "./landExpansion/completeSpecialEventTask";
+import { claimGift, ClaimGiftAction } from "./landExpansion/claimBumpkinGift";
+import { giftFlowers, GiftFlowersAction } from "./landExpansion/giftFlowers";
 
 export type PlayingEvent =
   | TradeAction
@@ -273,7 +287,6 @@ export type PlayingEvent =
   | PickSkillAction
   | SeedBoughtAction
   | ClaimAchievementAction
-  | FulFillGrubOrderAction
   | LandExpansionFeedChickenAction
   | CraftToolAction
   | buyDecorationAction
@@ -329,7 +342,13 @@ export type PlayingEvent =
   | PlantFlowerAction
   | HarvestFlowerAction
   | UpgradeFarmAction
-  | PurchaseBannerAction;
+  | PurchaseBannerAction
+  | FlowerPageDiscoveredAction
+  | FlowerShopTradedAction
+  | BuyMegaStoreItemAction
+  | CompleteSpecialEventTaskAction
+  | GiftFlowersAction
+  | ClaimGiftAction;
 
 export type PlacementEvent =
   | ConstructBuildingAction
@@ -414,7 +433,6 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "skill.picked": pickSkill,
   "seed.bought": seedBought,
   "achievement.claimed": claimAchievement,
-  "grubOrder.fulfilled": fulfillGrubOrder,
   "chicken.fed": LandExpansionFeedChicken,
   "tool.crafted": craftTool,
   "decoration.bought": buyDecoration,
@@ -470,6 +488,12 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "flower.harvested": harvestFlower,
   "farm.upgraded": upgrade,
   "banner.purchased": purchaseBanner,
+  "flowerPage.discovered": discoverFlowerPage,
+  "flowerShop.traded": tradeFlowerShop,
+  "megastoreItem.bought": buyMegaStoreItem,
+  "specialEvent.taskCompleted": completeSpecialEventTask,
+  "flowers.gifted": giftFlowers,
+  "gift.claimed": claimGift,
 };
 
 export const PLACEMENT_EVENTS: Handlers<PlacementEvent> = {

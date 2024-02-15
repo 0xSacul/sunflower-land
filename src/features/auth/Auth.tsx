@@ -2,9 +2,8 @@ import React, { useContext } from "react";
 import { useActor } from "@xstate/react";
 import Modal from "react-bootstrap/esm/Modal";
 
-import logo from "assets/brand/logo_v2.png";
-import winterLogo from "assets/brand/winter_logo.png";
 import sparkle from "assets/fx/sparkle2.gif";
+import dragonLogo from "assets/brand/dragon_logo.gif";
 
 import * as AuthProvider from "features/auth/lib/Provider";
 
@@ -20,9 +19,9 @@ import classNames from "classnames";
 import { SignIn, SignUp } from "./components/SignIn";
 import { Label } from "components/ui/Label";
 import { SUNNYSIDE } from "assets/sunnyside";
-import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { NoAccount } from "./components/NoAccount";
 import { CONFIG } from "lib/config";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 export const Auth: React.FC = () => {
   const { authService } = useContext(AuthProvider.Context);
@@ -51,28 +50,26 @@ export const Auth: React.FC = () => {
                 right: `${PIXEL_SCALE * 0}px`,
               }}
             />
-            {Date.now() > new Date("2023-12-10").getTime() &&
-            Date.now() < new Date("2023-12-27").getTime() ? (
-              <>
-                <img id="logo" src={winterLogo} className="w-full mb-1" />
-                <div className="flex items-center justify-center">
-                  <Label icon={SUNNYSIDE.icons.stopwatch} type="vibrant">
-                    Christmas event!
-                  </Label>
-                  <Label type="default" className="ml-2">
-                    {CONFIG.RELEASE_VERSION?.split("-")[0]}
-                  </Label>
-                </div>
-              </>
-            ) : (
-              <>
-                <img id="logo" src={logo} className="w-full" />
+            <>
+              <img id="logo" src={dragonLogo} className="w-full" />
 
-                <Label type="default" className="mx-auto">
+              <div className="flex justify-center">
+                <Label type="default">
                   {CONFIG.RELEASE_VERSION?.split("-")[0]}
                 </Label>
-              </>
-            )}
+
+                {Date.now() > new Date("2024-02-09").getTime() &&
+                  Date.now() < new Date("2024-02-16").getTime() && (
+                    <Label
+                      secondaryIcon={SUNNYSIDE.icons.stopwatch}
+                      type="vibrant"
+                      className="ml-2"
+                    >
+                      {t("event.LunarNewYear")}
+                    </Label>
+                  )}
+              </div>
+            </>
           </div>
         </div>
         <Panel className="pb-1 relative">

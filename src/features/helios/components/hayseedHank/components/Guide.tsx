@@ -41,7 +41,7 @@ export const Guide: React.FC<Props> = ({ selected, onSelect }) => {
                 href={GUIDE_PATHS[selected].docs}
                 className="text-xs underline pr-2"
               >
-                Docs
+                {t("docs")}
               </a>
             )}
           </div>
@@ -130,7 +130,7 @@ export const Guide: React.FC<Props> = ({ selected, onSelect }) => {
                     })}
                   </div>
                   <div className="flex items-center">
-                    <p className="text-xs  mr-1  ">{t("readMore")}</p>
+                    <p className="text-xs  mr-1  ">{t("read.more")}</p>
                     <img src={SUNNYSIDE.icons.chevron_right} className="h-4" />
                   </div>
                 </div>

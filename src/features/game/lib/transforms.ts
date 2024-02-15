@@ -53,19 +53,8 @@ export function makeGame(farm: any): GameState {
       : undefined,
 
     bertObsession: farm.bertObsession,
-    grubOrdersFulfilled: farm.grubOrdersFulfilled,
-    grubShop: farm.grubShop
-      ? {
-          ...farm.grubShop,
-          orders: farm.grubShop.orders.map((order: any) => ({
-            ...order,
-            sfl: new Decimal(order.sfl),
-          })),
-        }
-      : undefined,
 
     expansionConstruction: farm.expansionConstruction,
-    expansionRequirements: farm.expansionRequirements,
     expandedAt: farm.expandedAt,
 
     islands: farm.islands,
@@ -96,19 +85,35 @@ export function makeGame(farm: any): GameState {
     crops: farm.crops ?? {},
     fruitPatches: farm.fruitPatches ?? {},
     flowers: farm.flowers ?? {},
+    beehives: farm.beehives ?? {},
     conversations: farm.conversations ?? [],
     mailbox: farm.mailbox ?? {
       read: [],
       unread: [],
     },
     mushrooms: farm.mushrooms,
-    catchTheKraken: farm.catchTheKraken,
+    catchTheKraken: farm.catchTheKraken ?? {
+      weeklyCatches: {},
+      hunger: undefined,
+    },
     delivery: farm.delivery,
     potionHouse: farm.potionHouse,
     npcs: farm.npcs,
     buds: farm.buds,
     christmas: farm.christmas,
-    beehives: farm.beehives ?? {},
+    springBlossom: farm.springBlossom ?? {},
+    specialEvents: farm.specialEvents,
+    megastore: {
+      ...farm.megastore,
+      wearables: farm.megastore.wearables.map((wearable: any) => ({
+        ...wearable,
+        price: new Decimal(wearable.price),
+      })),
+      collectibles: farm.megastore.collectibles.map((collectible: any) => ({
+        ...collectible,
+        price: new Decimal(collectible.price),
+      })),
+    },
   };
 }
 

@@ -1,8 +1,8 @@
-import { Beehive, FlowerBed } from "features/game/types/game";
+import { Beehive, CropPlot, FlowerBed } from "features/game/types/game";
 import { HARVEST_BEEHIVE_ERRORS, harvestBeehive } from "./harvestBeehive";
-import { TEST_FARM } from "features/game/lib/constants";
-import { HONEY_PRODUCTION_TIME } from "features/game/lib/updateBeehives";
+import { TEST_FARM, INITIAL_BUMPKIN } from "features/game/lib/constants";
 import Decimal from "decimal.js-light";
+import { DEFAULT_HONEY_PRODUCTION_TIME } from "features/game/lib/updateBeehives";
 
 describe("harvestBeehive", () => {
   const now = Date.now();
@@ -24,7 +24,7 @@ describe("harvestBeehive", () => {
     height: 1,
     width: 2,
     flower: {
-      name: "Flower 1",
+      name: "Red Pansy",
       amount: 1,
       plantedAt: now,
     },
@@ -91,7 +91,7 @@ describe("harvestBeehive", () => {
             ...DEFAULT_BEEHIVE,
             honey: {
               updatedAt: tenMinutesAgo,
-              produced: HONEY_PRODUCTION_TIME,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
             },
           },
         },
@@ -126,7 +126,7 @@ describe("harvestBeehive", () => {
             ...DEFAULT_BEEHIVE,
             honey: {
               updatedAt: tenMinutesAgo,
-              produced: HONEY_PRODUCTION_TIME / 2,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME / 2,
             },
           },
         },
@@ -233,7 +233,7 @@ describe("harvestBeehive", () => {
             swarm: true,
             honey: {
               updatedAt: 0,
-              produced: HONEY_PRODUCTION_TIME,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
             },
           },
         },
@@ -261,6 +261,48 @@ describe("harvestBeehive", () => {
     expect(state.crops?.["987"].crop?.amount).toEqual(1.2);
   });
 
+  it("[BEE SWARM] Does not affect crop plots that are not planted", () => {
+    const crops: Record<string, CropPlot> = {
+      "1": {
+        height: 1,
+        width: 1,
+        x: 0,
+        y: -2,
+        createdAt: 0,
+      },
+      "2": {
+        height: 1,
+        width: 1,
+        x: 1,
+        y: -2,
+        createdAt: 0,
+      },
+    };
+
+    const state = harvestBeehive({
+      state: {
+        ...TEST_FARM,
+        beehives: {
+          "1234": {
+            ...DEFAULT_BEEHIVE,
+            swarm: true,
+            honey: {
+              updatedAt: 0,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
+            },
+          },
+        },
+        crops,
+      },
+      action: {
+        type: "beehive.harvested",
+        id: "1234",
+      },
+    });
+
+    expect(state.crops).toEqual(crops);
+  });
+
   it("sets the swarm to false after activating the swarm", () => {
     const state = harvestBeehive({
       state: {
@@ -271,7 +313,7 @@ describe("harvestBeehive", () => {
             swarm: true,
             honey: {
               updatedAt: 0,
-              produced: HONEY_PRODUCTION_TIME,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
             },
           },
         },
@@ -310,7 +352,7 @@ describe("harvestBeehive", () => {
             swarm: true,
             honey: {
               updatedAt: 0,
-              produced: HONEY_PRODUCTION_TIME,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
             },
           },
         },
@@ -335,7 +377,7 @@ describe("harvestBeehive", () => {
             swarm: false,
             honey: {
               updatedAt: 0,
-              produced: HONEY_PRODUCTION_TIME / 2,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME / 2,
             },
           },
         },
@@ -364,7 +406,7 @@ describe("harvestBeehive", () => {
             [flowerId]: {
               ...DEFAULT_FLOWER_BED,
               flower: {
-                name: "Flower 1",
+                name: "Red Pansy",
                 amount: 1,
                 plantedAt: fiveMinutesAgo,
               },
@@ -376,7 +418,7 @@ describe("harvestBeehive", () => {
             ...DEFAULT_BEEHIVE,
             honey: {
               updatedAt: fiveMinutesAgo,
-              produced: HONEY_PRODUCTION_TIME,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
             },
           },
         },
@@ -389,5 +431,176 @@ describe("harvestBeehive", () => {
     });
 
     expect(gameState.beehives?.[beehiveId].flowers).toHaveLength(1);
+  });
+
+  it("harvests a full beehive wearing Bee Suit", () => {
+    const beehiveId = "1234";
+    const now = Date.now();
+    const tenMinutesAgo = now - 10 * 60 * 1000;
+
+    const gameState = harvestBeehive({
+      state: {
+        ...TEST_FARM,
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            suit: "Bee Suit",
+          },
+        },
+
+        beehives: {
+          [beehiveId]: {
+            ...DEFAULT_BEEHIVE,
+            honey: {
+              updatedAt: tenMinutesAgo,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
+            },
+          },
+        },
+      },
+      action: {
+        type: "beehive.harvested",
+        id: beehiveId,
+      },
+      createdAt: now,
+    });
+
+    expect(gameState.beehives?.[beehiveId]).toEqual({
+      ...DEFAULT_BEEHIVE,
+      honey: {
+        updatedAt: expect.any(Number),
+        produced: 0,
+      },
+    });
+    expect(gameState.inventory.Honey).toEqual(new Decimal(1.1));
+  });
+
+  it("harvests a full beehive wearing Honeycomb Shield", () => {
+    const beehiveId = "1234";
+    const now = Date.now();
+    const tenMinutesAgo = now - 10 * 60 * 1000;
+
+    const gameState = harvestBeehive({
+      state: {
+        ...TEST_FARM,
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            secondaryTool: "Honeycomb Shield",
+          },
+        },
+        beehives: {
+          [beehiveId]: {
+            ...DEFAULT_BEEHIVE,
+            honey: {
+              updatedAt: tenMinutesAgo,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
+            },
+          },
+        },
+      },
+      action: {
+        type: "beehive.harvested",
+        id: beehiveId,
+      },
+      createdAt: now,
+    });
+
+    expect(gameState.beehives?.[beehiveId]).toEqual({
+      ...DEFAULT_BEEHIVE,
+      honey: {
+        updatedAt: expect.any(Number),
+        produced: 0,
+      },
+    });
+    expect(gameState.inventory.Honey).toEqual(new Decimal(2));
+  });
+
+  it("harvests a full beehive wearing Honeycomb Shield and Bee Suit", () => {
+    const beehiveId = "1234";
+    const now = Date.now();
+    const tenMinutesAgo = now - 10 * 60 * 1000;
+
+    const gameState = harvestBeehive({
+      state: {
+        ...TEST_FARM,
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            suit: "Bee Suit",
+            secondaryTool: "Honeycomb Shield",
+          },
+        },
+        beehives: {
+          [beehiveId]: {
+            ...DEFAULT_BEEHIVE,
+            honey: {
+              updatedAt: tenMinutesAgo,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME,
+            },
+          },
+        },
+      },
+      action: {
+        type: "beehive.harvested",
+        id: beehiveId,
+      },
+      createdAt: now,
+    });
+
+    expect(gameState.beehives?.[beehiveId]).toEqual({
+      ...DEFAULT_BEEHIVE,
+      honey: {
+        updatedAt: expect.any(Number),
+        produced: 0,
+      },
+    });
+    expect(gameState.inventory.Honey).toEqual(new Decimal(2.1));
+  });
+
+  it("harvests a half full beehive wearing Honeycomb Shield and Bee Suit", () => {
+    const beehiveId = "1234";
+    const now = Date.now();
+    const tenMinutesAgo = now - 10 * 60 * 1000;
+
+    const gameState = harvestBeehive({
+      state: {
+        ...TEST_FARM,
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            suit: "Bee Suit",
+            secondaryTool: "Honeycomb Shield",
+          },
+        },
+        beehives: {
+          [beehiveId]: {
+            ...DEFAULT_BEEHIVE,
+            honey: {
+              updatedAt: tenMinutesAgo,
+              produced: DEFAULT_HONEY_PRODUCTION_TIME / 2,
+            },
+          },
+        },
+      },
+      action: {
+        type: "beehive.harvested",
+        id: beehiveId,
+      },
+      createdAt: now,
+    });
+
+    expect(gameState.beehives?.[beehiveId]).toEqual({
+      ...DEFAULT_BEEHIVE,
+      honey: {
+        updatedAt: expect.any(Number),
+        produced: 0,
+      },
+    });
+    expect(gameState.inventory.Honey).toEqual(new Decimal(2.1 / 2));
   });
 });

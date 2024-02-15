@@ -45,12 +45,15 @@ import { Bud } from "features/island/buds/Bud";
 import { Fisherman } from "features/island/fisherman/Fisherman";
 import { VisitingHud } from "features/island/hud/VisitingHud";
 import { Airdrop } from "./components/Airdrop";
+import { Modal } from "react-bootstrap";
+import { SpecialEventBumpkin } from "features/world/ui/SpecialEventBumpkin";
 
 const IMAGE_GRID_WIDTH = 36;
 
 export const LAND_WIDTH = 6;
 
 const getIslandElements = ({
+  game,
   buildings,
   collectibles,
   chickens,
@@ -72,6 +75,7 @@ const getIslandElements = ({
   airdrops,
   beehives,
 }: {
+  game: GameState;
   expansionConstruction?: ExpansionConstruction;
   buildings: Partial<Record<BuildingName, PlacedItem[]>>;
   collectibles: Partial<Record<CollectibleName, PlacedItem[]>>;
@@ -160,6 +164,7 @@ const getIslandElements = ({
                 x={coordinates.x}
                 y={coordinates.y}
                 grid={grid}
+                game={game}
               />
             </MapPlacement>
           );
@@ -534,7 +539,7 @@ const isVisiting = (state: MachineState) => state.matches("visiting");
 const isPaused = (state: MachineState) => !!state.context.paused;
 
 export const Land: React.FC = () => {
-  const { gameService, showTimers } = useContext(Context);
+  const { gameService, showAnimations, showTimers } = useContext(Context);
 
   const paused = useSelector(gameService, isPaused);
 
@@ -606,7 +611,7 @@ export const Land: React.FC = () => {
         <img
           src={cloudedMap}
           alt="land"
-          className="z-30 absolute pointer-events-none clouds w-full h-full"
+          className="z-30 absolute pointer-events-none  w-full h-full"
           style={{
             scale: "1.01", // Fix bleeding issues
           }}
@@ -615,7 +620,10 @@ export const Land: React.FC = () => {
         <img
           src={movingClouds}
           alt="land"
-          className="z-20 absolute pointer-events-none w-full h-full animate-float"
+          className={
+            "z-20 absolute pointer-events-none w-full h-full" +
+            (showAnimations ? " animate-float" : "")
+          }
         />
 
         <img
@@ -661,6 +669,7 @@ export const Land: React.FC = () => {
             {/* Sort island elements by y axis */}
             {!paused &&
               getIslandElements({
+                game: state,
                 expansionConstruction,
                 buildings,
                 collectibles,
@@ -710,7 +719,15 @@ export const Land: React.FC = () => {
         </div>
       )}
 
+      <Modal show={false} centered>
+        <SpecialEventBumpkin onClose={() => void 0} />
+      </Modal>
+
       {!landscaping && !visiting && <Hud isFarming={true} location="farm" />}
+
+      {/* <Modal show centered>
+        <BumpkinDelivery />
+      </Modal> */}
     </>
   );
 };

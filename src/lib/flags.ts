@@ -1,6 +1,4 @@
-import { getKeys } from "features/game/types/craftables";
 import { GameState } from "features/game/types/game";
-import { SEASONS } from "features/game/types/seasons";
 import { CONFIG } from "lib/config";
 
 const defaultFeatureFlag = ({ inventory }: GameState) =>
@@ -16,19 +14,10 @@ const testnetFeatureFlag = () => CONFIG.NETWORK === "mumbai";
  */
 type FeatureName =
   | "JEST_TEST"
-  | "PUMPKIN_PLAZA"
-  | "NEW_DELIVERIES"
-  | "NEW_FARM_FLOW"
-  | "BUDS_DEPOSIT_FLOW"
-  | "BEACH"
-  | "HALLOWEEN"
-  | "BANANA"
   | "LOCALISATION"
   | "PORTALS"
-  | "BEACH_FISHING"
-  | "HOME"
-  | "ISLAND_UPGRADE"
-  | "FLOWERS";
+  | "MEGA_STORE"
+  | "BUMPKIN_GIFTS";
 
 // Used for testing production features
 export const ADMIN_IDS = [
@@ -39,69 +28,13 @@ export const ADMIN_IDS = [
 type FeatureFlag = (game: GameState) => boolean;
 
 const featureFlags: Record<FeatureName, FeatureFlag> = {
-  ISLAND_UPGRADE: (_: GameState) => {
-    if (Date.now() > new Date("2024-02-01").getTime()) {
-      return true;
-    }
-
-    return testnetFeatureFlag();
-  },
-  BEACH_FISHING: () => true,
   PORTALS: testnetFeatureFlag,
   JEST_TEST: defaultFeatureFlag,
-  PUMPKIN_PLAZA: defaultFeatureFlag,
-  NEW_DELIVERIES: testnetFeatureFlag,
-  NEW_FARM_FLOW: () => true,
-  BUDS_DEPOSIT_FLOW: () => true,
-  HOME: defaultFeatureFlag,
-
-  HALLOWEEN: (game: GameState) => {
-    if (Date.now() > new Date("2023-11-01").getTime()) {
-      return false;
-    }
-
-    if (Date.now() > new Date("2023-10-26").getTime()) {
-      return true;
-    }
-
-    return defaultFeatureFlag(game);
-  },
-
-  BEACH: (game: GameState) => {
-    const hasBeachBud = getKeys(game.buds ?? {}).some(
-      (id) => game.buds?.[id]?.type === "Beach"
-    );
-
-    if (hasBeachBud) {
-      return true;
-    }
-
-    if (Date.now() > SEASONS["Catch the Kraken"].startDate.getTime()) {
-      return true;
-    }
-
-    return defaultFeatureFlag(game);
-  },
-  BANANA: (game: GameState) => {
-    if (Date.now() > SEASONS["Catch the Kraken"].startDate.getTime()) {
-      return true;
-    }
-
-    return defaultFeatureFlag(game);
-  },
+  BUMPKIN_GIFTS: () => true,
   LOCALISATION: testnetFeatureFlag,
-  FLOWERS: testnetFeatureFlag,
+  MEGA_STORE: testnetFeatureFlag,
 };
 
 export const hasFeatureAccess = (game: GameState, featureName: FeatureName) => {
-  const isWitchesEve = Date.now() > SEASONS["Witches' Eve"].startDate.getTime();
-  if (featureName === "NEW_DELIVERIES" && isWitchesEve) {
-    return true;
-  }
-
-  if (featureName === "PUMPKIN_PLAZA" && isWitchesEve) {
-    return true;
-  }
-
   return featureFlags[featureName](game);
 };

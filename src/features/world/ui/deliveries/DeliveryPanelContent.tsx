@@ -8,7 +8,7 @@ import { getKeys } from "features/game/types/craftables";
 import { RequirementLabel } from "components/ui/RequirementsLabel";
 import Decimal from "decimal.js-light";
 import { defaultDialogue, npcDialogues } from "./dialogues";
-import { Bumpkin, Inventory, Order } from "features/game/types/game";
+import { GameState, Inventory, Order } from "features/game/types/game";
 import { OuterPanel } from "components/ui/Panel";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import sfl from "assets/icons/token_2.png";
@@ -22,26 +22,28 @@ import classNames from "classnames";
 import { getOrderSellPrice } from "features/game/events/landExpansion/deliver";
 import { getSeasonalTicket } from "features/game/types/seasons";
 import { ITEM_DETAILS } from "features/game/types/images";
-import { hasFeatureAccess } from "lib/flags";
+import { ADMIN_IDS, hasFeatureAccess } from "lib/flags";
 import { DELIVERY_LEVELS } from "features/island/delivery/lib/delivery";
 import { getSeasonChangeover } from "lib/utils/getSeasonWeek";
 import { gameAnalytics } from "lib/gameAnalytics";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { BumpkinDelivery } from "./BumpkinDelivery";
 
 interface OrderCardsProps {
   orders: Order[];
   balance: Decimal;
-  bumpkin: Bumpkin;
+  game: GameState;
   inventory: Inventory;
   selectedOrderId?: string;
   onSelectOrder: (id: string) => void;
   hasRequirementsCheck: (order: Order) => boolean;
 }
 
-const OrderCards: React.FC<OrderCardsProps> = ({
+export const OrderCards: React.FC<OrderCardsProps> = ({
   orders,
   inventory,
   balance,
-  bumpkin,
+  game,
   selectedOrderId,
   onSelectOrder,
   hasRequirementsCheck,
@@ -109,7 +111,7 @@ const OrderCards: React.FC<OrderCardsProps> = ({
                   <div className="flex items-center mt-1">
                     <img src={sfl} className="h-5 mr-1" />
                     <span className="text-xs">
-                      {getOrderSellPrice(bumpkin, order).toFixed(2)}
+                      {getOrderSellPrice(game, order).toFixed(2)}
                     </span>
                   </div>
                 )}
@@ -174,6 +176,20 @@ const OrderCards: React.FC<OrderCardsProps> = ({
   );
 };
 
+export function getTotalExpansions({
+  game,
+}: {
+  game: Pick<GameState, "inventory" | "island">;
+}) {
+  let totalExpansions = game.inventory["Basic Land"] ?? new Decimal(3);
+
+  if (game.island.type === "spring") {
+    totalExpansions = totalExpansions.add(game.island.previousExpansions ?? 6);
+  }
+
+  return totalExpansions;
+}
+
 interface Props {
   onClose: () => void;
   npc: NPCName;
@@ -184,8 +200,10 @@ interface Props {
 const _delivery = (state: MachineState) => state.context.state.delivery;
 const _inventory = (state: MachineState) => state.context.state.inventory;
 const _balance = (state: MachineState) => state.context.state.balance;
-const _bumpkin = (state: MachineState) =>
-  state.context.state.bumpkin as Bumpkin;
+const _game = (state: MachineState) => state.context.state as GameState;
+const _beta = (state: MachineState) =>
+  hasFeatureAccess(state.context.state, "BUMPKIN_GIFTS") ||
+  ADMIN_IDS.includes(state.context.farmId);
 
 export const DeliveryPanelContent: React.FC<Props> = ({
   npc,
@@ -193,26 +211,18 @@ export const DeliveryPanelContent: React.FC<Props> = ({
   onClose,
 }) => {
   const { gameService } = useContext(Context);
+  const { t } = useAppTranslation();
 
   const delivery = useSelector(gameService, _delivery);
   const inventory = useSelector(gameService, _inventory);
   const balance = useSelector(gameService, _balance);
-  const bumpkin = useSelector(gameService, _bumpkin);
+  const game = useSelector(gameService, _game);
+  const beta = useSelector(gameService, _beta);
 
-  let orders = delivery.orders.filter(
+  const orders = delivery.orders.filter(
     (order) =>
       order.from === npc && Date.now() >= order.readyAt && !order.completedAt
   );
-
-  if (!hasFeatureAccess(gameService.state.context.state, "BEACH")) {
-    orders = orders.filter(
-      (o) =>
-        // Filter out beach NPCs
-        !(
-          ["corale", "tango", "finley", "finn", "miranda"] as NPCName[]
-        ).includes(o.from)
-    );
-  }
 
   const dialogue = npcDialogues[npc] || defaultDialogue;
   const intro = useRandomItem(dialogue.intro);
@@ -221,6 +231,10 @@ export const DeliveryPanelContent: React.FC<Props> = ({
   const noOrder = useRandomItem(dialogue.noOrder);
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | undefined>();
+
+  if (beta) {
+    return <BumpkinDelivery npc={npc} onClose={onClose} />;
+  }
 
   const hasRequirements = (order?: Order) => {
     if (!order) return false;
@@ -237,6 +251,10 @@ export const DeliveryPanelContent: React.FC<Props> = ({
   };
 
   if (!orders.length) {
+    const totalExpansions = getTotalExpansions({
+      game: gameService.state.context.state,
+    });
+
     return (
       <SpeakingText
         onClose={onClose}
@@ -245,12 +263,10 @@ export const DeliveryPanelContent: React.FC<Props> = ({
             text: intro,
           },
           {
-            text: (inventory["Basic Land"] ?? new Decimal(3)).lt(
-              DELIVERY_LEVELS[npc] ?? 0
-            )
-              ? `Hmm, it doesn't look like your farm will have the resources I need. Reach ${
-                  DELIVERY_LEVELS[npc] ?? 10
-                } expansions and come back to me.`
+            text: totalExpansions.lt(DELIVERY_LEVELS[npc] ?? 0)
+              ? `${t("delivery.panel.one")} ${DELIVERY_LEVELS[npc] ?? 10}${t(
+                  "delivery.panel.two"
+                )}`
               : noOrder,
           },
         ]}
@@ -317,7 +333,7 @@ export const DeliveryPanelContent: React.FC<Props> = ({
             text: intro,
           },
           {
-            text: `I am waiting for the new season to start. Come back to me then!`,
+            text: t("delivery.panel.four"),
           },
         ]}
       />
@@ -338,14 +354,14 @@ export const DeliveryPanelContent: React.FC<Props> = ({
               orders={orders}
               inventory={inventory}
               balance={balance}
-              bumpkin={bumpkin}
+              game={game}
               selectedOrderId={selectedOrderId}
               onSelectOrder={(id: string) => setSelectedOrderId(id)}
               hasRequirementsCheck={hasRequirements}
             />
           ),
           actions: [
-            { text: canFulfillAnOrder ? "Not now" : "Close", cb: onClose },
+            { text: canFulfillAnOrder ? "Not now" : t("close"), cb: onClose },
             ...(canFulfillAnOrder
               ? [{ text: "Deliver", cb: handleDeliver }]
               : []),

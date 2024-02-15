@@ -12,6 +12,7 @@ import { CloseButtonPanel } from "features/game/components/CloseablePanel";
 import { SUNNYSIDE } from "assets/sunnyside";
 import { useActor } from "@xstate/react";
 import { WalletContext } from "features/wallet/WalletProvider";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 interface Props {
   isOpen: boolean;
@@ -19,6 +20,8 @@ interface Props {
 }
 
 export const SubSettings: React.FC<Props> = ({ isOpen, onClose }) => {
+  const { t } = useAppTranslation();
+
   const { authService } = useContext(Auth.Context);
   const { gameService, showAnimations, toggleAnimations } = useContext(Context);
   const [gameState] = useActor(gameService);
@@ -54,9 +57,11 @@ export const SubSettings: React.FC<Props> = ({ isOpen, onClose }) => {
     }
 
     return (
-      <CloseButtonPanel title="Advanced" onClose={onClose}>
+      <CloseButtonPanel title={t("advanced")} onClose={onClose}>
         <Button className="col p-1" onClick={onToggleAnimations}>
-          {showAnimations ? "Disable Animations" : "Enable Animations"}
+          {showAnimations
+            ? t("subSettings.disableAnimations")
+            : t("subSettings.enableAnimations")}
         </Button>
 
         {isFullUser && (
@@ -65,11 +70,11 @@ export const SubSettings: React.FC<Props> = ({ isOpen, onClose }) => {
               className="col p-1 mt-2"
               onClick={() => setView("transfer")}
             >
-              Transfer Ownership
+              {t("subSettings.transferOwnership")}
             </Button>
 
             <Button className="col p-1 mt-2" onClick={refreshSession}>
-              Refresh
+              {t("refresh")}
             </Button>
 
             <div className="flex items-start">
@@ -78,8 +83,7 @@ export const SubSettings: React.FC<Props> = ({ isOpen, onClose }) => {
                 className="w-12 pt-2 pr-2"
               />
               <span className="text-xs mt-2">
-                Refresh your session to grab the latest changes from the
-                Blockchain. This is useful if you deposited items to your farm.
+                {t("subSettings.refreshDescription")}
               </span>
             </div>
           </>

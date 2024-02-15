@@ -6,11 +6,8 @@ import { MachineState } from "features/game/lib/gameMachine";
 import { useSelector } from "@xstate/react";
 import { Context } from "features/game/GameProvider";
 import { ITEM_DETAILS } from "features/game/types/images";
-import { MilestonePanel } from "../components/Milestone";
-import { MilestoneTracker } from "../components/MilestoneTracker";
 import {
   FLOWER_MILESTONES,
-  MILESTONES,
   MilestoneName,
   getExperienceLevelForMilestones,
 } from "features/game/types/milestones";
@@ -19,8 +16,7 @@ import { GameState } from "features/game/types/game";
 import { FLOWERS, FlowerName } from "features/game/types/flowers";
 import { getFlowerBySeed } from "../lib/utils";
 import { Detail } from "../components/Detail";
-import { PIXEL_SCALE } from "features/game/lib/constants";
-import flowerBed from "assets/flowers/flower_bed_modal.png";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 const _farmActivity = (state: MachineState) => state.context.state.farmActivity;
 const _milestones = (state: MachineState) => state.context.state.milestones;
@@ -43,6 +39,7 @@ export const Flowers: React.FC<Props> = ({ onMilestoneReached }) => {
   const { gameService } = useContext(Context);
   const [expandedIndex, setExpandedIndex] = useState<number>();
   const [selectedFlower, setSelectedFlower] = useState<FlowerName>();
+  const { t } = useAppTranslation();
 
   const farmActivity = useSelector(gameService, _farmActivity);
   const milestones = useSelector(gameService, _milestones);
@@ -83,7 +80,10 @@ export const Flowers: React.FC<Props> = ({ onMilestoneReached }) => {
     return (
       <Detail
         name={selectedFlower}
-        caught={(farmActivity[`${selectedFlower} Harvested`] ?? 0) > 0}
+        caught={
+          (farmActivity[`${selectedFlower} Harvested`] ?? 0) > 0 ||
+          (discovered[selectedFlower] ?? []).length > 0
+        }
         onBack={() => setSelectedFlower(undefined)}
         additionalLabels={
           <>
@@ -101,62 +101,19 @@ export const Flowers: React.FC<Props> = ({ onMilestoneReached }) => {
             >
               {FLOWERS[selectedFlower].seed}
             </Label>
+            {crossBreeds.map((crossbreed) => (
+              <Label
+                key={crossbreed}
+                type="formula"
+                className="px-0.5 text-xxs whitespace-nowrap"
+                icon={ITEM_DETAILS[crossbreed].image}
+              >
+                {crossbreed}
+              </Label>
+            ))}
           </>
         }
-      >
-        {crossBreeds.length > 0 && (
-          <>
-            <span className="text-lg">Cross Breeding</span>
-            <div className="flex flex-col">
-              {crossBreeds.map((crossbreed) => (
-                <div
-                  key={crossbreed}
-                  className="relative mx-auto w-full mt-2"
-                  style={{
-                    width: `${PIXEL_SCALE * 80}px`,
-                  }}
-                >
-                  <img src={flowerBed} className="w-full" />
-
-                  <div
-                    className={
-                      "absolute z-40 cursor-pointer bg-green-800 border-t-4 border-green-900 rounded-md"
-                    }
-                    style={{
-                      height: `${PIXEL_SCALE * 16}px`,
-                      width: `${PIXEL_SCALE * 16}px`,
-                      top: `${PIXEL_SCALE * 6}px`,
-                      left: `${PIXEL_SCALE * 12}px`,
-                    }}
-                  >
-                    <img
-                      src={ITEM_DETAILS[FLOWERS[selectedFlower].seed].image}
-                      className="w-full absolute inset-0 -top-1"
-                    />
-                  </div>
-
-                  <div
-                    className={
-                      "absolute z-40 cursor-pointer bg-green-800 border-t-4 border-green-900 rounded-md"
-                    }
-                    style={{
-                      height: `${PIXEL_SCALE * 16}px`,
-                      width: `${PIXEL_SCALE * 16}px`,
-                      top: `${PIXEL_SCALE * 6}px`,
-                      right: `${PIXEL_SCALE * 12}px`,
-                    }}
-                  >
-                    <img
-                      src={ITEM_DETAILS[crossbreed].image}
-                      className="h-full absolute inset-0 -top-1 mx-auto"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </Detail>
+      ></Detail>
     );
   }
 
@@ -165,10 +122,11 @@ export const Flowers: React.FC<Props> = ({ onMilestoneReached }) => {
       <div className="space-y-2 mt-1">
         <div className="flex flex-col space-y-2">
           <Label type="formula" className="ml-1.5">
-            {`Flowers found: ${foundFlowersCount}`}
+            {`${t("flowers.found")}: ${foundFlowersCount}`}
           </Label>
+          {/* Milestones disabled for spring bloom launch */}
           {/* Claimed Milestones */}
-          <div className="flex flex-wrap gap-1 px-1.5">
+          {/* <div className="flex flex-wrap gap-1 px-1.5">
             <MilestoneTracker
               milestones={milestoneNames}
               experienceLabelText={`${experienceLevel} Gardener`}
@@ -187,7 +145,7 @@ export const Flowers: React.FC<Props> = ({ onMilestoneReached }) => {
                 onClaim={() => handleClaimReward(milestone)}
               />
             ))}
-          </div>
+          </div> */}
         </div>
         <div className="flex flex-col">
           {getKeys(FLOWERS_BY_SEED).map((type) => {
@@ -205,7 +163,10 @@ export const Flowers: React.FC<Props> = ({ onMilestoneReached }) => {
                 <div className="flex flex-wrap">
                   {FLOWERS_BY_SEED[type].map((name) => (
                     <SimpleBox
-                      silhouette={!farmActivity[`${name} Harvested`]}
+                      silhouette={
+                        !farmActivity[`${name} Harvested`] &&
+                        (discovered[name] ?? []).length < 1
+                      }
                       onClick={() => setSelectedFlower(name)}
                       key={name}
                       image={ITEM_DETAILS[name].image}

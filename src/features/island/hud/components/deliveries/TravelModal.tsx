@@ -17,6 +17,8 @@ import { hasNewOrders } from "features/island/delivery/lib/delivery";
 import { hasNewChores } from "features/helios/components/hayseedHank/lib/chores";
 import { Label } from "components/ui/Label";
 import { getBumpkinLevel } from "features/game/lib/level";
+import { translate } from "lib/i18n/translate";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 const host = window.location.host.replace(/^www\./, "");
 const LOCAL_STORAGE_KEY = `travel-read.${host}-${window.location.pathname}`;
@@ -52,6 +54,8 @@ export const TravelModal: React.FC<Props> = ({
 
   const delivery = gameState.context.state.delivery;
   const chores = gameState.context.state.chores;
+
+  const { t } = useAppTranslation();
 
   if (isVisiting) {
     return (
@@ -92,26 +96,32 @@ export const TravelModal: React.FC<Props> = ({
     getBumpkinLevel(gameState.context.state.bumpkin?.experience ?? 0) < 3;
 
   return (
-    <>
-      <Modal
-        centered
-        show={isOpen}
-        onHide={onClose}
-        onShow={() => gameService.send("SAVE")}
-        dialogClassName="md:max-w-3xl"
+    <Modal
+      centered
+      show={isOpen}
+      onHide={onClose}
+      onShow={() => gameService.send("SAVE")}
+      dialogClassName="md:max-w-3xl"
+    >
+      <div
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         {isLocked && (
           <CloseButtonPanel onClose={onClose}>
             <div className="flex flex-col items-center">
               <Label className="mt-2" icon={lockIcon} type="danger">
-                Level 3 Required
+                {t("warning.level.required")}
+                {": 3"}
               </Label>
               <img src={world} className="w-10 mx-auto my-2" />
               <p className="text-sm text-center mb-1">
-                Before travelling, you must level up.
+                {t("travelRequirement.notice")}
               </p>
               <p className="text-xs text-center mb-2">
-                Visit the Fire Pit to cook food and feed your Bumpkin.
+                {t("statements.visit.firePit")}
               </p>
             </div>
           </CloseButtonPanel>
@@ -121,16 +131,16 @@ export const TravelModal: React.FC<Props> = ({
             <SpeakingText
               message={[
                 {
-                  text: "Hey Traveller! Ready to explore?",
+                  text: translate("traveller.ready"),
                 },
                 {
-                  text: "Sunflower Land is filled with exciting islands where you can complete deliveries, craft rare NFTs and even dig for treasure!",
+                  text: translate("sunflowerLand.islandDescription"),
                 },
                 {
-                  text: "Different locations bring different opportunities to spend your hard earned resources.",
+                  text: translate("sunflowerLand.opportunitiesDescription"),
                 },
                 {
-                  text: "At any time click the travel button to return home.",
+                  text: translate("sunflowerLand.returnHomeInstruction"),
                 },
               ]}
               onClose={() => {
@@ -144,15 +154,15 @@ export const TravelModal: React.FC<Props> = ({
           <CloseButtonPanel
             onClose={onClose}
             tabs={[
-              { icon: world, name: "Travel" },
+              { icon: world, name: t("travel") },
               {
                 icon: SUNNYSIDE.icons.heart,
-                name: "Deliveries",
+                name: t("deliveries"),
                 alert: hasNewOrders(delivery),
               },
               {
                 icon: SUNNYSIDE.icons.expression_chat,
-                name: "Chores",
+                name: t("chores"),
                 alert: chores && hasNewChores(chores),
               },
             ]}
@@ -190,7 +200,7 @@ export const TravelModal: React.FC<Props> = ({
             </div>
           </CloseButtonPanel>
         )}
-      </Modal>
-    </>
+      </div>
+    </Modal>
   );
 };

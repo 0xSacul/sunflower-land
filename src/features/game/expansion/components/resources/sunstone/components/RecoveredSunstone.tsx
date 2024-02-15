@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useSelector } from "@xstate/react";
 
 import Spritesheet, {
   SpriteSheetInstance,
 } from "components/animation/SpriteAnimator";
 
-import strikeSheet from "assets/resources/gold/gold_rock_spark.png";
+import strikeSheet from "assets/resources/sunstone/sunstone_rock_spark.png";
 
 import { PIXEL_SCALE } from "features/game/lib/constants";
 
@@ -13,31 +12,37 @@ import { Bar } from "components/ui/ProgressBar";
 import { InnerPanel } from "components/ui/Panel";
 import classNames from "classnames";
 import { loadAudio, miningAudio } from "lib/utils/sfx";
+import sunstone_1 from "assets/resources/sunstone/sunstone_rock_1.webp";
+import sunstone_2 from "assets/resources/sunstone/sunstone_rock_2.webp";
+import sunstone_3 from "assets/resources/sunstone/sunstone_rock_3.webp";
+import sunstone_4 from "assets/resources/sunstone/sunstone_rock_4.webp";
+import sunstone_5 from "assets/resources/sunstone/sunstone_rock_5.webp";
+import sunstone_6 from "assets/resources/sunstone/sunstone_rock_6.webp";
+import sunstone_7 from "assets/resources/sunstone/sunstone_rock_7.webp";
+import sunstone_8 from "assets/resources/sunstone/sunstone_rock_8.webp";
+import sunstone_9 from "assets/resources/sunstone/sunstone_rock_9.webp";
+import sunstone_10 from "assets/resources/sunstone/sunstone_rock_10.webp";
+
 import { ZoomContext } from "components/ZoomProvider";
 
-import { MachineState } from "features/game/lib/gameMachine";
-import { Context } from "features/game/GameProvider";
-import { getBumpkinLevel } from "features/game/lib/level";
-import { ITEM_DETAILS } from "features/game/types/images";
+import { getSunstoneStage } from "../Sunstone";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
-const tool = "Iron Pickaxe";
+const tool = "Gold Pickaxe";
 
-const STRIKE_SHEET_FRAME_WIDTH = 112;
+const STRIKE_SHEET_FRAME_WIDTH = 48;
 const STRIKE_SHEET_FRAME_HEIGHT = 48;
 
-const _bumpkinLevel = (state: MachineState) =>
-  getBumpkinLevel(state.context.state.bumpkin?.experience ?? 0);
-
 interface Props {
-  bumpkinLevelRequired: number;
   hasTool: boolean;
   touchCount: number;
+  minesLeft: number;
 }
 
 const RecoveredSunstoneComponent: React.FC<Props> = ({
-  bumpkinLevelRequired,
   hasTool,
   touchCount,
+  minesLeft,
 }) => {
   const { scale } = useContext(ZoomContext);
   const [showSpritesheet, setShowSpritesheet] = useState(false);
@@ -45,6 +50,8 @@ const RecoveredSunstoneComponent: React.FC<Props> = ({
   const [showBumpkinLevel, setShowBumpkinLevel] = useState(false);
 
   const strikeGif = useRef<SpriteSheetInstance>();
+
+  const { t } = useAppTranslation();
 
   useEffect(() => {
     loadAudio([miningAudio]);
@@ -55,12 +62,20 @@ const RecoveredSunstoneComponent: React.FC<Props> = ({
     };
   }, []);
 
-  const { gameService } = useContext(Context);
-  const bumpkinLevel = useSelector(gameService, _bumpkinLevel);
-  const bumpkinTooLow = bumpkinLevel < bumpkinLevelRequired;
+  const sunstoneImage = [
+    sunstone_1,
+    sunstone_2,
+    sunstone_3,
+    sunstone_4,
+    sunstone_5,
+    sunstone_6,
+    sunstone_7,
+    sunstone_8,
+    sunstone_9,
+    sunstone_10,
+  ][getSunstoneStage(minesLeft) - 1];
 
   useEffect(() => {
-    if (bumpkinTooLow) return;
     if (touchCount > 0) {
       setShowSpritesheet(true);
       miningAudio.play();
@@ -69,10 +84,6 @@ const RecoveredSunstoneComponent: React.FC<Props> = ({
   }, [touchCount]);
 
   const handleHover = () => {
-    if (bumpkinTooLow) {
-      setShowBumpkinLevel(true);
-      return;
-    }
     if (!hasTool) {
       setShowEquipTool(true);
     }
@@ -99,73 +110,64 @@ const RecoveredSunstoneComponent: React.FC<Props> = ({
         {/* static resource node image */}
         {!showSpritesheet && (
           <img
-            src={ITEM_DETAILS["Sunstone Rock"].image}
-            className={
-              bumpkinTooLow
-                ? "absolute pointer-events-none opacity-50"
-                : "absolute pointer-events-none"
-            }
+            src={sunstoneImage}
+            className={"absolute pointer-events-none"}
             style={{
-              width: `${PIXEL_SCALE * 18}px`,
-              bottom: `${PIXEL_SCALE * 6}px`,
-              left: `${PIXEL_SCALE * 7}px`,
+              width: `${PIXEL_SCALE * 24}px`,
+              bottom: `${PIXEL_SCALE * 1}px`,
+              right: `${PIXEL_SCALE * 4}px`,
             }}
           />
         )}
 
         {/* spritesheet */}
         {showSpritesheet && (
-          <Spritesheet
-            className="pointer-events-none"
-            style={{
-              position: "absolute",
-              width: `${STRIKE_SHEET_FRAME_WIDTH * PIXEL_SCALE}px`,
-              height: `${STRIKE_SHEET_FRAME_HEIGHT * PIXEL_SCALE}px`,
-              imageRendering: "pixelated",
+          <>
+            <img
+              src={sunstoneImage}
+              className="absolute pointer-events-none"
+              style={{
+                width: `${PIXEL_SCALE * 24}px`,
+                bottom: `${PIXEL_SCALE * 1}px`,
+                right: `${PIXEL_SCALE * 4}px`,
+              }}
+            />
+            <Spritesheet
+              className="pointer-events-none"
+              style={{
+                position: "absolute",
+                width: `${STRIKE_SHEET_FRAME_WIDTH * PIXEL_SCALE}px`,
+                height: `${STRIKE_SHEET_FRAME_HEIGHT * PIXEL_SCALE}px`,
+                imageRendering: "pixelated",
 
-              // Adjust the base of resource node to be perfectly aligned to
-              // on a grid point.
-              bottom: `${PIXEL_SCALE * -13}px`,
-              right: `${PIXEL_SCALE * -63}px`,
-            }}
-            getInstance={(spritesheet) => {
-              strikeGif.current = spritesheet;
-              spritesheet.goToAndPlay(0);
-            }}
-            image={strikeSheet}
-            widthFrame={STRIKE_SHEET_FRAME_WIDTH}
-            heightFrame={STRIKE_SHEET_FRAME_HEIGHT}
-            zoomScale={scale}
-            fps={24}
-            steps={6}
-            direction={`forward`}
-            autoplay={false}
-            loop={true}
-            onLoopComplete={(spritesheet) => {
-              spritesheet.pause();
-              if (touchCount == 0 && !!strikeGif.current) {
-                setShowSpritesheet(false);
-              }
-            }}
-          />
+                // Adjust the base of resource node to be perfectly aligned to
+                // on a grid point.
+                bottom: `${PIXEL_SCALE * 0}px`,
+                right: `${PIXEL_SCALE * -4}px`,
+              }}
+              getInstance={(spritesheet) => {
+                strikeGif.current = spritesheet;
+                spritesheet.goToAndPlay(0);
+              }}
+              image={strikeSheet}
+              widthFrame={STRIKE_SHEET_FRAME_WIDTH}
+              heightFrame={STRIKE_SHEET_FRAME_HEIGHT}
+              zoomScale={scale}
+              fps={24}
+              steps={6}
+              direction={`forward`}
+              autoplay={false}
+              loop={true}
+              onLoopComplete={(spritesheet) => {
+                spritesheet.pause();
+                if (touchCount == 0 && !!strikeGif.current) {
+                  setShowSpritesheet(false);
+                }
+              }}
+            />
+          </>
         )}
       </div>
-
-      {/* Bumpkin level warning */}
-      {showBumpkinLevel && (
-        <div
-          className="flex justify-center absolute w-full pointer-events-none"
-          style={{
-            top: `${PIXEL_SCALE * -14}px`,
-          }}
-        >
-          <InnerPanel className="absolute whitespace-nowrap w-fit z-50">
-            <div className="text-xxs mx-1 p-1">
-              <span>Bumpkin level {bumpkinLevelRequired} required.</span>
-            </div>
-          </InnerPanel>
-        </div>
-      )}
 
       {/* No tool warning */}
       {showEquipTool && (
@@ -177,7 +179,9 @@ const RecoveredSunstoneComponent: React.FC<Props> = ({
         >
           <InnerPanel className="absolute whitespace-nowrap w-fit z-50">
             <div className="text-xxs mx-1 p-1">
-              <span>Equip {tool.toLowerCase()}</span>
+              <span>
+                {t("equip")} {tool.toLowerCase()}
+              </span>
             </div>
           </InnerPanel>
         </div>

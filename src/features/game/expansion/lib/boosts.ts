@@ -1,6 +1,6 @@
 import Decimal from "decimal.js-light";
 
-import { Bumpkin, GameState, GrubShopOrder, Inventory } from "../../types/game";
+import { Bumpkin, GameState, Inventory } from "../../types/game";
 import { SellableItem } from "features/game/events/landExpansion/sellCrop";
 import { CROPS } from "../../types/crops";
 import { CAKES } from "../../types/craftables";
@@ -54,7 +54,6 @@ export const getSellPrice = ({
   let price = item.sellPrice;
 
   const inventory = game.inventory;
-  const bumpkin = game.bumpkin as Bumpkin;
 
   if (!price) {
     return new Decimal(0);
@@ -66,11 +65,7 @@ export const getSellPrice = ({
   }
 
   // apply Chef Apron 20% boost when selling cakes
-  if (
-    item.name in cakes &&
-    bumpkin.equipped.coat &&
-    bumpkin.equipped.coat === "Chef Apron"
-  ) {
+  if (item.name in cakes && isWearableActive({ name: "Chef Apron", game })) {
     price = price.mul(1.2);
   }
 
@@ -139,7 +134,8 @@ export const getFoodExpBoost = (
   food: Consumable,
   bumpkin: Bumpkin,
   game: GameState,
-  buds: NonNullable<GameState["buds"]>
+  buds: NonNullable<GameState["buds"]>,
+  createdAt: number = Date.now()
 ): number => {
   let boostedExp = new Decimal(food.experience);
   const { skills } = bumpkin;
@@ -172,6 +168,10 @@ export const getFoodExpBoost = (
     boostedExp = boostedExp.mul(1.05);
   }
 
+  if (isCollectibleBuilt({ name: "Blossombeard", game })) {
+    boostedExp = boostedExp.mul(1.1);
+  }
+
   if (
     (food.name in COOKABLE_CAKES || food.name === "Pirate Cake") &&
     isCollectibleBuilt({ name: "Grain Grinder", game })
@@ -190,22 +190,19 @@ export const getFoodExpBoost = (
     boostedExp = boostedExp.mul(1.1);
   }
 
+  // Is February 2024 UTC
+  const isFebruary2024 =
+    createdAt >= new Date("2024-02-01T00:00:00Z").getTime() &&
+    createdAt <= new Date("2024-02-29T23:59:59Z").getTime();
+
+  if (
+    isFebruary2024 &&
+    isCollectibleBuilt({ name: "Earn Alliance Banner", game })
+  ) {
+    boostedExp = boostedExp.mul(2);
+  }
+
   boostedExp = boostedExp.mul(getBudExperienceBoosts(buds, food));
 
   return boostedExp.toDecimalPlaces(4).toNumber();
-};
-
-export const getOrderSellPrice = (bumpkin: Bumpkin, order: GrubShopOrder) => {
-  const { skills, equipped } = bumpkin;
-  let mul = 1;
-
-  if (skills["Michelin Stars"]) {
-    mul += 0.05;
-  }
-
-  if (order.name in CAKES() && equipped.coat === "Chef Apron") {
-    mul += 0.2;
-  }
-
-  return order.sfl.mul(mul);
 };

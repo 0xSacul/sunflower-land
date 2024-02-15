@@ -2,13 +2,13 @@ import { Beehive, FlowerBed } from "features/game/types/game";
 import { REMOVE_BEEHIVE_ERRORS, removeBeehive } from "./removeBeehive";
 import { TEST_FARM } from "features/game/lib/constants";
 import Decimal from "decimal.js-light";
-import {
-  FLOWER_GROW_TIME,
-  HONEY_PRODUCTION_TIME,
-} from "features/game/lib/updateBeehives";
+import { FLOWER_SEEDS } from "features/game/types/flowers";
+import { DEFAULT_HONEY_PRODUCTION_TIME } from "features/game/lib/updateBeehives";
 
 describe("removeBeehive", () => {
   const now = Date.now();
+
+  const FLOWER_GROW_TIME = FLOWER_SEEDS()["Sunpetal Seed"].plantSeconds * 1000;
 
   const DEFAULT_BEEHIVE: Beehive = {
     x: 3,
@@ -27,7 +27,7 @@ describe("removeBeehive", () => {
     height: 1,
     width: 2,
     flower: {
-      name: "Flower 1",
+      name: "Red Pansy",
       amount: 1,
       plantedAt: now,
     },
@@ -52,7 +52,7 @@ describe("removeBeehive", () => {
 
   it("it harvests any honey that the beehive has produced", () => {
     const beehiveId = "1";
-    const halfHoneyProduced = HONEY_PRODUCTION_TIME / 2;
+    const halfHoneyProduced = DEFAULT_HONEY_PRODUCTION_TIME / 2;
 
     const state = removeBeehive({
       state: {

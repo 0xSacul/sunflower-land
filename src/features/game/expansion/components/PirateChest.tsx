@@ -13,9 +13,11 @@ import { MapPlacement } from "./MapPlacement";
 import { Revealing } from "features/game/components/Revealing";
 import { CountdownLabel } from "components/ui/CountdownLabel";
 import { isWearableActive } from "features/game/lib/wearables";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
 export const PirateChest: React.FC = () => {
-  const { gameService } = useContext(Context);
+  const { t } = useAppTranslation();
+  const { gameService, showAnimations } = useContext(Context);
   const [gameState] = useActor(gameService);
 
   const [showCollectedModal, setShowCollectedModal] = useState(false);
@@ -77,7 +79,7 @@ export const PirateChest: React.FC = () => {
         {canOpen && (
           <img
             src={SUNNYSIDE.icons.expression_alerted}
-            className="absolute animate-float"
+            className={"absolute" + (showAnimations ? " animate-float" : "")}
             style={{
               top: `${PIXEL_SCALE * -13}px`,
               left: `${PIXEL_SCALE * 6}px`,
@@ -112,12 +114,12 @@ export const PirateChest: React.FC = () => {
                 width: `${PIXEL_SCALE * 16}px`,
               }}
             />
-            <span className="text-center">
-              Ahoy matey! Set sail and come back later for a chest full of
-              swashbuckling rewards!
-            </span>
+            <span className="text-center">{t("piratechest.greeting")}</span>
             <div className="flex flex-wrap gap-y-1 justify-center mt-4 items-center">
-              <p className="text-xxs mr-2">Chest Refreshes in:</p>
+              <p className="text-xxs mr-2">
+                {t("piratechest.refreshesIn")}
+                {":"}
+              </p>
               <CountdownLabel timeLeft={nextRefreshInSeconds} />
             </div>
           </div>
@@ -138,11 +140,7 @@ export const PirateChest: React.FC = () => {
                 width: `${PIXEL_SCALE * 16}px`,
               }}
             />
-            <span className="mb-2 text-sm">
-              Ahoy there! This chest be filled with treasures fit for a pirate
-              king, but beware, only those with a pirate skin can open it and
-              claim the booty within!
-            </span>
+            <span className="mb-2 text-sm">{t("piratechest.warning")}</span>
           </div>
         </CloseButtonPanel>
       </Modal>

@@ -1,5 +1,6 @@
 import Decimal from "decimal.js-light";
 import { fromWei } from "web3-utils";
+import { translate } from "lib/i18n/translate";
 import {
   Bumpkin,
   GameState,
@@ -23,6 +24,27 @@ export const CHICKEN_COOP_MULTIPLIER = 1.5;
 
 export const POPOVER_TIME_MS = 1000;
 
+export const makeMegaStoreAvailableDates = () => {
+  const now = new Date();
+
+  const currentMonthStart = new Date(now);
+  const nextMonthStart = new Date(now);
+
+  // Set "from" as the first day of the current month
+  currentMonthStart.setUTCDate(1);
+  currentMonthStart.setUTCHours(0, 0, 0, 0);
+
+  // Set "to" as the first day of the next month
+  nextMonthStart.setUTCMonth(nextMonthStart.getMonth() + 1);
+  nextMonthStart.setUTCDate(1);
+  nextMonthStart.setUTCHours(0, 0, 0, 0);
+
+  return {
+    from: currentMonthStart.getTime(),
+    to: nextMonthStart.getTime(),
+  };
+};
+
 export function isBuildingReady(building: PlacedItem[]) {
   return building.some((b) => b.readyAt <= Date.now());
 }
@@ -32,7 +54,7 @@ export const INITIAL_STOCK = (state?: GameState): Inventory => {
     Pickaxe: new Decimal(60),
     "Stone Pickaxe": new Decimal(20),
     "Iron Pickaxe": new Decimal(5),
-    "Gold Pickaxe": new Decimal(1),
+    "Gold Pickaxe": new Decimal(5),
     Rod: new Decimal(50),
   };
 
@@ -46,7 +68,7 @@ export const INITIAL_STOCK = (state?: GameState): Inventory => {
       Pickaxe: new Decimal(90),
       "Stone Pickaxe": new Decimal(30),
       "Iron Pickaxe": new Decimal(8),
-      "Gold Pickaxe": new Decimal(2),
+      "Gold Pickaxe": new Decimal(8),
       Rod: new Decimal(75),
     };
   }
@@ -70,6 +92,10 @@ export const INITIAL_STOCK = (state?: GameState): Inventory => {
     "Orange Seed": new Decimal(10),
     "Blueberry Seed": new Decimal(10),
     "Banana Plant": new Decimal(10),
+
+    "Sunpetal Seed": new Decimal(16),
+    "Bloom Seed": new Decimal(8),
+    "Lily Seed": new Decimal(4),
   };
 
   if (
@@ -94,6 +120,10 @@ export const INITIAL_STOCK = (state?: GameState): Inventory => {
       "Orange Seed": new Decimal(12),
       "Blueberry Seed": new Decimal(12),
       "Banana Plant": new Decimal(12),
+
+      "Sunpetal Seed": new Decimal(20),
+      "Bloom Seed": new Decimal(10),
+      "Lily Seed": new Decimal(5),
     };
   }
 
@@ -134,6 +164,10 @@ export const INVENTORY_LIMIT = (state?: GameState): Inventory => {
     "Orange Seed": new Decimal(33),
     "Blueberry Seed": new Decimal(40),
     "Banana Plant": new Decimal(25),
+
+    "Sunpetal Seed": new Decimal(40),
+    "Bloom Seed": new Decimal(20),
+    "Lily Seed": new Decimal(10),
   };
 
   if (
@@ -159,6 +193,10 @@ export const INVENTORY_LIMIT = (state?: GameState): Inventory => {
       "Orange Seed": new Decimal(40),
       "Blueberry Seed": new Decimal(50),
       "Banana Plant": new Decimal(30),
+
+      "Sunpetal Seed": new Decimal(48),
+      "Bloom Seed": new Decimal(24),
+      "Lily Seed": new Decimal(12),
     };
   }
 
@@ -253,7 +291,7 @@ export const TEST_FARM: GameState = {
     "Chef Hat": new Decimal(1),
     "Boiled Eggs": new Decimal(3),
     "Sunflower Cake": new Decimal(1),
-    "Basic Land": new Decimal(1),
+    "Basic Land": new Decimal(3),
   },
   previousInventory: {},
   stock: INITIAL_STOCK(),
@@ -380,63 +418,10 @@ export const TEST_FARM: GameState = {
       reward: {
         items: { "Solar Flare Ticket": 1 },
       },
-      description: "Harvest 10 Sunflowers",
+      description: translate("task.harvestSunflowers"),
     },
   },
 
-  grubShop: {
-    opensAt: new Date("2022-10-05").getTime(),
-    closesAt: new Date("2022-10-08").getTime(),
-    orders: [
-      {
-        id: "asdj123",
-        name: "Boiled Eggs",
-        sfl: new Decimal(10),
-      },
-      {
-        id: "asdasd",
-        name: "Beetroot Cake",
-        sfl: new Decimal(20),
-      },
-      {
-        id: "3",
-        name: "Sunflower Cake",
-        sfl: new Decimal(20),
-      },
-      {
-        id: "4",
-        name: "Bumpkin Broth",
-        sfl: new Decimal(20),
-      },
-      {
-        id: "5",
-        name: "Mashed Potato",
-        sfl: new Decimal(20),
-      },
-      {
-        id: "6",
-        name: "Wheat Cake",
-        sfl: new Decimal(20),
-      },
-      {
-        id: "7",
-        name: "Pumpkin Soup",
-        sfl: new Decimal(20),
-      },
-      {
-        id: "8",
-        name: "Mashed Potato",
-        sfl: new Decimal(20),
-      },
-    ],
-  },
-  expansionRequirements: {
-    bumpkinLevel: 20,
-    resources: {
-      Wood: 10,
-    },
-    seconds: 60,
-  },
   dailyRewards: { streaks: 0 },
 
   fruitPatches: {},
@@ -455,6 +440,16 @@ export const TEST_FARM: GameState = {
     mushrooms: {},
   },
   beehives: {},
+  springBlossom: {},
+  megastore: {
+    available: makeMegaStoreAvailableDates(),
+    collectibles: [],
+    wearables: [],
+  },
+  specialEvents: {
+    current: {},
+    history: {},
+  },
 };
 
 export const EMPTY: GameState = {
@@ -505,7 +500,7 @@ export const EMPTY: GameState = {
       reward: {
         items: { "Solar Flare Ticket": 1 },
       },
-      description: "Harvest 10 Sunflowers",
+      description: translate("task.harvestSunflowers"),
     },
   },
   trades: {},
@@ -537,6 +532,16 @@ export const EMPTY: GameState = {
   catchTheKraken: {
     hunger: "Sunflower",
     weeklyCatches: {},
+  },
+  springBlossom: {},
+  megastore: {
+    available: makeMegaStoreAvailableDates(),
+    collectibles: [],
+    wearables: [],
+  },
+  specialEvents: {
+    current: {},
+    history: {},
   },
 };
 
