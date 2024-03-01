@@ -31,6 +31,7 @@ export type GeneralTerms =
   | "cancel"
   | "card.cash"
   | "caught"
+  | "change.Language"
   | "check"
   | "chest"
   | "chores"
@@ -62,7 +63,6 @@ export type GeneralTerms =
   | "currently.Unavailable"
   | "danger"
   | "date"
-  | "day"
   | "decoration"
   | "deliver"
   | "deliveries"
@@ -138,7 +138,6 @@ export type GeneralTerms =
   | "messages"
   | "max"
   | "minimum"
-  | "mins"
   | "mint"
   | "minting"
   | "music"
@@ -168,7 +167,6 @@ export type GeneralTerms =
   | "place.bid"
   | "plant"
   | "play.again"
-  | "player.farm.iD"
   | "please.wait"
   | "please.try.again"
   | "print"
@@ -198,7 +196,6 @@ export type GeneralTerms =
   | "save"
   | "saving"
   | "seasonal.treasure"
-  | "secs"
   | "seeds"
   | "selected"
   | "select.resource"
@@ -297,7 +294,20 @@ export type GeneralTerms =
   | "new.species"
   | "buildings"
   | "boosts"
-  | "decorations";
+  | "decorations"
+
+  // time units
+  // Singular
+  | "sec"
+  | "min"
+  | "hr"
+  | "day"
+
+  //Plural
+  | "secs"
+  | "mins"
+  | "hrs"
+  | "days";
 
 export type AchievementsTerms =
   | "breadWinner.description"
@@ -371,6 +381,7 @@ export type AchievementsTerms =
   | "task.harvestSunflowers";
 
 export type Auction =
+  | "auction.title"
   | "auction.bid.message"
   | "auction.reveal"
   | "auction.live"
@@ -396,6 +407,8 @@ export type Base = "base.missing" | "base.far.away";
 export type BasicTreasure =
   | "basic.treasure.missingKey"
   | "basic.treasure.needKey"
+  | "rare.treasure.needKey"
+  | "luxury.treasure.needKey"
   | "basic.treasure.getKey"
   | "basic.treasure.goodLuck"
   | "basic.treasure.key"
@@ -597,7 +610,9 @@ export type BoostEffectDescriptions =
   | "description.christmas.festive.tree.boost"
   | "description.grinxs.hammer.boost"
   | "description.time.warp.totem.boost"
-  | "description.radiant.ray.boost";
+  | "description.radiant.ray.boost"
+  | "description.beekeeper.hat.boost"
+  | "description.flower.fox.boost";
 
 export type BountyDescription =
   | "description.clam.shell"
@@ -1885,17 +1900,6 @@ export type IslandNotFound =
   | "islandNotFound.message"
   | "islandNotFound.takeMeHome";
 
-export type Kick =
-  | "kick.player"
-  | "kick.Reason"
-  | "kick.player.farm"
-  | "kick.player.kick"
-  | "kick.player.failed"
-  | "kick.player.kicking"
-  | "kick.Message";
-
-export type Kicked = "kicked.kicked" | "kicked.Reason";
-
 export type LandscapeTerms =
   | "landscape.intro.one"
   | "landscape.intro.two"
@@ -2007,24 +2011,6 @@ export type ModalDescription =
   | "modalDescription.limited.abilities"
   | "modalDescription.trail";
 
-export type Mute =
-  | "mute.playe"
-  | "mute.duration"
-  | "mute.Reason"
-  | "mute.player.farm"
-  | "mute.player.mute"
-  | "mute.Reason"
-  | "mute.fail"
-  | "mute.player.muting"
-  | "mute.you"
-  | "mute.until"
-  | "mute.discord"
-  | "mute.unmute.farm"
-  | "mute.unmute.player"
-  | "mute.unmute.failed"
-  | "mute.unmuting.player"
-  | "mute.online";
-
 export type Noaccount =
   | "noaccount.newFarmer"
   | "noaccount.addPromoCode"
@@ -2047,7 +2033,15 @@ export type NoBumpkin =
   | "noBumpkin.chooseBumpkin"
   | "noBumpkin.deposit"
   | "noBumpkin.advancedIsland"
-  | "weakBumpkin.notStrong";
+  | "noBumpkin.nude"
+  | "weakBumpkin.notStrong"
+  | "dequipper.noBumpkins"
+  | "dequipper.missingBumpkins"
+  | "dequipper.intro"
+  | "dequipper.warning"
+  | "dequipper.success"
+  | "dequipper.nude"
+  | "dequipper.dequip";
 
 export type NoTownCenter =
   | "noTownCenter.reward"
@@ -2497,7 +2491,8 @@ export type Offer =
   | "offer.newHere"
   | "offer.getStarted"
   | "offer.NFT.include"
-  | "offer.free";
+  | "offer.free"
+  | "offer.not.enough.BlockBucks";
 
 export type Onboarding =
   | "onboarding.welcome"
@@ -2537,6 +2532,7 @@ export type OrderHelp =
   | "orderhelp.NoRight";
 
 export type PageFounds =
+  | "pageFounds.title"
   | "pageFounds.gardeningBookPage"
   | "pageFounds.lastPageFound"
   | "pageFounds.knowHowToGrow"
@@ -2589,16 +2585,6 @@ export type PlazaSettings =
   | "plazaSettings.mutedPlayers.description"
   | "plazaSettings.keybinds.description"
   | "plazaSettings.noMutedPlayers";
-
-export type PlayerListMessages =
-  | "player.list.playerID"
-  | "player.list.farmID"
-  | "player.list.username"
-  | "player.list.status"
-  | "player.list.action"
-  | "player.list.mutedFor"
-  | "player.list.search"
-  | "player.list.playersConnected";
 
 export type PlayerTrade =
   | "playerTrade.no.trade"
@@ -2722,9 +2708,7 @@ export type SettingsMenu =
   | "settingsMenu.timeMachine"
   | "settingsMenu.storeOnChain"
   | "settingsMenu.howToPlay"
-  | "settingsMenu.community"
   | "settingsMenu.swapMaticForSFL"
-  | "settingsMenu.communityGarden"
   | "settingsMenu.share"
   | "settingsMenu.confirmLogout";
 
@@ -2943,7 +2927,8 @@ export type TransactionTerms =
   | "transaction.displayItems"
   | "transaction.withdraw.polygon"
   | "transaction.termsOfService.one"
-  | "transaction.termsOfService.two";
+  | "transaction.termsOfService.two"
+  | "transaction.buy.BlockBucks";
 
 export type Transfer =
   | "transfer.sure.adress"
@@ -3183,8 +3168,6 @@ export type TranslationKeys =
   | IntroPage
   | IslandName
   | IslandNotFound
-  | Kick
-  | Kicked
   | LandscapeTerms
   | LetsGo
   | LevelUpMessages
@@ -3193,7 +3176,6 @@ export type TranslationKeys =
   | MegaStore
   | MilestoneMessages
   | ModalDescription
-  | Mute
   | Noaccount
   | NoBumpkin
   | NoTownCenter
@@ -3216,7 +3198,6 @@ export type TranslationKeys =
   | PirateQuest
   | Pickserver
   | PlazaSettings
-  | PlayerListMessages
   | PlayerTrade
   | Portal
   | PurchaseableBaitTranslation

@@ -13,7 +13,7 @@ import { PIXEL_SCALE } from "features/game/lib/constants";
 import classNames from "classnames";
 import { Context } from "features/game/GameProvider";
 import { MachineState } from "features/game/lib/gameMachine";
-import { useInterpret, useSelector } from "@xstate/react";
+import { useActor, useInterpret, useSelector } from "@xstate/react";
 import { Bar } from "components/ui/ProgressBar";
 import { Beehive as IBeehive } from "features/game/types/game";
 import {
@@ -24,7 +24,7 @@ import {
   getCurrentHoneyProduced,
 } from "./beehiveMachine";
 import { Bee } from "./Bee";
-import { Modal } from "react-bootstrap";
+import { Modal } from "components/ui/Modal";
 import { NPC_WEARABLES } from "lib/npcs";
 import { progressBarBorderStyle } from "features/game/lib/style";
 import { ITEM_DETAILS } from "features/game/types/images";
@@ -38,6 +38,7 @@ import { SpeakingText } from "features/game/components/SpeakingModal";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { DEFAULT_HONEY_PRODUCTION_TIME } from "features/game/lib/updateBeehives";
 import { translate } from "lib/i18n/translate";
+import Decimal from "decimal.js-light";
 
 interface Props {
   id: string;
@@ -64,6 +65,7 @@ const _showBeeAnimation = (state: BeehiveMachineState) =>
 export const Beehive: React.FC<Props> = ({ id }) => {
   const { t } = useAppTranslation();
   const { showTimers, gameService } = useContext(Context);
+  const [gameState] = useActor(gameService);
   const isInitialMount = useRef(true);
   const [showProducingBee, setShowProducingBee] = useState<boolean>();
   const [showHoneyLevelModal, setShowHoneyLevelModal] = useState(false);
@@ -76,7 +78,7 @@ export const Beehive: React.FC<Props> = ({ id }) => {
   const hive = useSelector(gameService, getBeehiveById(id), compareHive);
 
   const beehiveContext: BeehiveContext = {
-    gameState: gameService.state.context.state,
+    gameState: gameState.context.state,
     hive,
     honeyProduced: getCurrentHoneyProduced(hive),
   };
@@ -97,14 +99,11 @@ export const Beehive: React.FC<Props> = ({ id }) => {
   }, [honeyReady, beehiveService]);
 
   const handleHarvestHoney = () => {
-    if (showHoneyLevelModal && honeyReady) {
-      setShowHoneyLevelModal(false);
-    }
-
     if (hive.swarm && honeyReady) {
-      setShowHoneyLevelModal(false);
       setShowSwarmModal(true);
     }
+
+    setShowHoneyLevelModal(false);
 
     const state = gameService.send("beehive.harvested", { id });
     beehiveService.send("HARVEST_HONEY", {
@@ -172,9 +171,10 @@ export const Beehive: React.FC<Props> = ({ id }) => {
     }
   }, [honeyProduced, showHoneyLevelPopover]);
 
-  const honeyAmount = (honeyProduced / DEFAULT_HONEY_PRODUCTION_TIME).toFixed(
-    4
-  );
+  const honeyAmount = new Decimal(honeyProduced / DEFAULT_HONEY_PRODUCTION_TIME)
+    .todp(4, Decimal.ROUND_DOWN)
+    .toNumber();
+
   const percentage = (honeyProduced / DEFAULT_HONEY_PRODUCTION_TIME) * 100;
   const showQuantityBar =
     showTimers && !landscaping && !showBeeAnimation && honeyProduced > 0;
@@ -283,7 +283,6 @@ export const Beehive: React.FC<Props> = ({ id }) => {
       {/* Harvest honey + honey level modal */}
       <Modal
         size="sm"
-        centered
         show={showHoneyLevelModal}
         onHide={() => setShowHoneyLevelModal(false)}
       >
@@ -345,11 +344,7 @@ export const Beehive: React.FC<Props> = ({ id }) => {
         </Panel>
       </Modal>
       {/* Bee swarm modal */}
-      <Modal
-        centered
-        show={showSwarmModal}
-        onHide={() => setShowSwarmModal(false)}
-      >
+      <Modal show={showSwarmModal} onHide={() => setShowSwarmModal(false)}>
         <Panel
           className="relative space-y-1"
           bumpkinParts={NPC_WEARABLES.stevie}

@@ -35,14 +35,12 @@ export const PlaceableController: React.FC<Props> = ({ location }) => {
   const { t } = useAppTranslation();
   const [
     {
-      value,
       context: {
         collisionDetected,
         placeable,
         requirements,
         coordinates,
         maximum,
-        action,
       },
     },
     send,
@@ -175,8 +173,6 @@ export const PlaceableController: React.FC<Props> = ({ location }) => {
     );
   };
 
-  const isForcedToPlace = placeable === "Time Warp Totem";
-
   const isWrongLocation =
     location === "home" &&
     ((!COLLECTIBLES_DIMENSIONS[placeable as CollectibleName] &&
@@ -185,7 +181,7 @@ export const PlaceableController: React.FC<Props> = ({ location }) => {
       placeable === "Magic Bean");
 
   return (
-    <div className="fixed bottom-2 left-1/2 -translate-x-1/2">
+    <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
       <OuterPanel>
         {isWrongLocation && (
           <Label
@@ -204,17 +200,15 @@ export const PlaceableController: React.FC<Props> = ({ location }) => {
             height: `${PIXEL_SCALE * 17}px`,
           }}
         >
-          {!isForcedToPlace && (
-            <Button onClick={handleCancelPlacement}>
-              <img
-                src={SUNNYSIDE.icons.cancel}
-                alt="cancel"
-                style={{
-                  width: `${PIXEL_SCALE * 11}px`,
-                }}
-              />
-            </Button>
-          )}
+          <Button onClick={handleCancelPlacement}>
+            <img
+              src={SUNNYSIDE.icons.cancel}
+              alt="cancel"
+              style={{
+                width: `${PIXEL_SCALE * 11}px`,
+              }}
+            />
+          </Button>
 
           <Button
             disabled={collisionDetected || isWrongLocation}

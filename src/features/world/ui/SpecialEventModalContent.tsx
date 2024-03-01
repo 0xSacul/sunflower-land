@@ -77,7 +77,7 @@ const RequiresWallet: React.FC<{
     );
   }
 
-  return requiresWallet ? (
+  return requiresWallet && !hasWallet ? (
     <GameWallet action="specialEvent">{children}</GameWallet>
   ) : (
     <>{children}</>
@@ -86,7 +86,7 @@ const RequiresWallet: React.FC<{
 
 export const SpecialEventModalContent: React.FC<{
   onClose: () => void;
-  npcName: NPCName;
+  npcName?: NPCName;
   event: SpecialEvent;
   eventName: SpecialEventName;
 }> = ({ onClose, npcName, event, eventName }) => {
@@ -94,7 +94,7 @@ export const SpecialEventModalContent: React.FC<{
   const [gameState] = useActor(gameService);
 
   const [reward, setReward] = useState<Airdrop & { day: number }>();
-  const [showLink, setShowLink] = useState(false);
+  const [showLink] = useState(false);
 
   const { t } = useAppTranslation();
   const {
@@ -193,17 +193,23 @@ export const SpecialEventModalContent: React.FC<{
   // case it was missed, let's check it here as well
   if (!event.isEligible) {
     return (
-      <CloseButtonPanel onClose={onClose} bumpkinParts={NPC_WEARABLES[npcName]}>
+      <CloseButtonPanel
+        onClose={onClose}
+        bumpkinParts={npcName ? NPC_WEARABLES[npcName] : undefined}
+      >
         <div>
-          <div className="flex justify-between items-center p-2">
-            <Label
-              type="default"
-              className="capitalize"
-              icon={SUNNYSIDE.icons.player}
-            >
-              {npcName}
-            </Label>
-          </div>
+          {npcName && (
+            <div className="flex justify-between items-center p-2">
+              <Label
+                type="default"
+                className="capitalize"
+                icon={SUNNYSIDE.icons.player}
+              >
+                {npcName}
+              </Label>
+            </div>
+          )}
+
           <p className="text-sm mb-3 p-2">
             <Dialogue
               trail={25}
@@ -218,20 +224,26 @@ export const SpecialEventModalContent: React.FC<{
   }
 
   return (
-    <CloseButtonPanel onClose={onClose} bumpkinParts={NPC_WEARABLES[npcName]}>
+    <CloseButtonPanel
+      onClose={onClose}
+      bumpkinParts={npcName ? NPC_WEARABLES[npcName] : undefined}
+    >
       <RequiresWallet
         requiresWallet={event.requiresWallet}
         hasWallet={!!linkedWallet}
       >
         <div>
           <div className="flex justify-between items-center mb-3 p-2">
-            <Label
-              type="default"
-              className="capitalize"
-              icon={SUNNYSIDE.icons.player}
-            >
-              {npcName}
-            </Label>
+            {npcName && (
+              <Label
+                type="default"
+                className="capitalize"
+                icon={SUNNYSIDE.icons.player}
+              >
+                {npcName}
+              </Label>
+            )}
+
             <Label type="info" className="mr-8" icon={SUNNYSIDE.icons.timer}>
               {secondsToString(Math.floor((event.endAt - Date.now()) / 1000), {
                 length: "medium",
@@ -250,7 +262,11 @@ export const SpecialEventModalContent: React.FC<{
             {event?.tasks.map((task, index) => (
               <>
                 <div className="flex justify-between items-center mb-2">
-                  <Label type="default" icon={SUNNYSIDE.icons.stopwatch}>
+                  <Label
+                    type="default"
+                    className="capitalize"
+                    icon={SUNNYSIDE.icons.stopwatch}
+                  >
                     {`${t("day")} ${index + 1}`}
                   </Label>
                   <div className="flex justify-end space-x-3">

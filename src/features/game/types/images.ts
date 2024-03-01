@@ -82,6 +82,8 @@ import enchantedRose from "assets/sfts/enchanted_rose.webp";
 import flowerCart from "assets/sfts/flower_cart.webp";
 import capybara from "assets/sfts/capybara.webp";
 import flowerRug from "assets/sfts/flower_rug.webp";
+import teaRug from "assets/sfts/tea_rug.webp";
+import greenFieldRug from "assets/sfts/green_field_rug.webp";
 
 // AoE items
 import basicScarecrow from "assets/sfts/aoe/basic_scarecrow.png";
@@ -236,6 +238,7 @@ import witchesEveBanner from "assets/decorations/banners/witches_eve_banner.webp
 import catchTheKrakenBanner from "assets/decorations/banners/catch_the_kraken_banner.webp";
 import springBlossomBanner from "assets/decorations/banners/spring_banner.gif";
 import budTicket from "assets/icons/bud_ticket.png";
+import prizeTicket from "assets/icons/prize_ticket.png";
 import budSeedling from "assets/icons/bud_seedling.png";
 import earnAllianceBanner from "assets/sfts/earn_alliance_banner.png";
 
@@ -318,6 +321,8 @@ import bananaBlast from "assets/food/banana_blast.png";
 
 import goblinKey from "src/assets/sfts/quest/goblin_key.png";
 import sunflowerKey from "src/assets/sfts/quest/sunflower_key.png";
+import rareKey from "src/assets/sfts/quest/rare_key.png";
+import luxuryKey from "src/assets/sfts/quest/luxury_key.png";
 import ancientGoblinSword from "src/assets/sfts/quest/ancient_goblin_sword.png";
 import ancientHumanWarhammer from "src/assets/sfts/quest/ancient_human_warhammer.png";
 
@@ -3136,6 +3141,16 @@ export const ITEM_DETAILS: Items = {
     description: "Add a touch of nature's elegance to your home.",
     image: flowerRug,
   },
+  "Tea Rug": {
+    description:
+      "Rug boasting a warm and inviting tea-colored hue that exudes comfort.",
+    image: teaRug,
+  },
+  "Green Field Rug": {
+    description:
+      "A beautiful rug of deep green hue's reminiscent of a vibrant meadow in full bloom.",
+    image: greenFieldRug,
+  },
   "Blossom Royale": {
     description: translate("description.blossom.royale"),
     image: blossomRoyale,
@@ -3213,15 +3228,15 @@ export const ITEM_DETAILS: Items = {
     description: translate("description.earnAllianceBanner"),
   },
   "Luxury Key": {
-    image: sunflowerKey,
+    image: luxuryKey,
     description: translate("description.treasure.key"),
   },
   "Rare Key": {
-    image: sunflowerKey,
+    image: rareKey,
     description: translate("description.treasure.key"),
   },
   "Prize Ticket": {
-    image: sunflowerKey,
+    image: prizeTicket,
     description: translate("description.prizeTicket"),
   },
 };

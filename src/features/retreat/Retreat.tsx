@@ -6,7 +6,7 @@ import { GoblinProvider } from "features/game/GoblinProvider";
 import { Game } from "./Game";
 import { Context, GameProvider } from "features/game/GameProvider";
 import { useActor } from "@xstate/react";
-import { Modal } from "react-bootstrap";
+import { Modal } from "components/ui/Modal";
 import { Panel } from "components/ui/Panel";
 import { Loading } from "features/auth/components";
 import { Wallet } from "features/wallet/Wallet";
@@ -20,7 +20,7 @@ const GoblinRetreat: React.FC = () => {
     return (
       <Ocean>
         {/* <GameBoard /> */}
-        <Modal centered show backdrop={false}>
+        <Modal show backdrop={false}>
           <Panel>
             <Loading />
           </Panel>
@@ -30,27 +30,27 @@ const GoblinRetreat: React.FC = () => {
   }
 
   return (
-    <Ocean>
-      <Wallet
-        action="withdraw"
-        id={gameState.context.farmId}
-        linkedAddress={gameState.context.linkedWallet}
-        wallet={gameState.context.wallet}
-        farmAddress={gameState.context.farmAddress}
-        wrapper={({ children }) => (
-          <Modal centered show>
+    <Wallet
+      action="withdraw"
+      id={gameState.context.farmId}
+      linkedAddress={gameState.context.linkedWallet}
+      wallet={gameState.context.wallet}
+      farmAddress={gameState.context.farmAddress}
+      wrapper={({ children }) => (
+        <Ocean>
+          <Modal show backdrop={false}>
             <Panel>{children}</Panel>
           </Modal>
-        )}
+        </Ocean>
+      )}
+    >
+      <GoblinProvider
+        farmAddress={gameState.context.farmAddress}
+        farmId={gameState.context.farmId}
       >
-        <GoblinProvider
-          farmAddress={gameState.context.farmAddress}
-          farmId={gameState.context.farmId}
-        >
-          <Game />
-        </GoblinProvider>
-      </Wallet>
-    </Ocean>
+        <Game />
+      </GoblinProvider>
+    </Wallet>
   );
 };
 
@@ -58,7 +58,7 @@ export const Retreat: React.FC = () => {
   const [scrollIntoView] = useScrollIntoView();
 
   useLayoutEffect(() => {
-    // Start with island centered
+    // Start with island
     scrollIntoView(Section.RetreatBackground, "auto");
   }, []);
 

@@ -23,7 +23,7 @@ import { CraftingRequirements } from "components/ui/layouts/CraftingRequirements
 import { GameState } from "features/game/types/game";
 import { gameAnalytics } from "lib/gameAnalytics";
 import { getSeasonalTicket } from "features/game/types/seasons";
-import { Modal } from "react-bootstrap";
+import { Modal } from "components/ui/Modal";
 import { CloseButtonPanel } from "features/game/components/CloseablePanel";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 
@@ -119,17 +119,6 @@ export const StylistWearables: React.FC<Props> = ({ wearables }) => {
 
   const { t } = useAppTranslation();
   const Action = () => {
-    if (state.wardrobe[selected])
-      return (
-        <div className="flex justify-center items-center">
-          <span className="text-xs">
-            {t("alr.bought")}
-            {"!"}
-          </span>
-          <img src={SUNNYSIDE.icons.confirm} className="h-4 ml-1" />
-        </div>
-      );
-
     if (wearable.requiresItem && !state.inventory[wearable.requiresItem]) {
       return (
         <div className="flex items-center justify-center">
@@ -155,11 +144,7 @@ export const StylistWearables: React.FC<Props> = ({ wearables }) => {
         >
           {t("buy")}
         </Button>
-        <Modal
-          centered
-          show={isConfirmBuyModalOpen}
-          onHide={closeConfirmationModal}
-        >
+        <Modal show={isConfirmBuyModalOpen} onHide={closeConfirmationModal}>
           <CloseButtonPanel className="sm:w-4/5 m-auto">
             <div className="flex flex-col p-2">
               <span className="text-sm text-center">

@@ -16,8 +16,8 @@ type FeatureName =
   | "JEST_TEST"
   | "LOCALISATION"
   | "PORTALS"
-  | "MEGA_STORE"
-  | "BUMPKIN_GIFTS";
+  | "DEQUIPPER"
+  | "CHESTS";
 
 // Used for testing production features
 export const ADMIN_IDS = [
@@ -30,9 +30,9 @@ type FeatureFlag = (game: GameState) => boolean;
 const featureFlags: Record<FeatureName, FeatureFlag> = {
   PORTALS: testnetFeatureFlag,
   JEST_TEST: defaultFeatureFlag,
-  BUMPKIN_GIFTS: () => true,
   LOCALISATION: testnetFeatureFlag,
-  MEGA_STORE: testnetFeatureFlag,
+  DEQUIPPER: defaultFeatureFlag,
+  CHESTS: defaultFeatureFlag,
 };
 
 export const hasFeatureAccess = (game: GameState, featureName: FeatureName) => {
