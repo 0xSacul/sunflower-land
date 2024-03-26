@@ -169,6 +169,9 @@ import {
   Promo,
   Trader,
   NyonStatue,
+  Trading,
+  TimeUnits,
+  PwaInstall,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -211,7 +214,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   "claim.skill": "Reivindicar Habilidade",
   clear: "Limpar",
   close: "Fechar",
-  "come.back": "Volte em",
   "coming.soon": "Em breve",
   common: "Comum",
   completed: "Concluído",
@@ -223,6 +225,8 @@ const generalTerms: Record<GeneralTerms, string> = {
   cook: "Cozinhar",
   copied: "Copiado",
   "copy.address": "Copiar Endereço",
+  "copy.link": "Copy Link",
+  "copy.failed": "Copy Failed!",
   coupons: "Cupons",
   craft: "Artesanato",
   crafting: "Artesanato",
@@ -341,6 +345,8 @@ const generalTerms: Record<GeneralTerms, string> = {
   "reward.discovered": "Recompensa Descoberta",
   save: "Salvar",
   saving: "Salvando",
+  search: "Buscar",
+  searching: "Buscando",
   "seasonal.treasure": "Tesouro Sazonal",
   seeds: "Sementes",
   selected: "Selecionado",
@@ -468,7 +474,9 @@ const generalTerms: Record<GeneralTerms, string> = {
   upcoming: "Próximo",
   wearables: "Vestíveis",
   wish: "Desejo",
+};
 
+const timeUnits: Record<TimeUnits, string> = {
   // Time
   sec: ENGLISH_TERMS["sec"],
   min: ENGLISH_TERMS["min"],
@@ -914,6 +922,7 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
     "Redução de 50% no Tempo de Plantações, Mineral, Cozimento e Árvore",
   "description.radiant.ray.boost": "+0.1 Ferro",
   "description.earnAlliance.boost": "2x XP Fev 2024",
+  "description.babyPanda.boost": "2x XP Mar 2024",
   "description.flower.fox.boost": "-10% Tempo de Crescimento de Flores",
 };
 
@@ -983,8 +992,8 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
   "bumpkinItemBuff.chef.apron.boost": "+20% Lucro com Bolos",
   "bumpkinItemBuff.fruit.picker.apron.boost": "+0.1 Fruta",
-  "bumpkinItemBuff.angel.wings.boost": "Chance de colheita Instantânea",
-  "bumpkinItemBuff.devil.wings.boost": "Chance de colheita Instantânea",
+  "bumpkinItemBuff.angel.wings.boost": "30% de Chance de colheita Instantânea",
+  "bumpkinItemBuff.devil.wings.boost": "30% de Chance de colheita Instantânea",
   "bumpkinItemBuff.eggplant.onesie.boost": "+0.1 Berinjela",
   "bumpkinItemBuff.golden.spatula.boost": "+10% XP",
   "bumpkinItemBuff.mushroom.hat.boost": "+0.1 Cogumelos",
@@ -1068,6 +1077,16 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.like.list": "O que você gostaria de listar?",
   "bumpkinTrade.goldpass.required": "Você precisa de um Gold Pass",
   "bumpkinTrade.purchase": "Comprar no Goblin Retreat",
+  "bumpkinTrade.available": ENGLISH_TERMS["bumpkinTrade.available"],
+  "bumpkinTrade.quantity": ENGLISH_TERMS["bumpkinTrade.quantity"],
+  "bumpkinTrade.price": ENGLISH_TERMS["bumpkinTrade.price"],
+  "bumpkinTrade.listingPrice": ENGLISH_TERMS["bumpkinTrade.listingPrice"],
+  "bumpkinTrade.pricePerUnit": ENGLISH_TERMS["bumpkinTrade.pricePerUnit"],
+  "bumpkinTrade.tradingFee": ENGLISH_TERMS["bumpkinTrade.tradingFee"],
+  "bumpkinTrade.youWillReceive": ENGLISH_TERMS["bumpkinTrade.youWillReceive"],
+  "bumpkinTrade.cancel": ENGLISH_TERMS["bumpkinTrade.cancel"],
+  "bumpkinTrade.list": ENGLISH_TERMS["bumpkinTrade.list"],
+  "bumpkinTrade.maxListings": ENGLISH_TERMS["bumpkinTrade.maxListings"],
 };
 
 const buyFarmHand: Record<BuyFarmHand, string> = {
@@ -1161,6 +1180,10 @@ const chumDetails: Record<ChumDetails, string> = {
   "chumDetails.tuna": "O que é grande o suficiente para comer um atum?",
   "chumDetails.squid": "Acorde uma raia com seu petisco favorito!",
   "chumDetails.wood": "Madeira. Uma escolha interessante....",
+  "chumDetails.fatChicken": ENGLISH_TERMS["chumDetails.fatChicken"],
+  "chumDetails.richChicken": ENGLISH_TERMS["chumDetails.richChicken"],
+  "chumDetails.speedChicken": ENGLISH_TERMS["chumDetails.speedChicken"],
+  "chumDetails.redPansy": ENGLISH_TERMS["chumDetails.redPansy"],
 };
 
 const community: Record<Community, string> = {
@@ -1692,7 +1715,7 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
   "description.yellow.lotus": "Um lótus amarelo.",
   "description.purple.lotus": "Um lótus roxo.",
   "description.white.lotus": "Um lótus branco.",
-  "description.blue.lotu": "Um lótus azul.",
+  "description.blue.lotus": "Um lótus azul.",
 
   // Banners
   "description.goblin.war.banner":
@@ -2273,7 +2296,11 @@ const gameDescriptions: Record<GameDescriptions, string> = {
   "description.farmhand": "Um Bumpkin adotado em sua fazenda",
   "description.tulip.bulb": "Um ingresso usado durante a Florada da Primavera",
   "description.prizeTicket": "Um ingresso para entrar nos sorteios de prêmios",
+  "description.babyPanda": ENGLISH_TERMS["description.babyPanda"],
   "description.treasure.key": "Visite o Plaza para desbloquear sua recompensa",
+  "description.rare.key": "Visite a praia para desbloquear sua recompensa",
+  "description.luxury.key":
+    "Visite o Plaza perto de Woodlands para desbloquear sua recompensa",
 
   // Easter Items
   "description.egg.basket": "Evento de Páscoa",
@@ -3624,13 +3651,13 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.finn.reward":
     "Suas contribuições são inestimáveis. Aqui está algo para expressar minha gratidão.",
   "npcDialogues.finn.flowerIntro":
-    "Estou desejando um belo Narciso em Vermelho, Amarelo, Roxo, Branco ou Azul. Você consegue encontrar um?",
+    "Estou desejando um belo Cosmos em Branco ou Azul. Você consegue encontrar um?",
   "npcDialogues.finn.averageFlower":
     "Não é exatamente o que eu esperava, mas é bastante agradável. Obrigado.",
   "npcDialogues.finn.badFlower":
     "Esta flor não atende exatamente às minhas expectativas. Talvez outra tentativa?",
   "npcDialogues.finn.goodFlower":
-    "Este Narciso é deslumbrante! Obrigado por trazê-lo para mim.",
+    "Este Cosmos é deslumbrante! Obrigado por trazê-lo para mim.",
 
   "npcDialogues.finley.reward":
     "Obrigado por seus esforços. Aqui está um pequeno gesto de apreço por suas entregas.",
@@ -3641,7 +3668,7 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.finley.badFlower":
     "Esta flor não está certa. Talvez outra opção seria mais adequada?",
   "npcDialogues.finley.goodFlower":
-    "Este Cravo Amarelo é lindo! Obrigado por trazê-lo para mim.",
+    "Esse Narciso é lindo! Obrigado por trazê-lo para mim.",
 
   "npcDialogues.corale.reward":
     "Suas entregas são muito apreciadas. Aqui está um pequeno gesto de apreço por seus esforços.",
@@ -3663,7 +3690,7 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.raven.badFlower":
     "Esta flor não está exatamente certa. Talvez outra busca seja necessária?",
   "npcDialogues.raven.goodFlower":
-    "Este Cravo Roxo está perfeito! Obrigado por trazê-lo para mim.",
+    "Este Flor Roxo está perfeito! Obrigado por trazê-lo para mim.",
 
   "npcDialogues.miranda.reward":
     "Obrigado por seus esforços. Aqui está um pequeno gesto de apreço por suas entregas.",
@@ -3708,6 +3735,16 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.default.reward":
     "Uau, obrigado Bumpkin. Aqui está um pequeno presente pela sua ajuda!",
   "npcDialogues.default.locked": "Por favor, volte amanhã.",
+
+  // Glinteye Intro
+  "npcDialogues.glinteye.intro1":
+    "Ah, aventureiro! Glinteye à sua disposição. Pronto para negociar segredos e recursos? Mergulhe em minhas listagens ou adicione as suas. Vamos fazer um acordo!",
+  "npcDialogues.glinteye.intro2":
+    "Bem-vindo, alma curiosa! Sou Glinteye, seu guia para trocar maravilhas. Procure ou liste recursos comigo; a sorte favorece os ousados!",
+  "npcDialogues.glinteye.intro3":
+    "Glinteye é meu nome, trocar é meu lema! Navegue ou liste, sempre uma trama. O que te agrada hoje?",
+  "npcDialogues.glinteye.intro4":
+    "Olá! Sou Glinteye, o goblin do comércio. Explore trocas de jogadores ou liste seus itens. Vamos ver o que podemos encontrar juntos!",
 };
 
 const nyeButton: Record<NyeButton, string> = {
@@ -3789,6 +3826,8 @@ const onCollectReward: Record<OnCollectReward, string> = {
   "onCollectReward.Missing.Seed": "Sementes em falta",
   "onCollectReward.Market": "Vá para o Mercado para comprar sementes.",
   "onCollectReward.Missing.Shovel": "Pá em falta",
+  "onCollectReward.Missing.Shovel.description":
+    ENGLISH_TERMS["onCollectReward.Missing.Shovel.description"],
 };
 
 const orderhelp: Record<OrderHelp, string> = {
@@ -4021,6 +4060,20 @@ const rulesTerms: Record<RulesTerms, string> = {
   "rules.termsOfService": "Termos de Serviço",
 };
 
+const pwaInstall: Record<PwaInstall, string> = {
+  "install.app": "Install App",
+  "magic.link": "Magic Link",
+  "generating.link": "Generating Link",
+  "generating.code": "Generating Code",
+  "install.app.mobile.description.one": "Install Sunflower Land on your device",
+  "install.app.mobile.description.two": "on your device.",
+  "install.app.desktop.description":
+    "Scan the code below to install on your device.",
+  "install.app.mobile.metamask.description.one":
+    "Copy the magic link below and open it in",
+  "install.app.mobile.metamask.description.two": "on your device to install!",
+};
+
 const sceneDialogueKey: Record<SceneDialogueKey, string> = {
   "sceneDialogues.chefIsBusy": "O Chef está ocupado",
 };
@@ -4128,6 +4181,7 @@ const somethingWentWrong: Record<SomethingWentWrong, string> = {
 };
 
 const specialEvent: Record<SpecialEvent, string> = {
+  "special.event.link": ENGLISH_TERMS["special.event.link"],
   "special.event.claimForm":
     "Preencha o formulário abaixo para reivindicar seu airdrop.",
   "special.event.airdropHandling":
@@ -4136,6 +4190,9 @@ const specialEvent: Record<SpecialEvent, string> = {
   "special.event.web3Wallet":
     "Uma carteira Web3 é necessária para este evento, pois contém um Airdrop.",
   "special.event.airdrop": "Airdrop",
+  "special.event.finishedLabel": ENGLISH_TERMS["special.event.finishedLabel"],
+  "special.event.finished": ENGLISH_TERMS["special.event.finished"],
+  "special.event.ineligible": ENGLISH_TERMS["special.event.ineligible"],
 };
 
 const statements: Record<Statements, string> = {
@@ -4224,7 +4281,6 @@ const statements: Record<Statements, string> = {
   "statements.wishing.well.worthwell": "em recompensas no poço!",
   "statements.wishing.well.look.like": "Não parece que você está",
   "statements.wishing.well.lucky": "Vamos ver o quão sortudo você é!",
-  "statements.wishing.just.lucky": "para ver o quão sortudo você tem sido.",
   "statements.wrongChain.one": "Confira este guia para ajudá-lo a se conectar.",
   "statements.feed.bumpkin.one": "Você não tem comida em seu inventário.",
   "statements.feed.bumpkin.two":
@@ -4292,17 +4348,17 @@ const tieBreaker: Record<TieBreaker, string> = {
 
 const toolDescriptions: Record<ToolDescriptions, string> = {
   // Ferramentas
-  "description.axe": "Usado para coletar madeira",
-  "description.pickaxe": "Usado para coletar pedra",
-  "description.stone.pickaxe": "Usado para coletar ferro",
-  "description.iron.pickaxe": "Usado para coletar ouro",
+  "description.axe": "Usado para cortar madeira",
+  "description.pickaxe": "Usado para minerar pedra",
+  "description.stone.pickaxe": "Usado para minerar ferro",
+  "description.iron.pickaxe": "Usado para minerar ouro",
+  "description.gold.pickaxe": "Usado para minerar crimstone e sunstone",
   "description.rod": "Usado para pescar",
   "description.rusty.shovel": "Usado para remover construções e colecionáveis",
   "description.shovel": "Plantar e colher plantações.",
   "description.sand.shovel": "Usado para escavar tesouros",
   "description.sand.drill":
     "Perfurar profundamente por tesouros incomuns ou raros",
-  "description.gold.pickaxe": "Usado para coletar crimstone e sunstone",
 };
 
 const trader: Record<Trader, string> = {
@@ -4591,6 +4647,7 @@ const milestoneMessages: Record<MilestoneMessages, string> = {
 const event: Record<Event, string> = {
   "event.christmas": "Evento de Natal!",
   "event.LunarNewYear": "Evento de Ano Novo Lunar",
+  "event.GasHero": "Evento de Gas Hero",
   "event.valentines.rewards": "Recompensas de Dia dis Namorados",
 };
 
@@ -4598,6 +4655,17 @@ export const NYON_STATUE: Record<NyonStatue, string> = {
   "nyonStatue.memory": "Em memória de",
   "nyonStatue.description":
     "O lendário cavaleiro responsável por limpar os goblins das minas. Pouco depois de sua vitória, ele morreu envenenado por um conspirador Goblin. Os Cidadãos de Sunflower Land ergueram esta estátua com sua armadura para comemorar suas conquistas.",
+};
+
+const trading: Record<Trading, string> = {
+  "trading.select.resources": "Selecione recursos para ver listagens",
+  "trading.no.listings": "Nenhuma listagem encontrada",
+  "trading.listing.congrats": "Parabéns, você listou seus itens para troca!",
+  "trading.listing.deleted": "Sua listagem foi excluída",
+  "trading.listing.fulfilled": "A troca foi completada",
+  "trading.your.listing": "Sua listagem",
+  "trading.you.receive": "Você recebe",
+  "trading.burned": "será queimado.",
 };
 
 export const PORTUGUESE_TERMS: Record<TranslationKeys, string> = {
@@ -4733,6 +4801,7 @@ export const PORTUGUESE_TERMS: Record<TranslationKeys, string> = {
   ...rewardTerms,
   ...rulesGameStart,
   ...rulesTerms,
+  ...pwaInstall,
   ...sceneDialogueKey,
   ...seasonTerms,
   ...settingsMenu,
@@ -4750,9 +4819,11 @@ export const PORTUGUESE_TERMS: Record<TranslationKeys, string> = {
   ...subSettings,
   ...swarming,
   ...tieBreaker,
+  ...timeUnits,
   ...toolDescriptions,
   ...transactionTerms,
   ...transfer,
+  ...trading,
   ...treasureModal,
   ...tutorialPage,
   ...visitislandEnter,

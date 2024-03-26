@@ -1,27 +1,20 @@
 import { CONFIG } from "lib/config";
 import { ERRORS } from "lib/errors";
-import { GameState } from "../types/game";
+import { GameState, InventoryItemName } from "../types/game";
 import { makeGame } from "../lib/transforms";
 
 const API_URL = CONFIG.API_URL;
 
 type Request = {
-  buyerId: number;
+  items: Partial<Record<InventoryItemName, number>>;
+  sfl: number;
   sellerId: number;
   token: string;
-  tradeId: string;
-  transactionId: string;
 };
 
-type Response = {
-  farm: GameState;
-  error?: "ALREADY_BOUGHT";
-};
-
-export async function trade(request: Request): Promise<Response> {
-  const response = await window.fetch(`${API_URL}/trade/${request.buyerId}`, {
+export async function listRequest(request: Request): Promise<GameState> {
+  const response = await window.fetch(`${API_URL}/listings`, {
     method: "POST",
-    //mode: "no-cors",
     headers: {
       "content-type": "application/json;charset=UTF-8",
       Authorization: `Bearer ${request.token}`,
@@ -29,11 +22,11 @@ export async function trade(request: Request): Promise<Response> {
       ...((window as any)["x-amz-ttl"]
         ? { "X-Amz-TTL": (window as any)["x-amz-ttl"] }
         : {}),
-      "X-Transaction-ID": request.transactionId,
     },
     body: JSON.stringify({
-      tradeId: request.tradeId,
       sellerId: request.sellerId,
+      items: request.items,
+      sfl: request.sfl,
     }),
   });
 
@@ -47,7 +40,5 @@ export async function trade(request: Request): Promise<Response> {
 
   const data = await response.json();
 
-  const farm = makeGame(data.farm);
-
-  return { farm, error: data.error };
+  return makeGame(data);
 }

@@ -61,7 +61,7 @@ import {
 import { depositToFarm } from "lib/blockchain/Deposit";
 import Decimal from "decimal.js-light";
 import { setOnboardingComplete } from "features/auth/actions/onboardingComplete";
-import { Announcements } from "../types/conversations";
+import { Announcements } from "../types/announcements";
 import { purchaseItem, purchaseItemOnChain } from "../actions/purchaseItem";
 import {
   Currency,
@@ -74,7 +74,6 @@ import { mintAuctionItem } from "../actions/mintAuctionItem";
 import { BumpkinItem } from "../types/bumpkin";
 import { getAuctionResults } from "../actions/getAuctionResults";
 import { AuctionResults } from "./auctionMachine";
-import { trade } from "../actions/trade";
 import { mmoBus } from "features/world/mmoMachine";
 import { onboardingAnalytics } from "lib/onboardingAnalytics";
 import { BudName } from "../types/buds";
@@ -83,6 +82,9 @@ import { isValidRedirect } from "features/portal/examples/cropBoom/lib/portalUti
 import { portal } from "features/world/ui/community/actions/portal";
 import { BUMPKIN_EXPANSIONS_LEVEL } from "../types/expansions";
 import { getBumpkinLevel } from "./level";
+import { listRequest } from "../actions/listTrade";
+import { deleteListingRequest } from "../actions/deleteListing";
+import { fulfillTradeListingRequest } from "../actions/fulfillTradeListing";
 
 const getPortal = () => {
   const code = new URLSearchParams(window.location.search).get("portal");
@@ -232,10 +234,25 @@ type UpdateEvent = {
   state: GameState;
 };
 
-type TradeEvent = {
-  type: "TRADE";
+type ListingEvent = {
+  type: "LIST_TRADE";
   sellerId: number;
-  tradeId: string;
+  items: Partial<Record<InventoryItemName, number>>;
+  sfl: number;
+};
+
+type DeleteTradeListingEvent = {
+  type: "DELETE_TRADE_LISTING";
+  sellerId: number;
+  listingId: string;
+  listingType: string;
+};
+
+type FulfillTradeListingEvent = {
+  type: "FULFILL_TRADE_LISTING";
+  sellerId: number;
+  listingId: string;
+  listingType: string;
 };
 
 export type UpdateUsernameEvent = {
@@ -251,7 +268,9 @@ export type BlockchainEvent =
   | SyncEvent
   | PurchaseEvent
   | CommunityEvent
-  | TradeEvent
+  | ListingEvent
+  | DeleteTradeListingEvent
+  | FulfillTradeListingEvent
   | {
       type: "REFRESH";
     }
@@ -405,7 +424,11 @@ export type BlockchainState = {
     | "specialOffer"
     | "promo"
     | "trading"
-    | "traded"
+    | "listing"
+    | "listed"
+    | "deleteTradeListing"
+    | "tradeListingDeleted"
+    | "fulfillTradeListing"
     | "sniped"
     | "buds"
     | "airdrop"
@@ -599,7 +622,6 @@ export function startGame(authContext: AuthContext) {
                 portalId,
                 token: authContext.user.rawToken as string,
                 farmId: context.farmId,
-                address: wallet.myAccount as string,
               });
 
               const redirect = getRedirect() as string;
@@ -684,6 +706,9 @@ export function startGame(authContext: AuthContext) {
               target: "gameRules",
               cond: () => {
                 const lastRead = getGameRulesLastRead();
+
+                // Don't show game rules if they have been read in the last 7 days
+                // or if the user has come from a pwa install magic link
                 return (
                   !lastRead ||
                   Date.now() - lastRead.getTime() > 7 * 24 * 60 * 60 * 1000
@@ -815,7 +840,6 @@ export function startGame(authContext: AuthContext) {
         },
         mailbox: {
           on: {
-            "conversation.ended": (GAME_EVENT_HANDLERS as any)["bid.refunded"],
             "message.read": (GAME_EVENT_HANDLERS as any)["message.read"],
             ACKNOWLEDGE: {
               target: "notifying",
@@ -984,9 +1008,9 @@ export function startGame(authContext: AuthContext) {
             BUY_SFL: {
               target: "buyingSFL",
             },
-            TRADE: {
-              target: "trading",
-            },
+            LIST_TRADE: { target: "listing" },
+            DELETE_TRADE_LISTING: { target: "deleteTradeListing" },
+            FULFILL_TRADE_LISTING: { target: "fulfillTradeListing" },
             UPDATE_BLOCK_BUCKS: {
               actions: assign((context, event) => ({
                 state: {
@@ -1420,12 +1444,11 @@ export function startGame(authContext: AuthContext) {
             },
           },
         },
-
-        trading: {
+        listing: {
           entry: "setTransactionId",
           invoke: {
             src: async (context, event) => {
-              const { sellerId, tradeId } = event as TradeEvent;
+              const { sellerId, items, sfl } = event as ListingEvent;
 
               if (context.actions.length > 0) {
                 await autosave({
@@ -1439,26 +1462,119 @@ export function startGame(authContext: AuthContext) {
                 });
               }
 
-              const { farm, error } = await trade({
-                buyerId: Number(context.farmId),
+              const state = await listRequest({
                 sellerId,
-                tradeId,
                 token: authContext.user.rawToken as string,
-                transactionId: context.transactionId as string,
+                items,
+                sfl,
               });
 
-              gameAnalytics.trackSink({
-                currency: "Block Buck",
-                amount: 1,
-                item: "Trade",
-                type: "Fee",
+              return { state };
+            },
+            onDone: [
+              {
+                target: "listed",
+                actions: [
+                  assign((_, event) => ({
+                    actions: [],
+                    state: event.data.state,
+                  })),
+                ],
+              },
+            ],
+            onError: {
+              target: "error",
+              actions: "assignErrorMessage",
+            },
+          },
+        },
+        listed: {
+          on: {
+            CONTINUE: "playing",
+          },
+        },
+        deleteTradeListing: {
+          entry: "setTransactionId",
+          invoke: {
+            src: async (context, event) => {
+              const { listingId, listingType, sellerId } =
+                event as DeleteTradeListingEvent;
+
+              if (context.actions.length > 0) {
+                await autosave({
+                  farmId: Number(context.farmId),
+                  sessionId: context.sessionId as string,
+                  actions: context.actions,
+                  token: authContext.user.rawToken as string,
+                  fingerprint: context.fingerprint as string,
+                  deviceTrackerId: context.deviceTrackerId as string,
+                  transactionId: context.transactionId as string,
+                });
+              }
+
+              const state = await deleteListingRequest({
+                sellerId,
+                listingId,
+                listingType,
+                token: authContext.user.rawToken as string,
+              });
+
+              return { state };
+            },
+            onDone: [
+              {
+                target: "tradeListingDeleted",
+                actions: [
+                  assign((_, event) => ({
+                    actions: [],
+                    state: event.data.state,
+                  })),
+                ],
+              },
+            ],
+            onError: {
+              target: "error",
+              actions: "assignErrorMessage",
+            },
+          },
+        },
+        tradeListingDeleted: {
+          on: {
+            CONTINUE: "playing",
+          },
+        },
+        fulfillTradeListing: {
+          entry: "setTransactionId",
+          invoke: {
+            src: async (context, event) => {
+              const { sellerId, listingId, listingType } =
+                event as FulfillTradeListingEvent;
+
+              if (context.actions.length > 0) {
+                await autosave({
+                  farmId: Number(context.farmId),
+                  sessionId: context.sessionId as string,
+                  actions: context.actions,
+                  token: authContext.user.rawToken as string,
+                  fingerprint: context.fingerprint as string,
+                  deviceTrackerId: context.deviceTrackerId as string,
+                  transactionId: context.transactionId as string,
+                });
+              }
+
+              const { farm, error } = await fulfillTradeListingRequest({
+                buyerId: Number(context.farmId),
+                sellerId,
+                listingId,
+                listingType,
+                token: authContext.user.rawToken as string,
               });
 
               return {
                 farm,
                 buyerId: String(context.farmId),
                 sellerId: String(sellerId),
-                tradeId,
+                listingId,
                 error,
               };
             },
@@ -1468,7 +1584,7 @@ export function startGame(authContext: AuthContext) {
                 cond: (_, event) => event.data.error === "ALREADY_BOUGHT",
               },
               {
-                target: "traded",
+                target: "playing",
                 actions: [
                   assign((_, event) => ({
                     actions: [],
@@ -1479,14 +1595,8 @@ export function startGame(authContext: AuthContext) {
                       trade: {
                         buyerId: event.data.buyerId,
                         sellerId: event.data.sellerId,
-                        tradeId: event.data.tradeId,
+                        tradeId: event.data.listingId,
                       },
-                    });
-                    // https://developers.google.com/analytics/devguides/collection/ga4/reference/events?client_type=gtag#spend_virtual_currency
-                    onboardingAnalytics.logEvent("spend_virtual_currency", {
-                      value: 1,
-                      virtual_currency_name: "Trade",
-                      item_name: "Trade",
                     });
                   },
                 ],
@@ -1496,11 +1606,6 @@ export function startGame(authContext: AuthContext) {
               target: "error",
               actions: "assignErrorMessage",
             },
-          },
-        },
-        traded: {
-          on: {
-            CONTINUE: "playing",
           },
         },
         sniped: {

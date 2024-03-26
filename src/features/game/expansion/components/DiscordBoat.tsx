@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import * as Auth from "features/auth/lib/Provider";
 
 import boat from "assets/decorations/isle_boat.gif";
@@ -141,6 +141,9 @@ export const DiscordBoat: React.FC = () => {
 
   const { gameService } = useContext(Context);
   const isClaimed = useSelector(gameService, _isClaimed);
+
+  const alreadyClaimed = useRef(isClaimed);
+
   const expansions = useSelector(gameService, _expansions);
 
   let yOffset = 5;
@@ -150,6 +153,10 @@ export const DiscordBoat: React.FC = () => {
 
   // When ready, show boat above island
   const isReady = authState.context.user.token?.discordId && !isClaimed;
+
+  if (alreadyClaimed.current) {
+    return null;
+  }
 
   return (
     <>

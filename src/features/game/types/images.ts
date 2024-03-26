@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // CROPS
 import magicBean from "assets/crops/magic_bean.png";
 import appleSeed from "assets/fruit/apple/apple_seed.png";
@@ -97,7 +98,7 @@ import queenCornelia from "assets/sfts/aoe/queen_cornelia.png";
 // Mutant Chickens
 import speedChicken from "assets/animals/chickens/speed_chicken.gif";
 import fatChicken from "assets/animals/chickens/fat_chicken.gif";
-import richChicken from "assets/animals/chickens/rich_chicken.gif";
+import richChicken from "assets/animals/chickens/rich_chicken.webp";
 import elPolloVeloz from "assets/animals/chickens/el_pollo_veloz.gif";
 import ayamCemani from "assets/animals/chickens/ayam_cemani.gif";
 import bananaChicken from "assets/animals/chickens/banana_chicken.png";
@@ -592,6 +593,8 @@ import yellowLotus from "assets/flowers/yellow_lotus.webp";
 import blueLotus from "assets/flowers/blue_lotus.webp";
 import whiteLotus from "assets/flowers/white_lotus.webp";
 import purpleLotus from "assets/flowers/purple_lotus.webp";
+
+import babyPanda from "assets/sfts/baby_panda.png";
 
 import { COUPONS, FERTILISERS, InventoryItemName } from "./game";
 import {
@@ -3221,7 +3224,7 @@ export const ITEM_DETAILS: Items = {
   },
   "Blue Lotus": {
     image: blueLotus,
-    description: translate("description.blue.lotu"),
+    description: translate("description.blue.lotus"),
   },
   "Earn Alliance Banner": {
     image: earnAllianceBanner,
@@ -3229,14 +3232,18 @@ export const ITEM_DETAILS: Items = {
   },
   "Luxury Key": {
     image: luxuryKey,
-    description: translate("description.treasure.key"),
+    description: translate("description.luxury.key"),
   },
   "Rare Key": {
     image: rareKey,
-    description: translate("description.treasure.key"),
+    description: translate("description.rare.key"),
   },
   "Prize Ticket": {
     image: prizeTicket,
     description: translate("description.prizeTicket"),
+  },
+  "Baby Panda": {
+    image: babyPanda,
+    description: translate("description.babyPanda"),
   },
 };

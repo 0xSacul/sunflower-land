@@ -17,6 +17,7 @@ import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { BasicTreasureChest } from "./chests/BasicTreasureChest";
 import { Donations } from "./donations/Donations";
 import { SceneId } from "../mmoMachine";
+import { TradingBoard } from "./npcs/TradingBoard";
 
 type InteractableName =
   | "donations"
@@ -62,7 +63,8 @@ type InteractableName =
   | "crop_boom_finish"
   | "christmas_reward"
   | "goblin_hammer"
-  | "page_discovered";
+  | "page_discovered"
+  | "trading_board";
 
 class InteractableModalManager {
   private listener?: (name: InteractableName, isOpen: boolean) => void;
@@ -537,6 +539,12 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
 
       <Modal show={interactable === "page_discovered"} onHide={closeModal}>
         <PageFound onClose={closeModal} />
+      </Modal>
+      <Modal
+        show={interactable === "trading_board"}
+        dialogClassName="md:max-w-3xl"
+      >
+        <TradingBoard onClose={closeModal} />
       </Modal>
     </>
   );

@@ -18,8 +18,7 @@ import { DiscordBoat } from "./DiscordBoat";
 import { IslandUpgrader } from "./IslandUpgrader";
 import { GameState } from "features/game/types/game";
 import { Context } from "features/game/GameProvider";
-import { EarnAlliance } from "./EarnAlliance";
-import { OnePlanetPopper } from "./OnePlanetPopper";
+import { GasHeroes } from "./GasHeroes";
 
 interface Props {
   townCenterBuilt: boolean;
@@ -106,17 +105,8 @@ export const WaterComponent: React.FC<Props> = ({
 
       <IslandUpgrader gameState={gameState} offset={offset} />
 
-      {/* Earn Alliance NPC */}
-      <MapPlacement x={-5 - offset} y={3} width={4}>
-        <EarnAlliance
-          event={gameState.specialEvents.current["Earn Alliance Banner"]}
-        />
-      </MapPlacement>
-
-      <MapPlacement x={-5 - offset} y={7} width={4}>
-        <OnePlanetPopper
-          event={gameState.specialEvents.current["One Planet Popper"]}
-        />
+      <MapPlacement x={-7 - offset} y={9} width={5}>
+        <GasHeroes event={gameState.specialEvents.current["Gas Hero"]} />
       </MapPlacement>
     </div>
   );

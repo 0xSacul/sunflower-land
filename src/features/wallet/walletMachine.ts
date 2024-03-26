@@ -8,7 +8,7 @@ import { Web3SupportedProviders } from "lib/web3SupportedProviders";
 import { linkWallet } from "features/wallet/actions/linkWallet";
 import { ERRORS } from "lib/errors";
 import { getFarms } from "lib/blockchain/Farm";
-import { mintFarm } from "./actions/mintFarm";
+import { mintNFTFarm } from "./actions/mintFarm";
 import { migrate } from "./actions/migrate";
 import { getCreatedAt } from "lib/blockchain/AccountMinter";
 
@@ -281,6 +281,9 @@ export const walletMachine = createMachine<Context, WalletEvent, WalletState>({
           },
           {
             target: "error",
+            actions: assign<Context, any>({
+              errorCode: (_context, event) => event.data.message,
+            }),
           },
         ],
       },
@@ -309,7 +312,7 @@ export const walletMachine = createMachine<Context, WalletEvent, WalletState>({
             }
           }
 
-          await mintFarm({
+          await mintNFTFarm({
             id: context.id as number,
             jwt: context.jwt as string,
             transactionId: "0xTODO",
@@ -339,6 +342,9 @@ export const walletMachine = createMachine<Context, WalletEvent, WalletState>({
           },
           {
             target: "error",
+            actions: assign<Context, any>({
+              errorCode: (_context, event) => event.data.message,
+            }),
           },
         ],
       },
@@ -375,6 +381,9 @@ export const walletMachine = createMachine<Context, WalletEvent, WalletState>({
         ],
         onError: {
           target: "error",
+          actions: assign<Context, any>({
+            errorCode: (_context, event) => event.data.message,
+          }),
         },
       },
     },

@@ -168,6 +168,9 @@ import {
   Promo,
   Trader,
   NyonStatue,
+  Trading,
+  TimeUnits,
+  PwaInstall,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -214,7 +217,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   clear: "Clear",
   close: "Close",
   collect: "Collect",
-  "come.back": "Come back in",
   "coming.soon": "Coming soon",
   common: "Common",
   completed: "Completed",
@@ -227,6 +229,8 @@ const generalTerms: Record<GeneralTerms, string> = {
   cook: "Cook",
   copied: "Copied",
   "copy.address": "Copy Address",
+  "copy.link": "Copy Link",
+  "copy.failed": "Copy Failed!",
   coupons: "Coupons",
   craft: "Craft",
   crafting: "Crafting",
@@ -321,7 +325,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "no.event": "No Event",
   "no.have.bumpkin": "You do not have a Bumpkin!",
   "no.limits.exceeded": "No limits exceeded",
-  "no.mail": "No mail",
+  "no.mail": "Your mailbox is empty.",
   "no.obsessions": "No Obsessions",
   "no.thanks": "No thanks",
   "ocean.fishing": "Ocean fishing",
@@ -367,6 +371,8 @@ const generalTerms: Record<GeneralTerms, string> = {
   "reward.discovered": "Reward Discovered",
   save: "Save",
   saving: "Saving",
+  search: "Search",
+  searching: "Searching",
   "seasonal.treasure": "Seasonal Treasure",
   seeds: "Seeds",
   selected: "Selected",
@@ -467,7 +473,9 @@ const generalTerms: Record<GeneralTerms, string> = {
   buildings: "Buildings",
   boosts: "Boosts",
   decorations: "Decorations",
+};
 
+const timeUnits: Record<TimeUnits, string> = {
   // time
   sec: "sec",
   min: "min",
@@ -899,6 +907,7 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
     "50% Reduction to Crop, Mineral, Cooking and Tree Time",
   "description.radiant.ray.boost": "+0.1 Iron",
   "description.earnAlliance.boost": "2x XP Feb 2024 (Beginner Island)",
+  "description.babyPanda.boost": "Beginner 2x XP Boost",
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -967,8 +976,8 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
   "bumpkinItemBuff.chef.apron.boost": "+20% Cake Profit",
   "bumpkinItemBuff.fruit.picker.apron.boost": "+0.1 Fruit",
-  "bumpkinItemBuff.angel.wings.boost": "Instant Crops",
-  "bumpkinItemBuff.devil.wings.boost": "Instant Crops",
+  "bumpkinItemBuff.angel.wings.boost": "30% Chance of Instant Crops",
+  "bumpkinItemBuff.devil.wings.boost": "30% Chance of Instant Crops",
   "bumpkinItemBuff.eggplant.onesie.boost": "+0.1 Eggplant",
   "bumpkinItemBuff.golden.spatula.boost": "+10% XP",
   "bumpkinItemBuff.mushroom.hat.boost": "+0.1 Mushrooms",
@@ -1046,9 +1055,20 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.minLevel": "You must be level 10 to trade",
   "bumpkinTrade.noTradeListed": "You have no trades listed.",
   "bumpkinTrade.sell": "Sell your resources to other players for SFL.",
-  "bumpkinTrade.like.list": "What would you like to list",
+  "bumpkinTrade.like.list": "What would you like to list?",
   "bumpkinTrade.goldpass.required": "Gold Pass is required",
   "bumpkinTrade.purchase": "Purchase at Goblin Retreat",
+
+  "bumpkinTrade.available": "Available",
+  "bumpkinTrade.quantity": "Quantity",
+  "bumpkinTrade.price": "Price",
+  "bumpkinTrade.listingPrice": "Listing price",
+  "bumpkinTrade.pricePerUnit": "Price per unit",
+  "bumpkinTrade.tradingFee": "Trading fee",
+  "bumpkinTrade.youWillReceive": "You will receive",
+  "bumpkinTrade.cancel": "Cancel",
+  "bumpkinTrade.list": "List",
+  "bumpkinTrade.maxListings": "Max listings reached",
 };
 
 const buyFarmHand: Record<BuyFarmHand, string> = {
@@ -1127,6 +1147,12 @@ const chumDetails: Record<ChumDetails, string> = {
   "chumDetails.tuna": "What is big enough to eat a tuna?",
   "chumDetails.squid": "Awaken a ray with its favorite treat!",
   "chumDetails.wood": "Wood. An interesting choice....",
+  "chumDetails.redPansy": "Fiery allure for elusive fish.",
+  "chumDetails.fatChicken":
+    "The original white meat that the largest of quarry cannot resist.",
+  "chumDetails.speedChicken": "Fast food dessert for sharp-teeth hunters.",
+  "chumDetails.richChicken":
+    "Delicacy for the bright-bellied terror of the screen.",
 };
 
 const claimAchievement: Record<ClaimAchievement, string> = {
@@ -1236,11 +1262,11 @@ const conversations: Record<Conversations, string> = {
   "luna.rewards": "Rewards",
   "luna.travel": "Travel to these player built portals and earn rewards.",
   "pete.intro.one":
-    "Howdy there, Bumpkin! Welcome to Sunflower Land, the bountiful farming paradise where anything is possible!",
+    "Howdy there, Bumpkin! Are you ready to get your hands dirty and explore the magical world of Sunflower Land?",
   "pete.intro.two":
-    "What a beautiful island you have set up on! I'm Pumpkin Pete, your neighboring farmer.",
+    "Before you can embark on your adventure, you will need to grow your farm, cook food and level up!",
   "pete.intro.three":
-    "Right now the players are celebrating a festival in the plaza with fantastic rewards and magical items.",
+    "To get started, you will want to chop down those trees and expand your island.",
   "pete.intro.four":
     "Before you can join the fun, you will need to grow your farm and gather some resources. You don't want to turn up empty handed!",
   "pete.intro.five":
@@ -1624,7 +1650,7 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
   "description.yellow.lotus": "A yellow lotus.",
   "description.purple.lotus": "A purple lotus.",
   "description.white.lotus": "A white lotus.",
-  "description.blue.lotu": "A blue lotus.",
+  "description.blue.lotus": "A blue lotus.",
 
   // Banners
   "description.goblin.war.banner":
@@ -1811,6 +1837,7 @@ const errorTerms: Record<ErrorTerms, string> = {
 const event: Record<Event, string> = {
   "event.christmas": "Christmas event!",
   "event.LunarNewYear": "Lunar New Year Event",
+  "event.GasHero": "Gas Hero Event",
   "event.valentines.rewards": "Valentine Rewards",
 };
 
@@ -2216,8 +2243,13 @@ const gameDescriptions: Record<GameDescriptions, string> = {
   "description.farmhand": "An adopted Bumpkin on your farm",
   "description.tulip.bulb": "A ticket used during the Spring Blossom",
   "description.treasure.key": "Visit the plaza to unlock your reward",
+  "description.rare.key": "Visit the beach to unlock your reward",
+  "description.luxury.key":
+    "Visit the plaza near woodlands to unlock your reward",
   "description.prizeTicket":
     "A ticket to enter the end of season prize giveaway",
+  "description.babyPanda":
+    "A cute panda from the Gas Hero event. Double experience for beginners during March.",
 
   // Easter Items
   "description.egg.basket": "Easter Event",
@@ -2236,7 +2268,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
 const gameTerms: Record<GameTerms, string> = {
   "auction.winner": "Auction Winner!",
   "bumpkin.level": "Bumpkin level",
-  bumpkinBuzz: "Bumpkin Buzz",
+  bumpkinBuzz: "Mailbox",
   dailyLim: "Daily SFL Limit",
   "farm.banned": "This farm is banned",
   gobSwarm: "Goblin Swarm!",
@@ -2683,7 +2715,7 @@ const landscapeTerms: Record<LandscapeTerms, string> = {
   "landscape.intro.three": "Craft rare decorations",
   "landscape.intro.four": "Place collectibles from your chest",
   "landscape.expansion.one":
-    "Each piece of land comes with unique resources to help build your farming empire!",
+    "Howdy Bumpkin, would you like to expand your land? You can discover new resources, crops, and rewards.",
   "landscape.expansion.two": "More expansions will be available soon...",
   "landscape.timerPopover": "Next Expansion",
   "landscape.dragMe": "Drag me",
@@ -3568,13 +3600,13 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.finn.reward":
     "Your contributions are invaluable. Here's a little something to express my gratitude.",
   "npcDialogues.finn.flowerIntro":
-    "I'm yearning for a beautiful Daffodil in Red, Yellow, Purple, White, or Blue. Can you find one?",
+    "I'm yearning for a beautiful Cosmos in White, or Blue. Can you find one?",
   "npcDialogues.finn.averageFlower":
     "Not exactly what I was hoping for, but it's quite pleasing. Thank you.",
   "npcDialogues.finn.badFlower":
     "This flower doesn't quite meet my expectations. Perhaps another try?",
   "npcDialogues.finn.goodFlower":
-    "This Daffodil is stunning! Thank you for bringing it to me.",
+    "This Cosmos is stunning! Thank you for bringing it to me.",
 
   "npcDialogues.finley.reward":
     "Thank you for your efforts. Here's a small token of appreciation for your deliveries.",
@@ -3585,7 +3617,7 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.finley.badFlower":
     "This flower isn't quite right. Perhaps another one would be more suitable?",
   "npcDialogues.finley.goodFlower":
-    "This Yellow Carnation is beautiful! Thank you for bringing it to me.",
+    "This Daffodil is beautiful! Thank you for bringing it to me.",
 
   "npcDialogues.corale.reward":
     "Your deliveries are much appreciated. Here's a little something to show my gratitude.",
@@ -3607,7 +3639,7 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.raven.badFlower":
     "This flower isn't quite right. Perhaps another search is in order?",
   "npcDialogues.raven.goodFlower":
-    "This Purple Carnation is perfect! Thank you for bringing it to me.",
+    "This Purple flower is perfect! Thank you for bringing it to me.",
 
   "npcDialogues.miranda.reward":
     "Thank you for your efforts. Here's a small token of appreciation for your deliveries.",
@@ -3652,6 +3684,16 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.default.reward":
     "Wow, thanks Bumpkin. Here is a small gift for your help!",
   "npcDialogues.default.locked": "Please come back tomorrow.",
+
+  // Glinteye Intro
+  "npcDialogues.glinteye.intro1":
+    "Ah, adventurer! Glinteye at your service. Ready to trade secrets and resources? Dive into my listings or add your own. Let's make a deal!",
+  "npcDialogues.glinteye.intro2":
+    "Welcome, curious soul! I'm Glinteye, your guide to trading wonders. Seek or list resources with me; fortune favors the bold!",
+  "npcDialogues.glinteye.intro3":
+    "Glinteye's my name, trading's my game! Browse or list, there's always a twist. What's your fancy today?",
+  "npcDialogues.glinteye.intro4":
+    "Hello there! I'm Glinteye, the goblin of trade. Explore player trades or list your items. Let's see what we can find together!",
 };
 
 const nyeButton: Record<NyeButton, string> = {
@@ -3739,6 +3781,8 @@ const onCollectReward: Record<OnCollectReward, string> = {
   "onCollectReward.Missing.Seed": "Missing Seeds",
   "onCollectReward.Market": "Go to the Market to purchase seeds.",
   "onCollectReward.Missing.Shovel": "Missing Shovel",
+  "onCollectReward.Missing.Shovel.description":
+    "Expand your island to find it.",
 };
 
 const orderhelp: Record<OrderHelp, string> = {
@@ -3823,7 +3867,7 @@ const playerTrade: Record<PlayerTrade, string> = {
   "playerTrade.Please": "Please allow 5 minutes before continuing.",
   "playerTrade.sold": "Sold",
   "playerTrade.sale": "For sale",
-  "playerTrade.title.congrat": "Congratulations, your listing was purchased",
+  "playerTrade.title.congrat": "Congratulations, your listing was purchased!",
 };
 
 const plazaSettings: Record<PlazaSettings, string> = {
@@ -3975,6 +4019,20 @@ const rulesTerms: Record<RulesTerms, string> = {
   "rules.termsOfService": "Terms of Service",
 };
 
+const pwaInstall: Record<PwaInstall, string> = {
+  "install.app": "Install App",
+  "magic.link": "Magic Link",
+  "generating.link": "Generating Link",
+  "generating.code": "Generating Code",
+  "install.app.mobile.description.one": "Install Sunflower Land on your device",
+  "install.app.mobile.description.two": "on your device.",
+  "install.app.desktop.description":
+    "Scan the code below to install on your device.",
+  "install.app.mobile.metamask.description.one":
+    "Copy the magic link below and open it in",
+  "install.app.mobile.metamask.description.two": "on your device to install!",
+};
+
 const sceneDialogueKey: Record<SceneDialogueKey, string> = {
   "sceneDialogues.chefIsBusy": "Chef is busy",
 };
@@ -4084,6 +4142,7 @@ const somethingWentWrong: Record<SomethingWentWrong, string> = {
 };
 
 const specialEvent: Record<SpecialEvent, string> = {
+  "special.event.link": "Airdrop link",
   "special.event.claimForm":
     "Please fill in the form below to claim your airdrop.",
   "special.event.airdropHandling":
@@ -4092,6 +4151,11 @@ const specialEvent: Record<SpecialEvent, string> = {
   "special.event.web3Wallet":
     "A Web3 wallet is required for this event as it contains an Airdrop.",
   "special.event.airdrop": "Airdrop",
+  "special.event.finishedLabel": "Event Finished",
+  "special.event.finished":
+    "This event has finished. Stay tuned for future events!",
+  "special.event.ineligible":
+    "There is no work needing to be done right now, thanks for stopping by though!",
 };
 
 const statements: Record<Statements, string> = {
@@ -4177,7 +4241,6 @@ const statements: Record<Statements, string> = {
   "statements.wishing.well.worthwell": "worth of rewards in the well!",
   "statements.wishing.well.look.like": "It doesn't look like you are",
   "statements.wishing.well.lucky": "Let's see how lucky you are!",
-  "statements.wishing.just.lucky": "to see just how lucky you have been.",
   "statements.wrongChain.one":
     "Check out this guide to help you get connected.",
   "statements.feed.bumpkin.one": "You have no food in your inventory.",
@@ -4244,16 +4307,16 @@ const tieBreaker: Record<TieBreaker, string> = {
 
 const toolDescriptions: Record<ToolDescriptions, string> = {
   // Tools
-  "description.axe": "Used to collect wood",
-  "description.pickaxe": "Used to collect stone",
-  "description.stone.pickaxe": "Used to collect iron",
-  "description.iron.pickaxe": "Used to collect gold",
+  "description.axe": "Used to chop wood",
+  "description.pickaxe": "Used to mine stone",
+  "description.stone.pickaxe": "Used to mine iron",
+  "description.iron.pickaxe": "Used to mine gold",
+  "description.gold.pickaxe": "Used to mine crimstone and sunstone",
   "description.rod": "Used to catch fish",
   "description.rusty.shovel": "Used to remove buildings and collectibles",
   "description.shovel": "Plant and harvest crops.",
   "description.sand.shovel": "Used for digging treasure",
   "description.sand.drill": "Drill deep for uncommon or rare treasure",
-  "description.gold.pickaxe": "Used to collect crimstone and sunstone",
 };
 
 const trader: Record<Trader, string> = {
@@ -4487,9 +4550,10 @@ const withdraw: Record<Withdraw, string> = {
 };
 
 const world: Record<World, string> = {
-  "world.intro.one": "Howdy Traveller! Welcome to the Pumpkin Plaza.",
+  "world.intro.one":
+    "Howdy Bumpkin, welcome to the Pumpkin Plaza. Here Bumpkins from far and wide come together to trade, complete deliveries and play mini-games.",
   "world.intro.two":
-    "The plaza is home to a diverse group of hungry Bumpkins and Goblins that need your help!",
+    "Explore the Plaza and find Bumpkins who are waiting for your deliveries. In exchange, they will give you rewards!",
   "world.intro.three": "A few quick hints before you begin your adventure:",
   "world.intro.visit":
     "Visit NPCs and complete deliveries to earn SFL and rare rewards.",
@@ -4513,6 +4577,18 @@ const wornDescription: Record<WornDescription, string> = {
   "worm.earthworm": "A wriggly worm that attracts small fish.",
   "worm.grub": "A juicy grub - perfect for advanced fish.",
   "worm.redWiggler": "An exotic worm that entices rare fish.",
+};
+
+const trading: Record<Trading, string> = {
+  "trading.select.resources": "Select resources to view listings",
+  "trading.no.listings": "No listings found",
+  "trading.listing.congrats":
+    " Congratulations, you just listed your items for trade!",
+  "trading.listing.deleted": "Your listing has been deleted",
+  "trading.listing.fulfilled": "Trade has been fulfilled",
+  "trading.your.listing": "Your listing",
+  "trading.you.receive": "You receive",
+  "trading.burned": "is burned.",
 };
 
 export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
@@ -4651,6 +4727,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...rewardTerms,
   ...rulesGameStart,
   ...rulesTerms,
+  ...pwaInstall,
   ...sceneDialogueKey,
   ...seasonTerms,
   ...settingsMenu,
@@ -4668,7 +4745,9 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...subSettings,
   ...swarming,
   ...tieBreaker,
+  ...timeUnits,
   ...toolDescriptions,
+  ...trading,
   ...trader,
   ...transactionTerms,
   ...transfer,

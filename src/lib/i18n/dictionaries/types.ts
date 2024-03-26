@@ -42,7 +42,6 @@ export type GeneralTerms =
   | "clear"
   | "close"
   | "collect"
-  | "come.back"
   | "coming.soon"
   | "common"
   | "completed"
@@ -55,6 +54,8 @@ export type GeneralTerms =
   | "cook"
   | "copied"
   | "copy.address"
+  | "copy.link"
+  | "copy.failed"
   | "coupons"
   | "craft"
   | "craft"
@@ -195,6 +196,8 @@ export type GeneralTerms =
   | "reward.discovered"
   | "save"
   | "saving"
+  | "search"
+  | "searching"
   | "seasonal.treasure"
   | "seeds"
   | "selected"
@@ -294,9 +297,9 @@ export type GeneralTerms =
   | "new.species"
   | "buildings"
   | "boosts"
-  | "decorations"
+  | "decorations";
 
-  // time units
+export type TimeUnits =
   // Singular
   | "sec"
   | "min"
@@ -549,6 +552,7 @@ export type BoostEffectDescriptions =
   | "description.mushroom.house.boost"
   | "description.boost.gilded.swordfish"
   | "description.earnAlliance.boost"
+  | "description.babyPanda.boost"
   | "description.nancy.boost"
   | "description.scarecrow.boost"
   | "description.kuebiko.boost"
@@ -744,7 +748,18 @@ export type BumpkinTrade =
   | "bumpkinTrade.sell"
   | "bumpkinTrade.like.list"
   | "bumpkinTrade.goldpass.required"
-  | "bumpkinTrade.purchase";
+  | "bumpkinTrade.purchase"
+  | "bumpkinTrade.available"
+  | "bumpkinTrade.quantity"
+  | "bumpkinTrade.price"
+  | "bumpkinTrade.listingPrice"
+  | "bumpkinTrade.listingPrice"
+  | "bumpkinTrade.pricePerUnit"
+  | "bumpkinTrade.tradingFee"
+  | "bumpkinTrade.youWillReceive"
+  | "bumpkinTrade.cancel"
+  | "bumpkinTrade.list"
+  | "bumpkinTrade.maxListings";
 
 export type BuyFarmHand =
   | "buyFarmHand.howdyBumpkin"
@@ -804,7 +819,11 @@ export type ChumDetails =
   | "chumDetails.redSnapper"
   | "chumDetails.tuna"
   | "chumDetails.squid"
-  | "chumDetails.wood";
+  | "chumDetails.wood"
+  | "chumDetails.redPansy"
+  | "chumDetails.richChicken"
+  | "chumDetails.fatChicken"
+  | "chumDetails.speedChicken";
 
 export type Community = "community.toast" | "community.url" | "comunity.Travel";
 
@@ -1171,7 +1190,7 @@ export type DecorationDescriptions =
   | "description.yellow.lotus"
   | "description.purple.lotus"
   | "description.white.lotus"
-  | "description.blue.lotu"
+  | "description.blue.lotus"
 
   //Banners
   | "description.goblin.war.banner"
@@ -1588,7 +1607,10 @@ export type GameDescriptions =
   | "description.farmhand"
   | "description.tulip.bulb"
   | "description.treasure.key"
+  | "description.rare.key"
+  | "description.luxury.key"
   | "description.prizeTicket"
+  | "description.babyPanda"
   //Easter Items
   | "description.egg.basket"
   | "description.blue.egg"
@@ -2463,7 +2485,13 @@ export type NpcDialogues =
   | "npcDialogues.tywin.flowerIntro"
   | "npcDialogues.tywin.averageFlower"
   | "npcDialogues.tywin.badFlower"
-  | "npcDialogues.tywin.goodFlower";
+  | "npcDialogues.tywin.goodFlower"
+
+  // Glinteye dialogue
+  | "npcDialogues.glinteye.intro1"
+  | "npcDialogues.glinteye.intro2"
+  | "npcDialogues.glinteye.intro3"
+  | "npcDialogues.glinteye.intro4";
 
 export type NyeButton = "plaza.magicButton.query";
 
@@ -2521,7 +2549,8 @@ export type Onboarding =
 export type OnCollectReward =
   | "onCollectReward.Missing.Seed"
   | "onCollectReward.Market"
-  | "onCollectReward.Missing.Shovel";
+  | "onCollectReward.Missing.Shovel"
+  | "onCollectReward.Missing.Shovel.description";
 
 export type OrderHelp =
   | "orderhelp.Skip.hour"
@@ -2688,6 +2717,17 @@ export type RulesTerms =
   | "rules.noBots"
   | "rules.termsOfService";
 
+export type PwaInstall =
+  | "install.app"
+  | "magic.link"
+  | "generating.link"
+  | "generating.code"
+  | "install.app.mobile.description.one"
+  | "install.app.mobile.description.two"
+  | "install.app.desktop.description"
+  | "install.app.mobile.metamask.description.one"
+  | "install.app.mobile.metamask.description.two";
+
 export type SceneDialogueKey = "sceneDialogues.chefIsBusy";
 
 export type SeasonTerms =
@@ -2767,10 +2807,14 @@ export type SomethingWentWrong =
 
 export type SpecialEvent =
   | "special.event.claimForm"
+  | "special.event.link"
   | "special.event.airdropHandling"
   | "special.event.walletRequired"
   | "special.event.web3Wallet"
-  | "special.event.airdrop";
+  | "special.event.airdrop"
+  | "special.event.finishedLabel"
+  | "special.event.finished"
+  | "special.event.ineligible";
 
 export type Statements =
   | "statements.adventure"
@@ -2832,7 +2876,6 @@ export type Statements =
   | "statements.wishing.well.worthwell"
   | "statements.wishing.well.look.like"
   | "statements.wishing.well.lucky"
-  | "statements.wishing.just.lucky"
   | "statements.wrongChain.one"
   | "statements.empty.chest"
   | "statements.chest.captcha"
@@ -3063,6 +3106,7 @@ export type World =
 export type Event =
   | "event.christmas"
   | "event.LunarNewYear"
+  | "event.GasHero"
   | "event.valentines.rewards";
 
 export type Promo = "promo.cdcBonus" | "promo.expandLand";
@@ -3080,6 +3124,16 @@ export type Trader =
   | "trader.start.verification";
 
 export type NyonStatue = "nyonStatue.memory" | "nyonStatue.description";
+
+export type Trading =
+  | "trading.select.resources"
+  | "trading.no.listings"
+  | "trading.listing.congrats"
+  | "trading.listing.deleted"
+  | "trading.listing.fulfilled"
+  | "trading.your.listing"
+  | "trading.you.receive"
+  | "trading.burned";
 
 export type TranslationKeys =
   | AchievementsTerms
@@ -3215,6 +3269,7 @@ export type TranslationKeys =
   | RewardTerms
   | RulesGameStart
   | RulesTerms
+  | PwaInstall
   | SceneDialogueKey
   | SeasonTerms
   | SettingsMenu
@@ -3232,6 +3287,7 @@ export type TranslationKeys =
   | SubSettings
   | Swarming
   | TieBreaker
+  | TimeUnits
   | ToolDescriptions
   | TransactionTerms
   | Transfer
@@ -3250,4 +3306,5 @@ export type TranslationKeys =
   | Event
   | Promo
   | Trader
-  | NyonStatue;
+  | NyonStatue
+  | Trading;

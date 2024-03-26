@@ -1,10 +1,8 @@
 import Decimal from "decimal.js-light";
 import { marketRate } from "../lib/halvening";
 import { Dimensions } from "./buildings";
-import { GameState, Inventory } from "./game";
-import { SFLDiscount } from "../lib/SFLDiscount";
+import { Inventory } from "./game";
 import { BoostTreasure, DecorationTreasure } from "./treasure";
-import { getCurrentSeason } from "./seasons";
 import { translate } from "lib/i18n/translate";
 
 export type AchievementDecorationName =
@@ -73,6 +71,7 @@ export type SeasonalDecorationName =
   | "Beach Umbrella";
 
 export type EventDecorationName =
+  | "Baby Panda"
   | "Valentine Bear"
   | "Easter Bear"
   | "Easter Bush"
@@ -107,6 +106,10 @@ export type DecorationName =
   | InteriorDecorationName;
 
 export const DECORATION_DIMENSIONS: Record<DecorationName, Dimensions> = {
+  "Baby Panda": {
+    width: 1,
+    height: 1,
+  },
   "Earn Alliance Banner": {
     width: 1,
     height: 2,
@@ -664,77 +667,6 @@ export const LANDSCAPING_DECORATIONS: () => Record<
       Wood: new Decimal(100),
     },
   },
-});
-
-export const SEASONAL_DECORATIONS: (
-  state?: GameState,
-  date?: Date
-) => Partial<Record<SeasonalDecorationName, Decoration>> = (
-  state,
-  date = new Date()
-) => ({
-  ...(getCurrentSeason(date) === "Witches' Eve" && {
-    Candles: {
-      name: "Candles",
-      sfl: SFLDiscount(state, new Decimal(5)),
-      from: new Date("2023-08-01"),
-      to: new Date("2023-11-01"),
-      description: translate("description.candles"),
-      ingredients: {
-        "Crow Feather": new Decimal(5),
-      },
-    },
-    "Haunted Stump": {
-      name: "Haunted Stump",
-      sfl: new Decimal(0),
-      from: new Date("2023-08-01"),
-      to: new Date("2023-09-01"),
-      description: translate("description.haunted.stump"),
-      ingredients: {
-        "Crow Feather": new Decimal(100),
-      },
-    },
-    "Spooky Tree": {
-      name: "Spooky Tree",
-      sfl: SFLDiscount(state, new Decimal(50)),
-      from: new Date("2023-09-01"),
-      to: new Date("2023-10-01"),
-      description: translate("description.spooky.tree"),
-      ingredients: {
-        "Crow Feather": new Decimal(500),
-      },
-    },
-    Observer: {
-      name: "Observer",
-      sfl: SFLDiscount(state, new Decimal(50)),
-      from: new Date("2023-10-01"),
-      to: new Date("2023-11-01"),
-      description: translate("description.observer"),
-      ingredients: {
-        "Crow Feather": new Decimal(500),
-      },
-    },
-    "Crow Rock": {
-      name: "Crow Rock",
-      sfl: new Decimal(0),
-      from: new Date("2023-10-01"),
-      to: new Date("2023-11-01"),
-      description: translate("description.crow.rock"),
-      ingredients: {
-        "Crow Feather": new Decimal(250),
-      },
-    },
-    "Mini Corn Maze": {
-      name: "Mini Corn Maze",
-      sfl: SFLDiscount(state, new Decimal(5)),
-      from: new Date("2023-10-01"),
-      to: new Date("2023-11-01"),
-      description: translate("description.mini.corn.maze"),
-      ingredients: {
-        "Crow Feather": new Decimal(50),
-      },
-    },
-  }),
 });
 
 export const POTION_HOUSE_DECORATIONS: () => Record<
