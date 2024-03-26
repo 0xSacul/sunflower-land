@@ -297,7 +297,8 @@ export type GeneralTerms =
   | "new.species"
   | "buildings"
   | "boosts"
-  | "decorations";
+  | "decorations"
+  | "unit";
 
 export type TimeUnits =
   // Singular
@@ -416,7 +417,17 @@ export type BasicTreasure =
   | "basic.treasure.goodLuck"
   | "basic.treasure.key"
   | "basic.treasure.congratsKey"
-  | "basic.treasure.openChest";
+  | "basic.treasure.openChest"
+  | "budBox.open"
+  | "budBox.opened"
+  | "budBox.title"
+  | "budBox.description"
+  | "raffle.title"
+  | "raffle.description"
+  | "raffle.entries"
+  | "raffle.noTicket"
+  | "raffle.how"
+  | "raffle.enter";
 
 export type Beach = "beach.party" | "beach.ready";
 
@@ -551,7 +562,6 @@ export type BoostEffectDescriptions =
   | "description.Karkinos.boost"
   | "description.mushroom.house.boost"
   | "description.boost.gilded.swordfish"
-  | "description.earnAlliance.boost"
   | "description.babyPanda.boost"
   | "description.nancy.boost"
   | "description.scarecrow.boost"
@@ -1396,7 +1406,6 @@ export type FishDescriptions =
 
 export type FishermanModal =
   | "fishermanModal.attractFish"
-  | "fishermanModal.royChallenge"
   | "fishermanModal.fishBenefits"
   | "fishermanModal.baitAndResources"
   | "fishermanModal.crazyHappening"
@@ -1405,8 +1414,7 @@ export type FishermanModal =
   | "fishermanModal.needCraftRod"
   | "fishermanModal.craft.beach"
   | "fishermanModal.zero.available"
-  | "fishermanmodal.greetingPart1"
-  | "fishermanmodal.greetingPart2";
+  | "fishermanmodal.greeting";
 
 export type FishermanQuest = "fishermanQuest.Ohno" | "fishermanQuest.Newfish";
 
@@ -1611,6 +1619,7 @@ export type GameDescriptions =
   | "description.luxury.key"
   | "description.prizeTicket"
   | "description.babyPanda"
+  | "description.baozi"
   //Easter Items
   | "description.egg.basket"
   | "description.blue.egg"
@@ -1862,6 +1871,7 @@ export type InteractableModals =
   | "interactableModals.beachOrangeBook.message2"
   | "interactableModals.plazaGreenBook.message1"
   | "interactableModals.plazaGreenBook.message2"
+  | "interactableModals.fanArt.winner"
   | "interactableModals.fanArt1.message"
   | "interactableModals.fanArt2.message"
   | "interactableModals.fanArt2.linkLabel"
@@ -2570,13 +2580,6 @@ export type PageFounds =
   | "pageFounds.pageContainsInfo"
   | "pageFounds";
 
-export type Parsnip =
-  | "parsnip.hat"
-  | "parsnip.miss"
-  | "parsnip.Bonus"
-  | "parsnip.wearable"
-  | "parsnip.found";
-
 export type Pending = "pending.calcul" | "pending.comeback";
 
 export type PersonHood =
@@ -2608,6 +2611,7 @@ export type Pickserver =
   | "pickserver.built";
 
 export type PlazaSettings =
+  | "plazaSettings.changeServer"
   | "plazaSettings.title.main"
   | "plazaSettings.title.mutedPlayers"
   | "plazaSettings.title.keybinds"
@@ -2722,11 +2726,11 @@ export type PwaInstall =
   | "magic.link"
   | "generating.link"
   | "generating.code"
-  | "install.app.mobile.description.one"
-  | "install.app.mobile.description.two"
   | "install.app.desktop.description"
-  | "install.app.mobile.metamask.description.one"
-  | "install.app.mobile.metamask.description.two";
+  | "install.app.mobile.metamask.description"
+  | "do.not.share.link"
+  | "do.not.share.code"
+  | "qr.code.not.working";
 
 export type SceneDialogueKey = "sceneDialogues.chefIsBusy";
 
@@ -3079,6 +3083,7 @@ export type Withdraw =
   | "withdraw.select.item"
   | "withdraw.opensea"
   | "withdraw.restricted"
+  | "withdraw.budRestricted"
   | "withdraw.bumpkin.wearing"
   | "withdraw.bumpkin.sure.withdraw"
   | "withdraw.bumpkin.play"
@@ -3245,7 +3250,6 @@ export type TranslationKeys =
   | OnCollectReward
   | OrderHelp
   | PageFounds
-  | Parsnip
   | Pending
   | PersonHood
   | PirateChest
