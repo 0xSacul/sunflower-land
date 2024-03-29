@@ -1937,6 +1937,7 @@ const event: Record<Event, string> = {
   "event.christmas": "Événement de Noël!",
   "event.LunarNewYear": "Événement du Nouvel An lunaire",
   "event.GasHero": "Événement Gas Hero",
+  "event.Easter": "Événement de Pâques",
   "event.valentines.rewards": "Récompenses de la Saint-Valentin",
 };
 
@@ -2370,6 +2371,8 @@ const gameDescriptions: Record<GameDescriptions, string> = {
     "Un ticket pour participer au concours de fin de saison",
   "description.babyPanda": "Un adorable panda de l'événement Gas Hero.",
   "description.baozi": ENGLISH_TERMS["description.baozi"],
+  "description.communityEgg": ENGLISH_TERMS["description.communityEgg"],
+  "description.hungryHare": ENGLISH_TERMS["description.hungryHare"],
 
   // Objets de Pâques
   "description.egg.basket": "Événement de Pâques",
@@ -2395,6 +2398,7 @@ const gameTerms: Record<GameTerms, string> = {
   gobSwarm: "Nuée de Gobelins!",
   "granting.wish": "Exaucement de votre souhait",
   "new.delivery.in": "Nouvelles livraisons disponibles dans",
+  "new.delivery.levelup": ENGLISH_TERMS["new.delivery.levelup"],
   "no.sfl": "Aucun jeton SFL trouvé",
   opensea: "OpenSea",
   polygonscan: "PolygonScan",
@@ -2556,7 +2560,9 @@ const guideTerms: Record<GuideTerms, string> = {
     "Les livraisons dans Sunflower Land offrent une opportunité excitante pour aider les Gobelins affamés et les camarades Bumpkins tout en gagnant des récompenses. Chaque jour, vous pourrez voir toutes les commandes que vous avez en cliquant sur le tableau des livraisons en bas à gauche de l'écran. Les commandes ont été passées par certains PNJ locaux que l'on peut trouver autour de Pumpkin Plaza. Pour remplir une commande, vous devrez prendre un bateau pour Pumpkin Plaza et chercher le PNJ qui attend la livraison. Une fois que vous les avez trouvés, cliquez sur eux pour livrer la commande et recevoir votre récompense.",
   "deliveries.guide.two":
     "En tant que nouveau joueur, vous commencez avec trois emplacements de commande, mais en étendant votre ferme, vous débloquerez des emplacements supplémentaires, permettant aux joueurs avancés de prendre plus de commandes. De nouvelles commandes arrivent toutes les 24 heures, offrant une gamme de tâches, de la production agricole à la cuisine et à la collecte de ressources. En remplissant des commandes, vous obtiendrez des bonus de palier, notamment des Block Bucks, des SFL, des gâteaux délicieux et d'autres récompenses. Le système de récompenses est basé sur la difficulté de la demande, alors envisagez de donner la priorité aux commandes offrant de plus grandes récompenses pour maximiser vos gains. Gardez un œil sur le tableau et challengez-vous avec diverses commandes, montez de niveau et débloquez de nouveaux bâtiments au besoin pour répondre à des demandes plus exigeantes.",
-
+  "deliveries.intro": ENGLISH_TERMS["deliveries.intro"],
+  "deliveries.new": ENGLISH_TERMS["deliveries.new"],
+  "chores.intro": ENGLISH_TERMS["chores.intro"],
   "scavenger.guide.one":
     "Le fouilleur dans Sunflower Land offre des opportunités passionnantes pour découvrir des trésors cachés et rassembler des ressources précieuses. Le premier aspect de la fouille consiste à chercher des trésors sur Treasure Island, où vous pouvez devenir un chasseur de trésors pirate. En fabriquant une pelle en sable et en vous aventurant sur Treasure Island, vous pouvez creuser dans les zones de sable sombre pour découvrir divers trésors, y compris des butins, des décorations et même d'anciens SFTs avec utilité.",
   "scavenger.guide.two":
@@ -4309,6 +4315,8 @@ const somethingWentWrong: Record<SomethingWentWrong, string> = {
 };
 
 const specialEvent: Record<SpecialEvent, string> = {
+  "special.event.easterIntro": ENGLISH_TERMS["special.event.easterIntro"],
+  "special.event.rabbitsMissing": ENGLISH_TERMS["special.event.rabbitsMissing"],
   "special.event.link": "Lien Airdrop",
   "special.event.claimForm":
     "Veuillez remplir le formulaire ci-dessous pour réclamer votre airdrop.",
@@ -4764,6 +4772,11 @@ const world: Record<World, string> = {
     "Pour interagir avec un Bumpkin ou un objet, approchez-vous et cliquez dessus.",
   "world.intro.seven":
     "Aucun harcèlement, injure ou intimidation. Merci de respecter les autres.",
+  "world.plaza": ENGLISH_TERMS["world.plaza"],
+  "world.beach": ENGLISH_TERMS["world.beach"],
+  "world.retreat": ENGLISH_TERMS["world.retreat"],
+  "world.home": ENGLISH_TERMS["world.home"],
+  "world.kingdom": ENGLISH_TERMS["world.kingdom"],
 };
 
 const wornDescription: Record<WornDescription, string> = {

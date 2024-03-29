@@ -1,3 +1,4 @@
+import { getKeys } from "features/game/types/craftables";
 import { GameState } from "features/game/types/game";
 import { CONFIG } from "lib/config";
 
@@ -12,7 +13,13 @@ const testnetFeatureFlag = () => CONFIG.NETWORK === "mumbai";
  *
  * Do not delete JEST_TEST.
  */
-type FeatureName = "JEST_TEST" | "PORTALS" | "DEQUIPPER" | "CHESTS" | "RAFFLE";
+type FeatureName =
+  | "JEST_TEST"
+  | "PORTALS"
+  | "RAFFLE"
+  | "RETREAT"
+  | "WORLD_MAP"
+  | "EASTER";
 
 // Used for testing production features
 export const ADMIN_IDS = [
@@ -25,9 +32,31 @@ type FeatureFlag = (game: GameState) => boolean;
 const featureFlags: Record<FeatureName, FeatureFlag> = {
   PORTALS: testnetFeatureFlag,
   JEST_TEST: defaultFeatureFlag,
-  DEQUIPPER: defaultFeatureFlag,
-  CHESTS: defaultFeatureFlag,
   RAFFLE: defaultFeatureFlag,
+  WORLD_MAP: (game) => {
+    if (defaultFeatureFlag(game)) return true;
+
+    const hasGoblinBud = getKeys(game.buds ?? {}).some(
+      (id) => game.buds?.[id].type === "Retreat"
+    );
+    return !!hasGoblinBud;
+  },
+  RETREAT: (game) => {
+    if (defaultFeatureFlag(game)) return true;
+
+    const hasGoblinBud = getKeys(game.buds ?? {}).some(
+      (id) => game.buds?.[id].type === "Retreat"
+    );
+    return !!hasGoblinBud;
+  },
+  EASTER: (game) => {
+    // Event ended
+    if (Date.now() > new Date("2024-04-05T00:00:00Z").getTime()) return false;
+
+    if (defaultFeatureFlag(game)) return true;
+
+    return Date.now() > new Date("2024-03-31T00:00:00Z").getTime();
+  },
 };
 
 export const hasFeatureAccess = (game: GameState, featureName: FeatureName) => {

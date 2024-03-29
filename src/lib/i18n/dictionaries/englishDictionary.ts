@@ -1849,6 +1849,7 @@ const event: Record<Event, string> = {
   "event.christmas": "Christmas event!",
   "event.LunarNewYear": "Lunar New Year Event",
   "event.GasHero": "Gas Hero Event",
+  "event.Easter": "Easter Event",
   "event.valentines.rewards": "Valentine Rewards",
 };
 
@@ -2259,6 +2260,9 @@ const gameDescriptions: Record<GameDescriptions, string> = {
   "description.babyPanda":
     "A cute panda from the Gas Hero event. Double experience for beginners during March.",
   "description.baozi": "A delicious treat from the Lunar New Year event.",
+  "description.communityEgg": "Wow, you must really care about the community!",
+  "description.hungryHare":
+    "This ravenous rabbit hops through your farm. A special event item from Easter 2024",
 
   // Easter Items
   "description.egg.basket": "Easter Event",
@@ -2282,7 +2286,8 @@ const gameTerms: Record<GameTerms, string> = {
   "farm.banned": "This farm is banned",
   gobSwarm: "Goblin Swarm!",
   "granting.wish": "Granting your wish",
-  "new.delivery.in": "New deliveries available in:",
+  "new.delivery.in": "New deliveries:",
+  "new.delivery.levelup": "Level up to unlock more deliveries.",
   "no.sfl": "No SFL tokens found",
   opensea: "OpenSea",
   polygonscan: "PolygonScan",
@@ -2435,7 +2440,11 @@ const guideTerms: Record<GuideTerms, string> = {
     "Deliveries in Sunflower Land provide an exciting opportunity to help hungry Goblins and fellow Bumpkins while earning rewards. Every day you will be able to see all the orders you have by clicking on the delivery board on the bottom left of the screen. The orders have been placed by some local NPCs that can be found hanging around Pumpkin Plaza. To fulfill an order, you will need to take a boat ride to Pumpkin Plaza and look for the NPC expecting the delivery. Once you find them, click on them to deliver the order and receive your reward.",
   "deliveries.guide.two":
     "As a new player, you start with three order slots, but as you expand your farm, you will unlock additional slots, allowing advanced players to take on more orders. New orders come in every 24 hours, offering a range of tasks from farming produce to cooking food and gathering resources. Completing orders will earn you milestone bonuses, including Block Bucks, SFL, delicious cakes, and other rewards. The reward system is based on the difficulty of the request, so consider prioritizing orders that offer greater rewards to maximize your gains. Keep an eye on the board and challenge yourself with a variety of orders, leveling up and unlocking new buildings as needed to fulfill more demanding requests.",
-
+  "deliveries.intro":
+    "Travel to different islands and deliver goods to earn rewards.",
+  "deliveries.new": "New delivery",
+  "chores.intro":
+    "Complete tasks around the farm to earn rewards from Bumpkins.",
   "scavenger.guide.one":
     "Scavenging in Sunflower Land offers exciting opportunities to uncover hidden treasures and gather valuable resources. The first aspect of scavenging is digging for treasure on Treasure Island, where you can become a pirate treasure hunter. By crafting a sand shovel and venturing to Treasure Island, you can dig in dark sandy areas to uncover a variety of treasures, including bounty, decorations, and even ancient SFTs with utility.",
   "scavenger.guide.two":
@@ -3988,7 +3997,7 @@ const rewardTerms: Record<RewardTerms, string> = {
   "reward.spendWisely": "Spend it wisely.",
   "reward.wearable": "A wearable for your Bumpkin",
   "reward.promo.code": "Enter your promo code:",
-  "reward.woohoo": "Woohoo! Here is your reward",
+  "reward.woohoo": "Woohoo! You found a hidden reward.",
   "reward.connectWeb3Wallet": "Connect a Web3 Wallet for a daily reward.",
 };
 
@@ -4145,6 +4154,9 @@ const somethingWentWrong: Record<SomethingWentWrong, string> = {
 };
 
 const specialEvent: Record<SpecialEvent, string> = {
+  "special.event.easterIntro":
+    "Oh no, my 6 rabbits have gone missing again....they must be searching for food. Can you help me find them? They look similar to other rabbits but have a unique sparkle. Click on them to capture them.",
+  "special.event.rabbitsMissing": "Rabbits missing",
   "special.event.link": "Airdrop link",
   "special.event.claimForm":
     "Please fill in the form below to claim your airdrop.",
@@ -4575,6 +4587,11 @@ const world: Record<World, string> = {
     "To interact with a Bumpkin or an object, walk near it and click it",
   "world.intro.seven":
     "No harrasment, swearing or bullying. Thank you for respecting others.",
+  "world.plaza": "Plaza",
+  "world.beach": "Beach",
+  "world.retreat": "Retreat",
+  "world.home": "Home",
+  "world.kingdom": "Kingdom",
 };
 
 const wornDescription: Record<WornDescription, string> = {

@@ -27,7 +27,6 @@ import { SUNNYSIDE } from "assets/sunnyside";
 import { Preloader } from "./scenes/Preloader";
 import { EquipBumpkinAction } from "features/game/events/landExpansion/equip";
 import { Label } from "components/ui/Label";
-import { CommunityScene } from "./scenes/CommunityScene";
 import { CommunityModals } from "./ui/CommunityModalManager";
 import { CommunityToasts } from "./ui/CommunityToastManager";
 import { SceneId } from "./mmoMachine";
@@ -45,6 +44,8 @@ import { Inventory } from "features/game/types/game";
 import { FishingModal } from "./ui/FishingModal";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { HudContainer } from "components/ui/HudContainer";
+import { RetreatScene } from "./scenes/RetreatScene";
+import { hasFeatureAccess } from "lib/flags";
 
 const _roomState = (state: MachineState) => state.value;
 const _scene = (state: MachineState) => state.context.sceneId;
@@ -103,9 +104,16 @@ export const PhaserComponent: React.FC<Props> = ({
   const mmoState = useSelector(mmoService, _roomState);
   const scene = useSelector(mmoService, _scene);
 
-  const scenes = isCommunity
-    ? [CommunityScene]
-    : [Preloader, WoodlandsScene, BeachScene, PlazaScene];
+  const scenes = [
+    Preloader,
+    new WoodlandsScene({ gameState: gameService.state.context.state }),
+    BeachScene,
+    new PlazaScene({ gameState: gameService.state.context.state }),
+  ];
+
+  if (hasFeatureAccess(gameService.state.context.state, "RETREAT")) {
+    scenes.push(RetreatScene);
+  }
 
   useEffect(() => {
     // Set up community APIs
@@ -191,6 +199,7 @@ export const PhaserComponent: React.FC<Props> = ({
     game.current.registry.set("gameService", gameService);
     game.current.registry.set("id", gameService.state.context.farmId);
     game.current.registry.set("initialScene", scene);
+
     gameService.onEvent((e) => {
       if (e.type === "bumpkin.equipped") {
         mmoService.state.context.server?.send(0, {

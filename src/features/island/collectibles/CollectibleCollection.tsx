@@ -241,6 +241,8 @@ import { GreenFieldRug } from "./components/GreenFieldRug";
 import { TeaRug } from "./components/TeaRug";
 import { BabyPanda } from "./components/BabyPanda";
 import { Baozi } from "./components/Baozi";
+import { CommunityEgg } from "./components/CommunityEgg";
+import { HungryHare } from "./components/HungryHare";
 
 // TODO: Remove partial once all placeable treasures have been added (waiting on artwork)
 
@@ -248,6 +250,8 @@ export const COLLECTIBLE_COMPONENTS: Record<
   CollectibleName | "Bud",
   React.FC<CollectibleProps>
 > = {
+  "Hungry Hare": HungryHare,
+  "Community Egg": CommunityEgg,
   Baozi: Baozi,
   "Baby Panda": BabyPanda,
   "Earn Alliance Banner": EarnAllianceBanner,

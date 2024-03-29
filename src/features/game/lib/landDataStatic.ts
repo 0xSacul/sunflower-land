@@ -354,7 +354,12 @@ export const STATIC_OFFLINE_FARM: GameState = {
   },
   balance: new Decimal(100),
   previousBalance: new Decimal(0),
-  previousInventory: {},
+  previousInventory: {
+    Wood: new Decimal(10),
+    Egg: new Decimal(10),
+    Iron: new Decimal(10),
+    "Golden Cauliflower": new Decimal(1),
+  },
   npcs: {
     "pumpkin' pete": {
       deliveryCount: 0,
@@ -374,6 +379,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Speed Chicken": new Decimal(2),
     "Mashed Potato": new Decimal(1),
     "Treasure Key": new Decimal(1),
+    "Hungry Hare": new Decimal(1),
     "Earn Alliance Banner": new Decimal(1),
     "Farmhand Coupon": new Decimal(1),
     "Sunpetal Seed": new Decimal(100),
@@ -389,11 +395,12 @@ export const STATIC_OFFLINE_FARM: GameState = {
     Sunflower: new Decimal(5),
     Scarecrow: new Decimal(1),
     Shovel: new Decimal(1),
-    Carrot: new Decimal(5),
+    Carrot: new Decimal(500),
     Rug: new Decimal(1),
     Wardrobe: new Decimal(1),
     "Abandoned Bear": new Decimal(10),
     "Chef Bear": new Decimal(10),
+    "Community Egg": new Decimal(10),
     "Grinx's Hammer": new Decimal(1),
     Rod: new Decimal(20),
     Earthworm: new Decimal(10),
@@ -402,7 +409,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Town Center": new Decimal(1),
     Market: new Decimal(1),
     Workbench: new Decimal(1),
-    "Basic Land": new Decimal(5),
+    "Basic Land": new Decimal(3),
     Gold: new Decimal(13),
     "Gold Pass": new Decimal(1),
     "Crop Plot": new Decimal(OFFLINE_FARM_CROPS),
@@ -437,7 +444,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Enchanted Rose": new Decimal(1),
     "Flower Cart": new Decimal(1),
     Capybara: new Decimal(1),
-    "Baby Panda": new Decimal(1),
+    "Golden Cauliflower": new Decimal(1),
 
     // Foods
     "Pumpkin Soup": new Decimal(1),
@@ -546,6 +553,22 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Santa Beard": 1,
     "Sunflower Amulet": 2,
   },
+  previousWardrobe: {
+    "Elf Suit": 1,
+    "Banana Onesie": 1,
+    "Beige Farmer Potion": 2,
+    "Fire Hair": 3,
+    "Basic Hair": 1,
+    "Red Farmer Shirt": 2,
+    "Blue Farmer Shirt": 1,
+    "Brown Suspenders": 1,
+
+    "Black Farmer Boots": 1,
+    "Farmer Pitchfork": 1,
+    "Farm Background": 1,
+    "Santa Beard": 1,
+    "Sunflower Amulet": 2,
+  },
 
   createdAt: new Date().getTime(),
 
@@ -629,7 +652,19 @@ export const STATIC_OFFLINE_FARM: GameState = {
       },
     ],
   },
-  collectibles: {},
+  collectibles: {
+    // "Golden Cauliflower": [
+    //   {
+    //     id: "123",
+    //     createdAt: 0,
+    //     readyAt: 0,
+    //     coordinates: {
+    //       x: 3,
+    //       y: 3,
+    //     },
+    //   },
+    // ],
+  },
   pumpkinPlaza: {
     raffle: {
       entries: {
@@ -655,6 +690,8 @@ export const STATIC_OFFLINE_FARM: GameState = {
         id: "1",
         items: {
           Sunflower: 20,
+          Potato: 20,
+          Pumpkin: 20,
         },
       },
       // {
@@ -706,7 +743,415 @@ export const STATIC_OFFLINE_FARM: GameState = {
   username: "Local Hero",
   springBlossom: {},
   specialEvents: {
-    current: {},
-    history: {},
+    current: {
+      "Lunar New Year": {
+        isEligible: true,
+        text: "The Lunar New Year is here! Celebrate with us and earn rewards!",
+        endAt: 1708041600000,
+        startAt: 1707436800000,
+        tasks: [
+          {
+            reward: {
+              sfl: 0,
+              items: {},
+              wearables: {
+                "Lucky Red Hat": 1,
+              },
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Sunflower: 100,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 5,
+              items: {},
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Cauliflower: 30,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Time Warp Totem": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Wood: 30,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Block Buck": 3,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Gold: 3,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Treasure Key": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Sunstone: 1,
+              },
+            },
+          },
+        ],
+        requiresWallet: false,
+      },
+      Easter: {
+        isEligible: true,
+        text: "Yippee, you found my rabbits! Hmmm, they are awfully hungry - can you help me feed them?",
+        endAt: 1712275200000,
+        startAt: 1711497600000,
+        tasks: [
+          {
+            reward: {
+              wearables: {
+                "Striped Red Shirt": 1,
+              },
+              items: {},
+              sfl: 0,
+            },
+            requirements: {
+              items: {
+                Carrot: 10,
+              },
+              sfl: 1,
+            },
+          },
+          {
+            reward: {
+              wearables: {},
+              items: {
+                "Treasure Key": 1,
+              },
+              sfl: 0,
+            },
+            requirements: {
+              items: {
+                Carrot: 100,
+              },
+              sfl: 0,
+            },
+          },
+          {
+            reward: {
+              wearables: {},
+              items: {
+                "Time Warp Totem": 1,
+              },
+              sfl: 0,
+            },
+            requirements: {
+              items: {
+                Carrot: 500,
+              },
+              sfl: 0,
+            },
+          },
+          {
+            reward: {
+              wearables: {
+                "Striped Yellow Shirt": 1,
+              },
+              items: {},
+              sfl: 0,
+            },
+            requirements: {
+              items: {
+                Carrot: 50000,
+              },
+              sfl: 0,
+            },
+          },
+        ],
+        requiresWallet: false,
+      },
+      "Earn Alliance Banner": {
+        isEligible: true,
+        text: "Complete Day 1 for an exclusive airdrop of an Earn Alliance Banner!",
+        endAt: 1709164800000,
+        startAt: 1708473600000,
+        tasks: [
+          {
+            reward: {
+              sfl: 1,
+              items: {},
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Sunflower: 50,
+                Pumpkin: 10,
+              },
+            },
+            completedAt: 1708474004845,
+            isAirdrop: true,
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Block Buck": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Wood: 10,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Pirate Cake": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Radish: 20,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Time Warp Totem": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Iron: 2,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Treasure Key": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Gold: 3,
+              },
+            },
+          },
+        ],
+        requiresWallet: true,
+      },
+      "One Planet Popper": {
+        isEligible: true,
+        text: "Congratulations, you found Bob! Complete the Day 1 challenge to enter the One Planet giveaway.",
+        endAt: 1709164800000,
+        startAt: 1708473600000,
+        tasks: [
+          {
+            reward: {
+              sfl: 1,
+              items: {},
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Sunflower: 50,
+              },
+            },
+            isAirdrop: true,
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Pumpkin Cake": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Wood: 5,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Block Buck": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Beetroot: 5,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Time Warp Totem": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Iron: 1,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 5,
+              items: {},
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Gold: 1,
+              },
+            },
+          },
+        ],
+        requiresWallet: true,
+      },
+      "Gas Hero": {
+        isEligible: true,
+        text: "Howdy Bumpkin, welcome to the Gas Hero event! Complete the tasks to earn rewards.",
+        endAt: 1711152000000,
+        startAt: 1710288000000,
+        tasks: [
+          {
+            reward: {
+              sfl: 1,
+              items: {},
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Pumpkin: 10,
+              },
+            },
+            completedAt: 1710288436525,
+            airdropUrl: "https://forms.gle/mBdEULPFmi6K6jpx7",
+            isAirdrop: true,
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Baby Panda": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Cauliflower: 30,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Time Warp Totem": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Wood: 20,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Block Buck": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Gold: 1,
+              },
+            },
+          },
+          {
+            reward: {
+              sfl: 0,
+              items: {
+                "Treasure Key": 1,
+              },
+              wearables: {},
+            },
+            requirements: {
+              sfl: 0,
+              items: {
+                Radish: 50,
+              },
+            },
+          },
+        ],
+        requiresWallet: true,
+      },
+    },
+    history: {
+      "2024": {
+        "Earn Alliance Banner": 20,
+        "Gas Hero": 20,
+      },
+    },
   },
 };

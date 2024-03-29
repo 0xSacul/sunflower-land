@@ -22,6 +22,8 @@ import { AuctionHouseModal } from "./AuctionHouseModal";
 import { translate } from "lib/i18n/translate";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { SpecialEventModal } from "./SpecialEventModal";
+import { GarbageCollectorModal } from "features/helios/components/garbageCollector/components/GarbageCollectorModal";
+import { Hopper } from "./npcs/Hopper";
 
 class NpcModalManager {
   private listener?: (npc: NPCName, isOpen: boolean) => void;
@@ -71,11 +73,11 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
         show={!!npc}
         onHide={closeModal}
       >
-        {npc === "elf" && (
+        {npc === "flopsy" && (
           <CloseButtonPanel
-            title="Enjoying Christmas?"
+            title="Enjoying Easter?"
             onClose={closeModal}
-            bumpkinParts={NPC_WEARABLES["elf"]}
+            bumpkinParts={NPC_WEARABLES["flopsy"]}
           >
             <Donations />
           </CloseButtonPanel>
@@ -88,6 +90,7 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
         {npc === "grubnuk" && <DeliveryPanel npc={npc} onClose={closeModal} />}
 
         {npc === "garth" && <PotionHouseShopItems onClose={closeModal} />}
+        {npc === "hopper" && <Hopper onClose={closeModal} />}
 
         {npc === "marcus" && (
           <SpeakingModal
@@ -111,6 +114,15 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
             </div>
           </CloseButtonPanel>
         )}
+        {npc === "garbo" && (
+          <CloseButtonPanel
+            onClose={closeModal}
+            bumpkinParts={NPC_WEARABLES.garbo}
+          >
+            <GarbageCollectorModal />
+          </CloseButtonPanel>
+        )}
+
         {npc === "billy" && (
           <SpeakingModal
             bumpkinParts={NPC_WEARABLES.billy}
@@ -181,6 +193,10 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
         {npc === "finley" && <DeliveryPanel npc={npc} onClose={closeModal} />}
         {npc === "luna" && <Luna onClose={closeModal} />}
         {npc === "mayor" && <Mayor onClose={closeModal} />}
+
+        {npc === "guria" && <DeliveryPanel npc={npc} onClose={closeModal} />}
+        {npc === "goblet" && <DeliveryPanel npc={npc} onClose={closeModal} />}
+        {npc === "gordo" && <DeliveryPanel npc={npc} onClose={closeModal} />}
       </Modal>
       {npc === "Chun Long" && (
         <SpecialEventModal

@@ -19,6 +19,7 @@ import { Success } from "../components/Success";
 import { Syncing } from "../components/Syncing";
 
 import logo from "assets/brand/logo_v2.png";
+import easterlogo from "assets/brand/easterlogo.png";
 import sparkle from "assets/fx/sparkle2.gif";
 import ocean from "assets/decorations/ocean.webp";
 
@@ -48,7 +49,7 @@ import { Sniped } from "../components/Sniped";
 import { NewMail } from "./components/NewMail";
 import { Blacklisted } from "../components/Blacklisted";
 import { AirdropPopup } from "./components/Airdrop";
-import { PIXEL_SCALE } from "../lib/constants";
+import { PIXEL_SCALE, TEST_FARM } from "../lib/constants";
 import classNames from "classnames";
 import { Label } from "components/ui/Label";
 import { CONFIG } from "lib/config";
@@ -61,6 +62,11 @@ import { ListingDeleted } from "../components/listingDeleted";
 import { AuthMachineState } from "features/auth/lib/authMachine";
 import { usePWAInstall } from "features/pwa/PWAInstallProvider";
 import { fixInstallPromptTextStyles } from "features/pwa/lib/fixInstallPromptStyles";
+import { Withdrawing } from "../components/Withdrawing";
+import { Withdrawn } from "../components/Withdrawn";
+import { PersonhoodContent } from "features/retreat/components/personhood/PersonhoodContent";
+import { hasFeatureAccess } from "lib/flags";
+import { SUNNYSIDE } from "assets/sunnyside";
 
 export const AUTO_SAVE_INTERVAL = 1000 * 30; // autosave every 30 seconds
 const SHOW_MODAL: Record<StateValues, boolean> = {
@@ -110,6 +116,9 @@ const SHOW_MODAL: Record<StateValues, boolean> = {
   blacklisted: true,
   airdrop: true,
   portalling: true,
+  provingPersonhood: false,
+  withdrawing: true,
+  withdrawn: true,
 };
 
 // State change selectors
@@ -154,6 +163,8 @@ const currentState = (state: MachineState) => state.value;
 const getErrorCode = (state: MachineState) => state.context.errorCode;
 const getActions = (state: MachineState) => state.context.actions;
 
+const isWithdrawing = (state: MachineState) => state.matches("withdrawing");
+const isWithdrawn = (state: MachineState) => state.matches("withdrawn");
 const isTransacting = (state: MachineState) => state.matches("transacting");
 const isClaimAuction = (state: MachineState) => state.matches("claimAuction");
 const isRefundingAuction = (state: MachineState) =>
@@ -163,6 +174,8 @@ const isBlacklisted = (state: MachineState) => state.matches("blacklisted");
 const hasAirdrop = (state: MachineState) => state.matches("airdrop");
 const hasSpecialOffer = (state: MachineState) => state.matches("specialOffer");
 const isPlaying = (state: MachineState) => state.matches("playing");
+const isProvingPersonhood = (state: MachineState) =>
+  state.matches("provingPersonhood");
 
 const GameContent = () => {
   const { gameService } = useContext(Context);
@@ -248,6 +261,9 @@ export const GameWrapper: React.FC = ({ children }) => {
   const pwaInstallRef = usePWAInstall();
 
   const loading = useSelector(gameService, isLoading);
+  const provingPersonhood = useSelector(gameService, isProvingPersonhood);
+  const withdrawing = useSelector(gameService, isWithdrawing);
+  const withdrawn = useSelector(gameService, isWithdrawn);
   const portalling = useSelector(gameService, isPortalling);
   const trading = useSelector(gameService, isTrading);
   const traded = useSelector(gameService, isTraded);
@@ -363,11 +379,24 @@ export const GameWrapper: React.FC = ({ children }) => {
                   }}
                 />
                 <>
-                  <img id="logo" src={logo} className="w-full" />
+                  {hasFeatureAccess(TEST_FARM, "EASTER") ? (
+                    <img id="logo" src={easterlogo} className="w-full" />
+                  ) : (
+                    <img id="logo" src={logo} className="w-full" />
+                  )}
                   <div className="flex justify-center">
                     <Label type="default">
                       {CONFIG.RELEASE_VERSION?.split("-")[0]}
                     </Label>
+                    {hasFeatureAccess(TEST_FARM, "EASTER") && (
+                      <Label
+                        secondaryIcon={SUNNYSIDE.icons.stopwatch}
+                        type="vibrant"
+                        className="ml-2"
+                      >
+                        {t("event.Easter")}
+                      </Label>
+                    )}
                   </div>
                 </>
               </div>
@@ -433,6 +462,8 @@ export const GameWrapper: React.FC = ({ children }) => {
             {promo && <Promo />}
             {airdrop && <AirdropPopup />}
             {specialOffer && <SpecialOffer />}
+            {withdrawing && <Withdrawing />}
+            {withdrawn && <Withdrawn />}
           </Panel>
         </Modal>
 
@@ -442,6 +473,17 @@ export const GameWrapper: React.FC = ({ children }) => {
         <SpecialOffer />
         <Introduction />
         <NewMail />
+
+        {provingPersonhood && (
+          <Modal
+            show={true}
+            onHide={() => gameService.send("PERSONHOOD_CANCELLED")}
+          >
+            <Panel className="text-shadow">
+              <PersonhoodContent />
+            </Panel>
+          </Modal>
+        )}
 
         {children}
       </ToastProvider>

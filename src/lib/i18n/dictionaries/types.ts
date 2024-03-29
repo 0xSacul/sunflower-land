@@ -1620,6 +1620,8 @@ export type GameDescriptions =
   | "description.prizeTicket"
   | "description.babyPanda"
   | "description.baozi"
+  | "description.communityEgg"
+  | "description.hungryHare"
   //Easter Items
   | "description.egg.basket"
   | "description.blue.egg"
@@ -1641,6 +1643,7 @@ export type GameTerms =
   | "gobSwarm"
   | "granting.wish"
   | "new.delivery.in"
+  | "new.delivery.levelup"
   | "no.sfl"
   | "opensea"
   | "polygonscan"
@@ -1739,6 +1742,9 @@ export type GuideTerms =
   | "crafting.guide.four"
   | "deliveries.guide.one"
   | "deliveries.guide.two"
+  | "deliveries.intro"
+  | "deliveries.new"
+  | "chores.intro"
   | "scavenger.guide.one"
   | "scavenger.guide.two"
   | "fruit.guide.one"
@@ -2810,6 +2816,8 @@ export type SomethingWentWrong =
   | "somethingWentWrong.askingCommunity";
 
 export type SpecialEvent =
+  | "special.event.easterIntro"
+  | "special.event.rabbitsMissing"
   | "special.event.claimForm"
   | "special.event.link"
   | "special.event.airdropHandling"
@@ -3106,12 +3114,18 @@ export type World =
   | "world.intro.four"
   | "world.intro.five"
   | "world.intro.six"
-  | "world.intro.seven";
+  | "world.intro.seven"
+  | "world.plaza"
+  | "world.beach"
+  | "world.retreat"
+  | "world.home"
+  | "world.kingdom";
 
 export type Event =
   | "event.christmas"
   | "event.LunarNewYear"
   | "event.GasHero"
+  | "event.Easter"
   | "event.valentines.rewards";
 
 export type Promo = "promo.cdcBonus" | "promo.expandLand";

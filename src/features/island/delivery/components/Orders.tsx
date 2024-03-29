@@ -12,6 +12,7 @@ import sfl from "assets/icons/token_2.png";
 import worldIcon from "assets/icons/world_small.png";
 import heartBg from "assets/ui/heart_bg.png";
 import chest from "assets/icons/chest.png";
+import lockIcon from "assets/skills/lock.png";
 
 import { DynamicNFT } from "features/bumpkins/components/DynamicNFT";
 import { Context } from "features/game/GameProvider";
@@ -20,7 +21,7 @@ import { PIXEL_SCALE } from "features/game/lib/constants";
 import { getKeys } from "features/game/types/craftables";
 import { Order } from "features/game/types/game";
 import { ITEM_DETAILS } from "features/game/types/images";
-import { NPC } from "features/island/bumpkin/components/NPC";
+import { NPCIcon } from "features/island/bumpkin/components/NPC";
 
 import { NPCName, NPC_WEARABLES } from "lib/npcs";
 import { getDayOfYear, secondsToString } from "lib/utils/time";
@@ -147,7 +148,7 @@ export const DeliveryOrders: React.FC<Props> = ({ selectedId, onSelect }) => {
     (delivery.milestone.claimedAt ?? 0) < new Date("2024-02-15").getTime();
 
   return (
-    <div className="flex md:flex-row flex-col-reverse md:mr-1">
+    <div className="flex md:flex-row flex-col-reverse md:mr-1 items-start">
       <div
         className={classNames("md:flex flex-col w-full md:w-2/3", {
           hidden: selectedId,
@@ -226,13 +227,18 @@ export const DeliveryOrders: React.FC<Props> = ({ selectedId, onSelect }) => {
           </div>
         )}
 
-        <div className="flex flex-row w-full flex-wrap max-h-80 scrollable overflow-y-auto">
+        <div className="flex flex-row w-full flex-wrap scrollable overflow-y-auto pl-1">
           {orders.map((order) => (
-            <div className="w-1/2 sm:w-1/3 p-1" key={order.id}>
+            <div className="w-1/3 sm:w-1/4 py-1 px-2" key={order.id}>
               <OuterPanel
                 onClick={() => select(order.id)}
-                className="w-full cursor-pointer hover:bg-brown-200 !py-2 relative"
-                style={{ height: "80px" }}
+                className={classNames(
+                  "w-full cursor-pointer hover:bg-brown-200 !py-2 relative",
+                  {
+                    "!bg-brown-200": order.id === previewOrder?.id,
+                  }
+                )}
+                style={{ paddingBottom: "20px" }}
               >
                 {hasRequirements(order) && !order.completedAt && (
                   <img
@@ -241,65 +247,52 @@ export const DeliveryOrders: React.FC<Props> = ({ selectedId, onSelect }) => {
                   />
                 )}
 
-                {!!order.completedAt && (
-                  <img
-                    src={SUNNYSIDE.icons.confirm}
-                    className="absolute top-0.5 right-0.5 w-5"
-                  />
-                )}
-
-                <div className="flex">
-                  <div className="relative bottom-4 h-14 w-12 mr-2 ml-0.5">
-                    <NPC parts={NPC_WEARABLES[order.from]} preventZoom={true} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-start ml-2 h-8 items-center">
+                <div className="flex flex-col pb-4">
+                  <div className="flex items-center">
+                    <div className="relative mb-2 -ml-1.5 mr-0.5">
+                      <NPCIcon parts={NPC_WEARABLES[order.from]} />
+                    </div>
+                    <div className="flex-1 flex justify-center h-8 items-center w-6 ">
                       {getKeys(order.items).map((name) => (
                         <img
                           key={name}
                           src={name === "sfl" ? sfl : ITEM_DETAILS[name].image}
-                          className="w-6 img-highlight -ml-2"
+                          className="w-6 img-highlight"
                         />
                       ))}
                     </div>
-                    <div className="flex flex-col justify-center">
-                      {order.reward.sfl && (
-                        <div className="flex items-center mt-1">
-                          <img src={sfl} className="h-5 mr-1" />
-                          <span className="text-xs">
-                            {getOrderSellPrice(gameState, order).toFixed(2)}
-                          </span>
-                        </div>
-                      )}
-                      {/* {order.reward.items &&
-                        getKeys(order.reward.items ?? {}).map((name) => (
-                          <div className="flex items-center mt-1" key={name}>
-                            <img
-                              src={ITEM_DETAILS[name].image}
-                              className="h-5 mr-1"
-                            />
-                            <span className="text-xs">
-                              {order.reward.items?.[name]}
-                            </span>
-                          </div>
-                        ))} */}
-                      {order.reward.tickets && (
-                        <div
-                          className="flex items-center mt-1"
-                          key={getSeasonalTicket()}
-                        >
-                          <img
-                            src={ITEM_DETAILS[getSeasonalTicket()].image}
-                            className="h-5 mr-1"
-                          />
-                          <span className="text-xs">
-                            {order.reward.tickets}
-                          </span>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
+
+                {order.completedAt && (
+                  <Label
+                    type="success"
+                    className="absolute -bottom-2 text-center mt-1 p-1 left-[-8px] z-10"
+                    style={{ width: "calc(100% + 16px)" }}
+                  >
+                    <img src={SUNNYSIDE.icons.confirm} className="h-4" />
+                  </Label>
+                )}
+                {!order.completedAt && order.reward.sfl && (
+                  <Label
+                    type="warning"
+                    icon={sfl}
+                    className="absolute -bottom-2 text-center mt-1 p-1 left-[-8px] z-10"
+                    style={{ width: "calc(100% + 16px)" }}
+                  >
+                    {`${getOrderSellPrice(gameState, order).toFixed(2)} SFL`}
+                  </Label>
+                )}
+                {!order.completedAt && order.reward.tickets && (
+                  <Label
+                    icon={ITEM_DETAILS[getSeasonalTicket()].image}
+                    type="warning"
+                    className="absolute -bottom-2 text-center mt-1 p-1 left-[-8px] z-10"
+                    style={{ width: "calc(100% + 16px)" }}
+                  >
+                    {order.reward.tickets}
+                  </Label>
+                )}
 
                 {order.id === previewOrder?.id && (
                   <div className="hidden md:block">
@@ -376,16 +369,12 @@ export const DeliveryOrders: React.FC<Props> = ({ selectedId, onSelect }) => {
               </OuterPanel>
             </div>
           )}
+
           <div className="flex items-center mb-1 mt-2">
             <div className="w-6">
-              <img src={SUNNYSIDE.icons.timer} className="h-4 mx-auto" />
+              <img src={lockIcon} className="h-4 mx-auto" />
             </div>
-            <span className="text-xs">
-              {t("new.delivery.in")}{" "}
-              {`${secondsToString(secondsTillReset(), {
-                length: "medium",
-              })}.`}
-            </span>
+            <span className="text-xs">{t("new.delivery.levelup")}</span>
           </div>
         </div>
       </div>
