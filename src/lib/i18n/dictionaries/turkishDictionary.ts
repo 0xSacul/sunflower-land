@@ -33,7 +33,7 @@ import {
   Conversations,
   CropBoomMessages,
   CropFruitDescriptions,
-  Deliveryitem,
+  DeliveryItem,
   DefaultDialogue,
   DecorationDescriptions,
   Delivery,
@@ -171,6 +171,7 @@ import {
   TimeUnits,
   PwaInstall,
   Trading,
+  GoblinTrade,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -254,6 +255,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "enjoying.event": "Bu etkinlikten memnun musunuz?",
   equip: "Kuşan",
   error: "Hata",
+  exchange: "Exchange",
   exotics: "Egzotikler",
   "expand.land": "Adanı Genişlet",
   expand: "Genişlet",
@@ -924,6 +926,7 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.beekeeper.hat.boost": "+20% Bal Üretim Hızı",
   "description.babyPanda.boost": "Başlangıç 2x XP Takviyesi",
   "description.flower.fox.boost": "-10% Çiçek Büyüme Hızı",
+  "description.hungryHare.boost": ENGLISH_TERMS["description.hungryHare.boost"],
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -984,6 +987,8 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
     "Bunun için bekliyordum. Çok teşekkürler! Daha fazla teslimat için yakında tekrar gel.",
   "bumpkin.delivery.proveYourself": "Değerli olduğunu kanıtla. Adanı genişlet",
   "bumpkin.delivery.more.time": "Daha fazla zaman.",
+  "bumpkin.delivery.requiresSeasonPass":
+    "I will only accept deliveries from Season Pass holders.",
 };
 
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
@@ -1041,7 +1046,7 @@ const bumpkinSkillsDescription: Record<BumpkinSkillsDescription, string> = {
   "description.lumberjack": "Ağaçlar %10 odun daha fazla veriyor",
   "description.tree.hugger": "Ağaçlar %20 daha hızlı büyüyor",
   "description.tough.tree": "3x Odun Düşürme Şansı",
-  "description.money.tree": "Ağaçlardan SFL düşürme şansı",
+  "description.money.tree": "Ağaçlardan coins düşürme şansı",
   // Rocks
   "description.digger": "%10 daha fazla taş",
   "description.coal.face": "Taşlar %20 daha hızlı geri döner",
@@ -1080,6 +1085,14 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.cancel": "İptal",
   "bumpkinTrade.list": "Listele",
   "bumpkinTrade.maxListings": "Maksimum listelemeye ulaşıldı",
+};
+
+const goblinTrade: Record<GoblinTrade, string> = {
+  "goblinTrade.select": ENGLISH_TERMS["goblinTrade.select"],
+  "goblinTrade.bulk": ENGLISH_TERMS["goblinTrade.bulk"],
+  "goblinTrade.conversion": ENGLISH_TERMS["goblinTrade.conversion"],
+  "goblinTrade.hoarding": ENGLISH_TERMS["goblinTrade.hoarding"],
+  "goblinTrade.vipRequired": ENGLISH_TERMS["goblinTrade.vipRequired"],
 };
 
 const buyFarmHand: Record<BuyFarmHand, string> = {
@@ -1725,7 +1738,7 @@ const deliveryHelp: Record<DeliveryHelp, string> = {
     "Bonus ödüllerin kilidini açmak için birden fazla siparişi tamamlayarak Bumpkinler ile ilişkiler kurun. (Yakında gelecek)",
 };
 
-const deliveryitem: Record<Deliveryitem, string> = {
+const deliveryitem: Record<DeliveryItem, string> = {
   "deliveryitem.inventory": "Envanter",
   "deliveryitem.itemsToDeliver": "Teslim edilecek öğeler",
   "deliveryitem.deliverToWallet": "Cüzdanınıza teslim edin",
@@ -1833,6 +1846,7 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.composterAlreadyDone": "Komposto zaten yapıldı",
   "error.composterAlreadyBoosted": "Zaten öne çıkarıldı",
   "error.missingEggs": "Kayıp Yumurtalar",
+  "error.insufficientCoins": "Yetersiz Coins",
   "error.insufficientSFL": "Yetersiz SFL",
   "error.insufficientSpaceForChickens":
     "Daha fazla tavuk için yeterli alan yok",
@@ -4267,6 +4281,7 @@ const statements: Record<Statements, string> = {
   "statements.sync":
     "Zincirdeki tüm verilerinizi senkronize ederken lütfen sabırlı olun.",
   "statements.tapCont": "Devam etmek için dokunun",
+  "statements.price.change": ENGLISH_TERMS["statements.price.change"],
 
   "statements.tutorial.one":
     "Tekne sizi yeni topraklar ve heyecan verici maceralar keşfedebileceğiniz adalar arasında götürecek.",
@@ -4726,6 +4741,7 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...getContent,
   ...getInputErrorMessage,
   ...goblin_messages,
+  ...goblinTrade,
   ...goldpassModal,
   ...goldTooth,
   ...guideCompost,

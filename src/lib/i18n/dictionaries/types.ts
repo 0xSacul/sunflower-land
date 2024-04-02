@@ -83,6 +83,7 @@ export type GeneralTerms =
   | "enjoying.event"
   | "equip"
   | "error"
+  | "exchange"
   | "exotics"
   | "expand.land"
   | "expand"
@@ -563,6 +564,7 @@ export type BoostEffectDescriptions =
   | "description.mushroom.house.boost"
   | "description.boost.gilded.swordfish"
   | "description.babyPanda.boost"
+  | "description.hungryHare.boost"
   | "description.nancy.boost"
   | "description.scarecrow.boost"
   | "description.kuebiko.boost"
@@ -673,7 +675,8 @@ export type BumpkinDelivery =
   | "bumpkin.delivery.thanks"
   | "bumpkin.delivery.waiting"
   | "bumpkin.delivery.proveYourself"
-  | "bumpkin.delivery.more.time";
+  | "bumpkin.delivery.more.time"
+  | "bumpkin.delivery.requiresSeasonPass";
 
 export type BumpkinItemBuff =
   | "bumpkinItemBuff.chef.apron.boost"
@@ -770,6 +773,13 @@ export type BumpkinTrade =
   | "bumpkinTrade.cancel"
   | "bumpkinTrade.list"
   | "bumpkinTrade.maxListings";
+
+export type GoblinTrade =
+  | "goblinTrade.select"
+  | "goblinTrade.bulk"
+  | "goblinTrade.conversion"
+  | "goblinTrade.hoarding"
+  | "goblinTrade.vipRequired";
 
 export type BuyFarmHand =
   | "buyFarmHand.howdyBumpkin"
@@ -958,7 +968,7 @@ export type CropFruitDescriptions =
   | "description.bloom.seed"
   | "description.lily.seed";
 
-export type Deliveryitem =
+export type DeliveryItem =
   | "deliveryitem.inventory"
   | "deliveryitem.itemsToDeliver"
   | "deliveryitem.deliverToWallet"
@@ -1296,6 +1306,7 @@ export type ErrorTerms =
   | "error.composterAlreadyBoosted"
   | "error.missingEggs"
   | "error.insufficientSFL"
+  | "error.insufficientCoins"
   | "error.insufficientSpaceForChickens"
   | "error.dailyAttemptsExhausted"
   | "error.missingRod"
@@ -2906,7 +2917,8 @@ export type Statements =
   | "statements.minted.goToChest"
   | "statements.minted.withdrawAfterMint"
   | "statements.startgame"
-  | "statements.session.expired";
+  | "statements.session.expired"
+  | "statements.price.change";
 
 export type StopGoblin =
   | "stopGoblin.stop.goblin"
@@ -3188,7 +3200,7 @@ export type TranslationKeys =
   | Conversations
   | CropBoomMessages
   | CropFruitDescriptions
-  | Deliveryitem
+  | DeliveryItem
   | DefaultDialogue
   | DecorationDescriptions
   | Delivery
@@ -3220,6 +3232,7 @@ export type TranslationKeys =
   | GetContent
   | GetInputErrorMessage
   | GOBLIN_MESSAGES
+  | GoblinTrade
   | GoldPassModal
   | GoldTooth
   | GuideTerms

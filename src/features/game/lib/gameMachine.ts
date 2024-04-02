@@ -56,7 +56,6 @@ import { CollectibleLocation, PurchasableItems } from "../types/collectibles";
 import {
   getGameRulesLastRead,
   getIntroductionRead,
-  getSeasonPassRead,
 } from "features/announcements/announcementsStorage";
 import { depositToFarm } from "lib/blockchain/Deposit";
 import Decimal from "decimal.js-light";
@@ -93,6 +92,11 @@ import {
   withdrawWearables,
 } from "../actions/withdraw";
 import { CONFIG } from "lib/config";
+import {
+  TradeableName,
+  sellMarketResourceRequest,
+} from "../actions/sellMarketResource";
+import { setCachedMarketPrices } from "features/world/ui/market/lib/marketCache";
 
 const getPortal = () => {
   const code = new URLSearchParams(window.location.search).get("portal");
@@ -124,6 +128,7 @@ export interface Context {
   goblinSwarm?: Date;
   deviceTrackerId?: string;
   revealed?: {
+    coins: number;
     balance: string;
     inventory: Record<InventoryItemName, string>;
     wardrobe: Record<BumpkinItem, number>;
@@ -268,6 +273,12 @@ type FulfillTradeListingEvent = {
   listingType: string;
 };
 
+type SellMarketResourceEvent = {
+  type: "SELL_MARKET_RESOURCE";
+  item: TradeableName;
+  pricePerUnit: number;
+};
+
 export type UpdateUsernameEvent = {
   type: "UPDATE_USERNAME";
   username: string;
@@ -284,6 +295,7 @@ export type BlockchainEvent =
   | ListingEvent
   | DeleteTradeListingEvent
   | FulfillTradeListingEvent
+  | SellMarketResourceEvent
   | {
       type: "REFRESH";
     }
@@ -452,7 +464,9 @@ export type BlockchainState = {
     | "deleteTradeListing"
     | "tradeListingDeleted"
     | "fulfillTradeListing"
+    | "sellMarketResource"
     | "sniped"
+    | "priceChanged"
     | "buds"
     | "airdrop"
     | "noBumpkinFound"
@@ -492,10 +506,15 @@ export const saveGame = async (
 
   // Skip autosave when no actions were produced or if playing ART_MODE
   if (context.actions.length === 0 || ART_MODE) {
-    return { verified: true, saveAt, farm: context.state };
+    return {
+      verified: true,
+      saveAt,
+      farm: context.state,
+      announcements: context.announcements,
+    };
   }
 
-  const { verified, farm } = await autosave({
+  const { verified, farm, announcements } = await autosave({
     farmId,
     sessionId: context.sessionId as string,
     actions: context.actions,
@@ -513,6 +532,7 @@ export const saveGame = async (
     saveAt,
     verified,
     farm,
+    announcements,
   };
 };
 
@@ -535,6 +555,7 @@ const handleSuccessfulSave = (context: Context, event: any) => {
     actions: recentActions,
     state: updatedState,
     saveQueued: false,
+    announcements: event.data.announcements,
   };
 };
 
@@ -551,7 +572,21 @@ export function startGame(authContext: AuthContext) {
         actions: [],
         state: EMPTY,
         sessionId: INITIAL_SESSION,
-        announcements: {},
+        announcements: {
+          coins: {
+            content: [
+              {
+                text: "Hello",
+              },
+            ],
+            reward: {
+              coins: 100,
+              items: {},
+            },
+            from: "betty",
+            headline: "reward",
+          },
+        },
         moderation: {
           muted: [],
           kicked: [],
@@ -782,13 +817,13 @@ export function startGame(authContext: AuthContext) {
               target: "swarming",
               cond: () => isSwarming(),
             },
-            {
-              target: "specialOffer",
-              cond: (context) =>
-                (context.state.bumpkin?.experience ?? 0) > 100 &&
-                !context.state.collectibles["Spring Blossom Banner"] &&
-                !getSeasonPassRead(),
-            },
+            // {
+            //   target: "specialOffer",
+            //   cond: (context) =>
+            //     (context.state.bumpkin?.experience ?? 0) > 100 &&
+            //     !context.state.collectibles["Spring Blossom Banner"] &&
+            //     !getSeasonPassRead(),
+            // },
             // EVENTS THAT TARGET NOTIFYING OR LOADING MUST GO ABOVE THIS LINE
 
             // EVENTS THAT TARGET PLAYING MUST GO BELOW THIS LINE
@@ -1042,6 +1077,7 @@ export function startGame(authContext: AuthContext) {
             LIST_TRADE: { target: "listing" },
             DELETE_TRADE_LISTING: { target: "deleteTradeListing" },
             FULFILL_TRADE_LISTING: { target: "fulfillTradeListing" },
+            SELL_MARKET_RESOURCE: { target: "sellMarketResource" },
             UPDATE_BLOCK_BUCKS: {
               actions: assign((context, event) => ({
                 state: {
@@ -1096,12 +1132,14 @@ export function startGame(authContext: AuthContext) {
           },
           invoke: {
             src: async (context, event) => {
-              return saveGame(
+              const data = await saveGame(
                 context,
                 event,
                 context.farmId as number,
                 authContext.user.rawToken as string
               );
+
+              return data;
             },
             onDone: [
               {
@@ -1640,6 +1678,67 @@ export function startGame(authContext: AuthContext) {
           },
         },
         sniped: {
+          on: {
+            CONTINUE: "playing",
+          },
+        },
+        sellMarketResource: {
+          entry: "setTransactionId",
+          invoke: {
+            src: async (context, event) => {
+              const { item, pricePerUnit } = event as SellMarketResourceEvent;
+
+              if (context.actions.length > 0) {
+                await autosave({
+                  farmId: Number(context.farmId),
+                  sessionId: context.sessionId as string,
+                  actions: context.actions,
+                  token: authContext.user.rawToken as string,
+                  fingerprint: context.fingerprint as string,
+                  deviceTrackerId: context.deviceTrackerId as string,
+                  transactionId: context.transactionId as string,
+                });
+              }
+
+              const { farm, prices, error } = await sellMarketResourceRequest({
+                farmId: Number(context.farmId),
+                token: authContext.user.rawToken as string,
+                soldAt: new Date().toISOString(),
+                item,
+                pricePerUnit,
+              });
+
+              return {
+                farm,
+                error,
+                prices,
+              };
+            },
+            onDone: [
+              {
+                target: "priceChanged",
+                cond: (_, event) => event.data.error === "PRICE_CHANGED",
+              },
+              {
+                target: "playing",
+                actions: [
+                  (_context, event) => {
+                    setCachedMarketPrices(event.data.prices);
+                  },
+                  assign((_, event) => ({
+                    actions: [],
+                    state: event.data.farm,
+                  })),
+                ],
+              },
+            ],
+            onError: {
+              target: "error",
+              actions: "assignErrorMessage",
+            },
+          },
+        },
+        priceChanged: {
           on: {
             CONTINUE: "playing",
           },

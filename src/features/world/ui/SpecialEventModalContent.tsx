@@ -10,7 +10,7 @@ import { Button } from "components/ui/Button";
 import giftIcon from "assets/icons/gift.png";
 import chestIcon from "assets/icons/chest.png";
 import walletIcon from "assets/icons/wallet.png";
-import sfl from "assets/icons/token_2.png";
+import sfl from "assets/icons/sfl.webp";
 import lock from "assets/skills/lock.png";
 
 import Decimal from "decimal.js-light";
@@ -92,7 +92,7 @@ export const SpecialEventModalContent: React.FC<{
   npcName?: NPCName;
   event: SpecialEvent;
   eventName: SpecialEventName;
-}> = ({ onClose, npcName, event, eventName }) => {
+}> = ({ npcName, event, eventName }) => {
   const { gameService } = useContext(Context);
   const [gameState] = useActor(gameService);
 
@@ -117,6 +117,7 @@ export const SpecialEventModalContent: React.FC<{
     setReward({
       items: task.current.reward.items,
       sfl: task.current.reward.sfl,
+      coins: 0,
       createdAt: Date.now(),
       id: `${eventName}-${day}`,
       wearables: task.current.reward.wearables,

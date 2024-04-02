@@ -352,6 +352,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
       type: "Woodlands",
     },
   },
+  coins: 100,
   balance: new Decimal(100),
   previousBalance: new Decimal(0),
   previousInventory: {
@@ -1153,5 +1154,8 @@ export const STATIC_OFFLINE_FARM: GameState = {
         "Gas Hero": 20,
       },
     },
+  },
+  goblinMarket: {
+    resources: {},
   },
 };

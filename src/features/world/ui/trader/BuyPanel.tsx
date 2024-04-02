@@ -10,7 +10,7 @@ import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { OuterPanel } from "components/ui/Panel";
 import { Box } from "components/ui/Box";
 import Decimal from "decimal.js-light";
-import token from "assets/icons/token_2.png";
+import token from "assets/icons/sfl.webp";
 import lock from "assets/skills/lock.png";
 import { getKeys } from "features/game/types/craftables";
 import { InventoryItemName } from "features/game/types/game";
@@ -35,21 +35,21 @@ export const TRADE_LIMITS: Partial<Record<InventoryItemName, number>> = {
   Cabbage: 2000,
   Beetroot: 1000,
   Cauliflower: 1000,
-  Parsnip: 400,
-  Eggplant: 400,
-  Corn: 400,
-  Radish: 400,
-  Wheat: 400,
-  Kale: 400,
+  Parsnip: 1000,
+  Eggplant: 1000,
+  Corn: 1000,
+  Radish: 500,
+  Wheat: 500,
+  Kale: 500,
   Blueberry: 200,
   Orange: 200,
   Apple: 200,
   Banana: 200,
-  Wood: 200,
+  Wood: 500,
   Stone: 200,
   Iron: 200,
   Gold: 100,
-  Egg: 200,
+  Egg: 500,
 };
 
 export const BuyPanel: React.FC<{

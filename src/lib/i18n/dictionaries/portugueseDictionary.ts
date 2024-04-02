@@ -33,7 +33,7 @@ import {
   Conversations,
   CropBoomMessages,
   CropFruitDescriptions,
-  Deliveryitem,
+  DeliveryItem,
   DefaultDialogue,
   DecorationDescriptions,
   Delivery,
@@ -171,6 +171,7 @@ import {
   Trading,
   TimeUnits,
   PwaInstall,
+  GoblinTrade,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -249,6 +250,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   empty: "Vazio",
   equip: "Equipar",
   error: "Erro",
+  exchange: "Trocar",
   exotics: "Exóticos",
   "expand.land": "Expandir sua Terra",
   expand: "Expandir",
@@ -933,6 +935,7 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.radiant.ray.boost": "+0.1 Ferro",
   "description.babyPanda.boost": "2x XP Mar 2024",
   "description.flower.fox.boost": "-10% Tempo de Crescimento de Flores",
+  "description.hungryHare.boost": ENGLISH_TERMS["description.hungryHare.boost"],
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -996,6 +999,8 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
     "Eu estava esperando por isso. Obrigado! Volte logo para mais entregas.",
   "bumpkin.delivery.proveYourself": "Prove-se digno. Expanda sua ilha",
   "bumpkin.delivery.more.time": "mais vezes.",
+  "bumpkin.delivery.requiresSeasonPass":
+    "I will only accept deliveries from Season Pass holders.",
 };
 
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
@@ -1054,7 +1059,7 @@ const bumpkinSkillsDescription: Record<BumpkinSkillsDescription, string> = {
   "description.lumberjack": "Árvores rendem 10% a mais",
   "description.tree.hugger": "Árvores regeneram 20% mais rápido",
   "description.tough.tree": "Chance de obter 3x de madeira",
-  "description.money.tree": "Chance para SFL",
+  "description.money.tree": "Chance para coins",
   // Rocks
   "description.digger": "Pedras rendem 10% a mais",
   "description.coal.face": "Pedras recuperam 20% mais rápido",
@@ -1096,6 +1101,14 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.cancel": ENGLISH_TERMS["bumpkinTrade.cancel"],
   "bumpkinTrade.list": ENGLISH_TERMS["bumpkinTrade.list"],
   "bumpkinTrade.maxListings": ENGLISH_TERMS["bumpkinTrade.maxListings"],
+};
+
+const goblinTrade: Record<GoblinTrade, string> = {
+  "goblinTrade.bulk": ENGLISH_TERMS["goblinTrade.bulk"],
+  "goblinTrade.conversion": ENGLISH_TERMS["goblinTrade.conversion"],
+  "goblinTrade.select": ENGLISH_TERMS["goblinTrade.select"],
+  "goblinTrade.hoarding": ENGLISH_TERMS["goblinTrade.hoarding"],
+  "goblinTrade.vipRequired": ENGLISH_TERMS["goblinTrade.vipRequired"],
 };
 
 const buyFarmHand: Record<BuyFarmHand, string> = {
@@ -1383,7 +1396,7 @@ const cropFruitDescriptions: Record<CropFruitDescriptions, string> = {
   "description.lily.seed": "Uma semente de Lírio",
 };
 
-const deliveryitem: Record<Deliveryitem, string> = {
+const deliveryitem: Record<DeliveryItem, string> = {
   "deliveryitem.inventory": "Inventário",
   "deliveryitem.itemsToDeliver": "Itens para entregar",
   "deliveryitem.deliverToWallet": "Entregar para sua carteira",
@@ -1860,6 +1873,7 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.composterAlreadyBoosted": "Já impulsionado",
   "error.missingEggs": "Ovos em falta",
   "error.insufficientSFL": "SFL insuficiente",
+  "error.insufficientCoins": "Insufficient Coins",
   "error.insufficientSpaceForChickens":
     "Espaço insuficiente para mais galinhas",
   "error.dailyAttemptsExhausted": "Tentativas diárias esgotadas",
@@ -4278,6 +4292,7 @@ const statements: Record<Statements, string> = {
   "statements.sync":
     "Por favor, tenha paciência enquanto sincronizamos todos os seus dados na cadeia.",
   "statements.tapCont": "Toque para continuar",
+  "statements.price.change": "Oh não! O preço mudou, tente novamente.",
 
   "statements.tutorial.one":
     "O barco o levará entre as ilhas onde você pode descobrir novas terras e aventuras emocionantes.",
@@ -4753,6 +4768,7 @@ export const PORTUGUESE_TERMS: Record<TranslationKeys, string> = {
   ...getContent,
   ...getInputErrorMessage,
   ...goblin_messages,
+  ...goblinTrade,
   ...goldTooth,
   ...goldpassModal,
   ...guideTerms,

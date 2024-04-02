@@ -38,6 +38,7 @@ export function makeGame(farm: any): GameState {
     createdAt: farm.createdAt,
     chickens: farm.chickens || {},
     stockExpiry: farm.stockExpiry || {},
+    coins: farm.coins,
     balance: new Decimal(farm.balance),
     previousBalance: new Decimal(farm.previousBalance),
     username: farm.username,
@@ -115,6 +116,7 @@ export function makeGame(farm: any): GameState {
         price: new Decimal(collectible.price),
       })),
     },
+    goblinMarket: farm.goblinMarket,
   };
 }
 

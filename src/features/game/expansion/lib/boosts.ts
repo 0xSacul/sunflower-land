@@ -1,9 +1,7 @@
 import Decimal from "decimal.js-light";
 
 import { Bumpkin, GameState, Inventory } from "../../types/game";
-import { SellableItem } from "features/game/events/landExpansion/sellCrop";
 import { CROPS } from "../../types/crops";
-import { CAKES } from "../../types/craftables";
 import {
   COOKABLE_CAKES,
   Consumable,
@@ -18,9 +16,9 @@ import { getSeasonalBanner } from "features/game/types/seasons";
 import { getBudExperienceBoosts } from "features/game/lib/getBudExperienceBoosts";
 import { getBumpkinLevel } from "features/game/lib/level";
 import { isWearableActive } from "features/game/lib/wearables";
+import { SellableItem } from "features/game/events/landExpansion/sellCrop";
 
 const crops = CROPS();
-const cakes = CAKES();
 
 export function isCropShortage({ game }: { game: GameState }) {
   const bumpkinLevel = getBumpkinLevel(game.bumpkin?.experience ?? 0);
@@ -55,18 +53,11 @@ export const getSellPrice = ({
 
   const inventory = game.inventory;
 
-  if (!price) {
-    return new Decimal(0);
-  }
+  if (!price) return 0;
 
   // apply Green Thumb boost to crop LEGACY SKILL!
   if (item.name in crops && inventory["Green Thumb"]?.greaterThanOrEqualTo(1)) {
-    price = price.mul(1.05);
-  }
-
-  // apply Chef Apron 20% boost when selling cakes
-  if (item.name in cakes && isWearableActive({ name: "Chef Apron", game })) {
-    price = price.mul(1.2);
+    price = price * 1.05;
   }
 
   // Crop Shortage during initial gameplay
@@ -74,7 +65,7 @@ export const getSellPrice = ({
     ["Sunflower", "Potato", "Pumpkin"].includes(item.name) &&
     isCropShortage({ game })
   ) {
-    price = price.mul(2);
+    price = price * 2;
   }
 
   return price;
@@ -190,16 +181,9 @@ export const getFoodExpBoost = (
     boostedExp = boostedExp.mul(1.1);
   }
 
-  // Is March 2024 UTC
-  const isMarch2024 =
-    createdAt >= new Date("2024-03-01T00:00:00Z").getTime() &&
-    createdAt <= new Date("2024-03-31T23:59:59Z").getTime();
-
   if (
-    isMarch2024 &&
-    isCollectibleBuilt({ name: "Baby Panda", game }) &&
-    getBumpkinLevel(game.bumpkin?.experience ?? 0) <= 20 &&
-    game.island.type === "basic"
+    isCollectibleBuilt({ name: "Hungry Hare", game }) &&
+    food.name === "Fermented Carrots"
   ) {
     boostedExp = boostedExp.mul(2);
   }

@@ -33,7 +33,7 @@ import {
   Conversations,
   CropBoomMessages,
   CropFruitDescriptions,
-  Deliveryitem,
+  DeliveryItem,
   DefaultDialogue,
   DecorationDescriptions,
   Delivery,
@@ -171,6 +171,7 @@ import {
   NyonStatue,
   Trading,
   TimeUnits,
+  GoblinTrade,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -271,6 +272,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "enjoying.event": "Appréciez-vous cet événement?",
   equip: "Équiper",
   error: "Erreur",
+  exchange: "Échange",
   exit: "Quitter",
   exotics: "Exotiques",
   "expand.land": "Étendre votre île",
@@ -932,6 +934,7 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
     "Réduction de 50% du temps de croissance des cultures, minéraux, cuisine et arbres",
   "description.radiant.ray.boost": "+0.1 Fer",
   "description.babyPanda.boost": "Beginner 2x XP Boost",
+  "description.hungryHare.boost": ENGLISH_TERMS["description.hungryHare.boost"],
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -996,6 +999,8 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
     "J'attendais ça. Merci beaucoup ! Reviens bientôt pour plus de livraisons.",
   "bumpkin.delivery.proveYourself": "Prouve ta valeur. Étends ton île",
   "bumpkin.delivery.more.time": "plus de fois.",
+  "bumpkin.delivery.requiresSeasonPass":
+    "I will only accept deliveries from Season Pass holders.",
 };
 
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
@@ -1058,7 +1063,7 @@ const bumpkinSkillsDescription: Record<BumpkinSkillsDescription, string> = {
   "description.lumberjack": "Les arbres rapportent 10 % de plus",
   "description.tree.hugger": "Les arbres repoussent 20 % plus vite",
   "description.tough.tree": "Chance d'obtenir des arbres triplés",
-  "description.money.tree": "Chance d'obtenir des pièces SFL",
+  "description.money.tree": "Chance d'obtenir des pièces coins",
   // Roches
   "description.digger": "Les pierres rapportent 10 % de plus",
   "description.coal.face": "Les pierres se régénèrent 20 % plus vite",
@@ -1103,6 +1108,14 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.cancel": "Annuler",
   "bumpkinTrade.list": "Liste",
   "bumpkinTrade.maxListings": "Nombre maximum d'annonces atteint",
+};
+
+const goblinTrade: Record<GoblinTrade, string> = {
+  "goblinTrade.bulk": ENGLISH_TERMS["goblinTrade.bulk"],
+  "goblinTrade.conversion": ENGLISH_TERMS["goblinTrade.conversion"],
+  "goblinTrade.select": ENGLISH_TERMS["goblinTrade.select"],
+  "goblinTrade.hoarding": ENGLISH_TERMS["goblinTrade.hoarding"],
+  "goblinTrade.vipRequired": ENGLISH_TERMS["goblinTrade.vipRequired"],
 };
 
 const buyFarmHand: Record<BuyFarmHand, string> = {
@@ -1787,7 +1800,7 @@ const deliveryHelp: Record<DeliveryHelp, string> = {
     "Établissez des relations avec les Bumpkins en effectuant plusieurs commandes pour débloquer des récompenses bonus. (Bientôt disponible)",
 };
 
-const deliveryitem: Record<Deliveryitem, string> = {
+const deliveryitem: Record<DeliveryItem, string> = {
   "deliveryitem.inventory": "Inventaire :",
   "deliveryitem.itemsToDeliver": "Articles à livrer :",
   "deliveryitem.deliverToWallet": "Livrer à votre portefeuille",
@@ -1900,6 +1913,7 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.composterAlreadyBoosted": "Déjà boosté",
   "error.missingEggs": "Œufs manquants",
   "error.insufficientSFL": "SFL insuffisant",
+  "error.insufficientCoins": "Insufficient Coins",
   "error.insufficientSpaceForChickens":
     "Espace insuffisant pour plus de poulets",
   "error.dailyAttemptsExhausted": "Tentatives quotidiennes épuisées",
@@ -4404,6 +4418,7 @@ const statements: Record<Statements, string> = {
   "statements.sync":
     "Veuillez patienter pendant que nous synchronisons toutes vos données sur la chaîne.",
   "statements.tapCont": "Appuyez pour continuer",
+  "statements.price.change": ENGLISH_TERMS["statements.price.change"],
 
   "statements.tutorial.one":
     "Le bateau vous emmènera entre les îles où vous pourrez découvrir de nouveaux territoires et des aventures passionnantes.",
@@ -4865,6 +4880,7 @@ export const FRENCH_TERMS: Record<TranslationKeys, string> = {
   ...getContent,
   ...getInputErrorMessage,
   ...goblin_messages,
+  ...goblinTrade,
   ...goldpassModal,
   ...goldTooth,
   ...guideCompost,

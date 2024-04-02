@@ -32,7 +32,7 @@ import {
   Conversations,
   CropBoomMessages,
   CropFruitDescriptions,
-  Deliveryitem,
+  DeliveryItem,
   DefaultDialogue,
   DecorationDescriptions,
   Delivery,
@@ -170,6 +170,7 @@ import {
   Trading,
   TimeUnits,
   PwaInstall,
+  GoblinTrade,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -256,6 +257,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "enjoying.event": "Enjoying this event?",
   equip: "Equip",
   error: "Error",
+  exchange: "Exchange",
   exotics: "Exotics",
   "expand.land": "Expand your Land",
   expand: "Expand",
@@ -919,6 +921,7 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
     "50% Reduction to Crop, Mineral, Cooking and Tree Time",
   "description.radiant.ray.boost": "+0.1 Iron",
   "description.babyPanda.boost": "Beginner 2x XP Boost",
+  "description.hungryHare.boost": "Fermented Carrots 2x XP",
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -982,6 +985,8 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
     "I've been waiting for this. Thanks a bunch! Come back soon for more deliveries.",
   "bumpkin.delivery.proveYourself": "Prove yourself worthy. Expand your island",
   "bumpkin.delivery.more.time": "more times.",
+  "bumpkin.delivery.requiresSeasonPass":
+    "I will only accept deliveries from Season Pass holders.",
 };
 
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
@@ -1039,7 +1044,7 @@ const bumpkinSkillsDescription: Record<BumpkinSkillsDescription, string> = {
   "description.lumberjack": "Trees drop 10% more",
   "description.tree.hugger": "Trees regrow 20% quicker",
   "description.tough.tree": "Chance to get 3x wood drops",
-  "description.money.tree": "Chance for SFL drops",
+  "description.money.tree": "Chance for coin drops",
   // Rocks
   "description.digger": "Stone Drops 10% more",
   "description.coal.face": "Stones recover 20% quicker",
@@ -1080,6 +1085,14 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.cancel": "Cancel",
   "bumpkinTrade.list": "List",
   "bumpkinTrade.maxListings": "Max listings reached",
+};
+
+const goblinTrade: Record<GoblinTrade, string> = {
+  "goblinTrade.bulk": "Bulk Amount",
+  "goblinTrade.conversion": "Conversion",
+  "goblinTrade.select": "Select resource to sell",
+  "goblinTrade.hoarding": "Oh no! You've reached the max SFL.",
+  "goblinTrade.vipRequired": "VIP Access Required",
 };
 
 const buyFarmHand: Record<BuyFarmHand, string> = {
@@ -1704,7 +1717,7 @@ const deliveryHelp: Record<DeliveryHelp, string> = {
     "Build relationships with Bumpkins by completing multiple orders to unlock bonus rewards. (Coming soon)",
 };
 
-const deliveryitem: Record<Deliveryitem, string> = {
+const deliveryitem: Record<DeliveryItem, string> = {
   "deliveryitem.inventory": "Inventory",
   "deliveryitem.itemsToDeliver": "Items to deliver",
   "deliveryitem.deliverToWallet": "Deliver to your wallet",
@@ -1813,6 +1826,7 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.composterAlreadyBoosted": "Already boosted",
   "error.missingEggs": "Missing Eggs",
   "error.insufficientSFL": "Insufficient SFL",
+  "error.insufficientCoins": "Insufficient Coins",
   "error.insufficientSpaceForChickens": "Insufficient space for more chickens",
   "error.dailyAttemptsExhausted": "Daily attempts exhausted",
   "error.missingRod": "Missing rod",
@@ -2683,7 +2697,7 @@ const interactableModals: Record<InteractableModals, string> = {
 const introPage: Record<IntroPage, string> = {
   "introPage.welcome": "Welcome to the Potion Room, my curious apprentice!",
   "introPage.description":
-    "I am Mad Scientist Bumpkin, here to assist you on this magical quest into the world of botanic sorcery. Get ready to uncover the secrets of Sunflower Land! Each attempt will cost 1 SFL.",
+    "I am Mad Scientist Bumpkin, here to assist you on this magical quest into the world of botanic sorcery. Get ready to uncover the secrets of Sunflower Land! Each attempt will cost 320 coins.",
   "introPage.mission":
     "Your mission: decipher the right combination of potions within the enchanted grid.",
   "introPage.tip":
@@ -4241,6 +4255,8 @@ const statements: Record<Statements, string> = {
   "statements.sync":
     "Please bear with us while we sync all of your data on chain.",
   "statements.tapCont": "Tap to continue",
+  "statements.price.change":
+    "Oh no! Looks like the price has changed, please try again!",
 
   "statements.tutorial.one":
     "The boat will take you between islands where you can discover new lands and exciting adventures.",
@@ -4281,7 +4297,7 @@ const statements: Record<Statements, string> = {
   "statements.minted.goToChest": "Go to your chest and place it on your island",
   "statements.minted.withdrawAfterMint":
     "You will be able to withdraw your item once the mint has finished",
-  "statements.startgame": "Start New Game",
+  "statements.startgame": "Start Game",
 
   "statements.session.expired":
     "It looks like your session has expired. Please refresh the page to continue playing.",
@@ -4679,6 +4695,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...getContent,
   ...getInputErrorMessage,
   ...goblin_messages,
+  ...goblinTrade,
   ...goldpassModal,
   ...goldTooth,
   ...guideCompost,
