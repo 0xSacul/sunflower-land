@@ -1800,7 +1800,7 @@ const errorTerms: Record<ErrorTerms, string> = {
     "Please close any other browser tabs or devices that you are operating on.",
   "error.multipleWallets.one": "Multiple Wallets",
   "error.multipleWallets.two":
-    "It looks like you have multiple wallets installed. This can cause unexpected behaviour.Try to disable all but one wallet.",
+    "It looks like you have multiple wallets installed. This can cause unexpected behaviour. Try to disable all but one wallet.",
   "error.polygonRPC": "Please try again or check your Polygon RPC settings.",
   "error.toManyRequest.one": "Too many requests!",
   "error.toManyRequest.two":
@@ -1846,6 +1846,10 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.decorationCollides": "Decoration collides",
   "error.idAlreadyExists": "ID already exists",
   "error.ClientRPC": "Client RPC Error",
+  "error.walletInUse.one": "Wallet in Use",
+  "error.walletInUse.two":
+    "This wallet is already linked to a farm. Please use social login or another wallet.",
+  "error.walletInUse.three": "Try another login method",
 };
 
 const event: Record<Event, string> = {
@@ -4560,8 +4564,9 @@ const withdraw: Record<Withdraw, string> = {
     "Your Bumpkin is currently wearing the following item(s) that can't be withdrawn. You will need to unequip them before you can withdraw.",
   "withdraw.bumpkin.sure.withdraw":
     "Are you sure you want to withdraw your Bumpkin?",
-  "withdraw.bumpkin.play":
-    "To play the game, you always need a Bumpkin on your farm.",
+  "withdraw.bumpkin.closed": "Bumpkin withdrawal has been permanently disabled",
+  "withdraw.bumpkin.closing":
+    "Bumpkins are moving off chain. Bumpkin withdrawal will be permanently disabled, {{timeRemaining}}",
   "withdraw.buds": "Select Buds to withdraw",
   "withdraw.budRestricted": "Used in today's bud box",
 };

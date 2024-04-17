@@ -1863,6 +1863,9 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.decorationCollides": "Dekorasyon çarpışıyor",
   "error.idAlreadyExists": "Kimlik zaten mevcut",
   "error.ClientRPC": "İstemci RPC Hatası",
+  "error.walletInUse.one": ENGLISH_TERMS["error.walletInUse.one"],
+  "error.walletInUse.two": ENGLISH_TERMS["error.walletInUse.two"],
+  "error.walletInUse.three": ENGLISH_TERMS["error.walletInUse.three"],
 };
 
 const event: Record<Event, string> = {
@@ -4578,8 +4581,8 @@ const withdraw: Record<Withdraw, string> = {
     "Bumpkin'iniz şu anda geri alınamayan aşağıdaki öğeleri giyiyor. Geri çekilmeden önce bunları donanımdan çıkarmanız gerekecek.",
   "withdraw.bumpkin.sure.withdraw":
     "Bumpkin'inizi geri çekmek istediğinizden emin misiniz?",
-  "withdraw.bumpkin.play":
-    "Oyunu oynamak için çiftliğinizde her zaman bir Bumpkin'e ihtiyacınız vardır.",
+  "withdraw.bumpkin.closed": ENGLISH_TERMS["withdraw.bumpkin.closed"],
+  "withdraw.bumpkin.closing": ENGLISH_TERMS["withdraw.bumpkin.closing"],
   "withdraw.buds": "Çekilecek Tomurcukları seçin",
   "withdraw.budRestricted": "Bugünkü tomurcuk kutusunda kullanıldı",
 };
