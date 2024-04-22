@@ -21,6 +21,7 @@ export type Scenes = {
   crop_boom: Room<PlazaRoomState> | undefined;
   mushroom_forest: Room<PlazaRoomState> | undefined;
   retreat: Room<PlazaRoomState> | undefined;
+  creativia: Room<PlazaRoomState> | undefined;
 };
 
 export type SceneId = keyof Scenes;
