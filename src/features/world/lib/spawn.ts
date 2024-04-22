@@ -82,4 +82,10 @@ export const SPAWNS: () => SpawnLocation = () => ({
       y: 290,
     },
   },
+  creativia: {
+    default: {
+      x: 30,
+      y: 290,
+    },
+  },
 });

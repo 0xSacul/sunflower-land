@@ -2,7 +2,7 @@ import { SceneId } from "features/world/mmoMachine";
 import { BaseScene } from "features/world/scenes/BaseScene";
 
 // Import Maps
-import map_normal_1 from "assets/map/creativia/normal_1.json";
+import map_normal_4 from "assets/map/creativia/normal_4.json";
 
 export class CreativiaScene extends BaseScene {
   sceneId: SceneId = "creativia";
@@ -11,7 +11,7 @@ export class CreativiaScene extends BaseScene {
     super({
       name: "creativia",
       map: {
-        json: map_normal_1,
+        json: map_normal_4,
       },
       audio: { fx: { walk_key: "dirt_footstep" } },
     });
