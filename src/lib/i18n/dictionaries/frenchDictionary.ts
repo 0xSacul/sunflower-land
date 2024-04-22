@@ -46,6 +46,7 @@ import {
   ErrorAndAccess,
   ErrorTerms,
   ExoticShopItems,
+  Factions,
   FestiveTree,
   FishDescriptions,
   FishermanModal,
@@ -173,6 +174,7 @@ import {
   TimeUnits,
   GoblinTrade,
   RestrictionReason,
+  RemoveHungryCaterpillar,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -191,6 +193,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "alr.completed": "Déjà terminé",
   "alr.crafted": "Déjà fabriqué!",
   "alr.minted": "Déjà obtenu!",
+  "are.you.sure": ENGLISH_TERMS["are.you.sure"],
   auction: "Enchère",
   auctions: "Enchères",
   "available.all.year": "Disponible toute l'année: ",
@@ -198,6 +201,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   back: "Retour",
   bait: "Appât",
   balance: "Solde: ",
+  banner: "Bannière",
   basket: "Panier",
   "beach.bounty": "Prime de plage",
   beta: "Bêta",
@@ -1761,6 +1765,14 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
   "description.human.war.banner":
     "Un affichage d'allégeance à la cause des Humains.",
   "description.earnAllianceBanner": "A special event banner",
+  "description.sunflorian.faction.banner":
+    ENGLISH_TERMS["description.sunflorian.faction.banner"],
+  "description.goblin.faction.banner":
+    ENGLISH_TERMS["description.goblin.faction.banner"],
+  "description.bumpkin.faction.banner":
+    ENGLISH_TERMS["description.bumpkin.faction.banner"],
+  "description.nightshade.faction.banner":
+    ENGLISH_TERMS["description.nightshade.faction.banner"],
 };
 
 const defaultDialogue: Record<DefaultDialogue, string> = {
@@ -1956,6 +1968,31 @@ const exoticShopItems: Record<ExoticShopItems, string> = {
     "Merci d'avoir fait partie de notre communauté d'amateurs de légumes secs.",
   "exoticShopItems.line3": "Cordialement,",
   "exoticShopItems.line4": "L'équipe des haricots",
+};
+
+const factions: Record<Factions, string> = {
+  "faction.join": ENGLISH_TERMS["faction.join"],
+  "faction.description.bumpkins": ENGLISH_TERMS["faction.description.bumpkins"],
+  "faction.description.goblins": ENGLISH_TERMS["faction.description.goblins"],
+  "faction.description.sunflorians":
+    ENGLISH_TERMS["faction.description.sunflorians"],
+  "faction.description.nightshades":
+    ENGLISH_TERMS["faction.description.nightshades"],
+  "faction.countdown": ENGLISH_TERMS["faction.countdown"],
+  "faction.join.confirm": ENGLISH_TERMS["faction.join.confirm"],
+  "faction.cannot.change": ENGLISH_TERMS["faction.cannot.change"],
+  "faction.joined.sunflorians.intro":
+    ENGLISH_TERMS["faction.joined.sunflorians.intro"],
+  "faction.joined.bumpkins.intro":
+    ENGLISH_TERMS["faction.joined.bumpkins.intro"],
+  "faction.joined.goblins.intro": ENGLISH_TERMS["faction.joined.goblins.intro"],
+  "faction.joined.nightshades.intro":
+    ENGLISH_TERMS["faction.joined.nightshades.intro"],
+  "faction.earn.emblems": ENGLISH_TERMS["faction.earn.emblems"],
+  "faction.earn.emblems.time.left":
+    ENGLISH_TERMS["faction.earn.emblems.time.left"],
+  "faction.emblems.tasks": ENGLISH_TERMS["faction.emblems.tasks"],
+  "faction.view.leaderboard": ENGLISH_TERMS["faction.view.leaderboard"],
 };
 
 const festiveTree: Record<FestiveTree, string> = {
@@ -4109,6 +4146,17 @@ const refunded: Record<Refunded, string> = {
   "refunded.goodLuck": "Bonne chance la prochaine fois!",
 };
 
+const removeHungryCaterpillar: Record<RemoveHungryCaterpillar, string> = {
+  "removeHungryCaterpillar.title":
+    ENGLISH_TERMS["removeHungryCaterpillar.title"],
+  "removeHungryCaterpillar.description":
+    ENGLISH_TERMS["removeHungryCaterpillar.description"],
+  "removeHungryCaterpillar.removeFlowerSeeds":
+    ENGLISH_TERMS["removeHungryCaterpillar.removeFlowerSeeds"],
+  "removeHungryCaterpillar.confirmation":
+    ENGLISH_TERMS["removeHungryCaterpillar.confirmation"],
+};
+
 const removeKuebiko: Record<RemoveKuebiko, string> = {
   "removeKuebiko.title": "Supprimer Kuebiko",
   "removeKuebiko.description":
@@ -4899,6 +4947,7 @@ export const FRENCH_TERMS: Record<TranslationKeys, string> = {
   ...errorTerms,
   ...event,
   ...exoticShopItems,
+  ...factions,
   ...festiveTree,
   ...fishDescriptions,
   ...fishermanModal,
@@ -4978,6 +5027,7 @@ export const FRENCH_TERMS: Record<TranslationKeys, string> = {
   ...reaction,
   ...reactionBud,
   ...refunded,
+  ...removeHungryCaterpillar,
   ...removeKuebiko,
   ...resale,
   ...resources,

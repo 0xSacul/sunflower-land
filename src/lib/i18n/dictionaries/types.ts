@@ -5,6 +5,7 @@ export type GeneralTerms =
   | "accepting.terms"
   | "advanced"
   | "amount.matic"
+  | "are.you.sure"
   | "deposit"
   | "add.liquidity"
   | "add"
@@ -21,6 +22,7 @@ export type GeneralTerms =
   | "back"
   | "bait"
   | "balance"
+  | "banner"
   | "basket"
   | "beach.bounty"
   | "beta"
@@ -1207,7 +1209,11 @@ export type DecorationDescriptions =
   //Banners
   | "description.goblin.war.banner"
   | "description.human.war.banner"
-  | "description.earnAllianceBanner";
+  | "description.earnAllianceBanner"
+  | "description.sunflorian.faction.banner"
+  | "description.nightshade.faction.banner"
+  | "description.bumpkin.faction.banner"
+  | "description.goblin.faction.banner";
 
 export type Delivery =
   | "delivery.resource"
@@ -1334,6 +1340,24 @@ export type ExoticShopItems =
   | "exoticShopItems.line2"
   | "exoticShopItems.line3"
   | "exoticShopItems.line4";
+
+export type Factions =
+  | "faction.join"
+  | "faction.description.sunflorians"
+  | "faction.description.bumpkins"
+  | "faction.description.goblins"
+  | "faction.description.nightshades"
+  | "faction.countdown"
+  | "faction.join.confirm"
+  | "faction.cannot.change"
+  | "faction.joined.sunflorians.intro"
+  | "faction.joined.bumpkins.intro"
+  | "faction.joined.goblins.intro"
+  | "faction.joined.nightshades.intro"
+  | "faction.earn.emblems"
+  | "faction.earn.emblems.time.left"
+  | "faction.emblems.tasks"
+  | "faction.view.leaderboard";
 
 export type FestiveTree =
   | "festivetree.greedyBumpkin"
@@ -2646,6 +2670,12 @@ export type ReactionBud =
 
 export type Refunded = "refunded.itemsReturned" | "refunded.goodLuck";
 
+export type RemoveHungryCaterpillar =
+  | "removeHungryCaterpillar.title"
+  | "removeHungryCaterpillar.description"
+  | "removeHungryCaterpillar.confirmation"
+  | "removeHungryCaterpillar.removeFlowerSeeds";
+
 export type RemoveKuebiko =
   | "removeKuebiko.title"
   | "removeKuebiko.description"
@@ -3240,6 +3270,7 @@ export type TranslationKeys =
   | GuideTerms
   | GuideCompost
   | GuideCompost
+  | Factions
   | HalveningCountdown
   | Harvestflower
   | HarvestBeeHive
@@ -3293,6 +3324,7 @@ export type TranslationKeys =
   | Reaction
   | ReactionBud
   | Refunded
+  | RemoveHungryCaterpillar
   | RemoveKuebiko
   | Resale
   | ResourceTerms

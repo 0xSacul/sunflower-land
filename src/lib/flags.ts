@@ -2,9 +2,9 @@ import { GameState } from "features/game/types/game";
 import { CONFIG } from "lib/config";
 
 const defaultFeatureFlag = ({ inventory }: GameState) =>
-  CONFIG.NETWORK === "mumbai" || !!inventory["Beta Pass"]?.gt(0);
+  CONFIG.NETWORK === "amoy" || !!inventory["Beta Pass"]?.gt(0);
 
-const testnetFeatureFlag = () => CONFIG.NETWORK === "mumbai";
+const testnetFeatureFlag = () => CONFIG.NETWORK === "amoy";
 /*
  * How to Use:
  * Add the feature name to this list when working on a new feature.
@@ -12,7 +12,7 @@ const testnetFeatureFlag = () => CONFIG.NETWORK === "mumbai";
  *
  * Do not delete JEST_TEST.
  */
-type FeatureName = "JEST_TEST" | "PORTALS" | "EASTER";
+type FeatureName = "JEST_TEST" | "PORTALS" | "EASTER" | "FACTIONS";
 
 // Used for testing production features
 export const ADMIN_IDS = [
@@ -33,6 +33,7 @@ const featureFlags: Record<FeatureName, FeatureFlag> = {
 
     return Date.now() > new Date("2024-03-31T00:00:00Z").getTime();
   },
+  FACTIONS: testnetFeatureFlag,
 };
 
 export const hasFeatureAccess = (game: GameState, featureName: FeatureName) => {
