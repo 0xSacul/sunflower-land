@@ -175,6 +175,7 @@ import {
   GoblinTrade,
   RestrictionReason,
   RemoveHungryCaterpillar,
+  Leaderboard,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -481,6 +482,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   search: "Ara",
   searching: "Aranıyor",
   "sfl/coins": ENGLISH_TERMS["sfl/coins"],
+  player: ENGLISH_TERMS["player"],
 };
 
 const timeUnits: Record<TimeUnits, string> = {
@@ -1555,6 +1557,7 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
   "description.iron.rock": "Demir toplamak için kazılabilen bir kaya",
   "description.stone.rock": "Taş toplamak için kazılabilen bir kaya",
   "description.crimstone.rock": "Kızıltaş toplamak için kazılabilen bir kaya",
+  "description.oil.reserve": ENGLISH_TERMS["description.oil.reserve"],
   "description.flower.bed": "Çiçek dikmek için boş bir arsa",
   "description.tree": "Odun toplamak için kesilebilir bir ağaç",
   "description.fruit.patch": "Meyve dikmek için boş bir arsa",
@@ -4740,6 +4743,14 @@ const restrictionReason: Record<RestrictionReason, string> = {
     ENGLISH_TERMS["restrictionReason.genieLampRubbed"],
 };
 
+export const leaderboardTerms: Record<Leaderboard, string> = {
+  "leaderboard.leaderboard": ENGLISH_TERMS["leaderboard.leaderboard"],
+  "leaderboard.error": ENGLISH_TERMS["leaderboard.error"],
+  "leaderboard.initialising": ENGLISH_TERMS["leaderboard.initialising"],
+  "leaderboard.topTen": ENGLISH_TERMS["leaderboard.topTen"],
+  "leaderboard.yourPosition": ENGLISH_TERMS["leaderboard.yourPosition"],
+};
+
 export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...achievementTerms,
   ...addSFL,
@@ -4830,6 +4841,7 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...islandNotFound,
   ...islandupgrade,
   ...landscapeTerms,
+  ...leaderboardTerms,
   ...letsGo,
   ...levelUpMessages,
   ...loser,

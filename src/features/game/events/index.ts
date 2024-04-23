@@ -34,7 +34,6 @@ import {
 } from "./landExpansion/feedChicken";
 
 import { GameState } from "../types/game";
-import { trade, TradeAction } from "./trade";
 import { claimAirdrop, ClaimAirdropAction } from "./claimAirdrop";
 import {
   placeBuilding,
@@ -273,9 +272,16 @@ import {
   pledgeFaction,
   PledgeFactionAction,
 } from "./landExpansion/pledgeFaction";
+import {
+  moveOilReserve,
+  MoveOilReserveAction,
+} from "./landExpansion/moveOilReserve";
+import {
+  placeOilReserve,
+  PlaceOilReserveAction,
+} from "./landExpansion/placeOilReserve";
 
 export type PlayingEvent =
-  | TradeAction
   | LandExpansionPlantAction
   | LandExpansionFertiliseCropAction
   | LandExpansionRemoveCropAction
@@ -394,7 +400,9 @@ export type PlacementEvent =
   | MoveBeehiveAction
   | PlaceBeehiveAction
   | MoveFlowerBedAction
-  | PlaceFlowerBedAction;
+  | PlaceFlowerBedAction
+  | MoveOilReserveAction
+  | PlaceOilReserveAction;
 
 export type GameEvent = PlayingEvent | PlacementEvent;
 export type GameEventName<T> = Extract<T, { type: string }>["type"];
@@ -420,7 +428,6 @@ type Handlers<T> = {
 };
 
 export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
-  "item.traded": trade,
   "airdrop.claimed": claimAirdrop,
   "bot.detected": detectBot,
   "seed.planted": landExpansionPlant,
@@ -542,6 +549,8 @@ export const PLACEMENT_EVENTS: Handlers<PlacementEvent> = {
   "flowerBed.placed": placeFlowerBed,
   "sunstone.placed": placeSunstone,
   "sunstone.moved": moveSunstone,
+  "oilReserve.moved": moveOilReserve,
+  "oilReserve.placed": placeOilReserve,
 };
 
 export const EVENTS = { ...PLAYING_EVENTS, ...PLACEMENT_EVENTS };
