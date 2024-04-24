@@ -6,10 +6,10 @@ import React from "react";
 import "src/styles.css";
 
 import { initialise } from "lib/utils/init";
-import { Creativia } from "./creativia/Creativia";
+import { CreativiaApp } from "./creativia/Creativia";
 
 initialise();
 
 export const PortalApp: React.FC = () => {
-  return <Creativia />;
+  return <CreativiaApp />;
 };

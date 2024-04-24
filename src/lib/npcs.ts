@@ -71,7 +71,10 @@ export type NPCName =
   | "greedclaw"
   | "grommy" // faction spruiker;
   | "lady day" // faction spruiker;
-  | "robert"; // faction spruiker;
+  | "robert" // faction spruiker;
+  /* CREATIVIA NPCs */
+  | "Sacul"
+  | "Bill";
 
 // Ol Salty
 
@@ -777,6 +780,25 @@ export const NPC_WEARABLES: Record<NPCName, Equipped> = {
     tool: "Hammer",
     background: "Farm Background",
     shoes: "Black Farmer Boots",
+  },
+  Sacul: {
+    body: "Beige Farmer Potion",
+    hair: "Buzz Cut",
+    pants: "Fancy Pants",
+    shirt: "Fancy Top",
+    tool: "Sword",
+    background: "Farm Background",
+    shoes: "Brown Boots",
+    hat: "Halo",
+  },
+  Bill: {
+    body: "Light Brown Farmer Potion",
+    hair: "Blacksmith Hair",
+    pants: "Lumberjack Overalls",
+    shirt: "SFL T-Shirt",
+    tool: "Hammer",
+    background: "Farm Background",
+    shoes: "Brown Boots",
   },
 };
 

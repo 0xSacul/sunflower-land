@@ -84,8 +84,8 @@ export const SPAWNS: () => SpawnLocation = () => ({
   },
   creativia: {
     default: {
-      x: 350,
-      y: 400,
+      x: 150,
+      y: 440,
     },
   },
 });

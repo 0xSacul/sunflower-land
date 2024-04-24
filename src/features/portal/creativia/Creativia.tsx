@@ -1,90 +1,91 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Game, AUTO } from "phaser";
-import NinePatchPlugin from "phaser3-rex-plugins/plugins/ninepatch-plugin.js";
-import VirtualJoystickPlugin from "phaser3-rex-plugins/plugins/virtualjoystick-plugin.js";
+import React, { useContext } from "react";
+import { useActor } from "@xstate/react";
+import { CreativiaContext, CreativiaProvider } from "./lib/CreativiaProvider";
 
-import { Preloader } from "features/world/scenes/Preloader";
-import { OFFLINE_FARM } from "features/game/lib/landData";
-import { CreativiaScene } from "./CreativiaScene";
+import { Ocean } from "features/world/ui/Ocean";
+import { Modal } from "components/ui/Modal";
+import { Panel } from "components/ui/Panel";
+import { Button } from "components/ui/Button";
+import { Label } from "components/ui/Label";
+import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { CreativiaContent } from "./CreativiaContent";
+import { CONFIG } from "lib/config";
+
+export const CreativiaApp: React.FC = () => {
+  return (
+    <CreativiaProvider>
+      <Ocean>
+        <Creativia />
+      </Ocean>
+    </CreativiaProvider>
+  );
+};
 
 export const Creativia: React.FC = () => {
-  const [loaded, setLoaded] = useState(false);
-  const game = useRef<Game>();
+  const { creativiaService } = useContext(CreativiaContext);
+  const [creativiaState] = useActor(creativiaService);
 
-  const scene = "creativia";
-  const scenes = [Preloader, CreativiaScene];
+  const { t } = useAppTranslation();
 
-  useEffect(() => {
-    const config: Phaser.Types.Core.GameConfig = {
-      type: AUTO,
-      fps: {
-        min: 30,
-        target: 60,
-        limit: 120,
-        smoothStep: true,
-      },
-      backgroundColor: "#000000",
-      parent: "portal-content",
-
-      autoRound: true,
-      pixelArt: true,
-      plugins: {
-        global: [
-          {
-            key: "rexNinePatchPlugin",
-            plugin: NinePatchPlugin,
-            start: true,
-          },
-          {
-            key: "rexVirtualJoystick",
-            plugin: VirtualJoystickPlugin,
-            start: true,
-          },
-        ],
-      },
-      width: window.innerWidth,
-      height: window.innerHeight,
-
-      physics: {
-        default: "arcade",
-        arcade: {
-          gravity: { y: 0 },
-        },
-      },
-      scene: scenes,
-      loader: {
-        crossOrigin: "anonymous",
-      },
-      fullscreenTarget: document.getElementById("portal-content"),
-
-      // Meta
-      title: "Creativia",
-      version: "0.1",
-      url: "https://creativia.sunflower-land.com",
-    };
-
-    game.current = new Game({
-      ...config,
-      parent: "game-content",
-    });
-
-    game.current.registry.set("initialScene", scene);
-
-    game.current.registry.set("initialScene", scene);
-    game.current.registry.set("gameState", OFFLINE_FARM);
-
-    setLoaded(true);
-
-    return () => {
-      game.current?.destroy(true);
-    };
-  }, []);
-
-  const ref = useRef<HTMLDivElement>(null);
+  const authCreativia = () => {
+    if (window.self !== window.top) {
+      window.parent.postMessage("closePortal", "*");
+    } else {
+      window.location.href = `${CONFIG.PORTAL_GAME_URL}?portal=${CONFIG.PORTAL_APP}&redirect=${window.location.origin}`;
+    }
+  };
 
   return (
-    <div id="portal-content">
-      <div id="game-content" ref={ref} />
+    <div>
+      {creativiaState.matches("error") && (
+        <Modal show>
+          <Panel>
+            <div className="p-2">
+              <Label type="danger">{t("error")}</Label>
+              <span className="text-sm my-2">{t("error.wentWrong")}</span>
+            </div>
+            <Button onClick={() => creativiaService.send("RETRY")}>
+              {t("retry")}
+            </Button>
+          </Panel>
+        </Modal>
+      )}
+
+      {creativiaState.matches("loading") && (
+        <Modal show>
+          <Panel>
+            <span className="loading">{t("loading")}</span>
+          </Panel>
+        </Modal>
+      )}
+
+      {creativiaState.matches("unauthorised") && (
+        <Modal show>
+          <Panel>
+            <div className="p-2">
+              <Label type="danger">{t("error")}</Label>
+              <span className="text-sm my-2">{t("session.expired")}</span>
+            </div>
+            <Button onClick={authCreativia}>{t("welcome.login")}</Button>
+          </Panel>
+        </Modal>
+      )}
+
+      {creativiaState.matches("idle") && (
+        <Modal show>
+          <Panel>
+            <Button onClick={() => creativiaService.send("START")}>
+              {t("start")}
+            </Button>
+          </Panel>
+        </Modal>
+      )}
+
+      {creativiaState.context.state && (
+        <>
+          <CreativiaContent />
+        </>
+      )}
     </div>
   );
 };
