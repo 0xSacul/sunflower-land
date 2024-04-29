@@ -222,7 +222,8 @@ export abstract class BaseScene extends Phaser.Scene {
       // this.physics.world.fixedStep = false; // activates sync
       // this.physics.world.fixedStep = true; // deactivates sync (default)
     } catch (error) {
-      errorLogger(JSON.stringify(error));
+      // eslint-disable-next-line no-console
+      console.error(error);
     }
   }
 
@@ -389,33 +390,11 @@ export abstract class BaseScene extends Phaser.Scene {
       }
     });
 
-    const removeReactionListener = server.state.reactions.onAdd((reaction) => {
-      // Old message
-      if (reaction.sentAt < Date.now() - 5000) {
-        return;
-      }
-
-      if (reaction.sceneId !== this.options.name) {
-        return;
-      }
-
-      if (!this.scene?.isActive()) {
-        return;
-      }
-
-      if (this.playerEntities[reaction.sessionId]) {
-        this.playerEntities[reaction.sessionId].react(reaction.reaction);
-      } else if (reaction.sessionId === server.sessionId) {
-        this.currentPlayer?.react(reaction.reaction);
-      }
-    });
-
     // send the scene player is in
     // this.room.send()
 
     this.events.on("shutdown", () => {
       removeMessageListener();
-      removeReactionListener();
     });
   }
 

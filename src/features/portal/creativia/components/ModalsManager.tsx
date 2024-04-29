@@ -5,6 +5,7 @@ import { NPCName, NPC_WEARABLES } from "lib/npcs";
 import { Modal } from "components/ui/Modal";
 import { SceneId } from "features/world/mmoMachine";
 import { BillModal } from "./Modals/Bill";
+import { Client } from "colyseus.js";
 
 class CreativiaModalsManager {
   private listener?: (npc: NPCName, isOpen: boolean) => void;
@@ -26,9 +27,15 @@ interface Props {
   scene: SceneId;
   id: number;
   username?: string;
+  client?: Client;
 }
 
-export const CreativiaModals: React.FC<Props> = ({ scene, id, username }) => {
+export const CreativiaModals: React.FC<Props> = ({
+  scene,
+  id,
+  username,
+  client,
+}) => {
   const [npc, setNpc] = useState<NPCName | undefined>(undefined);
 
   useEffect(() => {
@@ -77,7 +84,12 @@ export const CreativiaModals: React.FC<Props> = ({ scene, id, username }) => {
         )}
 
         {npc === "Bill" && (
-          <BillModal id={id} username={username} onClose={closeModal} />
+          <BillModal
+            id={id}
+            username={username}
+            onClose={closeModal}
+            client={client}
+          />
         )}
       </Modal>
     </>

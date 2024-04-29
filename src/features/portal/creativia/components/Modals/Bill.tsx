@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { CloseButtonPanel } from "features/game/components/CloseablePanel";
 import { OuterPanel } from "components/ui/Panel";
@@ -8,17 +8,35 @@ import { Label } from "components/ui/Label";
 import { SUNNYSIDE } from "assets/sunnyside";
 import { ISLANDS } from "../../lib/islands";
 import CoinsIcon from "assets/icons/coins.webp";
+import { OnlineIsland } from "../../lib/types";
+import { Client } from "colyseus.js";
 
 interface Props {
   id: number;
   username?: string;
+  client?: Client;
   onClose: () => void;
   // TODO: Add server data
 }
 
-export const BillModal: React.FC<Props> = ({ id, username, onClose }) => {
+export const BillModal: React.FC<Props> = ({
+  id,
+  username,
+  client,
+  onClose,
+}) => {
   const [tab, setTab] = useState<number>(0);
+  const [onlineIslands, setOnlineIslands] = useState<OnlineIsland[]>([]);
 
+  const getOnlineIslands = () => {
+    client?.getAvailableRooms("town").then((islands) => {
+      setOnlineIslands(islands as OnlineIsland[]);
+    });
+  };
+
+  useEffect(() => {
+    getOnlineIslands();
+  }, []);
   // DEBUG
   const CoinsBalance = 10;
 
@@ -80,6 +98,38 @@ export const BillModal: React.FC<Props> = ({ id, username, onClose }) => {
     );
   };
 
+  const BrowseTab: React.FC = () => {
+    return (
+      <div className="flex flex-col gap-1 w-full h-96 overflow-y-auto scrollable">
+        {onlineIslands.length !== 0 &&
+          onlineIslands.map((island) => {
+            return (
+              <OuterPanel
+                key={island.roomId}
+                className="flex flex-col items-center"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex flex-col items-start">
+                    <span className="text-lg">{island.metadata.name}</span>
+                    <span className="text-xs">
+                      {island.metadata.description}
+                    </span>
+                  </div>
+                  <Label type="warning" icon={SUNNYSIDE.icons.player}>
+                    {island.clients + "/" + island.maxClients}
+                  </Label>
+                </div>
+              </OuterPanel>
+            );
+          })}
+
+        {onlineIslands.length === 0 && (
+          <span className="w-full text-center mt-8">{"Loading..."}</span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <CloseButtonPanel
       onClose={onClose}
@@ -97,6 +147,7 @@ export const BillModal: React.FC<Props> = ({ id, username, onClose }) => {
       ]}
     >
       {tab === 0 && <IslandsTab />}
+      {tab === 1 && <BrowseTab />}
     </CloseButtonPanel>
   );
 };

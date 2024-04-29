@@ -31,13 +31,15 @@ export interface Context {
   state: GameState;
   creativia: CreativiaState;
   server?: Room<PlazaRoomState>;
+  client?: Client;
 }
 
 export type CreativiaEvent =
   | { type: "START" }
   | { type: "BUY" }
   | { type: "RETRY" }
-  | { type: "CONTINUE" };
+  | { type: "CONTINUE" }
+  | { type: "VISIT" };
 
 export type MachineState = {
   value:
@@ -48,7 +50,8 @@ export type MachineState = {
     | "unauthorised"
     | "loading"
     | "buying"
-    | "completed";
+    | "completed"
+    | "visit";
   context: Context;
 };
 
@@ -98,7 +101,7 @@ export const creativiaMachine = createMachine({
       id: "loading",
       invoke: {
         src: async (context) => {
-          if (!CONFIG.API_URL) {
+          if (!CONFIG.API_URL || !CONFIG.ROOM_URL) {
             return OFFLINE_FARM;
           }
 
@@ -108,34 +111,53 @@ export const creativiaMachine = createMachine({
             token: context.jwt as string,
           });
 
-          let Server: Room<PlazaRoomState> | undefined;
-          const ServerURL = CONFIG.ROOM_URL;
+          const client = new Client(CONFIG.ROOM_URL);
+          const server: Room<PlazaRoomState> | undefined =
+            await client?.joinOrCreate<PlazaRoomState>("town", {
+              jwt: context.jwt,
+              bumpkin: game?.bumpkin,
+              farmId,
+              username: game?.username,
+              faction: "Sunflorians",
+              x: SPAWNS().creativia.default.x,
+              y: SPAWNS().creativia.default.y,
+              sceneId: "creativia",
+              experience: game.bumpkin?.experience ?? 0,
+            });
 
-          if (ServerURL) {
-            const client = new Client(ServerURL);
-
-            Server = await client?.joinOrCreate<PlazaRoomState>(
-              "sunflorea_bliss",
-              {
-                jwt: context.jwt,
-                bumpkin: game?.bumpkin,
-                farmId,
-                x: SPAWNS().creativia.default.x,
-                y: SPAWNS().creativia.default.y,
-                sceneId: "creativia",
-                experience: game.bumpkin?.experience ?? 0,
-              }
-            );
-          }
-
-          return { game, Server, farmId };
+          return { game, server, farmId, client };
         },
         onDone: [
           {
             target: "ready",
             actions: assign({
               state: (_: any, event) => event.data.game,
-              server: (_: any, event) => event.data.Server,
+              server: (_: any, event) => event.data.server,
+              client: (_: any, event) => event.data.client,
+              id: (_: any, event) => event.data.farmId,
+            }),
+          },
+        ],
+        onError: {
+          target: "error",
+        },
+      },
+    },
+
+    // Visit a player's land
+    visit: {
+      id: "visit",
+      invoke: {
+        src: async (context) => {
+          // TODO: Handle server change
+        },
+        onDone: [
+          {
+            target: "ready",
+            actions: assign({
+              state: (_: any, event) => event.data.game,
+              server: (_: any, event) => event.data.server,
+              client: (_: any, event) => event.data.client,
               id: (_: any, event) => event.data.farmId,
             }),
           },

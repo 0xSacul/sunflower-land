@@ -10,6 +10,7 @@
     "lint": "eslint --ext .tsx,.ts .",
     "format": "yarn lint --fix",
     "preview": "vite preview",
+    "serve": "vite",
     "test": "jest",
     "metadata": "NODE_PATH=./src NODE_ENV=metadata ts-node --project metadata/node.tsconfig.json metadata/generateMetadata.ts",
     "prepare": "husky install"

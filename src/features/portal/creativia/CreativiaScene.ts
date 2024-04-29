@@ -28,9 +28,11 @@ export const CREATIVIA_NPCS: NPC[] = [
 
 export class CreativiaScene extends BaseScene {
   sceneId: SceneId = "creativia";
+  //currentTick: number = 0;
 
-  private debugTextPosition: Phaser.GameObjects.Text | undefined;
-  private debugTextFPS: Phaser.GameObjects.Text | undefined;
+  /* public get server() {
+    return this.registry.get("server") as Room<CreativiaRoomState>;
+  } */
 
   constructor() {
     super({
@@ -62,44 +64,15 @@ export class CreativiaScene extends BaseScene {
 
     super.create();
 
-    // DEBUG
-    this.debugTextPosition = this.add.text(10, 10, "", {
-      fontSize: "120px",
-      fontFamily: "Press Start 2P",
-      color: "#ffffff",
-      backgroundColor: "#000000",
-    });
-    this.debugTextFPS = this.add.text(10, 30, "", {
-      fontSize: "120px",
-      fontFamily: "Press Start 2P",
-      color: "#ffffff",
-      backgroundColor: "#000000",
-    });
-
     // Init NPCs
     this.initNPCs(CREATIVIA_NPCS);
   }
 
-  async update() {
+  update() {
+    //this.currentTick++;
+
+    //this.updateOtherPlayers();
     super.update();
-
-    if (this.debugTextPosition && this.currentPlayer) {
-      this.debugTextPosition.setText(
-        `X: ${this.currentPlayer?.x.toFixed(
-          2
-        )} Y: ${this.currentPlayer?.y.toFixed(2)}`
-      );
-
-      this.debugTextPosition.x = this.currentPlayer.x + 150;
-      this.debugTextPosition.y = this.currentPlayer.y + 100;
-    }
-
-    if (this.debugTextFPS && this.currentPlayer) {
-      this.debugTextFPS.setText(`FPS: ${this.game.loop.actualFps.toFixed(2)}`);
-
-      this.debugTextFPS.x = this.currentPlayer.x + 90;
-      this.debugTextFPS.y = this.currentPlayer.y + 100;
-    }
   }
 
   initNPCs(npcs: NPC[]) {
@@ -142,4 +115,81 @@ export class CreativiaScene extends BaseScene {
       this.triggerColliders?.add(container);
     });
   }
+
+  /* syncPlayers() {
+    const server = this.server;
+    if (!server) return;
+
+    Object.keys(this.playerEntities).forEach((sessionId) => {
+      if (
+        !server.state.players.get(sessionId) ||
+        server.state.players.get(sessionId)?.sceneId !== this.scene.key
+      )
+        this.destroyPlayer(sessionId);
+      if (!this.playerEntities[sessionId]?.active)
+        this.destroyPlayer(sessionId);
+    });
+
+    server.state.players.forEach((player, sessionId) => {
+      if (sessionId === server.sessionId) return;
+
+      if (player.sceneId !== this.scene.key) return;
+
+      if (!this.playerEntities[sessionId]) {
+        this.playerEntities[sessionId] = this.createPlayer({
+          x: player.x,
+          y: player.y,
+          farmId: player.farmId,
+          username: player.username,
+          faction: player.faction,
+          clothing: {
+            updatedAt: 0,
+            ...player.clothing,
+          },
+          isCurrentPlayer: sessionId === server.sessionId,
+          experience: player.experience,
+        });
+      }
+    });
+  }
+
+  renderPlayers() {
+    const server = this.server;
+    if (!server) return;
+
+    // Render current players
+    server.state.players.forEach((player, sessionId) => {
+      if (sessionId === server.sessionId) return;
+
+      const entity = this.playerEntities[sessionId];
+      if (!entity?.active) return;
+
+      if (player.x > entity.x) {
+        entity.faceRight();
+      } else if (player.x < entity.x) {
+        entity.faceLeft();
+      }
+
+      const distance = Phaser.Math.Distance.BetweenPoints(player, entity);
+
+      if (distance < 2) {
+        entity.idle();
+      } else {
+        entity.walk();
+      }
+
+      entity.x = Phaser.Math.Linear(entity.x, player.x, 0.05);
+      entity.y = Phaser.Math.Linear(entity.y, player.y, 0.05);
+
+      entity.setDepth(entity.y);
+    });
+  }
+
+  updateOtherPlayers() {
+    const server = this.server;
+    if (!server) return;
+
+    this.syncPlayers();
+    this.renderPlayers();
+  } */
 }

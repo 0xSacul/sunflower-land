@@ -1,5 +1,9 @@
+import { SceneId } from "features/world/mmoMachine";
 import { NPCName } from "lib/npcs";
 import { BumpkinParts } from "lib/utils/tokenUriBuilder";
+import { Schema, MapSchema, ArraySchema } from "@colyseus/schema";
+import { Message } from "../components/Chat";
+import { FactionName } from "features/game/types/game";
 
 export type NPC = {
   x: number;
@@ -9,6 +13,13 @@ export type NPC = {
   onClick?: () => void;
   name: NPCName;
 };
+
+export interface InputData {
+  x: number;
+  y: number;
+  tick: number;
+  text: string;
+}
 
 export type Island = {
   name: string;
@@ -27,3 +38,42 @@ export type CreativiaState = {
   islands: Island[];
   friends: string[];
 };
+
+export type OnlineIsland = {
+  clients: number;
+  createdAt: Date;
+  locked: boolean;
+  maxClients: number;
+  name: string;
+  private: boolean;
+  processId: string;
+  roomId: string;
+  unListed: boolean;
+  metadata: {
+    ownerId: number;
+    name: string;
+    description: string;
+  };
+};
+
+export type Player = {
+  playerId: string;
+  username: string;
+  farmId: number;
+  clothing: BumpkinParts;
+  x: number;
+  y: number;
+  //moderation?: Moderation;
+  experience: number;
+  sceneId: SceneId;
+  faction?: FactionName;
+};
+
+export interface CreativiaRoomState extends Schema {
+  mapWidth: number;
+  mapHeight: number;
+
+  players: MapSchema<Player>;
+
+  messages: ArraySchema<Message>;
+}
