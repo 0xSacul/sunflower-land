@@ -10,7 +10,7 @@
     "lint": "eslint --ext .tsx,.ts .",
     "format": "yarn lint --fix",
     "preview": "vite preview",
-    "serve": "vite",
+    "serve": "serve dist -s -n -L",
     "test": "jest",
     "metadata": "NODE_PATH=./src NODE_ENV=metadata ts-node --project metadata/node.tsconfig.json metadata/generateMetadata.ts",
     "prepare": "husky install"
@@ -67,6 +67,7 @@
     "react-share": "^4.4.1",
     "react-spring": "^9.7.1",
     "serialize-error": "^11.0.0",
+    "serve": "^14.2.3",
     "stream-browserify": "^3.0.0",
     "string-similarity": "^4.0.4",
     "util": "^0.12.4",
