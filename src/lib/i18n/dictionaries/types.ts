@@ -4,6 +4,7 @@ export type GeneralTerms =
   | "accept"
   | "accepting.terms"
   | "advanced"
+  | "already.own.item"
   | "amount.matic"
   | "are.you.sure"
   | "deposit"
@@ -23,6 +24,7 @@ export type GeneralTerms =
   | "bait"
   | "balance"
   | "banner"
+  | "banners"
   | "basket"
   | "beach.bounty"
   | "beta"
@@ -33,7 +35,6 @@ export type GeneralTerms =
   | "cancel"
   | "card.cash"
   | "caught"
-  | "change.Language"
   | "check"
   | "chest"
   | "chores"
@@ -74,6 +75,8 @@ export type GeneralTerms =
   | "details"
   | "donate"
   | "donating"
+  | "donation"
+  | "donations"
   | "drafting.noitem"
   | "drafting.select"
   | "drafting.trade.detail"
@@ -90,6 +93,7 @@ export type GeneralTerms =
   | "expand.land"
   | "expand"
   | "explore"
+  | "faction"
   | "farm.storage"
   | "farm"
   | "featured"
@@ -104,12 +108,14 @@ export type GeneralTerms =
   | "for"
   | "for.info.wearable"
   | "forbidden"
+  | "free"
   | "free.trade"
   | "fruit"
   | "fruits"
   | "gift"
   | "go.home"
   | "goblin.delivery"
+  | "goblin.exchange"
   | "gotIt"
   | "goto"
   | "grant.wish"
@@ -132,7 +138,6 @@ export type GeneralTerms =
   | "list"
   | "loading"
   | "locked"
-  | "logout"
   | "loser.refund"
   | "lvl"
   | "maintenance"
@@ -163,6 +168,7 @@ export type GeneralTerms =
   | "on"
   | "open"
   | "open.gift"
+  | "p2p.trading"
   | "pass.required"
   | "pay.attention.feedback"
   | "place"
@@ -302,7 +308,10 @@ export type GeneralTerms =
   | "new.species"
   | "buildings"
   | "boosts"
-  | "decorations";
+  | "decorations"
+  | "goblin.deliveries"
+  | "vipAccess"
+  | "vip";
 
 export type TimeUnits =
   // Singular
@@ -489,6 +498,7 @@ export type BoostDescriptions =
   | "description.emerald.turtle"
   | "description.iron.idol"
   | "description.crim.peckster"
+  | "description.knight.chicken"
   | "description.skill.shrimpy"
   | "description.soil.krabby"
   | "description.nana"
@@ -608,7 +618,9 @@ export type BoostEffectDescriptions =
   | "description.nugget.boost"
   | "description.rock.golem.boost"
   | "description.crimson.carp.boost"
+  | "description.battle.fish.boost"
   | "description.crim.peckster.boost"
+  | "description.knight.chicken.boost"
   | "description.queen.bee.boost"
   | "description.humming.bird.boost"
   | "description.beehive.boost"
@@ -624,7 +636,16 @@ export type BoostEffectDescriptions =
   | "description.time.warp.totem.boost"
   | "description.radiant.ray.boost"
   | "description.beekeeper.hat.boost"
-  | "description.flower.fox.boost";
+  | "description.flower.fox.boost"
+  | "description.turbo.sprout.boost"
+  | "description.soybliss.boost"
+  | "description.grape.granny.boost"
+  | "description.non.la.hat.boost"
+  | "description.oil.can.boost"
+  | "description.paw.shield.boost"
+  | "description.olive.shield.boost"
+  | "description.pan.boost"
+  | "description.vinny.boost";
 
 export type BountyDescription =
   | "description.clam.shell"
@@ -751,7 +772,6 @@ export type BumpkinTrade =
   | "bumpkinTrade.noTradeListed"
   | "bumpkinTrade.sell"
   | "bumpkinTrade.like.list"
-  | "bumpkinTrade.goldpass.required"
   | "bumpkinTrade.purchase"
   | "bumpkinTrade.available"
   | "bumpkinTrade.quantity"
@@ -1215,7 +1235,18 @@ export type DecorationDescriptions =
   | "description.sunflorian.faction.banner"
   | "description.nightshade.faction.banner"
   | "description.bumpkin.faction.banner"
-  | "description.goblin.faction.banner";
+  | "description.goblin.faction.banner"
+
+  // Clash of Factions
+  | "description.turbo.sprout"
+  | "description.soybliss"
+  | "description.grape.granny"
+  | "description.royal.throne"
+  | "description.lily.egg"
+  | "description.goblet"
+  | "description.fancy.rug"
+  | "description.clock"
+  | "description.vinny";
 
 export type Delivery =
   | "delivery.resource"
@@ -1359,7 +1390,18 @@ export type Factions =
   | "faction.earn.emblems"
   | "faction.earn.emblems.time.left"
   | "faction.emblems.tasks"
-  | "faction.view.leaderboard";
+  | "faction.view.leaderboard"
+  | "faction.donation.request.message"
+  | "faction.donation.label"
+  | "faction.donation.sfl"
+  | "faction.donation.sfl.max.per.day"
+  | "faction.donation.bulk.resources"
+  | "faction.donation.bulk.resources.unlimited.per.day"
+  | "faction.donation.confirm"
+  | "faction.seasonal.delivery.start.at"
+  | "faction.points.with.number"
+  | "faction.points.title"
+  | "faction.points.pledge.warning";
 
 export type FestiveTree =
   | "festivetree.greedyBumpkin"
@@ -1429,7 +1471,8 @@ export type FishDescriptions =
   | "description.radiant.ray"
   | "description.phantom.barracuda"
   | "description.gilded.swordfish"
-  | "description.crimson.carp";
+  | "description.crimson.carp"
+  | "description.battle.fish";
 
 export type FishermanModal =
   | "fishermanModal.attractFish"
@@ -1648,6 +1691,7 @@ export type GameDescriptions =
   | "description.baozi"
   | "description.communityEgg"
   | "description.hungryHare"
+  | "description.scroll"
   //Easter Items
   | "description.egg.basket"
   | "description.blue.egg"
@@ -1713,17 +1757,6 @@ export type GOBLIN_MESSAGES =
   | "goblinMessages.msg8"
   | "goblinMessages.msg9"
   | "goblinMessages.msg10";
-
-export type GoldPassModal =
-  | "goldPass.unlockPower"
-  | "goldPass.craftNFTs"
-  | "goldPass.trade"
-  | "goldPass.participateAuction"
-  | "goldPass.withdrawTransferNFTs"
-  | "goldPass.accessRestrictedAreas"
-  | "common.noThanks"
-  | "goldPass.buyNow"
-  | "goldPass.priceInMatic";
 
 export type GoldTooth = "goldTooth.intro.part1" | "goldTooth.intro.part2";
 
@@ -2092,7 +2125,6 @@ export type NoBumpkin =
   | "noBumpkin.deposit"
   | "noBumpkin.advancedIsland"
   | "noBumpkin.nude"
-  | "weakBumpkin.notStrong"
   | "dequipper.noBumpkins"
   | "dequipper.missingBumpkins"
   | "dequipper.intro"
@@ -2582,7 +2614,8 @@ export type OrderHelp =
   | "orderhelp.New.Season.arrival"
   | "orderhelp.Wisely"
   | "orderhelp.SkipIn"
-  | "orderhelp.NoRight";
+  | "orderhelp.NoRight"
+  | "orderhelp.ticket.deliveries.closed";
 
 export type PageFounds =
   | "pageFounds.title"
@@ -2623,15 +2656,6 @@ export type Pickserver =
   | "pickserver.full"
   | "pickserver.explore"
   | "pickserver.built";
-
-export type PlazaSettings =
-  | "plazaSettings.changeServer"
-  | "plazaSettings.title.main"
-  | "plazaSettings.title.mutedPlayers"
-  | "plazaSettings.title.keybinds"
-  | "plazaSettings.mutedPlayers.description"
-  | "plazaSettings.keybinds.description"
-  | "plazaSettings.noMutedPlayers";
 
 export type PlayerTrade =
   | "playerTrade.no.trade"
@@ -2765,15 +2789,17 @@ export type SeasonTerms =
   | "season.includes"
   | "season.limitedOffer"
   | "season.wearableAirdrop"
-  | "season.place.land";
-
-export type SettingsMenu =
-  | "settingsMenu.timeMachine"
-  | "settingsMenu.storeOnChain"
-  | "settingsMenu.howToPlay"
-  | "settingsMenu.swapMaticForSFL"
-  | "settingsMenu.share"
-  | "settingsMenu.confirmLogout";
+  | "season.place.land"
+  | "season.megastore.discount"
+  | "season.supporter.gift"
+  | "season.free.season.passes"
+  | "season.vip.access"
+  | "season.vip.description"
+  | "season.mystery.gift"
+  | "season.xp.boost"
+  | "season.free.season.passes.description"
+  | "season.lifetime.farmer"
+  | "season.free.with.lifetime";
 
 export type Share =
   | "share.TweetText"
@@ -2860,7 +2886,6 @@ export type Statements =
   | "statements.dontRefresh"
   | "statements.feed.bumpkin.one"
   | "statements.feed.bumpkin.two"
-  | "statements.gold.pass.required"
   | "statements.guide.one"
   | "statements.guide.two"
   | "statements.jigger.one"
@@ -2930,13 +2955,6 @@ export type StopGoblin =
   | "stopGoblin.tap.one"
   | "stopGoblin.tap.two"
   | "stopGoblin.left";
-
-export type SubSettings =
-  | "subSettings.disableAnimations"
-  | "subSettings.enableAnimations"
-  | "subSettings.logout"
-  | "subSettings.transferOwnership"
-  | "subSettings.refreshDescription";
 
 export type Swarming = "swarming.tooLongToFarm" | "swarming.goblinsTakenOver";
 
@@ -3207,6 +3225,34 @@ export type Leaderboard =
   | "leaderboard.topTen"
   | "leaderboard.yourPosition";
 
+export type GameOptions =
+  | "gameOptions.title"
+  | "gameOptions.howToPlay"
+  | "gameOptions.amoyActions"
+  | "gameOptions.amoyActions.timeMachine"
+  | "gameOptions.blockchainSettings"
+  | "gameOptions.blockchainSettings.refreshChain"
+  | "gameOptions.blockchainSettings.storeOnChain"
+  | "gameOptions.blockchainSettings.swapMaticForSFL"
+  | "gameOptions.blockchainSettings.transferOwnership"
+  | "gameOptions.generalSettings"
+  | "gameOptions.generalSettings.connectDiscord"
+  | "gameOptions.generalSettings.assignRole"
+  | "gameOptions.generalSettings.changeLanguage"
+  | "gameOptions.generalSettings.disableAnimations"
+  | "gameOptions.generalSettings.enableAnimations"
+  | "gameOptions.generalSettings.share"
+  | "gameOptions.plazaSettings"
+  | "gameOptions.plazaSettings.changeServer"
+  | "gameOptions.plazaSettings.title.mutedPlayers"
+  | "gameOptions.plazaSettings.title.keybinds"
+  | "gameOptions.plazaSettings.mutedPlayers.description"
+  | "gameOptions.plazaSettings.keybinds.description"
+  | "gameOptions.plazaSettings.noMutedPlayers"
+  | "gameOptions.farmId"
+  | "gameOptions.logout"
+  | "gameOptions.confirmLogout";
+
 export type TranslationKeys =
   | AchievementsTerms
   | Auction
@@ -3266,6 +3312,7 @@ export type TranslationKeys =
   | FlowerShopTerms
   | FoodDescriptions
   | GameDescriptions
+  | GameOptions
   | GameTerms
   | GarbageCollector
   | GeneralTerms
@@ -3274,7 +3321,6 @@ export type TranslationKeys =
   | GetInputErrorMessage
   | GOBLIN_MESSAGES
   | GoblinTrade
-  | GoldPassModal
   | GoldTooth
   | GuideTerms
   | GuideCompost
@@ -3324,7 +3370,6 @@ export type TranslationKeys =
   | PirateChest
   | PirateQuest
   | Pickserver
-  | PlazaSettings
   | PlayerTrade
   | Portal
   | PurchaseableBaitTranslation
@@ -3346,7 +3391,6 @@ export type TranslationKeys =
   | PwaInstall
   | SceneDialogueKey
   | SeasonTerms
-  | SettingsMenu
   | Share
   | SharkBumpkinDialogues
   | Shelly
@@ -3358,7 +3402,6 @@ export type TranslationKeys =
   | SpecialEvent
   | Statements
   | StopGoblin
-  | SubSettings
   | Swarming
   | TieBreaker
   | TimeUnits

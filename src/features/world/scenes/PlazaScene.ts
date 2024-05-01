@@ -11,12 +11,9 @@ import {
 } from "../../game/lib/audio";
 import { PlaceableContainer } from "../containers/PlaceableContainer";
 import { budImageDomain } from "features/island/collectibles/components/Bud";
-import { Page } from "../containers/Page";
 import { BumpkinContainer } from "../containers/BumpkinContainer";
 import { SOUNDS } from "assets/sound-effects/soundEffects";
-import { getSeasonWeek } from "lib/utils/getSeasonWeek";
 import { npcModalManager } from "../ui/NPCModals";
-import { Coordinates } from "features/game/expansion/components/MapPlacement";
 import { hasFeatureAccess } from "lib/flags";
 import { NPCName, NPC_WEARABLES } from "lib/npcs";
 import { FactionName, GameState } from "features/game/types/game";
@@ -45,27 +42,32 @@ const FAN_NPCS: { name: FanArtNPC; x: number; y: number }[] = [
   },
 ];
 
-const FACTION_NPCS: {
+type FactionNPC = {
   npc: NPCName;
   x: number;
   y: number;
   direction?: "left" | "right";
-}[] = [
+  faction: Omit<FactionName, "nightshades">;
+};
+
+const FACTION_NPCS: FactionNPC[] = [
   {
-    x: 20,
-    y: 65,
+    x: 32,
+    y: 166,
     npc: "lady day",
+    faction: "sunflorians",
   },
   {
-    x: 57,
-    y: 23,
+    x: 32,
+    y: 132,
     npc: "robert",
+    faction: "bumpkins",
   },
   {
-    x: 114,
-    y: 30,
+    x: 32,
+    y: 98,
     npc: "grommy",
-    direction: "left",
+    faction: "goblins",
   },
 ];
 
@@ -137,8 +139,8 @@ export const PLAZA_BUMPKINS: NPCBumpkin[] = [
     direction: "left",
   },
   {
-    x: 50,
-    y: 93,
+    x: 90,
+    y: 70,
     npc: "tywin",
   },
   {
@@ -165,191 +167,6 @@ export const PLAZA_BUMPKINS: NPCBumpkin[] = [
   },
 ];
 
-const PAGE_POSITIONS: Record<number, Coordinates[]> = {
-  1: [
-    {
-      x: 400,
-      y: 420,
-    },
-    {
-      x: 800,
-      y: 300,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  2: [
-    {
-      x: 775,
-      y: 350,
-    },
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 150,
-      y: 445,
-    },
-  ],
-  3: [
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 300,
-      y: 320,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  4: [
-    {
-      x: 400,
-      y: 420,
-    },
-    {
-      x: 800,
-      y: 300,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  5: [
-    {
-      x: 775,
-      y: 350,
-    },
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 150,
-      y: 445,
-    },
-  ],
-  6: [
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 300,
-      y: 320,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  7: [
-    {
-      x: 400,
-      y: 420,
-    },
-    {
-      x: 800,
-      y: 300,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  8: [
-    {
-      x: 775,
-      y: 350,
-    },
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 150,
-      y: 445,
-    },
-  ],
-  9: [
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 300,
-      y: 320,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  10: [
-    {
-      x: 400,
-      y: 420,
-    },
-    {
-      x: 800,
-      y: 300,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  11: [
-    {
-      x: 775,
-      y: 350,
-    },
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 150,
-      y: 445,
-    },
-  ],
-  12: [
-    {
-      x: 750,
-      y: 140,
-    },
-    {
-      x: 300,
-      y: 320,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-  13: [
-    {
-      x: 400,
-      y: 420,
-    },
-    {
-      x: 800,
-      y: 300,
-    },
-    {
-      x: 55,
-      y: 200,
-    },
-  ],
-};
-
 export class PlazaScene extends BaseScene {
   sceneId: SceneId = "plaza";
 
@@ -363,6 +180,11 @@ export class PlazaScene extends BaseScene {
   private goblinsBanner: Phaser.GameObjects.Image | undefined;
   private nightshadesBanner: Phaser.GameObjects.Image | undefined;
   private sunfloriansBanner: Phaser.GameObjects.Image | undefined;
+
+  private bumpkinsFactionNPC: BumpkinContainer | undefined;
+  private goblinsFactionNPC: BumpkinContainer | undefined;
+  private nightshadesFactionNPC: Phaser.GameObjects.Sprite | undefined;
+  private sunfloriansFactionNPC: BumpkinContainer | undefined;
 
   private chosenFaction: FactionName | undefined;
 
@@ -447,13 +269,10 @@ export class PlazaScene extends BaseScene {
     this.load.image("luxury_key_disc", "world/luxury_key_disc.png");
 
     // Stella Megastore items
-    this.load.image("flower_cart", "world/flower_cart.png");
-    this.load.image("queen_bee", "world/queen_bee.png");
+    this.load.image("vinny", "world/vinny.webp");
+    this.load.image("non_la", "world/non_la.webp");
 
-    this.load.spritesheet("banner", "world/spring_banner.png", {
-      frameWidth: 22,
-      frameHeight: 36,
-    });
+    this.load.image("banner", "world/clash_of_factions_banner.webp");
 
     this.load.spritesheet("glint", "world/glint.png", {
       frameWidth: 7,
@@ -494,22 +313,11 @@ export class PlazaScene extends BaseScene {
     });
   }
 
-  setUpFactionBanners() {
-    // Add banners
-    this.bumpkinsBanner = this.add
-      .image(40, 17, "bumpkins_banner")
-      .setDepth(17);
-    this.goblinsBanner = this.add.image(100, 17, "goblins_banner").setDepth(17);
-    this.nightshadesBanner = this.add
-      .image(90, 60, "nightshades_banner")
-      .setDepth(56);
-    this.sunfloriansBanner = this.add
-      .image(35, 60, "sunflorians_banner")
-      .setDepth(60);
-
-    // Characters
-    const maximus = this.add.sprite(110, 65, "maximus");
+  setUpFactionNPCS() {
+    const maximus = this.add.sprite(33, 200, "maximus");
+    maximus.flipX = true;
     maximus.setSize(23, 26);
+    maximus.setDepth(200);
     this.physics.world.enable(maximus);
     (maximus.body as Phaser.Physics.Arcade.Body).setImmovable(true);
     this.colliders?.add(maximus);
@@ -524,10 +332,12 @@ export class PlazaScene extends BaseScene {
       frameRate: 10,
     });
     maximus.play("maximus_animation", true);
-    const shadow = this.add.sprite(110, 78, "shadow");
+    const shadow = this.add.sprite(33, 212, "shadow");
     shadow.setSize(23, 10);
 
-    FACTION_NPCS.forEach(({ npc, x, y, direction = "right" }) => {
+    this.nightshadesFactionNPC = maximus;
+
+    FACTION_NPCS.forEach(({ npc, x, y, direction = "right", faction }) => {
       const container = new BumpkinContainer({
         scene: this,
         x,
@@ -549,7 +359,33 @@ export class PlazaScene extends BaseScene {
       this.physics.world.enable(container);
       this.colliders?.add(container);
       this.triggerColliders?.add(container);
+
+      switch (faction) {
+        case "bumpkins":
+          this.bumpkinsFactionNPC = container;
+          break;
+        case "goblins":
+          this.goblinsFactionNPC = container;
+          break;
+        case "sunflorians":
+          this.sunfloriansFactionNPC = container;
+          break;
+      }
     });
+  }
+
+  setUpFactionBanners() {
+    // Add banners
+    this.bumpkinsBanner = this.add
+      .image(15, 125, "bumpkins_banner")
+      .setDepth(125);
+    this.goblinsBanner = this.add.image(15, 90, "goblins_banner").setDepth(90);
+    this.nightshadesBanner = this.add
+      .image(15, 197, "nightshades_banner")
+      .setDepth(190);
+    this.sunfloriansBanner = this.add
+      .image(15, 160, "sunflorians_banner")
+      .setDepth(160);
 
     if (!this.chosenFaction) {
       // Make banners interactive
@@ -578,34 +414,83 @@ export class PlazaScene extends BaseScene {
     }
   }
 
+  makeAllFactionNPCsInteractive() {
+    this.bumpkinsFactionNPC?.addOnClick(() =>
+      interactableModalManager.open("pledge_bumpkin")
+    );
+    this.goblinsFactionNPC?.addOnClick(() =>
+      interactableModalManager.open("pledge_goblin")
+    );
+    this.sunfloriansFactionNPC?.addOnClick(() =>
+      interactableModalManager.open("pledge_sunflorian")
+    );
+    this.nightshadesFactionNPC
+      ?.setInteractive({ cursor: "pointer" })
+      .on("pointerdown", (p: Phaser.Input.Pointer) => {
+        if (p.downElement.nodeName === "CANVAS") {
+          interactableModalManager.open("pledge_nightshade");
+        }
+      });
+  }
+
+  makeChosenFactionNPCInteractive(chosenFaction: string) {
+    switch (chosenFaction) {
+      case "bumpkins":
+        this.bumpkinsFactionNPC?.addOnClick(() =>
+          interactableModalManager.open("bumpkins_faction")
+        );
+
+        break;
+      case "goblins":
+        this.goblinsFactionNPC?.addOnClick(() =>
+          interactableModalManager.open("goblins_faction")
+        );
+        break;
+      case "sunflorians":
+        this.sunfloriansFactionNPC?.addOnClick(() =>
+          interactableModalManager.open("sunflorians_faction")
+        );
+        break;
+      case "nightshades":
+        this.nightshadesFactionNPC
+          ?.setInteractive({ cursor: "pointer" })
+          .on("pointerdown", (p: Phaser.Input.Pointer) => {
+            if (p.downElement.nodeName === "CANVAS") {
+              interactableModalManager.open("nightshades_faction");
+            }
+          });
+        break;
+    }
+  }
+
   makeChosenFactionBannerInteractive(chosenFaction: string) {
     switch (chosenFaction) {
       case "bumpkins":
         this.bumpkinsBanner
           ?.setInteractive({ cursor: "pointer" })
           .on("pointerdown", () => {
-            interactableModalManager.open("pledge_bumpkin");
+            interactableModalManager.open("bumpkins_faction");
           });
         break;
       case "goblins":
         this.goblinsBanner
           ?.setInteractive({ cursor: "pointer" })
           .on("pointerdown", () => {
-            interactableModalManager.open("pledge_goblin");
+            interactableModalManager.open("goblins_faction");
           });
         break;
       case "nightshades":
         this.nightshadesBanner
           ?.setInteractive({ cursor: "pointer" })
           .on("pointerdown", () => {
-            interactableModalManager.open("pledge_nightshade");
+            interactableModalManager.open("nightshades_faction");
           });
         break;
       case "sunflorians":
         this.sunfloriansBanner
           ?.setInteractive({ cursor: "pointer" })
           .on("pointerdown", () => {
-            interactableModalManager.open("pledge_sunflorian");
+            interactableModalManager.open("sunflorians_faction");
           });
         break;
     }
@@ -618,6 +503,15 @@ export class PlazaScene extends BaseScene {
     this.sunfloriansBanner?.disableInteractive();
 
     this.makeChosenFactionBannerInteractive(chosenFaction);
+  }
+
+  updateFactionNPCInteractionsOnPledge(chosenFaction: string) {
+    this.bumpkinsFactionNPC?.disableInteractive();
+    this.goblinsFactionNPC?.disableInteractive();
+    this.sunfloriansFactionNPC?.disableInteractive();
+    this.nightshadesFactionNPC?.disableInteractive();
+
+    this.makeChosenFactionNPCInteractive(chosenFaction);
   }
 
   addFactionNameToPlayer(faction: string) {
@@ -651,8 +545,17 @@ export class PlazaScene extends BaseScene {
     super.create();
 
     // Faction setup
-    this.chosenFaction = this.gameService.state.context.state?.faction?.name;
-    this.setUpFactionBanners();
+    if (hasFeatureAccess(this.gameState, "FACTIONS")) {
+      this.chosenFaction = this.gameService.state.context.state?.faction?.name;
+      this.setUpFactionBanners();
+      this.setUpFactionNPCS();
+
+      if (this.chosenFaction) {
+        this.makeChosenFactionNPCInteractive(this.chosenFaction);
+      } else {
+        this.makeAllFactionNPCsInteractive();
+      }
+    }
 
     const tradingBoard = this.add.sprite(725, 260, "trading_board");
     tradingBoard.setInteractive({ cursor: "pointer" }).on("pointerdown", () => {
@@ -668,50 +571,6 @@ export class PlazaScene extends BaseScene {
     tradingBoardIcon.setDepth(1000000);
 
     this.initialiseNPCs(PLAZA_BUMPKINS);
-
-    let week: number | undefined = undefined;
-    try {
-      week = getSeasonWeek();
-    } catch {
-      // eslint-disable-next-line no-console
-      console.error("Error getting week");
-    }
-
-    if (week) {
-      (PAGE_POSITIONS[week] ?? []).forEach(({ x, y }, index) => {
-        const pageNumber = index + 1;
-
-        const collectedFlowerPages =
-          this.gameState?.springBlossom?.[week!]?.collectedFlowerPages;
-
-        if (
-          collectedFlowerPages &&
-          !collectedFlowerPages.includes(pageNumber)
-        ) {
-          const page = new Page({ x, y, scene: this });
-          page.setDepth(1000000);
-          this.physics.world.enable(page);
-
-          this.physics.add.collider(
-            this.currentPlayer as BumpkinContainer,
-            page,
-            (obj1, obj2) => {
-              page.sprite?.destroy();
-              page.destroy();
-
-              const chime = this.sound.add("chime");
-              chime.play({ loop: false, volume: 0.1 });
-
-              interactableModalManager.open("page_discovered");
-              this.gameService.send("flowerPage.discovered", {
-                id: pageNumber,
-              });
-              this.gameService.send("SAVE");
-            }
-          );
-        }
-      });
-    }
 
     if (!this.joystick && !localStorage.getItem("mmo_introduction.read")) {
       this.arrows = this.add
@@ -823,46 +682,16 @@ export class PlazaScene extends BaseScene {
     });
 
     // Banner
-    const banner = this.add.sprite(400, 220, "banner");
-    this.anims.create({
-      key: "banner_animation",
-      frames: this.anims.generateFrameNumbers("banner", {
-        start: 0,
-        end: 1,
-      }),
-      repeat: -1,
-      frameRate: 7,
-    });
-    banner.play("banner_animation", true);
-    // .setInteractive({ cursor: "pointer" });
-    // .on("pointerdown", () => {
-    //   interactableModalManager.open("banner");
-    // });
-    banner.setDepth(100000000000);
-
-    const banner2 = this.add.sprite(464, 220, "banner");
-    banner2.play("banner_animation", true);
+    this.add.image(400, 225, "banner").setDepth(100000000000);
     // .setInteractive({ cursor: "pointer" })
     // .on("pointerdown", () => {
     //   interactableModalManager.open("banner");
     // });
-    banner2.setDepth(100000000000);
+    this.add.image(464, 225, "banner").setDepth(100000000000);
 
-    const banner3 = this.add.sprite(480, 382, "banner");
-    banner3.play("banner_animation", true);
-    // .setInteractive({ cursor: "pointer" })
-    // .on("pointerdown", () => {
-    //   interactableModalManager.open("banner");
-    // });
-    banner3.setDepth(100000000000);
+    this.add.image(480, 386, "banner").setDepth(100000000000);
 
-    const banner4 = this.add.sprite(385, 382, "banner");
-    banner4.play("banner_animation", true);
-    // .setInteractive({ cursor: "pointer" })
-    // .on("pointerdown", () => {
-    //   interactableModalManager.open("banner");
-    // });
-    banner4.setDepth(100000000000);
+    this.add.sprite(385, 386, "banner").setDepth(100000000000);
 
     const bud3 = this.add.sprite(176, 290, "plaza_bud_3");
     this.anims.create({
@@ -921,8 +750,8 @@ export class PlazaScene extends BaseScene {
       });
 
     // Stella Collectible of the Month
-    this.add.image(248, 244, "flower_cart");
-    this.add.image(288, 248, "queen_bee");
+    this.add.image(248, 244, "vinny");
+    this.add.image(288.5, 248, "non_la");
 
     const door = this.colliders
       ?.getChildren()
@@ -1026,6 +855,7 @@ export class PlazaScene extends BaseScene {
     if (!!faction && !this.chosenFaction) {
       this.chosenFaction = faction;
       this.updateFactionBannerInteractionsOnPledge(faction);
+      this.updateFactionNPCInteractionsOnPledge(faction);
       this.addFactionNameToPlayer(faction);
       this.updateColyseus(faction);
     }

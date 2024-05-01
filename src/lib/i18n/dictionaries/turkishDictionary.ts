@@ -66,7 +66,6 @@ import {
   GetContent,
   GetInputErrorMessage,
   GOBLIN_MESSAGES,
-  GoldPassModal,
   GoldTooth,
   GuideCompost,
   GuideTerms,
@@ -113,7 +112,6 @@ import {
   PirateChest,
   PirateQuest,
   Pickserver,
-  PlazaSettings,
   PlayerTrade,
   Portal,
   PurchaseableBaitTranslation,
@@ -133,7 +131,6 @@ import {
   RulesTerms,
   SceneDialogueKey,
   SeasonTerms,
-  SettingsMenu,
   Share,
   SharkBumpkinDialogues,
   Shelly,
@@ -145,7 +142,6 @@ import {
   SpecialEvent,
   Statements,
   StopGoblin,
-  SubSettings,
   Swarming,
   TieBreaker,
   ToolDescriptions,
@@ -176,6 +172,7 @@ import {
   RestrictionReason,
   RemoveHungryCaterpillar,
   Leaderboard,
+  GameOptions,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -190,6 +187,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   addSFL: "SFL Ekle",
   "add.liquidity": "Likidite Ekle",
   "alr.bought": "Zaten Satın Alındı!",
+  "already.own.item": ENGLISH_TERMS["already.own.item"],
   "alr.claim": "Zaten Talep Edildi!",
   "alr.completed": "Çoktan Tamamlandı",
   "alr.crafted": "Zaten Üretildi!",
@@ -203,6 +201,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   bait: "Yem",
   balance: "Bakiye: ",
   banner: "Bayrak",
+  banners: "Banners",
   basket: "Sepet",
   "beach.bounty": "Plaj Ödülü",
   beta: "Beta",
@@ -245,11 +244,13 @@ const generalTerms: Record<GeneralTerms, string> = {
   decoration: "Dekorasyon",
   deliver: "Teslim Et",
   deliveries: "Teslimatlar",
-  "deliveries.closed": "Teslimatlar kapandı",
+  "deliveries.closed": ENGLISH_TERMS["deliveries.closed"],
   delivery: "Teslimat",
   details: "Detaylar",
   donate: "Bağış Yap",
   donating: "Bağış Yapılıyor",
+  donation: "Donation",
+  donations: "Donations",
   "drafting.noitem": "Listelenecek öğe yok",
   "drafting.select": "Listelenecek bir öğe seçin",
   "drafting.trade.detail": "Takas Detayları",
@@ -266,6 +267,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "expand.land": "Adanı Genişlet",
   expand: "Genişlet",
   explore: "Keşfet",
+  faction: "Faction",
   farm: "Çiftlik",
   "farm.storage": "Çiftlik Deposu",
   featured: "Öne Çıkanlar",
@@ -280,6 +282,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   for: "için",
   "for.info.wearable": "bu giyilebilir hakkında daha fazla bilgi için",
   forbidden: "Yasaklı",
+  free: ENGLISH_TERMS["free"],
   "free.trade": "Bedava Takas: {{freeTrades}}",
   fruit: "Meyve",
   fruits: "Meyveler",
@@ -309,7 +312,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   "list.trade": "Takası Listele",
   loading: "Yükleniyor",
   locked: "Kilitli",
-  logout: "Çıkış Yap",
   "loser.refund": "Kaynakları iade et",
   lvl: "Seviye",
   maintenance: "Bakım",
@@ -476,13 +478,17 @@ const generalTerms: Record<GeneralTerms, string> = {
   buildings: "Binalar",
   boosts: "Takviyeler",
   decorations: "Dekorasyonlar",
-  "change.Language": "Dili değiştir",
   "copy.link": "Bağlantıyı kopyala",
   "copy.failed": "Kopyalama Başarısız!",
   search: "Ara",
   searching: "Aranıyor",
   "sfl/coins": ENGLISH_TERMS["sfl/coins"],
   player: ENGLISH_TERMS["player"],
+  "goblin.deliveries": ENGLISH_TERMS["goblin.deliveries"],
+  "goblin.exchange": ENGLISH_TERMS["goblin.exchange"],
+  "p2p.trading": ENGLISH_TERMS["p2p.trading"],
+  vipAccess: ENGLISH_TERMS["vipAccess"],
+  vip: ENGLISH_TERMS["vip"],
 };
 
 const timeUnits: Record<TimeUnits, string> = {
@@ -727,6 +733,7 @@ const boostDescriptions: Record<BoostDescriptions, string> = {
     "Şu yumurtaları bana ver,çabuk! Yumurtlamada 4 saatlik hız artışı.",
   "description.banana.chicken":
     "Muzları artıran bir tavuk. Nasıl bir dünyada yaşıyoruz.",
+  "description.knight.chicken": ENGLISH_TERMS["description.knight.chicken"],
 
   // Boosts
   "description.lab.grow.pumpkin": "+0.3 Kabak Verimi",
@@ -902,7 +909,11 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.nugget.boost": "+0.25 Altın",
   "description.rock.golem.boost": "10% Şans ile +2 Taş",
   "description.crimson.carp.boost": "+0.05 Kızıltaş",
+  "description.battle.fish.boost":
+    ENGLISH_TERMS["description.battle.fish.boost"],
   "description.crim.peckster.boost": "+0.1 Kızıltaş",
+  "description.knight.chicken.boost":
+    ENGLISH_TERMS["description.knight.chicken.boost"],
   "description.queen.bee.boost": "+1 Bal Üretim Hızı",
   "description.humming.bird.boost": "20% Şans ile +1 Çiçek",
   "description.beehive.boost":
@@ -923,6 +934,18 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.babyPanda.boost": "Başlangıç 2x XP Takviyesi",
   "description.flower.fox.boost": "-10% Çiçek Büyüme Hızı",
   "description.hungryHare.boost": ENGLISH_TERMS["description.hungryHare.boost"],
+  "description.grape.granny.boost":
+    ENGLISH_TERMS["description.grape.granny.boost"],
+  "description.soybliss.boost": ENGLISH_TERMS["description.soybliss.boost"],
+  "description.turbo.sprout.boost":
+    ENGLISH_TERMS["description.turbo.sprout.boost"],
+  "description.non.la.hat.boost": ENGLISH_TERMS["description.non.la.hat.boost"],
+  "description.oil.can.boost": ENGLISH_TERMS["description.oil.can.boost"],
+  "description.olive.shield.boost":
+    ENGLISH_TERMS["description.olive.shield.boost"],
+  "description.pan.boost": ENGLISH_TERMS["description.pan.boost"],
+  "description.paw.shield.boost": ENGLISH_TERMS["description.paw.shield.boost"],
+  "description.vinny.boost": ENGLISH_TERMS["description.vinny.boost"],
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -1064,7 +1087,6 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.noTradeListed": "Listelenen herhangi bir işleminiz yok.",
   "bumpkinTrade.sell": "Kaynaklarınızı SFL için diğer oyunculara satın.",
   "bumpkinTrade.like.list": "Neleri listelemek istersiniz?",
-  "bumpkinTrade.goldpass.required": "Altın Bilet gerekli",
   "bumpkinTrade.purchase": "Goblin Retreat’den satın alın",
   "bumpkinTrade.available": "Mevcut",
   "bumpkinTrade.quantity": "Miktar",
@@ -1130,8 +1152,7 @@ const choresStart: Record<ChoresStart, string> = {
   "chores.noChore": "Üzgünüm, şu anda yapman gereken herhangi bir iş yok.",
   "chores.newSeason":
     "Yeni bir sezon yaklaşıyor, işler geçici olarak kapanacak.",
-  "chores.choresFrozen":
-    "Yeni Sezonluk İşler yakında açılıyor. Önceki sezonun işleri ve ilerlemesi sıfırlanacak.",
+  "chores.choresFrozen": ENGLISH_TERMS["chores.choresFrozen"],
 };
 
 const chumDetails: Record<ChumDetails, string> = {
@@ -1705,6 +1726,17 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
     ENGLISH_TERMS["description.bumpkin.faction.banner"],
   "description.nightshade.faction.banner":
     ENGLISH_TERMS["description.nightshade.faction.banner"],
+
+  // Clash of Factions
+  "description.turbo.sprout": ENGLISH_TERMS["description.turbo.sprout"],
+  "description.soybliss": ENGLISH_TERMS["description.soybliss"],
+  "description.grape.granny": ENGLISH_TERMS["description.grape.granny"],
+  "description.royal.throne": ENGLISH_TERMS["description.royal.throne"],
+  "description.lily.egg": ENGLISH_TERMS["description.lily.egg"],
+  "description.goblet": ENGLISH_TERMS["description.goblet"],
+  "description.clock": ENGLISH_TERMS["description.clock"],
+  "description.fancy.rug": ENGLISH_TERMS["description.fancy.rug"],
+  "description.vinny": ENGLISH_TERMS["description.vinny"],
 };
 
 const defaultDialogue: Record<DefaultDialogue, string> = {
@@ -1923,6 +1955,23 @@ const factions: Record<Factions, string> = {
     ENGLISH_TERMS["faction.earn.emblems.time.left"],
   "faction.emblems.tasks": ENGLISH_TERMS["faction.emblems.tasks"],
   "faction.view.leaderboard": ENGLISH_TERMS["faction.view.leaderboard"],
+  "faction.donation.bulk.resources":
+    ENGLISH_TERMS["faction.donation.bulk.resources"],
+  "faction.donation.bulk.resources.unlimited.per.day":
+    ENGLISH_TERMS["faction.donation.bulk.resources.unlimited.per.day"],
+  "faction.donation.confirm": ENGLISH_TERMS["faction.donation.confirm"],
+  "faction.donation.label": ENGLISH_TERMS["faction.donation.label"],
+  "faction.donation.request.message":
+    ENGLISH_TERMS["faction.donation.request.message"],
+  "faction.donation.sfl": ENGLISH_TERMS["faction.donation.sfl"],
+  "faction.donation.sfl.max.per.day":
+    ENGLISH_TERMS["faction.donation.sfl.max.per.day"],
+  "faction.seasonal.delivery.start.at":
+    ENGLISH_TERMS["faction.seasonal.delivery.start.at"],
+  "faction.points.with.number": ENGLISH_TERMS["faction.points.with.number"],
+  "faction.points.title": ENGLISH_TERMS["faction.points.title"],
+  "faction.points.pledge.warning":
+    ENGLISH_TERMS["faction.points.pledge.warning"],
 };
 
 const festiveTree: Record<FestiveTree, string> = {
@@ -2030,6 +2079,7 @@ const fishDescriptions: Record<FishDescriptions, string> = {
   "description.gilded.swordfish":
     "Altın gibi parıldayan pullara sahip bir kılıç balığı, en iyi av!",
   "description.crimson.carp": "Kaynak sularının nadir, canlı bir mücevheri.",
+  "description.battle.fish": ENGLISH_TERMS["description.battle.fish"],
 };
 
 const fishermanModal: Record<FishermanModal, string> = {
@@ -2313,6 +2363,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
   "description.treasure.key":
     "Ödülünüzün kilidini açmak için Plazayı ziyaret edin",
   "description.prizeTicket": "Ödül çekilişlerine katılmak için bir bilet",
+  "description.scroll": ENGLISH_TERMS["description.scroll"],
 
   // Easter Items
   "description.egg.basket": "Paskalya Etkinliği",
@@ -2405,18 +2456,6 @@ const goblin_messages: Record<GOBLIN_MESSAGES, string> = {
   "goblinMessages.msg9":
     "Hey, yedek atıştırmalıkların var mı? Söz veriyorum onları çalmayacağım... belki.",
   "goblinMessages.msg10": "Ne olduğu umurumda değil, sadece bana yiyecek ver!",
-};
-
-const goldpassModal: Record<GoldPassModal, string> = {
-  "goldPass.unlockPower": "Altın Bilet gücünün kilidini açın",
-  "goldPass.craftNFTs": "Nadir NFT'ler üretin",
-  "goldPass.trade": "Diğer oyuncularla ticaret yapın",
-  "goldPass.participateAuction": "Açık Arttırmalara Katılın",
-  "goldPass.withdrawTransferNFTs": "NFT'leri Çekme ve Aktarma",
-  "goldPass.accessRestrictedAreas": "Kısıtlı alanlara erişim",
-  "common.noThanks": "Hayır, teşekkürler",
-  "goldPass.buyNow": "Şimdi satın al ${{price}}",
-  "goldPass.priceInMatic": "Fiyat $MATIC eşdeğeri olarak ödenir ${{price}} USD",
 };
 
 const goldTooth: Record<GoldTooth, string> = {
@@ -2557,7 +2596,7 @@ const hayseedHankV2: Record<HayseedHankV2, string> = {
     "Pekala, selamlar genç çılgınlar! Ben Hayseed Hank, tecrübeli bir Bumpkin çiftçisiyim ve eski günlerdeki gibi toprakla ilgileniyorum.",
   "hayseedHankv2.dialog2": ENGLISH_TERMS["hayseedHankv2.dialog2"],
   "hayseedHankv2.action": "Hadi yapalım",
-  "hayseedHankv2.title": "Günlük işler",
+  "hayseedHankv2.title": "Hank'ın Günlük İşleri",
   "hayseedHankv2.newChoresAvailable": "Yeni işler mevcut ",
   "hayseedHankv2.skipChores": "Her yeni günde ev işlerini atlayabilirsiniz.",
   "hayseedHankv2.greeting":
@@ -2981,8 +3020,6 @@ const noBumpkin: Record<NoBumpkin, string> = {
   "noBumpkin.deposit": "Deposit",
   "noBumpkin.advancedIsland":
     "Burası gelişmiş bir ada. Güçlü bir Bumpkin gerekli:",
-  "weakBumpkin.notStrong":
-    "Oh hayır! Bumpkin'in bu ada için yeterince güçlü değil.",
   "dequipper.noBumpkins": "Bumpkin’in yok",
   "dequipper.missingBumpkins": "Cüzdanın herhangi bir Bumpking NFT’si yok.",
   "dequipper.intro": "Bumpkininden cüzdanına giyilebilir gönder.",
@@ -3858,10 +3895,12 @@ const orderhelp: Record<OrderHelp, string> = {
     "Bir siparişi yalnızca 24 saat sonra atlayabilirsiniz!",
   "orderhelp.New.Season":
     "Yeni sezon yaklaşıyor, teslimatlar geçici olarak kapanacak.",
-  "orderhelp.New.Season.arrival": "Yeni Sezonluk Teslimatlar yakında açılıyor.",
+  "orderhelp.New.Season.arrival": "Yeni sezonluk teslimatlar yakında açılıyor.",
   "orderhelp.Wisely": "Akıllıca seç!",
   "orderhelp.SkipIn": "Atla",
   "orderhelp.NoRight": "Şimdi olmaz",
+  "orderhelp.ticket.deliveries.closed":
+    ENGLISH_TERMS["orderhelp.ticket.deliveries.closed"],
 };
 
 const pageFounds: Record<PageFounds, string> = {
@@ -3931,18 +3970,6 @@ const playerTrade: Record<PlayerTrade, string> = {
   "playerTrade.sold": "Satıldı",
   "playerTrade.sale": "Satılık: ",
   "playerTrade.title.congrat": "Tebrikler, listelemeniz satın alındı",
-};
-
-const plazaSettings: Record<PlazaSettings, string> = {
-  "plazaSettings.title.main": "Plaza Ayarları",
-  "plazaSettings.title.mutedPlayers": "Sessize Alınan Oyuncular",
-  "plazaSettings.title.keybinds": "Tuş Atamaları",
-  "plazaSettings.mutedPlayers.description":
-    "Eğer /mute komutunu kullanarak bazı oyuncuları sessize aldıysanız, burada görebilir ve isterseniz onları seslerini açabilirsiniz.",
-  "plazaSettings.keybinds.description":
-    "Kullanılabilir tuş atamalarını mı öğrenmek istiyorsunuz? Buradan kontrol edin.",
-  "plazaSettings.noMutedPlayers": "Sessize alınan oyuncunuz yok.",
-  "plazaSettings.changeServer": "Sunucuyu Değiştirin",
 };
 
 const portal: Record<Portal, string> = {
@@ -4110,15 +4137,17 @@ const seasonTerms: Record<SeasonTerms, string> = {
   "season.limitedOffer": " Sadece sınırlı süre için!",
   "season.wearableAirdrop": "Sezonluk Giyilebilir Airdrop",
   "season.place.land": "Onu kendi arazine koymalısın",
-};
-
-const settingsMenu: Record<SettingsMenu, string> = {
-  "settingsMenu.timeMachine": "Zaman Makinesi",
-  "settingsMenu.storeOnChain": "Zincirde Mağaza",
-  "settingsMenu.howToPlay": "Nasıl oynanır?",
-  "settingsMenu.swapMaticForSFL": "MATIC'i SFL ile değiştirin",
-  "settingsMenu.share": "Paylaş",
-  "settingsMenu.confirmLogout": "Oturumu kapatmak istediğinizden emin misiniz?",
+  "season.free.season.passes": ENGLISH_TERMS["season.free.season.passes"],
+  "season.free.season.passes.description":
+    ENGLISH_TERMS["season.free.season.passes.description"],
+  "season.megastore.discount": ENGLISH_TERMS["season.megastore.discount"],
+  "season.mystery.gift": ENGLISH_TERMS["season.mystery.gift"],
+  "season.supporter.gift": ENGLISH_TERMS["season.supporter.gift"],
+  "season.vip.access": ENGLISH_TERMS["season.vip.access"],
+  "season.vip.description": ENGLISH_TERMS["season.vip.description"],
+  "season.xp.boost": ENGLISH_TERMS["season.xp.boost"],
+  "season.lifetime.farmer": ENGLISH_TERMS["season.lifetime.farmer"],
+  "season.free.with.lifetime": ENGLISH_TERMS["season.free.with.lifetime"],
 };
 
 const share: Record<Share, string> = {
@@ -4314,8 +4343,6 @@ const statements: Record<Statements, string> = {
     "Bumpkin'inizi beslemek için yemek pişirmeniz gerekecek.",
   "statements.empty.chest": "Sandığınız boş, bugün nadir eşyaları keşfedin!",
   "statements.chest.captcha": "Açmak için sandığa dokunun",
-  "statements.gold.pass.required":
-    "Nadir NFT'leri basmak için Gold Pass gereklidir.",
   "statements.frankie.plaza":
     "Nadir dekorasyonlar yapmak için plazaya seyahat edin!",
   "statements.blacksmith.plaza": "Daha nadir eşyalar için Plaza'ya gidin.",
@@ -4350,15 +4377,6 @@ const stopGoblin: Record<StopGoblin, string> = {
   "stopGoblin.tap.one": "Kaynaklarınızı çalmadan önce Ay Arayanlara dokunun",
   "stopGoblin.tap.two": "Yemeğinizi yemeden önce Goblinlere dokunun",
   "stopGoblin.left": "Kalan deneme sayısı: {{attemptsLeft}}",
-};
-
-const subSettings: Record<SubSettings, string> = {
-  "subSettings.disableAnimations": "Animasyonları Kapat",
-  "subSettings.enableAnimations": "Animasyonları Etkinleştir",
-  "subSettings.logout": "Çıkış Yap",
-  "subSettings.transferOwnership": "Sahipliği Aktar",
-  "subSettings.refreshDescription":
-    "Blockchaindeki en son değişiklikleri almak için oturumunuzu yenileyin. Bu, çiftliğinize öğe bıraktığınızda kullanışlıdır.",
 };
 
 const swarming: Record<Swarming, string> = {
@@ -4751,6 +4769,50 @@ export const leaderboardTerms: Record<Leaderboard, string> = {
   "leaderboard.yourPosition": ENGLISH_TERMS["leaderboard.yourPosition"],
 };
 
+const gameOptions: Record<GameOptions, string> = {
+  "gameOptions.title": ENGLISH_TERMS["gameOptions.title"],
+  "gameOptions.howToPlay": "Nasıl oynanır? (Tadilatta)",
+  "gameOptions.farmId": ENGLISH_TERMS["gameOptions.farmId"],
+  "gameOptions.logout": "Çıkış Yap",
+  "gameOptions.confirmLogout": "Oturumu kapatmak istediğinizden emin misiniz?",
+
+  // Amoy Actions
+  "gameOptions.amoyActions": ENGLISH_TERMS["gameOptions.amoyActions"],
+  "gameOptions.amoyActions.timeMachine": "Zaman Makinesi",
+
+  // Blockchain Settings
+  "gameOptions.blockchainSettings":
+    ENGLISH_TERMS["gameOptions.blockchainSettings"],
+  "gameOptions.blockchainSettings.refreshChain":
+    ENGLISH_TERMS["gameOptions.blockchainSettings.refreshChain"],
+  "gameOptions.blockchainSettings.storeOnChain": "Zincirde Mağaza",
+  "gameOptions.blockchainSettings.swapMaticForSFL":
+    "MATIC'i SFL ile değiştirin",
+  "gameOptions.blockchainSettings.transferOwnership": "Sahipliği Aktar",
+
+  // General Settings
+  "gameOptions.generalSettings": ENGLISH_TERMS["gameOptions.generalSettings"],
+  "gameOptions.generalSettings.connectDiscord":
+    ENGLISH_TERMS["gameOptions.generalSettings.connectDiscord"],
+  "gameOptions.generalSettings.assignRole":
+    ENGLISH_TERMS["gameOptions.generalSettings.assignRole"],
+  "gameOptions.generalSettings.changeLanguage": "Dili değiştir",
+  "gameOptions.generalSettings.disableAnimations": "Animasyonları Kapat",
+  "gameOptions.generalSettings.enableAnimations": "Animasyonları Etkinleştir",
+  "gameOptions.generalSettings.share": "Paylaş",
+
+  // Plaza Settings
+  "gameOptions.plazaSettings": "Plaza Ayarları",
+  "gameOptions.plazaSettings.title.mutedPlayers": "Sessize Alınan Oyuncular",
+  "gameOptions.plazaSettings.title.keybinds": "Tuş Atamaları",
+  "gameOptions.plazaSettings.mutedPlayers.description":
+    "Eğer /mute komutunu kullanarak bazı oyuncuları sessize aldıysanız, burada görebilir ve isterseniz onları seslerini açabilirsiniz.",
+  "gameOptions.plazaSettings.keybinds.description":
+    "Kullanılabilir tuş atamalarını mı öğrenmek istiyorsunuz? Buradan kontrol edin.",
+  "gameOptions.plazaSettings.noMutedPlayers": "Sessize alınan oyuncunuz yok.",
+  "gameOptions.plazaSettings.changeServer": "Sunucuyu Değiştirin",
+};
+
 export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...achievementTerms,
   ...addSFL,
@@ -4812,6 +4874,7 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...flowerShopTerms,
   ...foodDescriptions,
   ...gameDescriptions,
+  ...gameOptions,
   ...gameTerms,
   ...garbageCollector,
   ...generalTerms,
@@ -4820,7 +4883,6 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...getInputErrorMessage,
   ...goblin_messages,
   ...goblinTrade,
-  ...goldpassModal,
   ...goldTooth,
   ...guideCompost,
   ...guideTerms,
@@ -4871,7 +4933,6 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...piratechest,
   ...pirateQuest,
   ...playerTrade,
-  ...plazaSettings,
   ...portal,
   ...promo,
   ...purchaseableBaitTranslation,
@@ -4893,7 +4954,6 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...pwaInstall,
   ...sceneDialogueKey,
   ...seasonTerms,
-  ...settingsMenu,
   ...share,
   ...sharkBumpkinDialogues,
   ...shelly,
@@ -4905,7 +4965,6 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...specialEvent,
   ...statements,
   ...stopGoblin,
-  ...subSettings,
   ...swarming,
   ...tieBreaker,
   ...timeUnits,

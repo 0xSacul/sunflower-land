@@ -32,7 +32,12 @@ import { ConversationName } from "./announcements";
 import { NPCName } from "lib/npcs";
 import { SeasonalTicket } from "./seasons";
 import { Bud } from "./buds";
-import { CompostName, CropCompostName, FruitCompostName } from "./composters";
+import {
+  CompostName,
+  CropCompostName,
+  FruitCompostName,
+  Worm,
+} from "./composters";
 import { FarmActivityName } from "./farmActivity";
 import { MilestoneName } from "./milestones";
 import {
@@ -143,7 +148,8 @@ export type MutantChicken =
   | "Ayam Cemani"
   | "El Pollo Veloz"
   | "Banana Chicken"
-  | "Crim Peckster";
+  | "Crim Peckster"
+  | "Knight Chicken";
 
 export type Coupons =
   | "Gold Pass"
@@ -247,6 +253,9 @@ export const COUPONS: Record<Coupons, { description: string }> = {
   },
   "Prize Ticket": {
     description: translate("description.prizeTicket"),
+  },
+  Scroll: {
+    description: translate("description.scroll"),
   },
 };
 
@@ -894,7 +903,27 @@ export type Faction = {
   name: FactionName;
   pledgedAt: number;
   points: number;
+  donated: {
+    daily: {
+      sfl: {
+        day?: number;
+        amount?: number;
+      };
+      resources: {
+        day?: number;
+        amount?: number;
+      };
+    };
+    totalItems: Partial<Record<InventoryItemName | "sfl", number>>;
+  };
 };
+
+export type DonationItemName =
+  | CropName
+  | FishName
+  | FruitName
+  | CommodityName
+  | Worm;
 
 export interface GameState {
   home: Home;
@@ -1028,6 +1057,10 @@ export interface GameState {
     >;
   };
   faction?: Faction;
+  dailyFactionDonationRequest?: {
+    resource: DonationItemName;
+    amount: Decimal;
+  };
 }
 
 export interface Context {

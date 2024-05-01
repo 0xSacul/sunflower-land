@@ -40,6 +40,7 @@ export const maxItems: Inventory = {
   "Fat Chicken": new Decimal("5"),
   "Banana Chicken": new Decimal("5"),
   "Crim Peckster": new Decimal("5"),
+  "Knight Chicken": new Decimal("5"),
 
   // Seed limits + buffer
   "Sunflower Seed": new Decimal(1250),
@@ -150,6 +151,7 @@ export const maxItems: Inventory = {
   "Crow Feather": new Decimal(750),
   "Mermaid Scale": new Decimal(1500),
   "Tulip Bulb": new Decimal(1500),
+  Scroll: new Decimal(1500),
   "Bud Ticket": new Decimal(1),
 
   // Potion House

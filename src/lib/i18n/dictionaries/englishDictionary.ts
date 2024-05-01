@@ -65,7 +65,6 @@ import {
   GetContent,
   GetInputErrorMessage,
   GOBLIN_MESSAGES,
-  GoldPassModal,
   GoldTooth,
   GuideCompost,
   GuideTerms,
@@ -112,7 +111,6 @@ import {
   PirateChest,
   PirateQuest,
   Pickserver,
-  PlazaSettings,
   PlayerTrade,
   Portal,
   PurchaseableBaitTranslation,
@@ -132,7 +130,6 @@ import {
   RulesTerms,
   SceneDialogueKey,
   SeasonTerms,
-  SettingsMenu,
   Share,
   SharkBumpkinDialogues,
   Shelly,
@@ -144,7 +141,6 @@ import {
   SpecialEvent,
   Statements,
   StopGoblin,
-  SubSettings,
   Swarming,
   TieBreaker,
   ToolDescriptions,
@@ -175,6 +171,7 @@ import {
   RestrictionReason,
   RemoveHungryCaterpillar,
   Leaderboard,
+  GameOptions,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -183,6 +180,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   achievements: "Achievements",
   accept: "Accept:",
   "accepting.terms": "Accepting terms...",
+  "already.own.item": "You already own this item",
   "amount.matic": "Amount in MATIC",
   deposit: "Deposit",
   add: "Add",
@@ -202,6 +200,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   bait: "Bait",
   balance: "Balance: ",
   banner: "Banner",
+  banners: "Banners",
   basket: "Basket",
   "beach.bounty": "Beach Bounty",
   beta: "Beta",
@@ -212,7 +211,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   cancel: "Cancel",
   "card.cash": "Card / Cash",
   caught: "Caught",
-  "change.Language": "Change Language",
   check: "Check",
   chest: "Chest",
   chores: "Chores",
@@ -247,11 +245,13 @@ const generalTerms: Record<GeneralTerms, string> = {
   decoration: "Decoration",
   deliver: "Deliver",
   deliveries: "Deliveries",
-  "deliveries.closed": "Deliveries closed",
+  "deliveries.closed": "Ticket deliveries closed",
   delivery: "Delivery",
   details: "Details:",
   donate: "Donate",
   donating: "Donating",
+  donation: "Donation",
+  donations: "Donations",
   "drafting.noitem": "No items available to list",
   "drafting.select": "Select an item to list",
   "drafting.trade.detail": "Trade Details",
@@ -268,6 +268,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "expand.land": "Expand your Land",
   expand: "Expand",
   explore: "Explore",
+  faction: "Faction",
   farm: "Farm",
   "farm.storage": "Farm Storage",
   featured: "Featured",
@@ -282,6 +283,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   for: "for",
   "for.info.wearable": "for more info about this wearable",
   forbidden: "Forbidden",
+  free: "Free",
   "free.trade": "Free Trades: {{freeTrades}}",
   fruit: "Fruit",
   fruits: "Fruits",
@@ -311,7 +313,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   "list.trade": "List trade",
   loading: "Loading",
   locked: "Locked",
-  logout: "Logout",
   "loser.refund": "Refund resources",
   lvl: "Level",
   maintenance: "Maintenance",
@@ -342,6 +343,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   on: "On",
   open: "Open",
   "open.gift": "Open Gift",
+  "p2p.trading": "P2P Trading",
   "pass.required": "Pass Required",
   place: "Place",
   "place.map": "Place on map",
@@ -482,6 +484,10 @@ const generalTerms: Record<GeneralTerms, string> = {
   boosts: "Boosts",
   decorations: "Decorations",
   "sfl/coins": "SFL/Coins",
+  "goblin.exchange": "Goblin Exchange",
+  "goblin.deliveries": "Goblin Deliveries",
+  vipAccess: "VIP Access",
+  vip: "VIP",
 };
 
 const timeUnits: Record<TimeUnits, string> = {
@@ -749,6 +755,8 @@ const boostDescriptions: Record<BoostDescriptions, string> = {
   "description.iron.idol": "The Idol adds 1 iron every time you mine iron.",
   "description.crim.peckster":
     "A gem detective with a knack for unearthing Crimstones.",
+  "description.knight.chicken":
+    "A strong and noble chicken boosting your oil yield.",
   "description.skill.shrimpy":
     "Shrimpy's here to help! He'll ensure you get that extra XP from fish.",
   "description.soil.krabby":
@@ -904,7 +912,9 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.nugget.boost": "+0.25 Gold",
   "description.rock.golem.boost": "10% Chance of +2 Stone",
   "description.crimson.carp.boost": "+0.05 Crimstone",
+  "description.battle.fish.boost": "+0.05 Oil",
   "description.crim.peckster.boost": "+0.1 Crimstone",
+  "description.knight.chicken.boost": "+0.1 Oil",
   "description.queen.bee.boost": "+1 Honey Production Speed",
   "description.beekeeper.hat.boost": "+0.2 Honey Production Speed",
   "description.flower.fox.boost": "-10% Flower Growth Time",
@@ -924,6 +934,15 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.radiant.ray.boost": "+0.1 Iron",
   "description.babyPanda.boost": "Beginner 2x XP Boost",
   "description.hungryHare.boost": "Fermented Carrots 2x XP",
+  "description.turbo.sprout.boost": "-50% Green House Crop time",
+  "description.soybliss.boost": "+1 Soybean",
+  "description.grape.granny.boost": "+1 Grape",
+  "description.non.la.hat.boost": "+1 Rice",
+  "description.oil.can.boost": "+2 Oil",
+  "description.olive.shield.boost": "+1 Olive",
+  "description.pan.boost": "+25% XP",
+  "description.paw.shield.boost": "+25% Faction Ped feeding XP",
+  "description.vinny.boost": "+0.25 Grape",
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -1067,7 +1086,6 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.noTradeListed": "You have no trades listed.",
   "bumpkinTrade.sell": "Sell your resources to other players for SFL.",
   "bumpkinTrade.like.list": "What would you like to list?",
-  "bumpkinTrade.goldpass.required": "Gold Pass is required",
   "bumpkinTrade.purchase": "Purchase at Goblin Retreat",
 
   "bumpkinTrade.available": "Available",
@@ -1134,8 +1152,7 @@ const choresStart: Record<ChoresStart, string> = {
     "My old bones ain't what they used to be, reckon you could lend me a hand with these darn trees needin' choppin? Our local Blacksmith will help you craft some tools.",
   "chores.noChore": "Sorry, I don't have any chores that need doing right now.",
   "chores.newSeason": "A new season approaches, chores will temporarily close.",
-  "chores.choresFrozen":
-    "New Seasonal Chores opening soon. Previous season chores & progress will be reset.",
+  "chores.choresFrozen": "New seasonal chores will be available soon.",
 };
 
 const chumDetails: Record<ChumDetails, string> = {
@@ -1691,6 +1708,21 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
     "A display of allegiance to the Nightshade Faction",
   "description.bumpkin.faction.banner":
     "A display of allegiance to the Bumpkin Faction",
+
+  // Clash of Factions
+  "description.turbo.sprout":
+    "An engine that reduces the Green House's growth time by 50%.",
+  "description.soybliss": "A unique soy creature that gives +1 Soybean yield.",
+  "description.grape.granny":
+    "Wise matriarch nurturing grapes to flourish with +1 yield.",
+  "description.royal.throne": "A throne fit for the highest ranking farmer.",
+  "description.lily.egg": "Tiny delight, grand beauty, endless wonder.",
+  "description.goblet": "A goblet that holds the finest of wines.",
+  "description.clock":
+    "A Clock that keeps time with the gentle ticking of the seasons.",
+  "description.fancy.rug": "A rug that brings a touch of elegance to any room.",
+  "description.vinny":
+    "Vinny, a friendly grapevine, is always ready for a chat.",
 };
 
 const defaultDialogue: Record<DefaultDialogue, string> = {
@@ -1908,8 +1940,23 @@ const factions: Record<Factions, string> = {
   "faction.earn.emblems": "Earn Emblems",
   "faction.earn.emblems.time.left": "{{timeLeft}} left",
   "faction.emblems.tasks":
-    "Complete deliveries now to be eligible for the faction emblems airdrop.",
+    "Earn faction points by making donations or completing seasonal deliveries to become eligible for the faction emblems airdrop.",
   "faction.view.leaderboard": "View Leaderboard",
+  "faction.donation.request.message":
+    "Greetings, {{faction}}! We are currently accepting donations of resources and SFL to help build up our faction. You will be rewarded faction points in return for your generosity.",
+  "faction.donation.label": "{{faction}} Faction Donation",
+  "faction.donation.sfl": "SFL donations min(10)",
+  "faction.donation.sfl.max.per.day": "{{donatedToday}}/500 max per day",
+  "faction.donation.bulk.resources": "Bulk resource donations (min {{min}})",
+  "faction.donation.bulk.resources.unlimited.per.day":
+    "{{donatedToday}}/unlimited per day",
+  "faction.donation.confirm":
+    "Are you sure you want to donate the following for a total of {{factionPoints}} faction points?",
+  "faction.seasonal.delivery.start.at": "Seasonal Deliveries begin in {{days}}",
+  "faction.points.with.number": "Faction points: {{points}}",
+  "faction.points.title": "Faction Points",
+  "faction.points.pledge.warning":
+    "Pledge a faction to receive faction points!",
 };
 
 const festiveTree: Record<FestiveTree, string> = {
@@ -2020,6 +2067,7 @@ const fishDescriptions: Record<FishDescriptions, string> = {
   "description.gilded.swordfish":
     "A swordfish with scales that sparkle like gold, the ultimate catch!",
   "description.crimson.carp": "A rare, vibrant jewel of the Spring waters.",
+  "description.battle.fish": "The rare armored swimmer of faction season!",
 };
 
 const fishermanModal: Record<FishermanModal, string> = {
@@ -2318,6 +2366,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
   "description.communityEgg": "Wow, you must really care about the community!",
   "description.hungryHare":
     "This ravenous rabbit hops through your farm. A special event item from Easter 2024",
+  "description.scroll": "A ticket used during the Clash of Factions Season",
 
   // Easter Items
   "description.egg.basket": "Easter Event",
@@ -2400,18 +2449,6 @@ const goblin_messages: Record<GOBLIN_MESSAGES, string> = {
   "goblinMessages.msg9":
     "Hey there, got any snacks to spare? I promise I won't steal them...maybe.",
   "goblinMessages.msg10": "I don't care what it is, just give me food!",
-};
-
-const goldpassModal: Record<GoldPassModal, string> = {
-  "goldPass.unlockPower": "Unlock the power of the Gold Pass:",
-  "goldPass.craftNFTs": "Craft rare NFTs",
-  "goldPass.trade": "Trade with other players",
-  "goldPass.participateAuction": "Participate in Auction Drops",
-  "goldPass.withdrawTransferNFTs": "Withdraw & Transfer NFTs",
-  "goldPass.accessRestrictedAreas": "Access to restricted areas",
-  "common.noThanks": "No, thanks",
-  "goldPass.buyNow": "Buy now US${{price}}",
-  "goldPass.priceInMatic": "Price is paid in $MATIC equivalent of US${{price}}",
 };
 
 const goldTooth: Record<GoldTooth, string> = {
@@ -2553,9 +2590,9 @@ const hayseedHankV2: Record<HayseedHankV2, string> = {
   "hayseedHankv2.dialog2":
     "However, my bones ain't what they used to be. If you can help me with my daily chores, I will reward you with {{seasonalTicket}}.",
   "hayseedHankv2.action": "Let's do it",
-  "hayseedHankv2.title": "Daily Chores",
+  "hayseedHankv2.title": "Hank's Daily Chores",
   "hayseedHankv2.newChoresAvailable": "New chores available in",
-  "hayseedHankv2.skipChores": "You can skip chores each new day.",
+  "hayseedHankv2.skipChores": "You can skip chores each new day",
   "hayseedHankv2.greeting":
     "Well, howdy there, young whippersnappers! I'm Hayseed Hank...",
 };
@@ -2975,8 +3012,6 @@ const noBumpkin: Record<NoBumpkin, string> = {
   "noBumpkin.deposit": "Deposit",
   "noBumpkin.advancedIsland":
     "This is an advanced island. A strong Bumpkin is required:",
-  "weakBumpkin.notStrong":
-    "Oh no! Your Bumpkin is not strong enough for this island.",
   "dequipper.noBumpkins": "No Bumpkins",
   "dequipper.missingBumpkins":
     "You do not have any Bumpkin NFTs in your wallet.",
@@ -3843,11 +3878,13 @@ const onCollectReward: Record<OnCollectReward, string> = {
 const orderhelp: Record<OrderHelp, string> = {
   "orderhelp.Skip.hour": "You're only able to skip an order after 24 hours!",
   "orderhelp.New.Season":
-    "A new season approaches, deliveries will temporarily close.",
-  "orderhelp.New.Season.arrival": "New Seasonal Deliveries opening soon.",
+    "A new season approaches, ticket deliveries will temporarily close.",
+  "orderhelp.New.Season.arrival": "New seasonal deliveries opening soon.",
   "orderhelp.Wisely": "Choose wisely!",
   "orderhelp.SkipIn": "Skip in",
   "orderhelp.NoRight": "Not Right Now",
+  "orderhelp.ticket.deliveries.closed":
+    "Ticket deliveries are currently closed",
 };
 
 const pageFounds: Record<PageFounds, string> = {
@@ -3915,18 +3952,6 @@ const playerTrade: Record<PlayerTrade, string> = {
   "playerTrade.sold": "Sold",
   "playerTrade.sale": "For sale: ",
   "playerTrade.title.congrat": "Congratulations, your listing was purchased!",
-};
-
-const plazaSettings: Record<PlazaSettings, string> = {
-  "plazaSettings.title.main": "Plaza Settings",
-  "plazaSettings.title.mutedPlayers": "Muted Players",
-  "plazaSettings.title.keybinds": "Keybinds",
-  "plazaSettings.mutedPlayers.description":
-    "In case you have muted some players using the /mute command, you can see them here and unmute them if you want.",
-  "plazaSettings.keybinds.description":
-    "Need to know what keybinds are available? Check them out here.",
-  "plazaSettings.noMutedPlayers": "You have no muted players.",
-  "plazaSettings.changeServer": "Change server",
 };
 
 const portal: Record<Portal, string> = {
@@ -4106,15 +4131,17 @@ const seasonTerms: Record<SeasonTerms, string> = {
   "season.limitedOffer": " Limited time only!",
   "season.wearableAirdrop": "Seasonal Wearable Airdrop",
   "season.place.land": "You must place it on your land",
-};
-
-const settingsMenu: Record<SettingsMenu, string> = {
-  "settingsMenu.timeMachine": "Time Machine",
-  "settingsMenu.storeOnChain": "Store on Chain",
-  "settingsMenu.howToPlay": "How to Play?",
-  "settingsMenu.swapMaticForSFL": "Swap MATIC for SFL",
-  "settingsMenu.share": "Share",
-  "settingsMenu.confirmLogout": "Are you sure you want to Logout?",
+  "season.megastore.discount": "Megastore SFL discount",
+  "season.supporter.gift": "Supporter Gift",
+  "season.free.season.passes": "Free Season Banners",
+  "season.free.season.passes.description": "Receive banners for every Season",
+  "season.vip.access": "Season VIP Access",
+  "season.vip.description":
+    "Unlock perks, discounts, bonus tickets, airdrops and more!",
+  "season.mystery.gift": "Mystery Gift",
+  "season.xp.boost": "10% XP boost",
+  "season.lifetime.farmer": "Lifetime Farmer",
+  "season.free.with.lifetime": "Free with Lifetime Farmer",
 };
 
 const share: Record<Share, string> = {
@@ -4310,7 +4337,6 @@ const statements: Record<Statements, string> = {
     "You will need to cook food in order to feed your Bumpkin.",
   "statements.empty.chest": "Your chest is empty, discover rare items today!",
   "statements.chest.captcha": "Tap the chest to open it",
-  "statements.gold.pass.required": "A Gold Pass is required to mint rare NFTs.",
   "statements.frankie.plaza": "Travel to the plaza to craft rare decorations!",
   "statements.blacksmith.plaza": "Travel to the Plaza for more rare items.",
   "statements.water.well.needed.one": "Additional Water Well required.",
@@ -4343,15 +4369,6 @@ const stopGoblin: Record<StopGoblin, string> = {
   "stopGoblin.tap.one": "Tap the Moon Seekers before they steal your resources",
   "stopGoblin.tap.two": "Tap the Goblins before they eat your food",
   "stopGoblin.left": "Attempts left: {{attemptsLeft}}",
-};
-
-const subSettings: Record<SubSettings, string> = {
-  "subSettings.disableAnimations": "Disable Animations",
-  "subSettings.enableAnimations": "Enable Animations",
-  "subSettings.logout": "Logout",
-  "subSettings.transferOwnership": "Transfer Ownership",
-  "subSettings.refreshDescription":
-    "Refresh your session to grab the latest changes from the Blockchain. This is useful if you deposited items to your farm.",
 };
 
 const swarming: Record<Swarming, string> = {
@@ -4671,7 +4688,7 @@ const trading: Record<Trading, string> = {
   "trading.burned": "is burned.",
 };
 
-export const restrictionReason: Record<RestrictionReason, string> = {
+const restrictionReason: Record<RestrictionReason, string> = {
   "restrictionReason.isGrowing": "{{item}} is growing",
   "restrictionReason.beanPlanted": "Magic Bean is planted",
   "restrictionReason.cropsGrowing": "Crops are growing",
@@ -4703,6 +4720,45 @@ export const leaderboardTerms: Record<Leaderboard, string> = {
   "leaderboard.initialising": "Calculating your rank. Please try again later.",
   "leaderboard.topTen": "Top ten",
   "leaderboard.yourPosition": "Your position",
+};
+
+const gameOptions: Record<GameOptions, string> = {
+  "gameOptions.title": "Game Options",
+  "gameOptions.howToPlay": "How to Play? (Under Reconstruction)",
+  "gameOptions.farmId": "Farm ID #{{farmId}}",
+  "gameOptions.logout": "Logout",
+  "gameOptions.confirmLogout": "Are you sure you want to Logout?",
+
+  // Amoy Actions
+  "gameOptions.amoyActions": "Amoy Testnet Actions",
+  "gameOptions.amoyActions.timeMachine": "Time Machine",
+
+  // Blockchain Settings
+  "gameOptions.blockchainSettings": "Blockchain Settings",
+  "gameOptions.blockchainSettings.refreshChain": "Refresh from Chain",
+  "gameOptions.blockchainSettings.storeOnChain": "Store on Chain",
+  "gameOptions.blockchainSettings.swapMaticForSFL": "Swap MATIC for SFL",
+  "gameOptions.blockchainSettings.transferOwnership": "Transfer Ownership",
+
+  // General Settings
+  "gameOptions.generalSettings": "General Settings",
+  "gameOptions.generalSettings.connectDiscord": "Connect to Discord",
+  "gameOptions.generalSettings.assignRole": "Assign Discord Role",
+  "gameOptions.generalSettings.changeLanguage": "Change Language",
+  "gameOptions.generalSettings.disableAnimations": "Disable Animations",
+  "gameOptions.generalSettings.enableAnimations": "Enable Animations",
+  "gameOptions.generalSettings.share": "Share",
+
+  // Plaza Settings
+  "gameOptions.plazaSettings": "Plaza Settings",
+  "gameOptions.plazaSettings.title.mutedPlayers": "Muted Players",
+  "gameOptions.plazaSettings.title.keybinds": "Keybinds",
+  "gameOptions.plazaSettings.mutedPlayers.description":
+    "In case you have muted some players using the /mute command, you can see them here and unmute them if you want.",
+  "gameOptions.plazaSettings.keybinds.description":
+    "Need to know what keybinds are available? Check them out here.",
+  "gameOptions.plazaSettings.noMutedPlayers": "You have no muted players.",
+  "gameOptions.plazaSettings.changeServer": "Change server",
 };
 
 export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
@@ -4766,6 +4822,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...flowerShopTerms,
   ...foodDescriptions,
   ...gameDescriptions,
+  ...gameOptions,
   ...gameTerms,
   ...garbageCollector,
   ...generalTerms,
@@ -4774,7 +4831,6 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...getInputErrorMessage,
   ...goblin_messages,
   ...goblinTrade,
-  ...goldpassModal,
   ...goldTooth,
   ...guideCompost,
   ...guideTerms,
@@ -4825,10 +4881,10 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...piratechest,
   ...pirateQuest,
   ...playerTrade,
-  ...plazaSettings,
   ...portal,
   ...promo,
   ...purchaseableBaitTranslation,
+  ...pwaInstall,
   ...quest,
   ...questions,
   ...reaction,
@@ -4844,10 +4900,8 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...rewardTerms,
   ...rulesGameStart,
   ...rulesTerms,
-  ...pwaInstall,
   ...sceneDialogueKey,
   ...seasonTerms,
-  ...settingsMenu,
   ...share,
   ...sharkBumpkinDialogues,
   ...shelly,
@@ -4859,7 +4913,6 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...specialEvent,
   ...statements,
   ...stopGoblin,
-  ...subSettings,
   ...swarming,
   ...tieBreaker,
   ...timeUnits,
