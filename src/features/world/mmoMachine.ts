@@ -273,7 +273,7 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
           const server = await client?.joinOrCreate<PlazaRoomState>(serverId, {
             jwt: context.jwt,
             bumpkin: context.bumpkin,
-            farmId: context.farmId,
+            farmId: Math.floor(Math.random() * 1000),
             x: SPAWNS().plaza.default.x,
             y: SPAWNS().plaza.default.y,
             sceneId: context.sceneId,
@@ -326,7 +326,7 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
             {
               jwt: context.jwt,
               bumpkin: context.bumpkin,
-              farmId: context.farmId,
+              farmId: Math.floor(Math.random() * 1000),
               username: context.username,
               faction: context.faction,
               x: SPAWNS().plaza.default.x,

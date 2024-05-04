@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Message, Player } from "../ModerationTools";
 import { Button } from "components/ui/Button";
 import { PlayerModal } from "../components/Player";
@@ -52,6 +52,11 @@ export const PlayerList: React.FC<Props> = ({
       );
     }
   });
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log("Players", Players);
+  }, [Players]);
 
   const PlayerMessages = () => {
     if (!selectedPlayer) return [];

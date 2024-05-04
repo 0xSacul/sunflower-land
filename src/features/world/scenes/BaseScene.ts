@@ -855,6 +855,9 @@ export abstract class BaseScene extends Phaser.Scene {
 
       if (player.sceneId !== this.scene.key) return;
 
+      if (player.username) return;
+      if (player.faction) return;
+
       if (!this.playerEntities[sessionId]) {
         this.playerEntities[sessionId] = this.createPlayer({
           x: player.x,
@@ -956,6 +959,8 @@ export abstract class BaseScene extends Phaser.Scene {
     // Render current players
     server.state.players.forEach((player, sessionId) => {
       if (sessionId === server.sessionId) return;
+
+      //if (!player.username && !player.faction) return;
 
       const entity = this.playerEntities[sessionId];
 

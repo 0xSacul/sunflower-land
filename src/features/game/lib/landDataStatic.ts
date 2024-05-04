@@ -750,7 +750,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     wearables: [],
   },
   airdrops: [],
-  username: "Local Hero",
+  username: "Overwatch",
   springBlossom: {},
   specialEvents: {
     current: {
