@@ -109,7 +109,6 @@ export type GeneralTerms =
   | "for.info.wearable"
   | "forbidden"
   | "free"
-  | "free.trade"
   | "fruit"
   | "fruits"
   | "gift"
@@ -192,7 +191,10 @@ export type GeneralTerms =
   | "refresh"
   | "refreshing"
   | "remaining"
-  | "remaining.trades"
+  | "remaining.free.listings"
+  | "remaining.free.purchases"
+  | "remaining.free.listing"
+  | "remaining.free.purchase"
   | "remove"
   | "reqSkillPts"
   | "reqSkills"
@@ -1598,6 +1600,7 @@ export type FoodDescriptions =
   | "description.cabbers.mash"
   | "description.popcorn"
   | "description.gumbo"
+  | "description.rapidRoast"
 
   //Kitchen
   | "description.roast.veggies"
@@ -1613,6 +1616,7 @@ export type FoodDescriptions =
   | "description.bumpkin.ganoush"
   | "description.chowder"
   | "description.pancakes"
+  | "description.beetrootBlaze"
 
   //Bakery
   | "description.apple.pie"
@@ -1639,6 +1643,7 @@ export type FoodDescriptions =
   | "description.sauerkraut"
   | "description.fancy.fries"
   | "description.fermented.fish"
+  | "description.fermented.shroomSyrup"
 
   //Smoothie Shack
   | "description.apple.juice"
@@ -1908,7 +1913,8 @@ export type Islandupgrade =
   | "islandupgrade.welcomePetalParadise"
   | "islandupgrade.itemsReturned"
   | "islandupgrade.notReadyExpandMore"
-  | "islandupgrade.exoticResourcesDescription";
+  | "islandupgrade.exoticResourcesDescription"
+  | "islandupgrade.requiredIsland";
 
 export type InteractableModals =
   | "interactableModals.returnhome.message"
@@ -2617,16 +2623,6 @@ export type OrderHelp =
   | "orderhelp.NoRight"
   | "orderhelp.ticket.deliveries.closed";
 
-export type PageFounds =
-  | "pageFounds.title"
-  | "pageFounds.gardeningBookPage"
-  | "pageFounds.lastPageFound"
-  | "pageFounds.knowHowToGrow"
-  | "pageFounds.checkCodex"
-  | "pageFounds.all"
-  | "pageFounds.pageContainsInfo"
-  | "pageFounds";
-
 export type Pending = "pending.calcul" | "pending.comeback";
 
 export type PersonHood =
@@ -2975,7 +2971,8 @@ export type ToolDescriptions =
   | "description.shovel"
   | "description.sand.shovel"
   | "description.sand.drill"
-  | "description.gold.pickaxe";
+  | "description.gold.pickaxe"
+  | "description.oil.drill";
 
 export type TransactionTerms =
   | "transaction.storeBlockBucks"
@@ -3364,7 +3361,6 @@ export type TranslationKeys =
   | Onboarding
   | OnCollectReward
   | OrderHelp
-  | PageFounds
   | Pending
   | PersonHood
   | PirateChest

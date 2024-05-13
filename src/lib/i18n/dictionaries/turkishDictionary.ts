@@ -106,7 +106,6 @@ import {
   Onboarding,
   OnCollectReward,
   OrderHelp,
-  PageFounds,
   Pending,
   PersonHood,
   PirateChest,
@@ -283,7 +282,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   "for.info.wearable": "bu giyilebilir hakkında daha fazla bilgi için",
   forbidden: "Yasaklı",
   free: ENGLISH_TERMS["free"],
-  "free.trade": "Bedava Takas: {{freeTrades}}",
   fruit: "Meyve",
   fruits: "Meyveler",
   gift: "Hediye",
@@ -364,7 +362,10 @@ const generalTerms: Record<GeneralTerms, string> = {
   refresh: "Yenile",
   refreshing: "Yenileniliyor",
   remaining: "geriye kalan",
-  "remaining.trades": "Kalan Takaslar: {{remainingTrades}}",
+  "remaining.free.listings": ENGLISH_TERMS["remaining.free.listings"],
+  "remaining.free.purchases": ENGLISH_TERMS["remaining.free.purchases"],
+  "remaining.free.listing": ENGLISH_TERMS["remaining.free.listing"],
+  "remaining.free.purchase": ENGLISH_TERMS["remaining.free.purchase"],
   remove: "Kaldır",
   reqSkillPts: "Gerekli Yetenek Puanları",
   reqSkills: "Gerekli Yetenekler",
@@ -2274,6 +2275,10 @@ const foodDescriptions: Record<FoodDescriptions, string> = {
   "description.chowder":
     "Denizcinin kasedeki lokumu! Dalın, içeride hazine var!",
   "description.pancakes": "Bumpkins gününe harika bir başlangıç",
+  "description.rapidRoast": ENGLISH_TERMS["description.rapidRoast"],
+  "description.beetrootBlaze": ENGLISH_TERMS["description.beetrootBlaze"],
+  "description.fermented.shroomSyrup":
+    ENGLISH_TERMS["description.fermented.shroomSyrup"],
 
   // Bakery
   "description.apple.pie": "Bumpkin Betty'nin ünlü tarifi",
@@ -2819,6 +2824,7 @@ const islandupgrade: Record<Islandupgrade, string> = {
     ENGLISH_TERMS["islandupgrade.notReadyExpandMore"],
   "islandupgrade.exoticResourcesDescription":
     "Sunflower Land bu bölgesi egzotik kaynaklarıyla tanınır. Meyveleri, çiçekleri, arı kovanlarını ve nadir mineralleri keşfetmek için topraklarınızı genişletin!",
+  "islandupgrade.requiredIsland": ENGLISH_TERMS["islandupgrade.requiredIsland"],
 };
 
 const landscapeTerms: Record<LandscapeTerms, string> = {
@@ -3903,21 +3909,6 @@ const orderhelp: Record<OrderHelp, string> = {
     ENGLISH_TERMS["orderhelp.ticket.deliveries.closed"],
 };
 
-const pageFounds: Record<PageFounds, string> = {
-  "pageFounds.title": "Sayfa Bulundu!",
-  "pageFounds.gardeningBookPage":
-    "Bir bahçıvanlık kitabından bir sayfaya benziyor...",
-  "pageFounds.lastPageFound":
-    "Fantastik!  Son sayfayı bulma konusunda iyi iş çıkardın!  Sayfalar yeni bir çiçeğin nasıl melezleştirileceğini gösteriyor!",
-  "pageFounds.knowHowToGrow": "Artık nasıl büyüyeceğinizi biliyorsunuz",
-  "pageFounds.checkCodex":
-    "Bu konuda daha fazla bilgi edinmek için Kodeksi kontrol edin!",
-  "pageFounds.all": "Tüm Sayfalar Bulundu!",
-  "pageFounds.pageContainsInfo":
-    "Harika!  Bu sayfada bir sayfanın nasıl büyütüleceği hakkında bazı bilgiler yer almaktadır",
-  pageFounds: "Bulunan Sayfalar:",
-};
-
 const pending: Record<Pending, string> = {
   "pending.calcul": "Sonuçlar hesaplanıyor.",
   "pending.comeback": "Daha sonra gel.",
@@ -4409,6 +4400,7 @@ const toolDescriptions: Record<ToolDescriptions, string> = {
   "description.sand.drill":
     "Sıra dışı veya nadir hazineler için derinlere inin",
   "description.gold.pickaxe": "Kızıltaş ve güneştaşı toplamak için kullanılır",
+  "description.oil.drill": ENGLISH_TERMS["description.oil.drill"],
 };
 
 const trader: Record<Trader, string> = {
@@ -4926,7 +4918,6 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...onboarding,
   ...onCollectReward,
   ...orderhelp,
-  ...pageFounds,
   ...pending,
   ...personHood,
   ...pickserver,

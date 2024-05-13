@@ -1,6 +1,5 @@
 import Decimal from "decimal.js-light";
 import { fromWei } from "web3-utils";
-import { translate } from "lib/i18n/translate";
 import {
   Bumpkin,
   GameState,
@@ -55,6 +54,7 @@ export const INITIAL_STOCK = (state?: GameState): Inventory => {
     "Stone Pickaxe": new Decimal(20),
     "Iron Pickaxe": new Decimal(5),
     "Gold Pickaxe": new Decimal(5),
+    "Oil Drill": new Decimal(5),
     Rod: new Decimal(50),
   };
 
@@ -69,6 +69,7 @@ export const INITIAL_STOCK = (state?: GameState): Inventory => {
       "Stone Pickaxe": new Decimal(30),
       "Iron Pickaxe": new Decimal(8),
       "Gold Pickaxe": new Decimal(8),
+      "Oil Drill": new Decimal(8),
       Rod: new Decimal(75),
     };
   }
@@ -413,17 +414,6 @@ export const TEST_FARM: GameState = {
     ],
   },
   bumpkin: INITIAL_BUMPKIN,
-  hayseedHank: {
-    choresCompleted: 0,
-    chore: {
-      activity: "Sunflower Harvested",
-      requirement: 10,
-      reward: {
-        items: { "Solar Flare Ticket": 1 },
-      },
-      description: translate("task.harvestSunflowers"),
-    },
-  },
 
   dailyRewards: { streaks: 0 },
 
@@ -436,7 +426,7 @@ export const TEST_FARM: GameState = {
   iron: {},
   stones: {},
   crimstones: {},
-  oil: {},
+  oilReserves: {},
   trees: {},
   sunstones: {},
   mushrooms: {
@@ -444,7 +434,6 @@ export const TEST_FARM: GameState = {
     mushrooms: {},
   },
   beehives: {},
-  springBlossom: {},
   megastore: {
     available: makeMegaStoreAvailableDates(),
     collectibles: [],
@@ -499,19 +488,7 @@ export const EMPTY: GameState = {
   pumpkinPlaza: {},
   dailyRewards: { streaks: 0 },
   auctioneer: {},
-  hayseedHank: {
-    choresCompleted: 0,
-    dawnBreakerChoresCompleted: 0,
-    dawnBreakerChoresSkipped: 0,
-    chore: {
-      activity: "Sunflower Harvested",
-      requirement: 10,
-      reward: {
-        items: { "Solar Flare Ticket": 1 },
-      },
-      description: translate("task.harvestSunflowers"),
-    },
-  },
+
   trades: {},
   fruitPatches: {},
   beehives: {},
@@ -524,7 +501,7 @@ export const EMPTY: GameState = {
   crops: {},
   stones: {},
   crimstones: {},
-  oil: {},
+  oilReserves: {},
   trees: {},
   sunstones: {},
   farmActivity: {},
@@ -543,7 +520,6 @@ export const EMPTY: GameState = {
     hunger: "Sunflower",
     weeklyCatches: {},
   },
-  springBlossom: {},
   megastore: {
     available: makeMegaStoreAvailableDates(),
     collectibles: [],

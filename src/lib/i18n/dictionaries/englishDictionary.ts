@@ -105,7 +105,6 @@ import {
   Onboarding,
   OnCollectReward,
   OrderHelp,
-  PageFounds,
   Pending,
   PersonHood,
   PirateChest,
@@ -284,7 +283,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   "for.info.wearable": "for more info about this wearable",
   forbidden: "Forbidden",
   free: "Free",
-  "free.trade": "Free Trades: {{freeTrades}}",
   fruit: "Fruit",
   fruits: "Fruits",
   gift: "Gift",
@@ -367,7 +365,10 @@ const generalTerms: Record<GeneralTerms, string> = {
   refresh: "Refresh",
   refreshing: "Refreshing",
   remaining: "remaining",
-  "remaining.trades": "Remaining Trades: {{remainingTrades}}",
+  "remaining.free.listings": "{{listingsRemaining}} free listings remaining",
+  "remaining.free.listing": "1 free listing remaining",
+  "remaining.free.purchases": "{{purchasesRemaining}} free purchases remaining",
+  "remaining.free.purchase": "1 free purchase remaining",
   remove: "Remove",
   reqSkillPts: "Required Skill Points:",
   reqSkills: "Required Skills:",
@@ -1945,7 +1946,7 @@ const factions: Record<Factions, string> = {
   "faction.donation.request.message":
     "Greetings, {{faction}}! We are currently accepting donations of resources and SFL to help build up our faction. You will be rewarded faction points in return for your generosity.",
   "faction.donation.label": "{{faction}} Faction Donation",
-  "faction.donation.sfl": "SFL donations min(10)",
+  "faction.donation.sfl": "SFL donations (min 10)",
   "faction.donation.sfl.max.per.day": "{{donatedToday}}/500 max per day",
   "faction.donation.bulk.resources": "Bulk resource donations (min {{min}})",
   "faction.donation.bulk.resources.unlimited.per.day":
@@ -2251,8 +2252,10 @@ const foodDescriptions: Record<FoodDescriptions, string> = {
   "description.popcorn": "Classic homegrown crunchy snack.",
   "description.gumbo":
     "A pot full of magic! Every spoonful's a Mardi Gras parade!",
+  "description.rapidRoast": "For Bumpkins in a hurry...",
 
   // Kitchen
+  "description.beetrootBlaze": "A spicy beetroot-infused magic mushroom dish",
   "description.roast.veggies": "Even Goblins need to eat their veggies!",
   "description.bumpkin.salad": "Gotta keep your Bumpkin healthy!",
   "description.goblins.treat": "Goblins go crazy for this stuff!",
@@ -2289,6 +2292,8 @@ const foodDescriptions: Record<FoodDescriptions, string> = {
   "description.pirate.cake": "Great for Pirate themed birthday parties.",
 
   // Deli
+  "description.fermented.shroomSyrup":
+    "The essence of bees and enchanted fungi",
   "description.blueberry.jam": "Goblins will do anything for this jam",
   "description.fermented.carrots": "Got a surplus of carrots?",
   "description.sauerkraut": "No more boring Cabbage!",
@@ -2811,6 +2816,7 @@ const islandupgrade: Record<Islandupgrade, string> = {
     "You are not ready. Expand {{remainingExpansions}} more times",
   "islandupgrade.exoticResourcesDescription":
     "This area of Sunflower Land is known for its exotic resources. Expand your land to discover fruit, flowers, bee hives & rare minerals!",
+  "islandupgrade.requiredIsland": "Unlocks on {{islandType}} Island",
 };
 
 const landscapeTerms: Record<LandscapeTerms, string> = {
@@ -3887,19 +3893,6 @@ const orderhelp: Record<OrderHelp, string> = {
     "Ticket deliveries are currently closed",
 };
 
-const pageFounds: Record<PageFounds, string> = {
-  "pageFounds.title": "Page Found!",
-  "pageFounds.gardeningBookPage": "Looks like a page from a gardening book...",
-  "pageFounds.lastPageFound":
-    "Fantastic! Well done finding the last page! The pages reveal how to cross breed a new flower!",
-  "pageFounds.knowHowToGrow": "You now know how to grow a",
-  "pageFounds.checkCodex": "Check the Codex to learn more about it!",
-  "pageFounds.all": "All Pages Found!",
-  "pageFounds.pageContainsInfo":
-    "Great! This page contains some information about how to grow a",
-  pageFounds: "Pages Found:",
-};
-
 const pending: Record<Pending, string> = {
   "pending.calcul": "The results are being calculated.",
   "pending.comeback": "Come back later.",
@@ -4399,6 +4392,7 @@ const toolDescriptions: Record<ToolDescriptions, string> = {
   "description.shovel": "Plant and harvest crops.",
   "description.sand.shovel": "Used for digging treasure",
   "description.sand.drill": "Drill deep for uncommon or rare treasure",
+  "description.oil.drill": "Drill for oil",
 };
 
 const trader: Record<Trader, string> = {
@@ -4874,7 +4868,6 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...onboarding,
   ...onCollectReward,
   ...orderhelp,
-  ...pageFounds,
   ...pending,
   ...personHood,
   ...pickserver,

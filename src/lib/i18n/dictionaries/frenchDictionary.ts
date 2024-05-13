@@ -106,7 +106,6 @@ import {
   Onboarding,
   OnCollectReward,
   OrderHelp,
-  PageFounds,
   Pending,
   PersonHood,
   PirateChest,
@@ -301,7 +300,6 @@ const generalTerms: Record<GeneralTerms, string> = {
   forbidden: "Interdit",
   formula: "Formule",
   free: "Gratuit",
-  "free.trade": "Échange gratuit: {{freeTrades}}",
   fruit: "Fruit",
   fruits: "Fruits",
   full: "Complet",
@@ -392,7 +390,10 @@ const generalTerms: Record<GeneralTerms, string> = {
   refresh: "Rafraîchir",
   refreshing: "Rafraîchissement",
   remaining: "restante",
-  "remaining.trades": "Échanges restants: {{remainingTrades}}",
+  "remaining.free.listings": ENGLISH_TERMS["remaining.free.listings"],
+  "remaining.free.purchases": ENGLISH_TERMS["remaining.free.purchases"],
+  "remaining.free.listing": ENGLISH_TERMS["remaining.free.listing"],
+  "remaining.free.purchase": ENGLISH_TERMS["remaining.free.purchase"],
   remove: "Retirer",
   reqSkillPts: "Points de compétence requis",
   reqSkills: "Compétences requises",
@@ -2351,6 +2352,10 @@ const foodDescriptions: Record<FoodDescriptions, string> = {
     "Une collation croustillante classique cultivée à la maison.",
   "description.gumbo":
     "Une marmite pleine de magie ! Chaque cuillerée est une parade de Mardi Gras!",
+  "description.rapidRoast": ENGLISH_TERMS["description.rapidRoast"],
+  "description.beetrootBlaze": ENGLISH_TERMS["description.beetrootBlaze"],
+  "description.fermented.shroomSyrup":
+    ENGLISH_TERMS["description.fermented.shroomSyrup"],
 
   // Kitchen
   "description.roast.veggies":
@@ -2947,6 +2952,7 @@ const islandupgrade: Record<Islandupgrade, string> = {
     "You are not ready. Expand {{remainingExpansions}} more times",
   "islandupgrade.exoticResourcesDescription":
     "Cette partie de Sunflower Land est connue pour ses ressources exotiques. Étendez votre île pour découvrir des fruits, des fleurs, des ruches d'abeilles et des minéraux rares!",
+  "islandupgrade.requiredIsland": ENGLISH_TERMS["islandupgrade.requiredIsland"],
 };
 
 const landscapeTerms: Record<LandscapeTerms, string> = {
@@ -4043,20 +4049,6 @@ const orderhelp: Record<OrderHelp, string> = {
     ENGLISH_TERMS["orderhelp.ticket.deliveries.closed"],
 };
 
-const pageFounds: Record<PageFounds, string> = {
-  "pageFounds.title": "Pages Trouvées!",
-  "pageFounds.gardeningBookPage":
-    "On dirait une page d'un livre de jardinage...",
-  "pageFounds.lastPageFound":
-    "Fantastique ! Bien joué pour avoir trouvé la dernière page ! Les pages révèlent comment croiser une nouvelle fleur!",
-  "pageFounds.knowHowToGrow": "Vous savez maintenant comment faire pousser un",
-  "pageFounds.checkCodex": "Consultez le Codex pour en savoir plus à ce sujet!",
-  "pageFounds.all": "Toutes les pages trouvées!",
-  "pageFounds.pageContainsInfo":
-    "Super ! Cette page contient des informations sur la manière de faire pousser un",
-  pageFounds: "Pages Trouvées",
-};
-
 const pending: Record<Pending, string> = {
   "pending.calcul": "Les résultats sont en cours de calcul.",
   "pending.comeback": "Revenez plus tard.",
@@ -4577,6 +4569,7 @@ const toolDescriptions: Record<ToolDescriptions, string> = {
   "description.sand.shovel": "Utilisé pour creuser des trésors",
   "description.sand.drill":
     "Creusez profondément pour trouver des trésors peu communs ou rares",
+  "description.oil.drill": ENGLISH_TERMS["description.oil.drill"],
 };
 
 const trader: Record<Trader, string> = {
@@ -5085,7 +5078,6 @@ export const FRENCH_TERMS: Record<TranslationKeys, string> = {
   ...onboarding,
   ...onCollectReward,
   ...orderhelp,
-  ...pageFounds,
   ...pending,
   ...personHood,
   ...pickserver,

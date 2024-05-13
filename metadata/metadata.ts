@@ -513,6 +513,18 @@ export const OPEN_SEA_ITEMS: Record<InventoryItemName, Metadata> = {
       { trait_type: "Tradable", value: "No" },
     ],
   },
+  "Oil Drill": {
+    name: "Oil Drill",
+    description:
+      "A tool used to drill for oil. It is burnt after use.\n\nYou can craft an oil drill at the Blacksmith in the game.",
+    decimals: 18,
+    external_url: "https://docs.sunflower-land.com/getting-started/about",
+    image: "../public/erc1155/images/313.png",
+    attributes: [
+      { trait_type: "Purpose", value: "Tool" },
+      { trait_type: "Tradable", value: "No" },
+    ],
+  },
   Hammer: {
     name: "Hammer",
     description:
@@ -1298,7 +1310,7 @@ export const OPEN_SEA_ITEMS: Record<InventoryItemName, Metadata> = {
   Oil: {
     name: "Oil",
     description:
-      "A resource collected by mining oil mines.\n\nIt is used to power machinery.",
+      "A resource collected by mining oil mines.\n\nIt is used to power machinery and boost cooking speed.",
     decimals: 18,
     external_url: "https://docs.sunflower-land.com/getting-started/about",
     image: "../public/erc1155/images/639.png",
@@ -7373,5 +7385,29 @@ export const OPEN_SEA_ITEMS: Record<InventoryItemName, Metadata> = {
         value: 1,
       },
     ],
+  },
+  "Beetroot Blaze": {
+    name: "Beetroot Blaze",
+    description: "A spicy beetroot-infused magic mushroom dish",
+    decimals: 0,
+    external_url: "https://docs.sunflower-land.com/getting-started/about",
+    image: "../public/erc1155/images/555.png",
+    attributes: [{ trait_type: "Purpose", value: "Consumable" }],
+  },
+  "Rapid Roast": {
+    name: "Rapid Roast",
+    description: "When you are in a hurry",
+    decimals: 0,
+    external_url: "https://docs.sunflower-land.com/getting-started/about",
+    image: "../public/erc1155/images/556.png",
+    attributes: [{ trait_type: "Purpose", value: "Consumable" }],
+  },
+  "Shroom Syrup": {
+    name: "Shroom Syrup",
+    description: "The essence of bees and enchanted fungi",
+    decimals: 0,
+    external_url: "https://docs.sunflower-land.com/getting-started/about",
+    image: "../public/erc1155/images/557.png",
+    attributes: [{ trait_type: "Purpose", value: "Consumable" }],
   },
 };

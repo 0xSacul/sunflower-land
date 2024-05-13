@@ -191,6 +191,7 @@ const tools: Record<ToolName | WorkbenchToolName | Shovel, () => boolean> = {
   "Gold Pickaxe": () => false,
   Rod: () => false,
   Shovel: () => false,
+  "Oil Drill": () => false,
 };
 
 const treasureTools: Record<TreasureToolName, () => boolean> = {
@@ -418,6 +419,9 @@ const food: Record<Food, () => boolean> = {
 };
 
 const consumables: Record<ConsumableName, () => boolean> = {
+  "Beetroot Blaze": () => false,
+  "Rapid Roast": () => false,
+  "Shroom Syrup": () => false,
   "Mashed Potato": () => false,
   "Pumpkin Soup": () => false,
   "Bumpkin Broth": () => false,
