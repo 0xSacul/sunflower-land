@@ -59,7 +59,8 @@ export type ServerId =
   | "sunflorea_dream"
   | "sunflorea_oasis"
   | "sunflorea_brazil"
-  | "sunflorea_magic";
+  | "sunflorea_magic"
+  | "creativia";
 
 type ServerName =
   | "Bliss"
@@ -67,7 +68,8 @@ type ServerName =
   | "Oasis"
   | "Brazil"
   | "Magic"
-  | "Bumpkin Bazaar";
+  | "Bumpkin Bazaar"
+  | "Creativia";
 type ServerPurpose = "Chill & Chat" | "Trading";
 
 export type Server = {
@@ -77,6 +79,12 @@ export type Server = {
   purpose: ServerPurpose;
 };
 const SERVERS: Server[] = [
+  {
+    name: "Creativia",
+    id: "creativia",
+    population: 0,
+    purpose: "Chill & Chat",
+  },
   {
     name: "Bumpkin Bazaar",
     id: "sunflorea_oasis",
@@ -175,8 +183,8 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
     farmId: 0,
     bumpkin: INITIAL_BUMPKIN,
     availableServers: SERVERS,
-    serverId: "sunflorea_bliss",
-    sceneId: "plaza",
+    serverId: "creativia",
+    sceneId: "creativia",
     experience: 0,
     isCommunity: false,
     moderation: {

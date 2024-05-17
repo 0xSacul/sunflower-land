@@ -13,6 +13,7 @@ import { CreativiaContext } from "./lib/CreativiaProvider";
 import { Chat, Message } from "./components/Chat";
 import { HudContainer } from "components/ui/HudContainer";
 import { Player } from "./lib/types";
+import { CreativiaHUD } from "./components/Hud";
 
 export const CreativiaContent: React.FC = () => {
   const game = useRef<Game>();
@@ -174,6 +175,7 @@ export const CreativiaContent: React.FC = () => {
             })
           }
         />
+        <CreativiaHUD scene={game.current?.scene.getScene(scene)} />
       </HudContainer>
 
       <CreativiaModals

@@ -113,7 +113,7 @@ export const creativiaMachine = createMachine({
 
           const client = new Client(CONFIG.ROOM_URL);
           const server: Room<PlazaRoomState> | undefined =
-            await client?.joinOrCreate<PlazaRoomState>("town", {
+            await client?.joinOrCreate<PlazaRoomState>("creativia", {
               jwt: context.jwt,
               bumpkin: game?.bumpkin,
               farmId,

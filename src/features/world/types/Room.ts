@@ -4,6 +4,7 @@ import { BumpkinParts } from "lib/utils/tokenUriBuilder";
 import { SceneId } from "../mmoMachine";
 import { Moderation } from "features/game/lib/gameMachine";
 import { FactionName } from "features/game/types/game";
+import { ObjectT } from "features/portal/creativia/components/Hud";
 
 export interface InputData {
   x: number;
@@ -83,6 +84,7 @@ export interface PlazaRoomState extends Schema {
   mapHeight: number;
 
   players: MapSchema<Player>;
+  objects: MapSchema<ObjectT>;
   buds: MapSchema<Bud>;
 
   messages: ArraySchema<Message>;

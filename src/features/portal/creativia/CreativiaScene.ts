@@ -7,11 +7,20 @@ import { creativiaModalsManager } from "./components/ModalsManager";
 // Import Maps
 import map_main from "./assets/maps/main.json";
 import { NPC_WEARABLES } from "lib/npcs";
+import { OBJECTS } from "./lib/objects";
 
 /* import map_normal_1 from "./assets/maps/normal_1.json";
 import map_normal_2 from "./assets/maps/normal_2.json";
 import map_normal_3 from "./assets/maps/normal_3.json";
 import map_normal_4 from "./assets/maps/normal_4.json"; */
+
+type ObjectT = {
+  name: string;
+  image: string;
+  size: { w: number; h: number };
+  x: number;
+  y: number;
+};
 
 export const CREATIVIA_NPCS: NPC[] = [
   {
@@ -28,11 +37,14 @@ export const CREATIVIA_NPCS: NPC[] = [
 
 export class CreativiaScene extends BaseScene {
   sceneId: SceneId = "creativia";
-  //currentTick: number = 0;
 
-  /* public get server() {
-    return this.registry.get("server") as Room<CreativiaRoomState>;
-  } */
+  buildGrid: Phaser.GameObjects.Grid | undefined;
+
+  selectedObject: ObjectT | undefined;
+  placedObjects: ObjectT[] = [];
+  objectPreview: Phaser.GameObjects.Image | undefined;
+
+  placeObjectListener: any;
 
   constructor() {
     super({
@@ -66,6 +78,19 @@ export class CreativiaScene extends BaseScene {
 
     // Init NPCs
     this.initNPCs(CREATIVIA_NPCS);
+
+    // Preload All Objects
+    this.preloadObjects();
+
+    // Place Objects from server state
+    this.mmoServer?.state.objects.forEach((object) => {
+      if (!object.x || !object.y) return;
+
+      this.placeObject(object.name, object.x, object.y);
+    });
+
+    // Create Grid
+    //this.createGrid();
   }
 
   update() {
@@ -73,6 +98,21 @@ export class CreativiaScene extends BaseScene {
 
     //this.updateOtherPlayers();
     super.update();
+
+    // Render object below mouse
+    this.renderObjectBelowMouse();
+
+    // Listen for object placed event from server
+    if (!this.placeObjectListener) {
+      this.placeObjectListener = this.mmoServer.onMessage(
+        "OBJECT_PLACED",
+        (data) => {
+          // eslint-disable-next-line no-console
+          console.log("[SERVER] OBJECT_PLACED", data);
+          this.placeObject(data.name, data.x, data.y);
+        }
+      );
+    }
   }
 
   initNPCs(npcs: NPC[]) {
@@ -116,80 +156,156 @@ export class CreativiaScene extends BaseScene {
     });
   }
 
-  /* syncPlayers() {
-    const server = this.server;
-    if (!server) return;
-
-    Object.keys(this.playerEntities).forEach((sessionId) => {
-      if (
-        !server.state.players.get(sessionId) ||
-        server.state.players.get(sessionId)?.sceneId !== this.scene.key
-      )
-        this.destroyPlayer(sessionId);
-      if (!this.playerEntities[sessionId]?.active)
-        this.destroyPlayer(sessionId);
-    });
-
-    server.state.players.forEach((player, sessionId) => {
-      if (sessionId === server.sessionId) return;
-
-      if (player.sceneId !== this.scene.key) return;
-
-      if (!this.playerEntities[sessionId]) {
-        this.playerEntities[sessionId] = this.createPlayer({
-          x: player.x,
-          y: player.y,
-          farmId: player.farmId,
-          username: player.username,
-          faction: player.faction,
-          clothing: {
-            updatedAt: 0,
-            ...player.clothing,
-          },
-          isCurrentPlayer: sessionId === server.sessionId,
-          experience: player.experience,
-        });
-      }
+  preloadObjects() {
+    OBJECTS.fences.stone.forEach((object) => {
+      this.load.image(object.name, object.image);
     });
   }
 
-  renderPlayers() {
-    const server = this.server;
-    if (!server) return;
+  renderObjectBelowMouse() {
+    if (this.buildGrid && this.selectedObject) {
+      const activePointer = this.input.activePointer;
+      const { x, y } = this.getGrideTilePosition(
+        activePointer.worldX,
+        activePointer.worldY
+      );
 
-    // Render current players
-    server.state.players.forEach((player, sessionId) => {
-      if (sessionId === server.sessionId) return;
+      const objectX = x * 16 + 8;
+      const objectY = y * 16 + 8;
 
-      const entity = this.playerEntities[sessionId];
-      if (!entity?.active) return;
+      const objectExists = this.placedObjects.find(
+        (o) => o.x === x && o.y === y
+      );
 
-      if (player.x > entity.x) {
-        entity.faceRight();
-      } else if (player.x < entity.x) {
-        entity.faceLeft();
-      }
+      // If the object is not placed in the same position, update the object position
+      if (!objectExists) {
+        if (this.objectPreview) {
+          this.objectPreview.destroy();
+        }
 
-      const distance = Phaser.Math.Distance.BetweenPoints(player, entity);
-
-      if (distance < 2) {
-        entity.idle();
+        this.objectPreview = this.add
+          .image(objectX, objectY, this.selectedObject.name)
+          .setDepth(999);
       } else {
-        entity.walk();
+        // If the object is already placed in the same position, destroy the object preview
+        this.objectPreview?.destroy();
+        this.objectPreview = undefined;
       }
+    }
+  }
 
-      entity.x = Phaser.Math.Linear(entity.x, player.x, 0.05);
-      entity.y = Phaser.Math.Linear(entity.y, player.y, 0.05);
+  placeObject(object: string, x: number, y: number) {
+    const objectData = OBJECTS.fences.stone.find((o) => o.name === object);
 
-      entity.setDepth(entity.y);
+    if (!objectData) {
+      // eslint-disable-next-line no-console
+      console.error(`Object ${object} not found`);
+      return;
+    }
+
+    if (this.placedObjects.find((o) => o.x === x && o.y === y)) {
+      // eslint-disable-next-line no-console
+      console.error(`Object already placed at x: ${x}, y: ${y}`);
+      return;
+    }
+
+    this.placedObjects.push({ ...objectData, x, y });
+    // eslint-disable-next-line no-console
+    console.log(`Placing Object: ${object} at x: ${x}, y: ${y}`);
+
+    // Calculate the object position based on the cell position and place the object
+    const objectX = x * 16 + 8; // 16 is the tile width and 8 is half of it to center the object
+    const objectY = y * 16 + 8; // same as above are you still reading this?
+    const Object = this.add.image(objectX, objectY, object).setDepth(y * 16);
+
+    // Some harry potter magic to make the object collidable
+    this.physics.add.existing(
+      this.add.image(objectX, objectY, object).setDepth(y * 16)
+    );
+
+    // Prevent player from walking through the object
+    if (this.currentPlayer) {
+      this.physics.add.collider(this.currentPlayer, Object);
+      this.colliders?.add(Object);
+    }
+
+    // Destroy the object preview
+    this.objectPreview?.destroy();
+    this.objectPreview = undefined;
+
+    // Send to server for live update
+    this.mmoServer?.send("OBJECT_PLACED", { ...objectData, x, y });
+  }
+
+  getGrideTilePosition(x: number, y: number) {
+    const tileWidth = 16;
+    const tileHeight = 16;
+
+    const cellX = Math.floor(x / tileWidth);
+    const cellY = Math.floor(y / tileHeight);
+
+    return { x: cellX, y: cellY };
+  }
+
+  createGrid() {
+    const tileWidth = 16;
+    const tileHeight = 16;
+    const mapWidth = this.map.widthInPixels;
+    const mapHeight = this.map.heightInPixels;
+
+    this.buildGrid = this.add.grid(
+      mapWidth / 2,
+      mapHeight / 2,
+      mapWidth,
+      mapHeight,
+      tileWidth,
+      tileHeight,
+      0x000000,
+      0,
+      0x000000,
+      0.1
+    );
+
+    this.buildGrid.setOrigin(0.5, 0.5);
+    this.buildGrid.setDepth(1000);
+    this.buildGrid.setInteractive();
+
+    this.buildGrid.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+      if (this.selectedObject) {
+        const { x, y } = this.getGrideTilePosition(
+          pointer.worldX,
+          pointer.worldY
+        );
+        this.placeObject(this.selectedObject.name, x, y);
+      }
     });
   }
 
-  updateOtherPlayers() {
-    const server = this.server;
-    if (!server) return;
+  destoyGrid() {
+    if (this.buildGrid) {
+      this.buildGrid.destroy();
+      this.buildGrid = undefined;
+    }
+  }
 
-    this.syncPlayers();
-    this.renderPlayers();
-  } */
+  public toggleDesignMode() {
+    if (this.buildGrid) {
+      // eslint-disable-next-line no-console
+      console.log("Destroying Grid");
+      this.destoyGrid();
+      this.selectedObject = undefined;
+      this.objectPreview?.destroy();
+      this.objectPreview = undefined;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log("Creating Grid");
+      this.createGrid();
+    }
+  }
+
+  public objectSelected(object: ObjectT) {
+    // eslint-disable-next-line no-console
+    console.log("Object Selected: ", object);
+    this.selectedObject = object;
+  }
 }
