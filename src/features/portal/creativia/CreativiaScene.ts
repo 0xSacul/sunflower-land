@@ -29,8 +29,8 @@ export const CREATIVIA_NPCS: NPC[] = [
     name: "Sacul",
   },
   {
-    x: 175,
-    y: 445,
+    x: 232,
+    y: 475,
     name: "Bill",
   },
 ];
