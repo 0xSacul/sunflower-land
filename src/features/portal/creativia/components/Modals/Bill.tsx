@@ -29,7 +29,7 @@ export const BillModal: React.FC<Props> = ({
   const [onlineIslands, setOnlineIslands] = useState<OnlineIsland[]>([]);
 
   const getOnlineIslands = () => {
-    client?.getAvailableRooms("town").then((islands) => {
+    client?.getAvailableRooms("creativia").then((islands) => {
       setOnlineIslands(islands as OnlineIsland[]);
     });
   };
