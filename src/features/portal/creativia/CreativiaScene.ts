@@ -71,7 +71,7 @@ export class CreativiaScene extends BaseScene {
     });
   }
 
-  create() {
+  async create() {
     this.map = this.make.tilemap({ key: "creativia" });
 
     super.create();
@@ -80,7 +80,7 @@ export class CreativiaScene extends BaseScene {
     this.initNPCs(CREATIVIA_NPCS);
 
     // Preload All Objects
-    this.preloadObjects();
+    await this.preloadObjects();
 
     // Place Objects from server state
     this.mmoServer?.state.objects.forEach((object) => {
@@ -156,9 +156,18 @@ export class CreativiaScene extends BaseScene {
     });
   }
 
-  preloadObjects() {
-    OBJECTS.fences.stone.forEach((object) => {
+  async preloadObjects() {
+    /* OBJECTS.fences.stone.forEach((object) => {
       this.load.image(object.name, object.image);
+    }); */
+
+    for (const object of OBJECTS.fences.stone) {
+      this.load.image(object.name, object.image);
+    }
+
+    await new Promise((resolve) => {
+      this.load.once("complete", resolve);
+      this.load.start();
     });
   }
 
