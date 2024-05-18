@@ -60,6 +60,7 @@ export const CreativiaContent: React.FC = () => {
       physics: {
         default: "arcade",
         arcade: {
+          debug: true,
           gravity: { y: 0 },
         },
       },

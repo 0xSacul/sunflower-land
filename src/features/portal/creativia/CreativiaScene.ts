@@ -91,6 +91,7 @@ export class CreativiaScene extends BaseScene {
 
     // Create Grid
     //this.createGrid();
+    this.physics.world.createDebugGraphic();
   }
 
   update() {
@@ -227,23 +228,28 @@ export class CreativiaScene extends BaseScene {
     const objectY = y * 16 + 8; // same as above are you still reading this?
     const Object = this.add.image(objectX, objectY, object).setDepth(y * 16);
 
-    // Some harry potter magic to make the object collidable
-    this.physics.add.existing(
-      this.add.image(objectX, objectY, object).setDepth(y * 16)
-    );
+    // Enable physics for the object
+    this.physics.world.enable(Object);
+    this.colliders?.add(Object);
 
-    // Prevent player from walking through the object
-    if (this.currentPlayer) {
-      this.physics.add.collider(this.currentPlayer, Object);
-      this.colliders?.add(Object);
-    }
+    // Apply collision properties
+    (Object.body as Phaser.Physics.Arcade.Body)
+      .setSize(objectData.size.w, objectData.size.h / 2)
+      // Center the height of the object of the offset
+      .setOffset(0, objectData.size.h / 2)
+      .setImmovable(true)
+      .setCollideWorldBounds(true);
 
     // Destroy the object preview
-    this.objectPreview?.destroy();
-    this.objectPreview = undefined;
+    if (this.objectPreview) {
+      this.objectPreview.destroy();
+      this.objectPreview = undefined;
+    }
 
     // Send to server for live update
-    this.mmoServer?.send("OBJECT_PLACED", { ...objectData, x, y });
+    if (this.mmoServer) {
+      this.mmoServer?.send("OBJECT_PLACED", { ...objectData, x, y });
+    }
   }
 
   getGrideTilePosition(x: number, y: number) {
