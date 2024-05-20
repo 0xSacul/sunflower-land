@@ -260,13 +260,33 @@ import { Clock } from "./components/Clock";
 import { Vinny } from "./components/Vinny";
 import { KnightChicken } from "./components/KnightChicken";
 import { BattleFish } from "./components/BattleFish";
+import { GauchoRug } from "./components/GauchoRug";
+import { BattlecryDrum } from "./components/BattleCryDrum";
+import { BullseyeBoard } from "./components/BullseyeBoard";
+import { ChessRug } from "./components/ChessRug";
+import { GoldenGallant } from "./components/GoldenGallant";
+import { GoldenGarrison } from "./components/GoldenGarrison";
+import { GoldenGuardian } from "./components/GoldenGuardian";
+import { NoviceKnight } from "./components/NoviceKnight";
+import { RegularPawn } from "./components/RegularPawn";
+import { RookieRook } from "./components/RookieRook";
+import { SilverSentinel } from "./components/SilverSentinel";
+import { SilverSquire } from "./components/SilverSquire";
+import { SilverStallion } from "./components/SilverStallion";
+import { TraineeTarget } from "./components/TraineeTarget";
+import { TwisterRug } from "./components/TwisterRug";
+import { Cluckapult } from "./components/Cluckapult";
+import { DesertGnome } from "./components/DesertGnome";
 
 // TODO: Remove partial once all placeable treasures have been added (waiting on artwork)
+import { RicePanda } from "./components/RicePanda";
 
 export const COLLECTIBLE_COMPONENTS: Record<
   CollectibleName | "Bud",
   React.FC<CollectibleProps>
 > = {
+  "Gaucho Rug": GauchoRug,
+
   "Hungry Hare": HungryHare,
   "Community Egg": CommunityEgg,
   Baozi: Baozi,
@@ -465,6 +485,7 @@ export const COLLECTIBLE_COMPONENTS: Record<
   Clementine: Clementine,
   Cobalt: Cobalt,
   Blossombeard: Blossombeard,
+  "Desert Gnome": DesertGnome,
 
   // Dawn Breaker items
   "Mushroom House": MushroomHouse,
@@ -568,6 +589,22 @@ export const COLLECTIBLE_COMPONENTS: Record<
   "Fancy Rug": FancyRug,
   Clock: Clock,
   Vinny: Vinny,
+  "Battlecry Drum": BattlecryDrum,
+  "Bullseye Board": BullseyeBoard,
+  "Chess Rug": ChessRug,
+  "Golden Gallant": GoldenGallant,
+  "Golden Garrison": GoldenGarrison,
+  "Golden Guardian": GoldenGuardian,
+  "Novice Knight": NoviceKnight,
+  "Regular Pawn": RegularPawn,
+  "Rookie Rook": RookieRook,
+  "Silver Sentinel": SilverSentinel,
+  "Silver Squire": SilverSquire,
+  "Silver Stallion": SilverStallion,
+  "Trainee Target": TraineeTarget,
+  "Twister Rug": TwisterRug,
+  Cluckapult: Cluckapult,
+  "Rice Panda": RicePanda,
 };
 // Need readonly versions for some troublesome components while in design mode
 

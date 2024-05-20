@@ -74,39 +74,36 @@ const ListTrade: React.FC<{
         </div>
 
         <div className="flex flex-wrap ">
-          {getKeys(TRADE_LIMITS)
-            .filter((name) => !!inventory[name]?.gte(1))
-
-            .map((name) => (
-              <div
-                key={name}
-                className="w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6 pr-1 pb-1 mb-2"
+          {getKeys(TRADE_LIMITS).map((name) => (
+            <div
+              key={name}
+              className="w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6 pr-1 pb-1 mb-2"
+            >
+              <OuterPanel
+                className="w-full relative flex flex-col items-center justify-center cursor-pointer hover:bg-brown-200"
+                onClick={() => {
+                  setSelected(name);
+                }}
               >
-                <OuterPanel
-                  className="w-full relative flex flex-col items-center justify-center cursor-pointer hover:bg-brown-200"
-                  onClick={() => {
-                    setSelected(name);
-                  }}
+                <Label type="default" className="absolute -top-3 -right-2">
+                  {`${setPrecision(new Decimal(inventory?.[name] ?? 0), 0)}`}
+                </Label>
+                <span className="text-xs mb-1">{name}</span>
+                <img src={ITEM_DETAILS[name].image} className="h-10 mb-6" />
+                <Label
+                  type="warning"
+                  className="absolute -bottom-2 text-center mt-1 p-1"
+                  style={{ width: "calc(100% + 10px)" }}
                 >
-                  <Label type="default" className="absolute -top-3 -right-2">
-                    {`${setPrecision(new Decimal(inventory?.[name] ?? 0), 0)}`}
-                  </Label>
-                  <span className="text-xs mb-1">{name}</span>
-                  <img src={ITEM_DETAILS[name].image} className="h-10 mb-6" />
-                  <Label
-                    type="warning"
-                    className="absolute -bottom-2 text-center mt-1 p-1"
-                    style={{ width: "calc(100% + 10px)" }}
-                  >
-                    {t("bumpkinTrade.price/unit", {
-                      price: floorPrices[name]
-                        ? setPrecision(new Decimal(floorPrices[name] ?? 0))
-                        : "?",
-                    })}
-                  </Label>
-                </OuterPanel>
-              </div>
-            ))}
+                  {t("bumpkinTrade.price/unit", {
+                    price: floorPrices[name]
+                      ? setPrecision(new Decimal(floorPrices[name] ?? 0))
+                      : "?",
+                  })}
+                </Label>
+              </OuterPanel>
+            </div>
+          ))}
         </div>
       </div>
     );

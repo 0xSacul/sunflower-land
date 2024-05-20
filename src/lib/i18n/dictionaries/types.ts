@@ -44,6 +44,7 @@ export type GeneralTerms =
   | "claim"
   | "clear"
   | "close"
+  | "coins"
   | "collect"
   | "coming.soon"
   | "common"
@@ -118,6 +119,7 @@ export type GeneralTerms =
   | "gotIt"
   | "goto"
   | "grant.wish"
+  | "greenhouse"
   | "guide"
   | "harvested"
   | "honey"
@@ -419,7 +421,9 @@ export type AddSFL =
 
 export type AvailableSeeds =
   | "availableSeeds.select"
-  | "availableSeeds.select.plant";
+  | "availableSeeds.select.plant"
+  | "quickSelect.label"
+  | "quickSelect.empty";
 
 export type Base = "base.missing" | "base.far.away";
 
@@ -433,6 +437,9 @@ export type BasicTreasure =
   | "basic.treasure.key"
   | "basic.treasure.congratsKey"
   | "basic.treasure.openChest"
+  | "giftGiver.label"
+  | "giftGiver.opened"
+  | "giftGiver.description"
   | "budBox.open"
   | "budBox.opened"
   | "budBox.title"
@@ -633,6 +640,7 @@ export type BoostEffectDescriptions =
   | "description.genie.lamp.boost"
   | "description.observatory.boost"
   | "description.blossombeard.boost"
+  | "description.desertgnome.boost"
   | "description.christmas.festive.tree.boost"
   | "description.grinxs.hammer.boost"
   | "description.time.warp.totem.boost"
@@ -647,7 +655,8 @@ export type BoostEffectDescriptions =
   | "description.paw.shield.boost"
   | "description.olive.shield.boost"
   | "description.pan.boost"
-  | "description.vinny.boost";
+  | "description.vinny.boost"
+  | "description.rice.panda.boost";
 
 export type BountyDescription =
   | "description.clam.shell"
@@ -671,6 +680,7 @@ export type BuildingDescriptions =
   | "description.compost.bin"
   | "description.hen.house"
   | "description.bakery"
+  | "description.greenhouse"
   | "description.turbo.composter"
   | "description.deli"
   | "description.smoothie.shack"
@@ -964,6 +974,12 @@ export type CropFruitDescriptions =
   | "description.radish"
   | "description.wheat"
   | "description.kale"
+  | "description.soybean"
+
+  // Greenhouse
+  | "description.rice"
+  | "description.olive"
+  | "description.grape"
 
   //Fruit
   | "description.blueberry"
@@ -1157,6 +1173,7 @@ export type DecorationDescriptions =
   | "description.shroom.glow"
   | "description.clementine"
   | "description.blossombeard"
+  | "description.desertgnome"
   | "description.cobalt"
   | "description.hoot"
   | "description.genie.bear"
@@ -1184,6 +1201,21 @@ export type DecorationDescriptions =
   | "description.parrotFish"
   | "description.Farmhand"
   | "description.Beehive"
+  | "description.battleCryDrum"
+  | "description.bullseyBoard"
+  | "description.chessRug"
+  | "description.cluckapult"
+  | "description.goldenGallant"
+  | "description.goldenGarrison"
+  | "description.goldenGurdian"
+  | "description.noviceKnight"
+  | "description.regularPawn"
+  | "description.rookieRook"
+  | "description.silverSentinel"
+  | "description.silverStallion"
+  | "description.silverSquire"
+  | "description.traineeTarget"
+  | "description.twisterRug"
 
   //Flowers
   | "description.red.pansy"
@@ -1211,6 +1243,7 @@ export type DecorationDescriptions =
   | "description.flower.fox"
   | "description.hungry.caterpillar"
   | "description.sunrise.bloom.rug"
+  | "description.gauchoRug"
   | "description.blossom.royale"
   | "description.rainbow"
   | "description.enchanted.rose"
@@ -1248,7 +1281,8 @@ export type DecorationDescriptions =
   | "description.goblet"
   | "description.fancy.rug"
   | "description.clock"
-  | "description.vinny";
+  | "description.vinny"
+  | "description.ricePanda";
 
 export type Delivery =
   | "delivery.resource"
@@ -1297,7 +1331,14 @@ export type DraftBid =
   | "draftBid.unsuccessfulParticipants"
   | "draftBid.termsAndConditions";
 
-export type Donation = "donation.one";
+export type Donation =
+  | "donation.one"
+  | "donation.specialEvent"
+  | "donation.rioGrandeDoSul.one"
+  | "donation.rioGrandeDoSul.two"
+  | "donation.matic"
+  | "donation.minimum"
+  | "donation.airdrop";
 
 export type ErrorAndAccess =
   | "errorAndAccess.blocked.betaTestersOnly"
@@ -1601,6 +1642,23 @@ export type FoodDescriptions =
   | "description.popcorn"
   | "description.gumbo"
   | "description.rapidRoast"
+  | "description.carrotJuice"
+  | "description.fishBasket"
+  | "description.fishBurger"
+  | "description.fishnChips"
+  | "description.fishOmelette"
+  | "description.friedCalamari"
+  | "description.friedTofu"
+  | "description.grapeJuice"
+  | "description.oceansOlive"
+  | "description.quickJuice"
+  | "description.riceBun"
+  | "description.slowJuice"
+  | "description.steamedRedRice"
+  | "description.sushirRoll"
+  | "description.theLot"
+  | "description.tofuScramble"
+  | "description.antipasto"
 
   //Kitchen
   | "description.roast.veggies"
@@ -1911,9 +1969,11 @@ export type Islandupgrade =
   | "islandupgrade.locked"
   | "islandupgrade.exploring"
   | "islandupgrade.welcomePetalParadise"
+  | "islandupgrade.welcomeDesertIsland"
   | "islandupgrade.itemsReturned"
   | "islandupgrade.notReadyExpandMore"
   | "islandupgrade.exoticResourcesDescription"
+  | "islandupgrade.desertResourcesDescription"
   | "islandupgrade.requiredIsland";
 
 export type InteractableModals =
@@ -2791,6 +2851,7 @@ export type SeasonTerms =
   | "season.free.season.passes"
   | "season.vip.access"
   | "season.vip.description"
+  | "season.vip.claim"
   | "season.mystery.gift"
   | "season.xp.boost"
   | "season.free.season.passes.description"
@@ -3220,7 +3281,8 @@ export type Leaderboard =
   | "leaderboard.error"
   | "leaderboard.initialising"
   | "leaderboard.topTen"
-  | "leaderboard.yourPosition";
+  | "leaderboard.yourPosition"
+  | "leaderboard.factionMembers";
 
 export type GameOptions =
   | "gameOptions.title"
@@ -3250,6 +3312,9 @@ export type GameOptions =
   | "gameOptions.logout"
   | "gameOptions.confirmLogout";
 
+export type GreenhouseKeys =
+  | "greenhouse.oilRequired"
+  | "greenhouse.oilDescription";
 export type TranslationKeys =
   | AchievementsTerms
   | Auction
@@ -3319,6 +3384,7 @@ export type TranslationKeys =
   | GOBLIN_MESSAGES
   | GoblinTrade
   | GoldTooth
+  | GreenhouseKeys
   | GuideTerms
   | GuideCompost
   | GuideCompost

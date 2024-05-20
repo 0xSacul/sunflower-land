@@ -6,7 +6,7 @@ import { ChoreV2, ChoreV2Name, GameState, Inventory } from "../types/game";
 import { BumpkinLevel } from "features/game/lib/level";
 import { getEnabledNodeCount } from "../expansion/lib/expansionNodes";
 import { INITIAL_BUMPKIN, INITIAL_BUMPKIN_LEVEL } from "./bumpkinData";
-import { makeMegaStoreAvailableDates } from "./constants";
+import { EMPTY, makeMegaStoreAvailableDates } from "./constants";
 export const INITIAL_RESOURCES: Pick<
   GameState,
   | "crops"
@@ -147,20 +147,7 @@ export const INITIAL_RESOURCES: Pick<
     },
   },
   crimstones: {},
-  oilReserves: {
-    1: {
-      createdAt: 0,
-      drilled: 0,
-      oil: {
-        amount: 10,
-        drilledAt: 0,
-      },
-      x: -3,
-      y: 6,
-      height: 2,
-      width: 2,
-    },
-  },
+  oilReserves: {},
   fruitPatches: {
     1: {
       x: 7,
@@ -207,6 +194,7 @@ const INITIAL_STOCK: Inventory = {
   "Pumpkin Seed": new Decimal(100),
   "Carrot Seed": new Decimal(100),
   "Cabbage Seed": new Decimal(90),
+  "Soybean Seed": new Decimal(80),
   "Beetroot Seed": new Decimal(80),
   "Cauliflower Seed": new Decimal(80),
   "Parsnip Seed": new Decimal(60),
@@ -285,6 +273,11 @@ const OFFLINE_FARM_FRUIT = getEnabledNodeCount(
 );
 
 export const STATIC_OFFLINE_FARM: GameState = {
+  ...EMPTY,
+  greenhouse: {
+    pots: {},
+    oil: 5,
+  },
   home: {
     collectibles: {
       Wardrobe: [
@@ -312,7 +305,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     },
   },
   island: {
-    type: "basic",
+    type: "desert",
   },
   mysteryPrizes: {},
   mushrooms: {
@@ -351,7 +344,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     spawnedAt: 0,
   },
   farmHands: { bumpkins: {} },
-  bumpkin: { ...INITIAL_BUMPKIN, experience: 100000 },
+  bumpkin: { ...INITIAL_BUMPKIN, experience: 100000000 },
   buds: {
     1: {
       aura: "Basic",
@@ -368,7 +361,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
       type: "Woodlands",
     },
   },
-  coins: 100,
+  coins: 10000000,
   balance: new Decimal(100),
   previousBalance: new Decimal(0),
   previousInventory: {
@@ -403,9 +396,23 @@ export const STATIC_OFFLINE_FARM: GameState = {
     } as Record<ChoreV2Name, ChoreV2>,
   },
   inventory: {
+    Oil: new Decimal(500),
+    Manor: new Decimal(1),
+    House: new Decimal(1),
+    "Rice Seed": new Decimal(10),
+    "Grape Seed": new Decimal(10),
+    "Olive Seed": new Decimal(10),
+    "Apple Seed": new Decimal(10),
+    Bakery: new Decimal(1),
+    Deli: new Decimal(1),
+    Greenhouse: new Decimal(1),
+    "Desert Gnome": new Decimal(1),
+    Blossombeard: new Decimal(1),
+    Gnome: new Decimal(1),
+    Cobalt: new Decimal(1),
     Potato: new Decimal(200),
     Pumpkin: new Decimal(200),
-    "Oil Reserve": new Decimal(1),
+    "Oil Reserve": new Decimal(0),
     "Oil Drill": new Decimal(5),
     "Battle Fish": new Decimal(1),
     "Knight Chicken": new Decimal(1),
@@ -447,19 +454,34 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Town Center": new Decimal(1),
     Market: new Decimal(1),
     Workbench: new Decimal(1),
-    "Basic Land": new Decimal(5),
+    "Basic Land": new Decimal(25),
     Gold: new Decimal(13),
-    // "Gold Pass": new Decimal(1),
+    "Gold Pass": new Decimal(1),
     "Crop Plot": new Decimal(OFFLINE_FARM_CROPS),
     "Water Well": new Decimal(4),
     Tree: new Decimal(3),
-    Blossombeard: new Decimal(1),
     "Stone Rock": new Decimal(2),
     "Iron Rock": new Decimal(OFFLINE_FARM_IRON),
     "Gold Rock": new Decimal(OFFLINE_FARM_GOLD),
     "Crimstone Rock": new Decimal(0),
+    "Gaucho Rug": new Decimal(1),
     "Sunstone Rock": new Decimal(0),
     "Fruit Patch": new Decimal(0),
+    "Battlecry Drum": new Decimal(5),
+    "Bullseye Board": new Decimal(5),
+    "Chess Rug": new Decimal(5),
+    Cluckapult: new Decimal(5),
+    "Golden Gallant": new Decimal(5),
+    "Golden Garrison": new Decimal(5),
+    "Golden Guardian": new Decimal(5),
+    "Novice Knight": new Decimal(5),
+    "Regular Pawn": new Decimal(5),
+    "Rookie Rook": new Decimal(5),
+    "Silver Sentinel": new Decimal(5),
+    "Silver Squire": new Decimal(5),
+    "Silver Stallion": new Decimal(5),
+    "Trainee Target": new Decimal(5),
+    "Twister Rug": new Decimal(5),
     Egg: new Decimal(12),
     Beehive: new Decimal(0),
     Banana: new Decimal(12),
@@ -615,8 +637,6 @@ export const STATIC_OFFLINE_FARM: GameState = {
 
   createdAt: new Date().getTime(),
 
-  ...INITIAL_RESOURCES,
-
   conversations: ["hank-intro"],
 
   fishing: {
@@ -649,65 +669,19 @@ export const STATIC_OFFLINE_FARM: GameState = {
     },
   },
   buildings: {
-    "Town Center": [
+    Greenhouse: [
       {
-        id: "123",
-        readyAt: 0,
         coordinates: {
-          x: 2,
-          y: 3,
+          x: -2,
+          y: -2,
         },
         createdAt: 0,
-      },
-    ],
-    Workbench: [
-      {
-        id: "123",
+        id: "1",
         readyAt: 0,
-        coordinates: {
-          x: 4,
-          y: 8,
-        },
-        createdAt: 0,
-      },
-    ],
-
-    Market: [
-      {
-        id: "123",
-        readyAt: 0,
-        coordinates: {
-          x: 6,
-          y: 5,
-        },
-        createdAt: 0,
-      },
-    ],
-    "Fire Pit": [
-      {
-        id: "123",
-        readyAt: 0,
-        coordinates: {
-          x: 3,
-          y: -1,
-        },
-        createdAt: 0,
       },
     ],
   },
-  collectibles: {
-    // "Golden Cauliflower": [
-    //   {
-    //     id: "123",
-    //     createdAt: 0,
-    //     readyAt: 0,
-    //     coordinates: {
-    //       x: 3,
-    //       y: 3,
-    //     },
-    //   },
-    // ],
-  },
+  collectibles: {},
   pumpkinPlaza: {
     raffle: {
       entries: {
@@ -770,6 +744,19 @@ export const STATIC_OFFLINE_FARM: GameState = {
     },
   },
 
+  ...INITIAL_RESOURCES,
+  flowers: {
+    discovered: {},
+    flowerBeds: {
+      "123": {
+        createdAt: 0,
+        height: 1,
+        width: 3,
+        x: 2,
+        y: 0,
+      },
+    },
+  },
   farmActivity: {},
   milestones: {},
   catchTheKraken: {

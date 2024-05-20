@@ -36,6 +36,7 @@ export const MARKET_BUNDLES: Record<TradeableName, number> = {
   Pumpkin: 2000,
   Carrot: 2000,
   Cabbage: 2000,
+  Soybean: 2000,
   Beetroot: 1000,
   Cauliflower: 1000,
   Parsnip: 400,
@@ -265,7 +266,12 @@ export const SalesPanel: React.FC<{
                 onUpgrade={() => openModal("BUY_BANNER")}
               />
               {marketPrices && (
-                <div className={classNames("", { "opacity-75": !hasVIP })}>
+                <div
+                  className={classNames(
+                    "flex items-center justify-start sm:justify-end w-64",
+                    { "opacity-75": !hasVIP }
+                  )}
+                >
                   <LastUpdated cachedAt={marketPrices.cachedAt ?? 0} />
                 </div>
               )}

@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Decimal } from "decimal.js-light";
 
-import { CropName, CropSeedName } from "./crops";
+import {
+  CropName,
+  CropSeedName,
+  GreenHouseCropName,
+  GreenHouseCropSeedName,
+} from "./crops";
 
 import { CollectibleName, CraftableName, Food } from "./craftables";
 import { CommodityName, MushroomName, ResourceName } from "./resources";
@@ -15,7 +20,12 @@ import { AchievementName } from "./achievements";
 import { BumpkinActivityName } from "./bumpkinActivity";
 import { DecorationName } from "./decorations";
 import { BeanName, ExoticCropName, MutantCropName } from "./beans";
-import { FruitName, FruitSeedName } from "./fruits";
+import {
+  FruitName,
+  FruitSeedName,
+  GreenHouseFruitName,
+  GreenHouseFruitSeedName,
+} from "./fruits";
 import { TreasureName } from "./treasure";
 import {
   GoblinBlacksmithItemName,
@@ -297,6 +307,10 @@ export type InventoryItemName =
   | FruitName
   | FruitSeedName
   | FlowerSeedName
+  | GreenHouseFruitSeedName
+  | GreenHouseFruitName
+  | GreenHouseCropName
+  | GreenHouseCropSeedName
   | CraftableName
   | CommodityName
   | ResourceName
@@ -448,6 +462,16 @@ export type CropPlot = {
   createdAt: number;
 } & Position;
 
+export type GreenhousePlant = {
+  name: GreenHouseCropName | GreenHouseFruitName;
+  plantedAt: number;
+  amount: number;
+};
+
+export type GreenhousePot = {
+  plant?: GreenhousePlant;
+};
+
 export type FruitPatch = {
   fruit?: PlantedFruit;
   fertiliser?: FruitFertiliser;
@@ -521,6 +545,7 @@ export type ExpansionConstruction = {
 
 export interface ExpansionRequirements {
   resources: Partial<Record<InventoryItemName, number>>;
+  coins?: number;
   seconds: number;
   bumpkinLevel: number;
 }
@@ -925,6 +950,7 @@ export interface GameState {
     type: IslandType;
     upgradedAt?: number;
     previousExpansions?: number;
+    sunstones?: number;
   };
 
   username?: string;
@@ -968,6 +994,10 @@ export interface GameState {
   oilReserves: Record<string, OilReserve>;
 
   crops: Record<string, CropPlot>;
+  greenhouse: {
+    oil: number;
+    pots: Record<string, GreenhousePot>;
+  };
   fruitPatches: Record<string, FruitPatch>;
   beehives: Beehives;
   flowers: {
@@ -1010,6 +1040,12 @@ export interface GameState {
     };
     raffle?: {
       entries: Record<string, number>;
+    };
+    vipChest?: {
+      openedAt: number;
+    };
+    giftGiver?: {
+      openedAt: number;
     };
   };
   conversations: ConversationName[];

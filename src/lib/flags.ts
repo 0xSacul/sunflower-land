@@ -18,14 +18,17 @@ const clashOfFactionsFeatureFlag = () => {
  *
  * Do not delete JEST_TEST.
  */
-type FeatureName =
+export type FeatureName =
   | "JEST_TEST"
+  | "GREENHOUSE"
   | "PORTALS"
   | "EASTER"
   | "FACTIONS"
   | "FACTION_LEADERBOARD"
   | "SOUND"
-  | "BANNER_SALES";
+  | "BANNER_SALES"
+  | "PRESTIGE_DESERT"
+  | "DESERT_RECIPES";
 
 // Used for testing production features
 export const ADMIN_IDS = [1, 2, 3, 39488];
@@ -35,6 +38,7 @@ type FeatureFlag = (game: GameState) => boolean;
 const featureFlags: Record<FeatureName, FeatureFlag> = {
   PORTALS: testnetFeatureFlag,
   JEST_TEST: defaultFeatureFlag,
+  DESERT_RECIPES: defaultFeatureFlag,
   EASTER: (game) => {
     // Event ended
     if (Date.now() > new Date("2024-04-08T00:00:00Z").getTime()) return false;
@@ -47,6 +51,8 @@ const featureFlags: Record<FeatureName, FeatureFlag> = {
   FACTION_LEADERBOARD: clashOfFactionsFeatureFlag,
   SOUND: testnetFeatureFlag,
   BANNER_SALES: clashOfFactionsFeatureFlag,
+  PRESTIGE_DESERT: defaultFeatureFlag,
+  GREENHOUSE: defaultFeatureFlag,
 };
 
 export const hasFeatureAccess = (game: GameState, featureName: FeatureName) => {

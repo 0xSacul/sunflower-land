@@ -37,6 +37,7 @@ export const TRADE_LIMITS: Partial<Record<InventoryItemName, number>> = {
   Pumpkin: 2000,
   Carrot: 2000,
   Cabbage: 2000,
+  Soybean: 2000,
   Beetroot: 1000,
   Cauliflower: 1000,
   Parsnip: 1000,
@@ -221,7 +222,7 @@ export const BuyPanel: React.FC<{
       setLoading(true);
     };
 
-    const Action = (listing: Listing) => {
+    const getAction = (listing: Listing) => {
       if (listing.farmId == farmId) {
         return (
           <div className="flex items-center mt-1  justify-end mr-0.5">
@@ -315,7 +316,7 @@ export const BuyPanel: React.FC<{
                         />
                       ))}
                       <div className="ml-1">
-                        <div className="flex justfy-end items-center mb-1">
+                        <div className="flex justify-end items-center mb-1">
                           <img src={token} className="h-6 mr-1" />
                           <p className="text-xs">{`${selectedListing.sfl} SFL`}</p>
                         </div>
@@ -398,7 +399,7 @@ export const BuyPanel: React.FC<{
                     </div>
                   </div>
 
-                  <div>{Action(listing)}</div>
+                  <div>{getAction(listing)}</div>
                 </div>
               </OuterPanel>
             );
@@ -440,7 +441,7 @@ export const BuyPanel: React.FC<{
               {remainingFreePurchases == 0
                 ? `${t("remaining.free.purchase")}`
                 : `${t("remaining.free.purchases", {
-                    listingsRemaining: hasPurchasesRemaining
+                    purchasesRemaining: hasPurchasesRemaining
                       ? remainingFreePurchases
                       : "No",
                   })}`}

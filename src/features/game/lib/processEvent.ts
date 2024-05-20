@@ -18,6 +18,7 @@ export const maxItems: Inventory = {
   Pumpkin: new Decimal("16000"),
   Carrot: new Decimal("14000"),
   Cabbage: new Decimal("12000"),
+  Soybean: new Decimal("12000"),
   Beetroot: new Decimal("10000"),
   Cauliflower: new Decimal("10000"),
   Parsnip: new Decimal("8000"),
@@ -31,6 +32,10 @@ export const maxItems: Inventory = {
   Orange: new Decimal("900"),
   Blueberry: new Decimal("900"),
   Banana: new Decimal("600"),
+
+  Olive: new Decimal("250"),
+  Grape: new Decimal("250"),
+  Rice: new Decimal("250"),
 
   Chicken: new Decimal("20"),
   Egg: new Decimal("800"),
@@ -48,6 +53,7 @@ export const maxItems: Inventory = {
   "Pumpkin Seed": new Decimal(530),
   "Carrot Seed": new Decimal(350),
   "Cabbage Seed": new Decimal(350),
+  "Soybean Seed": new Decimal(350),
   "Beetroot Seed": new Decimal(320),
   "Cauliflower Seed": new Decimal(290),
   "Parsnip Seed": new Decimal(230),
@@ -63,6 +69,9 @@ export const maxItems: Inventory = {
   "Sunpetal Seed": new Decimal(100),
   "Bloom Seed": new Decimal(100),
   "Lily Seed": new Decimal(100),
+  "Olive Seed": new Decimal(100),
+  "Grape Seed": new Decimal(100),
+  "Rice Seed": new Decimal(100),
 
   "Red Pansy": new Decimal("80"),
   "Yellow Pansy": new Decimal("80"),
@@ -190,6 +199,7 @@ export const maxItems: Inventory = {
   // Seasonal decorations - Dawnbreaker
   Clementine: new Decimal(1),
   Blossombeard: new Decimal(1),
+  "Desert Gnome": new Decimal(1),
   Cobalt: new Decimal(1),
   "Eggplant Grill": new Decimal(1),
   "Giant Dawn Mushroom": new Decimal(5),

@@ -14,7 +14,7 @@ import { Luna } from "./npcs/Luna";
 import { NyeButton } from "./NyeButton";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { BasicTreasureChest } from "./chests/BasicTreasureChest";
-import { Donations } from "./donations/Donations";
+import { CommunityDonations } from "./donations/Donations";
 import { SceneId } from "../mmoMachine";
 import { TradingBoard } from "./npcs/TradingBoard";
 import { BudBox } from "./chests/BudBox";
@@ -25,11 +25,13 @@ import { GarbageCollectorModal } from "features/helios/components/garbageCollect
 import { WishingWellModal } from "features/game/components/bank/components/WishingWellModal";
 import { GoblinMarket } from "./market/GoblinMarket";
 import { FactionModalContent } from "./factions/FactionModalContent";
+import { VIPGift } from "./VIPGift";
 
 export type FanArtNPC = "fan_npc_1" | "fan_npc_2" | "fan_npc_3" | "fan_npc_4";
 
 type InteractableName =
   | FanArtNPC
+  | "vip_chest"
   | "donations"
   | "garbage_collector"
   | "basic_chest"
@@ -126,6 +128,10 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
 
   return (
     <>
+      <Modal show={interactable === "vip_chest"} onHide={closeModal}>
+        <VIPGift onClose={closeModal} />
+      </Modal>
+
       {/* TODO - make smoother opening */}
       {interactable === "auction_item" && (
         <AuctionHouseModal
@@ -136,7 +142,7 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
       )}
       <Modal show={interactable === "donations"} onHide={closeModal}>
         <CloseButtonPanel title={t("enjoying.event")} onClose={closeModal}>
-          <Donations />
+          <CommunityDonations />
         </CloseButtonPanel>
       </Modal>
       {interactable === "potion_table" && <PotionHouse onClose={closeModal} />}
