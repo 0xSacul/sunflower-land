@@ -112,7 +112,6 @@ import {
 import { sellTreasure, SellTreasureAction } from "./landExpansion/treasureSold";
 import { restock, RestockAction } from "./landExpansion/restock";
 import { sellGarbage, SellGarbageAction } from "./landExpansion/garbageSold";
-import { startChore, StartChoreAction } from "./landExpansion/startChore";
 import {
   completeChore,
   CompleteChoreAction,
@@ -246,10 +245,6 @@ import {
 import { moveSunstone, MoveSunstoneAction } from "./landExpansion/moveSunstone";
 import { mineSunstone, MineSunstoneAction } from "./landExpansion/mineSunstone";
 import {
-  discoverFlowerPage,
-  FlowerPageDiscoveredAction,
-} from "./landExpansion/discoverFlowerPage";
-import {
   FlowerShopTradedAction,
   tradeFlowerShop,
 } from "./landExpansion/tradeFlowerShop";
@@ -280,8 +275,41 @@ import {
   placeOilReserve,
   PlaceOilReserveAction,
 } from "./landExpansion/placeOilReserve";
+import {
+  donateToFaction,
+  DonateToFactionAction,
+} from "./landExpansion/donateToFaction";
+import {
+  drillOilReserve,
+  DrillOilReserveAction,
+} from "./landExpansion/drillOilReserve";
+import {
+  harvestGreenHouse,
+  HarvestGreenhouseAction,
+} from "./landExpansion/harvestGreenHouse";
+import {
+  plantGreenhouse,
+  PlantGreenhouseAction,
+} from "./landExpansion/plantGreenhouse";
+import {
+  oilGreenhouse,
+  OilGreenhouseAction,
+} from "./landExpansion/oilGreenHouse";
+
+import {
+  PurchaseMinigameAction,
+  purchaseMinigameItem,
+} from "./minigames/purchaseMinigameItem";
+import { PlayMinigameAction, playMinigame } from "./minigames/playMinigame";
+import {
+  claimMinigamePrize,
+  ClaimMinigamePrizeAction,
+} from "./minigames/claimMinigamePrize";
 
 export type PlayingEvent =
+  | OilGreenhouseAction
+  | HarvestGreenhouseAction
+  | PlantGreenhouseAction
   | LandExpansionPlantAction
   | LandExpansionFertiliseCropAction
   | LandExpansionRemoveCropAction
@@ -315,7 +343,6 @@ export type PlayingEvent =
   | RestockAction
   | SellGarbageAction
   // Chores
-  | StartChoreAction
   | CompleteChoreAction
   | SkipChoreAction
   | ExpandLandAction
@@ -354,7 +381,6 @@ export type PlayingEvent =
   | HarvestFlowerAction
   | UpgradeFarmAction
   | PurchaseBannerAction
-  | FlowerPageDiscoveredAction
   | FlowerShopTradedAction
   | BuyMegaStoreItemAction
   | CompleteSpecialEventTaskAction
@@ -362,7 +388,12 @@ export type PlayingEvent =
   | ClaimGiftAction
   | EnterRaffleAction
   | ExchangeSFLtoCoinsAction
-  | PledgeFactionAction;
+  | PledgeFactionAction
+  | DonateToFactionAction
+  | DrillOilReserveAction
+  | ClaimMinigamePrizeAction
+  | PurchaseMinigameAction
+  | PlayMinigameAction;
 
 export type PlacementEvent =
   | ConstructBuildingAction
@@ -428,6 +459,12 @@ type Handlers<T> = {
 };
 
 export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
+  "greenhouse.oiled": oilGreenhouse,
+  "greenhouse.harvested": harvestGreenHouse,
+  "greenhouse.planted": plantGreenhouse,
+  "minigame.itemPurchased": purchaseMinigameItem,
+  "minigame.prizeClaimed": claimMinigamePrize,
+  "minigame.played": playMinigame,
   "airdrop.claimed": claimAirdrop,
   "bot.detected": detectBot,
   "seed.planted": landExpansionPlant,
@@ -463,7 +500,6 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "shops.restocked": restock,
   "garbage.sold": sellGarbage,
   "chore.completed": completeChore,
-  "chore.started": startChore,
   "chore.skipped": skipChore,
   "land.expanded": expandLand,
   "message.read": readMessage,
@@ -501,7 +537,6 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "flower.harvested": harvestFlower,
   "farm.upgraded": upgrade,
   "banner.purchased": purchaseBanner,
-  "flowerPage.discovered": discoverFlowerPage,
   "flowerShop.traded": tradeFlowerShop,
   "megastoreItem.bought": buyMegaStoreItem,
   "specialEvent.taskCompleted": completeSpecialEventTask,
@@ -510,6 +545,8 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "raffle.entered": enterRaffle,
   "sfl.exchanged": exchangeSFLtoCoins,
   "faction.pledged": pledgeFaction,
+  "faction.donated": donateToFaction,
+  "oilReserve.drilled": drillOilReserve,
 };
 
 export const PLACEMENT_EVENTS: Handlers<PlacementEvent> = {

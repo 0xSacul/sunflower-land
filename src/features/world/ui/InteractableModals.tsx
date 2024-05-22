@@ -10,12 +10,10 @@ import { BoatModal } from "./BoatModal";
 import { PlazaBanner } from "./PlazaBanner";
 import { Panel } from "components/ui/Panel";
 import { CropBoomFinish } from "features/portal/examples/cropBoom/components/CropBoomFinish";
-import { Luna } from "./npcs/Luna";
 import { NyeButton } from "./NyeButton";
-import { PageFound } from "./PageFound";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { BasicTreasureChest } from "./chests/BasicTreasureChest";
-import { Donations } from "./donations/Donations";
+import { CommunityDonations } from "./donations/Donations";
 import { SceneId } from "../mmoMachine";
 import { TradingBoard } from "./npcs/TradingBoard";
 import { BudBox } from "./chests/BudBox";
@@ -25,12 +23,15 @@ import { BankModal } from "features/game/components/bank/components/BankModal";
 import { GarbageCollectorModal } from "features/helios/components/garbageCollector/components/GarbageCollectorModal";
 import { WishingWellModal } from "features/game/components/bank/components/WishingWellModal";
 import { GoblinMarket } from "./market/GoblinMarket";
-import { PledgeFaction } from "./factions/PledgeFaction";
+import { FactionModalContent } from "./factions/FactionModalContent";
+import { VIPGift } from "./VIPGift";
+import { ChickenRescue } from "./portals/ChickenRescue";
 
 export type FanArtNPC = "fan_npc_1" | "fan_npc_2" | "fan_npc_3" | "fan_npc_4";
 
 type InteractableName =
   | FanArtNPC
+  | "vip_chest"
   | "donations"
   | "garbage_collector"
   | "basic_chest"
@@ -38,7 +39,6 @@ type InteractableName =
   | "rare_chest"
   | "kraken"
   | "nye_button"
-  | "portal"
   | "welcome_sign"
   | "bud"
   | "plaza_statue"
@@ -77,14 +77,18 @@ type InteractableName =
   | "crop_boom_finish"
   | "christmas_reward"
   | "goblin_hammer"
-  | "page_discovered"
   | "trading_board"
   | "wishingWell"
   | "goblin_market"
   | "pledge_bumpkin"
   | "pledge_goblin"
   | "pledge_nightshade"
-  | "pledge_sunflorian";
+  | "pledge_sunflorian"
+  | "bumpkins_faction"
+  | "goblins_faction"
+  | "nightshades_faction"
+  | "sunflorians_faction"
+  | "chicken_rescue";
 
 class InteractableModalManager {
   private listener?: (name: InteractableName, isOpen: boolean) => void;
@@ -124,6 +128,10 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
 
   return (
     <>
+      <Modal show={interactable === "vip_chest"} onHide={closeModal}>
+        <VIPGift onClose={closeModal} />
+      </Modal>
+
       {/* TODO - make smoother opening */}
       {interactable === "auction_item" && (
         <AuctionHouseModal
@@ -134,7 +142,7 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
       )}
       <Modal show={interactable === "donations"} onHide={closeModal}>
         <CloseButtonPanel title={t("enjoying.event")} onClose={closeModal}>
-          <Donations />
+          <CommunityDonations />
         </CloseButtonPanel>
       </Modal>
       {interactable === "potion_table" && <PotionHouse onClose={closeModal} />}
@@ -360,8 +368,14 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
           ]}
         />
       </Modal>
-      <Modal show={interactable === "portal"} onHide={closeModal}>
-        <Luna onClose={closeModal} />
+
+      <Modal show={interactable === "chicken_rescue"} onHide={closeModal}>
+        <CloseButtonPanel
+          onClose={closeModal}
+          bumpkinParts={NPC_WEARABLES.billy}
+        >
+          <ChickenRescue onClose={closeModal} />
+        </CloseButtonPanel>
       </Modal>
       <Modal show={interactable === "dawn_book_2"} onHide={closeModal}>
         <SpeakingModal
@@ -577,9 +591,6 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
         <FanArt name={interactable as FanArtNPC} onClose={closeModal} />
       </Modal>
 
-      <Modal show={interactable === "page_discovered"} onHide={closeModal}>
-        <PageFound onClose={closeModal} />
-      </Modal>
       <Modal
         show={interactable === "trading_board"}
         dialogClassName="md:max-w-3xl"
@@ -595,16 +606,43 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
         <GoblinMarket onClose={closeModal} />
       </Modal>
       <Modal show={interactable === "pledge_sunflorian"} onHide={closeModal}>
-        <PledgeFaction faction="sunflorians" onClose={closeModal} />
+        <FactionModalContent
+          representativeFaction="sunflorians"
+          onClose={closeModal}
+        />
       </Modal>
       <Modal show={interactable === "pledge_bumpkin"} onHide={closeModal}>
-        <PledgeFaction faction="bumpkins" onClose={closeModal} />
+        <FactionModalContent
+          representativeFaction="bumpkins"
+          onClose={closeModal}
+        />
       </Modal>
       <Modal show={interactable === "pledge_goblin"} onHide={closeModal}>
-        <PledgeFaction faction="goblins" onClose={closeModal} />
+        <FactionModalContent
+          representativeFaction="goblins"
+          onClose={closeModal}
+        />
       </Modal>
       <Modal show={interactable === "pledge_nightshade"} onHide={closeModal}>
-        <PledgeFaction faction="nightshades" onClose={closeModal} />
+        <FactionModalContent
+          representativeFaction="nightshades"
+          onClose={closeModal}
+        />
+      </Modal>
+      <Modal show={interactable === "sunflorians_faction"} onHide={closeModal}>
+        <FactionModalContent
+          representativeFaction="sunflorians"
+          onClose={closeModal}
+        />
+      </Modal>
+      <Modal show={interactable === "bumpkins_faction"} onHide={closeModal}>
+        <FactionModalContent onClose={closeModal} />
+      </Modal>
+      <Modal show={interactable === "nightshades_faction"} onHide={closeModal}>
+        <FactionModalContent onClose={closeModal} />
+      </Modal>
+      <Modal show={interactable === "goblins_faction"} onHide={closeModal}>
+        <FactionModalContent onClose={closeModal} />
       </Modal>
     </>
   );

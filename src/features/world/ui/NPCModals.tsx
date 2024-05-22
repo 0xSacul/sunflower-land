@@ -10,10 +10,12 @@ import { Birdie } from "./npcs/Birdie";
 import { HayseedHankV2 } from "features/helios/components/hayseedHank/HayseedHankV2";
 import { PotionHouseShopItems } from "features/helios/components/potions/component/PotionHouseShopItems";
 import { Bert } from "./npcs/Bert";
-import { Donations } from "./donations/Donations";
+import {
+  CommunityDonations,
+  SpecialEventDonations,
+} from "./donations/Donations";
 import { Finn } from "./npcs/Finn";
 import { GoldTooth } from "./npcs/GoldTooth";
-import { Luna } from "./npcs/Luna";
 import { Mayor } from "./npcs/Mayor";
 import { FlowerShop } from "./flowerShop/FlowerShop";
 import { DecorationShopItems } from "features/helios/components/decorations/component/DecorationShopItems";
@@ -24,6 +26,8 @@ import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { SpecialEventModal } from "./SpecialEventModal";
 import { GarbageCollectorModal } from "features/helios/components/garbageCollector/components/GarbageCollectorModal";
 import { Hopper } from "./npcs/Hopper";
+import { FactionModalContent } from "./factions/FactionModalContent";
+import { ChickenRescue } from "./portals/ChickenRescue";
 
 class NpcModalManager {
   private listener?: (npc: NPCName, isOpen: boolean) => void;
@@ -81,7 +85,7 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
             onClose={closeModal}
             bumpkinParts={NPC_WEARABLES["flopsy"]}
           >
-            <Donations />
+            <CommunityDonations />
           </CloseButtonPanel>
         )}
 
@@ -125,33 +129,22 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
           </CloseButtonPanel>
         )}
 
-        {npc === "billy" && (
-          <SpeakingModal
-            bumpkinParts={NPC_WEARABLES.billy}
+        {npc === "gaucho" && (
+          <CloseButtonPanel
             onClose={closeModal}
-            message={[
-              {
-                text: translate("npc.Modal.Billy"),
-              },
-              {
-                text: translate("npc.Modal.Billy.one"),
-              },
-              {
-                text: translate("npc.Modal.Billy.two"),
-                actions: [
-                  {
-                    text: "Read more",
-                    cb: () => {
-                      window.open(
-                        "https://docs.sunflower-land.com/player-guides/bud-nfts",
-                        "_blank"
-                      );
-                    },
-                  },
-                ],
-              },
-            ]}
-          />
+            bumpkinParts={NPC_WEARABLES.gaucho}
+          >
+            <SpecialEventDonations />
+          </CloseButtonPanel>
+        )}
+
+        {npc === "billy" && (
+          <CloseButtonPanel
+            onClose={closeModal}
+            bumpkinParts={NPC_WEARABLES.billy}
+          >
+            <ChickenRescue onClose={closeModal} />
+          </CloseButtonPanel>
         )}
         {npc === "goldtooth" && <GoldTooth onClose={closeModal} />}
         {npc === "hank" && <HayseedHankV2 onClose={closeModal} />}
@@ -193,12 +186,16 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
         {npc === "finn" && <Finn onClose={closeModal} />}
         {npc === "tango" && <DeliveryPanel npc={npc} onClose={closeModal} />}
         {npc === "finley" && <DeliveryPanel npc={npc} onClose={closeModal} />}
-        {npc === "luna" && <Luna onClose={closeModal} />}
         {npc === "mayor" && <Mayor onClose={closeModal} />}
 
         {npc === "guria" && <DeliveryPanel npc={npc} onClose={closeModal} />}
         {npc === "goblet" && <DeliveryPanel npc={npc} onClose={closeModal} />}
         {npc === "gordo" && <DeliveryPanel npc={npc} onClose={closeModal} />}
+
+        {/* faction npcs */}
+        {npc === "lady day" && <FactionModalContent onClose={closeModal} />}
+        {npc === "robert" && <FactionModalContent onClose={closeModal} />}
+        {npc === "grommy" && <FactionModalContent onClose={closeModal} />}
       </Modal>
       {npc === "Chun Long" && (
         <SpecialEventModal

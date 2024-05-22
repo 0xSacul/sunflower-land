@@ -56,6 +56,7 @@ import { CollectibleLocation, PurchasableItems } from "../types/collectibles";
 import {
   getGameRulesLastRead,
   getIntroductionRead,
+  getSeasonPassRead,
 } from "features/announcements/announcementsStorage";
 import { depositToFarm } from "lib/blockchain/Deposit";
 import Decimal from "decimal.js-light";
@@ -84,7 +85,6 @@ import { deleteListingRequest } from "../actions/deleteListing";
 import { fulfillTradeListingRequest } from "../actions/fulfillTradeListing";
 import {
   withdrawBuds,
-  withdrawBumpkin,
   withdrawItems,
   withdrawSFL,
   withdrawWearables,
@@ -95,6 +95,7 @@ import {
   sellMarketResourceRequest,
 } from "../actions/sellMarketResource";
 import { setCachedMarketPrices } from "features/world/ui/market/lib/marketCache";
+import { MinigameName } from "../types/minigames";
 
 const getPortal = () => {
   const code = new URLSearchParams(window.location.search).get("portal");
@@ -468,7 +469,6 @@ export type BlockchainState = {
     | "buds"
     | "airdrop"
     | "noBumpkinFound"
-    | "weakBumpkin"
     | "coolingDown"
     | "buyingBlockBucks"
     | "auctionResults"
@@ -678,7 +678,7 @@ export function startGame(authContext: AuthContext) {
           id: "portalling",
           invoke: {
             src: async (context) => {
-              const portalId = getPortal() as string;
+              const portalId = getPortal() as MinigameName;
               const { token } = await portal({
                 portalId,
                 token: authContext.user.rawToken as string,
@@ -800,13 +800,13 @@ export function startGame(authContext: AuthContext) {
               target: "swarming",
               cond: () => isSwarming(),
             },
-            // {
-            //   target: "specialOffer",
-            //   cond: (context) =>
-            //     (context.state.bumpkin?.experience ?? 0) > 100 &&
-            //     !context.state.collectibles["Spring Blossom Banner"] &&
-            //     !getSeasonPassRead(),
-            // },
+            {
+              target: "specialOffer",
+              cond: (context) =>
+                (context.state.bumpkin?.experience ?? 0) > 100 &&
+                !context.state.collectibles["Clash of Factions Banner"] &&
+                !getSeasonPassRead(),
+            },
             // EVENTS THAT TARGET NOTIFYING OR LOADING MUST GO ABOVE THIS LINE
 
             // EVENTS THAT TARGET PLAYING MUST GO BELOW THIS LINE
@@ -851,7 +851,6 @@ export function startGame(authContext: AuthContext) {
             },
           },
         },
-        weakBumpkin: {},
         specialOffer: {
           on: {
             "banner.purchased": (GAME_EVENT_HANDLERS as any)[
@@ -1947,19 +1946,6 @@ export function startGame(authContext: AuthContext) {
                   ids: wearableIds,
                   captcha,
                   transactionId: context.transactionId as string,
-                });
-
-                return {
-                  sessionId,
-                };
-              }
-
-              if (bumpkinId) {
-                const { sessionId } = await withdrawBumpkin({
-                  farmId: Number(context.farmId),
-                  token: authContext.user.rawToken as string,
-                  transactionId: context.transactionId as string,
-                  bumpkinId: bumpkinId,
                 });
 
                 return {

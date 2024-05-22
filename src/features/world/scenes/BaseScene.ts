@@ -215,6 +215,7 @@ export abstract class BaseScene extends Phaser.Scene {
           updatedAt: 0,
         },
         experience: 0,
+        sessionId: this.mmoServer?.sessionId ?? "",
       });
 
       this.initialiseCamera();
@@ -269,6 +270,17 @@ export abstract class BaseScene extends Phaser.Scene {
           .on("pointerdown", (p: Phaser.Input.Pointer) => {
             if (p.downElement.nodeName === "CANVAS") {
               const id = polygon.data.list.id;
+
+              const distance = Phaser.Math.Distance.BetweenPoints(
+                this.currentPlayer as BumpkinContainer,
+                polygon as Phaser.GameObjects.Polygon
+              );
+
+              if (distance > 50) {
+                this.currentPlayer?.speak(translate("base.iam.far.away"));
+                return;
+              }
+
               interactableModalManager.open(id);
             }
           });
@@ -488,6 +500,7 @@ export abstract class BaseScene extends Phaser.Scene {
     clothing,
     npc,
     experience = 0,
+    sessionId,
   }: {
     isCurrentPlayer: boolean;
     x: number;
@@ -498,6 +511,7 @@ export abstract class BaseScene extends Phaser.Scene {
     clothing: Player["clothing"];
     npc?: NPCName;
     experience?: number;
+    sessionId: string;
   }): BumpkinContainer {
     const defaultClick = () => {
       const distance = Phaser.Math.Distance.BetweenPoints(
@@ -516,7 +530,8 @@ export abstract class BaseScene extends Phaser.Scene {
         if (farmId !== this.id) {
           playerModalManager.open({
             id: farmId,
-            clothing,
+            // Always get the latest clothing
+            clothing: this.playerEntities[sessionId]?.clothing ?? clothing,
             experience,
           });
         }
@@ -845,6 +860,7 @@ export abstract class BaseScene extends Phaser.Scene {
           isCurrentPlayer: sessionId === server.sessionId,
           npc: player.npc,
           experience: player.experience,
+          sessionId,
         });
       }
     });
@@ -991,6 +1007,19 @@ export abstract class BaseScene extends Phaser.Scene {
     this.syncPlayers();
     this.updateClothing();
     this.renderPlayers();
+  }
+
+  checkDistanceToSprite(
+    sprite: Phaser.GameObjects.Sprite,
+    maxDistance: number
+  ) {
+    const distance = Phaser.Math.Distance.BetweenPoints(
+      sprite,
+      this.currentPlayer as BumpkinContainer
+    );
+
+    if (distance > maxDistance) return false;
+    return true;
   }
 
   initialiseNPCs(npcs: NPCBumpkin[]) {

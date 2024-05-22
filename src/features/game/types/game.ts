@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Decimal } from "decimal.js-light";
 
-import { CropName, CropSeedName } from "./crops";
+import {
+  CropName,
+  CropSeedName,
+  GreenHouseCropName,
+  GreenHouseCropSeedName,
+} from "./crops";
 
 import { CollectibleName, CraftableName, Food } from "./craftables";
 import { CommodityName, MushroomName, ResourceName } from "./resources";
@@ -15,7 +20,12 @@ import { AchievementName } from "./achievements";
 import { BumpkinActivityName } from "./bumpkinActivity";
 import { DecorationName } from "./decorations";
 import { BeanName, ExoticCropName, MutantCropName } from "./beans";
-import { FruitName, FruitSeedName } from "./fruits";
+import {
+  FruitName,
+  FruitSeedName,
+  GreenHouseFruitName,
+  GreenHouseFruitSeedName,
+} from "./fruits";
 import { TreasureName } from "./treasure";
 import {
   GoblinBlacksmithItemName,
@@ -26,13 +36,17 @@ import {
   PurchasableItems,
   SoldOutCollectibleName,
 } from "./collectibles";
-import { TreasureToolName } from "./tools";
-import { Chore } from "./chores";
+import { TreasureToolName, WorkbenchToolName } from "./tools";
 import { ConversationName } from "./announcements";
 import { NPCName } from "lib/npcs";
 import { SeasonalTicket } from "./seasons";
 import { Bud } from "./buds";
-import { CompostName, CropCompostName, FruitCompostName } from "./composters";
+import {
+  CompostName,
+  CropCompostName,
+  FruitCompostName,
+  Worm,
+} from "./composters";
 import { FarmActivityName } from "./farmActivity";
 import { MilestoneName } from "./milestones";
 import {
@@ -42,7 +56,7 @@ import {
   MarineMarvelName,
 } from "./fishing";
 import { Coordinates } from "../expansion/components/MapPlacement";
-import { PortalName } from "./portals";
+import { MinigameName } from "./minigames";
 import { FlowerCrossBreedName, FlowerName, FlowerSeedName } from "./flowers";
 import { translate } from "lib/i18n/translate";
 import { SpecialEvents } from "./specialEvents";
@@ -143,7 +157,8 @@ export type MutantChicken =
   | "Ayam Cemani"
   | "El Pollo Veloz"
   | "Banana Chicken"
-  | "Crim Peckster";
+  | "Crim Peckster"
+  | "Knight Chicken";
 
 export type Coupons =
   | "Gold Pass"
@@ -248,6 +263,9 @@ export const COUPONS: Record<Coupons, { description: string }> = {
   "Prize Ticket": {
     description: translate("description.prizeTicket"),
   },
+  Scroll: {
+    description: translate("description.scroll"),
+  },
 };
 
 export type Points = "Human War Point" | "Goblin War Point";
@@ -289,6 +307,10 @@ export type InventoryItemName =
   | FruitName
   | FruitSeedName
   | FlowerSeedName
+  | GreenHouseFruitSeedName
+  | GreenHouseFruitName
+  | GreenHouseCropName
+  | GreenHouseCropSeedName
   | CraftableName
   | CommodityName
   | ResourceName
@@ -325,7 +347,8 @@ export type InventoryItemName =
   | MarineMarvelName
   | FlowerName
   | MegaStoreCollectibleName
-  | FactionBanner;
+  | FactionBanner
+  | WorkbenchToolName;
 
 export type Inventory = Partial<Record<InventoryItemName, Decimal>>;
 
@@ -429,7 +452,8 @@ export type Oil = {
 
 export type OilReserve = {
   oil: Oil;
-  drillsLeft: number;
+  drilled: number;
+  createdAt: number;
 } & Position;
 
 export type CropPlot = {
@@ -437,6 +461,16 @@ export type CropPlot = {
   fertiliser?: CropFertiliser;
   createdAt: number;
 } & Position;
+
+export type GreenhousePlant = {
+  name: GreenHouseCropName | GreenHouseFruitName;
+  plantedAt: number;
+  amount: number;
+};
+
+export type GreenhousePot = {
+  plant?: GreenhousePlant;
+};
 
 export type FruitPatch = {
   fruit?: PlantedFruit;
@@ -511,6 +545,7 @@ export type ExpansionConstruction = {
 
 export interface ExpansionRequirements {
   resources: Partial<Record<InventoryItemName, number>>;
+  coins?: number;
   seconds: number;
   bumpkinLevel: number;
 }
@@ -524,6 +559,7 @@ export type Airdrop = {
   coins: number;
   message?: string;
   coordinates?: Coordinates;
+  factionPoints?: number;
 };
 
 // Mystery Prize reveals
@@ -548,18 +584,6 @@ export type Bid = {
   tickets: number;
 };
 
-export type HayseedHank = {
-  choresCompleted: number;
-  dawnBreakerChoresCompleted?: number;
-  dawnBreakerChoresSkipped?: number;
-  chore: Chore;
-  progress?: {
-    bumpkinId: number;
-    startedAt: number;
-    startCount: number;
-  };
-};
-
 export type MazeAttempts = Partial<Record<SeasonWeek, MazeMetadata>>;
 
 export type WitchesEve = {
@@ -572,9 +596,9 @@ export type CatchTheKraken = {
   hunger: InventoryItemName;
 };
 
-export type SpringBlossom = {
+export type FlowerShop = {
+  week: number;
   weeklyFlower: FlowerName;
-  collectedFlowerPages: number[];
   tradedFlowerShop?: boolean;
 };
 
@@ -620,7 +644,6 @@ export type Order = {
   from: NPCName;
   items: Partial<Record<InventoryItemName | "coins" | "sfl", number>>;
   reward: {
-    tickets?: number;
     sfl?: number;
     coins?: number;
     items?: Partial<Record<InventoryItemName, number>>;
@@ -715,7 +738,6 @@ export type ChoreV2 = {
   requirement: number;
   bumpkinId: number;
   startCount: number;
-  tickets: number;
 };
 
 export type SeasonWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
@@ -764,15 +786,24 @@ export type CommunityIsland = {
   };
 };
 
-export type Portal = {
-  arcadeTokensMinted: number;
+export type MinigamePrize = {
+  startAt: number;
+  endAt: number;
+  score: number;
+  coins: number;
+  factionPoints: number;
+};
 
-  history: Record<
-    string,
-    {
-      arcadeTokensMinted: number;
-    }
-  >;
+export type MinigameHistory = {
+  highscore: number;
+  attempts: number;
+  prizeClaimedAt?: number;
+};
+
+export type Minigame = {
+  highscore: number;
+  purchases?: { sfl: number; purchasedAt: number }[];
+  history: Record<string, MinigameHistory>;
 };
 
 export type TradeListing = {
@@ -847,6 +878,12 @@ export type MegaStore = {
 
 export type IslandType = "basic" | "spring" | "desert";
 
+/**
+ * The order of the islands is important as it determines the levels of the islands.
+ * Each new island should be added to the end of the array.
+ */
+export const ISLAND_EXPANSIONS: IslandType[] = ["basic", "spring", "desert"];
+
 export type Home = {
   collectibles: Collectibles;
 };
@@ -894,7 +931,27 @@ export type Faction = {
   name: FactionName;
   pledgedAt: number;
   points: number;
+  donated: {
+    daily: {
+      sfl: {
+        day?: number;
+        amount?: number;
+      };
+      resources: {
+        day?: number;
+        amount?: number;
+      };
+    };
+    totalItems: Partial<Record<InventoryItemName | "sfl", number>>;
+  };
 };
+
+export type DonationItemName =
+  | CropName
+  | FishName
+  | FruitName
+  | CommodityName
+  | Worm;
 
 export interface GameState {
   home: Home;
@@ -903,6 +960,7 @@ export interface GameState {
     type: IslandType;
     upgradedAt?: number;
     previousExpansions?: number;
+    sunstones?: number;
   };
 
   username?: string;
@@ -919,8 +977,10 @@ export interface GameState {
   bertObsessionCompletedAt?: Date;
   warCollectionOffer?: WarCollectionOffer;
 
-  islands?: Record<string, CommunityIsland>;
-  portals?: Partial<Record<PortalName, Portal>>;
+  minigames: {
+    prizes: Partial<Record<MinigameName, MinigamePrize>>;
+    games: Partial<Record<MinigameName, Minigame>>;
+  };
 
   farmHands: {
     bumpkins: Record<string, FarmHand>;
@@ -943,9 +1003,13 @@ export interface GameState {
   iron: Record<string, Rock>;
   crimstones: Record<string, FiniteResource>;
   sunstones: Record<string, FiniteResource>;
-  oil: Record<string, OilReserve>;
+  oilReserves: Record<string, OilReserve>;
 
   crops: Record<string, CropPlot>;
+  greenhouse: {
+    oil: number;
+    pots: Record<string, GreenhousePot>;
+  };
   fruitPatches: Record<string, FruitPatch>;
   beehives: Beehives;
   flowers: {
@@ -989,6 +1053,12 @@ export interface GameState {
     raffle?: {
       entries: Record<string, number>;
     };
+    vipChest?: {
+      openedAt: number;
+    };
+    giftGiver?: {
+      openedAt: number;
+    };
   };
   conversations: ConversationName[];
   mailbox: {
@@ -1001,7 +1071,6 @@ export interface GameState {
   auctioneer: {
     bid?: Bid;
   };
-  hayseedHank?: HayseedHank;
   chores?: ChoresV2;
   mushrooms: Mushrooms;
   catchTheKraken: CatchTheKraken;
@@ -1009,11 +1078,13 @@ export interface GameState {
 
   trades: {
     listings?: Record<string, TradeListing>;
+    dailyListings?: { date: number; count: number };
+    dailyPurchases?: { date: number; count: number };
   };
   buds?: Record<number, Bud>;
 
   christmas?: Christmas;
-  springBlossom: Record<number, SpringBlossom>;
+  flowerShop?: FlowerShop;
   megastore: MegaStore;
   specialEvents: SpecialEvents;
   goblinMarket: {
@@ -1028,6 +1099,10 @@ export interface GameState {
     >;
   };
   faction?: Faction;
+  dailyFactionDonationRequest?: {
+    resource: DonationItemName;
+    amount: Decimal;
+  };
 }
 
 export interface Context {
