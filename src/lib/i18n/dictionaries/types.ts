@@ -147,6 +147,7 @@ export type GeneralTerms =
   | "message"
   | "messages"
   | "max"
+  | "max.reached"
   | "minimum"
   | "mint"
   | "minting"
@@ -162,6 +163,7 @@ export type GeneralTerms =
   | "no"
   | "no.event"
   | "no.have.bumpkin"
+  | "not.required"
   | "ocean.fishing"
   | "off"
   | "offer.end"
@@ -169,6 +171,7 @@ export type GeneralTerms =
   | "on"
   | "open"
   | "open.gift"
+  | "optional"
   | "p2p.trading"
   | "pass.required"
   | "pay.attention.feedback"
@@ -425,7 +428,7 @@ export type AvailableSeeds =
   | "quickSelect.label"
   | "quickSelect.empty";
 
-export type Base = "base.missing" | "base.far.away";
+export type Base = "base.missing" | "base.far.away" | "base.iam.far.away";
 
 export type BasicTreasure =
   | "basic.treasure.missingKey"
@@ -738,6 +741,24 @@ export type BumpkinItemBuff =
   | "bumpkinItemBuff.hornet.mask"
   | "bumpkinItemBuff.honeycomb.shield"
   | "bumpkinItemBuff.flower.crown";
+
+export type BumpkinPart =
+  | "equip.background"
+  | "equip.hair"
+  | "equip.body"
+  | "equip.shirt"
+  | "equip.pants"
+  | "equip.shoes"
+  | "equip.tool"
+  | "equip.necklace"
+  | "equip.coat"
+  | "equip.hat"
+  | "equip.secondaryTool"
+  | "equip.onesie"
+  | "equip.suit"
+  | "equip.wings"
+  | "equip.dress"
+  | "equip.beard";
 
 export type BumpkinPartRequirements =
   | "equip.missingHair"
@@ -2799,7 +2820,8 @@ export type RewardTerms =
   | "reward.wearable"
   | "reward.woohoo"
   | "reward.promo.code"
-  | "reward.connectWeb3Wallet";
+  | "reward.connectWeb3Wallet"
+  | "reward.factionPoints";
 
 export type RulesGameStart =
   | "rules.gameStart"
@@ -3255,6 +3277,7 @@ export type RestrictionReason =
   | "restrictionReason.isGrowing"
   | "restrictionReason.beanPlanted"
   | "restrictionReason.cropsGrowing"
+  | "restrictionReason.?cropGrowing"
   | "restrictionReason.basicCropsGrowing"
   | "restrictionReason.mediumCropsGrowing"
   | "restrictionReason.advancedCropsGrowing"
@@ -3274,7 +3297,8 @@ export type RestrictionReason =
   | "restrictionReason.pawShaken"
   | "restrictionReason.festiveSeason"
   | "restrictionReason.noRestriction"
-  | "restrictionReason.genieLampRubbed";
+  | "restrictionReason.genieLampRubbed"
+  | "restrictionReason.oilReserveDrilled";
 
 export type Leaderboard =
   | "leaderboard.leaderboard"
@@ -3314,7 +3338,20 @@ export type GameOptions =
 
 export type GreenhouseKeys =
   | "greenhouse.oilRequired"
-  | "greenhouse.oilDescription";
+  | "greenhouse.oilDescription"
+  | "greenhouse.oilInMachine"
+  | "greenhouse.insertOil"
+  | "greenhouse.numberOil";
+export type Minigame =
+  | "minigame.playNow"
+  | "minigame.chickenRescue"
+  | "minigame.completed"
+  | "minigame.noPrizeAvailable"
+  | "minigame.confirm"
+  | "minigame.purchase"
+  | "minigame.comingSoon"
+  | "minigame.chickenRescueHelp";
+
 export type TranslationKeys =
   | AchievementsTerms
   | Auction
@@ -3332,6 +3369,7 @@ export type TranslationKeys =
   | BuildingDescriptions
   | BumpkinDelivery
   | BumpkinItemBuff
+  | BumpkinPart
   | BumpkinPartRequirements
   | BumpkinSkillsDescription
   | BumpkinTrade
@@ -3412,6 +3450,7 @@ export type TranslationKeys =
   | LostSunflorian
   | MegaStore
   | MilestoneMessages
+  | Minigame
   | ModalDescription
   | Noaccount
   | NoBumpkin

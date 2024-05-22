@@ -276,7 +276,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
   ...EMPTY,
   greenhouse: {
     pots: {},
-    oil: 5,
+    oil: 50,
   },
   home: {
     collectibles: {
@@ -308,6 +308,18 @@ export const STATIC_OFFLINE_FARM: GameState = {
     type: "desert",
   },
   mysteryPrizes: {},
+  minigames: {
+    games: {},
+    prizes: {
+      "chicken-rescue": {
+        coins: 0,
+        startAt: new Date("2023-01-01").getTime(),
+        endAt: new Date("2025-01-01").getTime(),
+        score: 2,
+        factionPoints: 15,
+      },
+    },
+  },
   mushrooms: {
     mushrooms: {
       1: {
@@ -425,8 +437,6 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Mashed Potato": new Decimal(1),
     "Treasure Key": new Decimal(1),
     "Hungry Hare": new Decimal(1),
-    "Goblin Faction Banner": new Decimal(1),
-    "Earn Alliance Banner": new Decimal(1),
     "Farmhand Coupon": new Decimal(1),
     "White Festive Fox": new Decimal(3),
     "Red Pansy": new Decimal(3),
@@ -601,8 +611,27 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Whale Shark": new Decimal(1),
     "Saw Shark": new Decimal(1),
     "White Shark": new Decimal(1),
+
+    // Banners
+    "Human War Banner": new Decimal(1),
+    "Goblin War Banner": new Decimal(1),
+    "Lifetime Farmer Banner": new Decimal(1),
+    "Solar Flare Banner": new Decimal(1),
+    "Dawn Breaker Banner": new Decimal(1),
+    "Witches' Eve Banner": new Decimal(1),
+    "Catch the Kraken Banner": new Decimal(1),
+    "Spring Blossom Banner": new Decimal(1),
+    "Clash of Factions Banner": new Decimal(1),
+    "Bumpkin Faction Banner": new Decimal(1),
+    "Goblin Faction Banner": new Decimal(1),
+    "Sunflorian Faction Banner": new Decimal(1),
+    "Nightshade Faction Banner": new Decimal(1),
+    "Earn Alliance Banner": new Decimal(1),
   },
   wardrobe: {
+    "Tofu Mask": 1,
+    "Royal Scepter": 1,
+    "Olive Royalty Shirt": 2,
     "Elf Suit": 1,
     "Banana Onesie": 1,
     "Beige Farmer Potion": 2,
@@ -673,6 +702,17 @@ export const STATIC_OFFLINE_FARM: GameState = {
       {
         coordinates: {
           x: -2,
+          y: -2,
+        },
+        createdAt: 0,
+        id: "1",
+        readyAt: 0,
+      },
+    ],
+    Market: [
+      {
+        coordinates: {
+          x: -5,
           y: -2,
         },
         createdAt: 0,

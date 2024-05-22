@@ -85,7 +85,6 @@ import { deleteListingRequest } from "../actions/deleteListing";
 import { fulfillTradeListingRequest } from "../actions/fulfillTradeListing";
 import {
   withdrawBuds,
-  withdrawBumpkin,
   withdrawItems,
   withdrawSFL,
   withdrawWearables,
@@ -96,6 +95,7 @@ import {
   sellMarketResourceRequest,
 } from "../actions/sellMarketResource";
 import { setCachedMarketPrices } from "features/world/ui/market/lib/marketCache";
+import { MinigameName } from "../types/minigames";
 
 const getPortal = () => {
   const code = new URLSearchParams(window.location.search).get("portal");
@@ -678,7 +678,7 @@ export function startGame(authContext: AuthContext) {
           id: "portalling",
           invoke: {
             src: async (context) => {
-              const portalId = getPortal() as string;
+              const portalId = getPortal() as MinigameName;
               const { token } = await portal({
                 portalId,
                 token: authContext.user.rawToken as string,
@@ -1946,19 +1946,6 @@ export function startGame(authContext: AuthContext) {
                   ids: wearableIds,
                   captcha,
                   transactionId: context.transactionId as string,
-                });
-
-                return {
-                  sessionId,
-                };
-              }
-
-              if (bumpkinId) {
-                const { sessionId } = await withdrawBumpkin({
-                  farmId: Number(context.farmId),
-                  token: authContext.user.rawToken as string,
-                  transactionId: context.transactionId as string,
-                  bumpkinId: bumpkinId,
                 });
 
                 return {

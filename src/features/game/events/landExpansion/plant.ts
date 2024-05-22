@@ -340,6 +340,10 @@ export function getCropYieldAmount({
 
   amount += getBudYieldBoosts(buds ?? {}, crop);
 
+  if (isOvernightCrop(crop) && isCollectibleBuilt({ name: "Hoot", game })) {
+    amount = amount + 0.5;
+  }
+
   return amount;
 }
 /**
@@ -411,6 +415,10 @@ export function getPlotYieldAmount({
     amount += 0.1;
   }
 
+  if (crop === "Soybean" && isWearableActive({ name: "Tofu Mask", game })) {
+    amount += 0.1;
+  }
+
   if (crop === "Corn" && isWearableActive({ name: "Corn Onesie", game })) {
     amount += 0.1;
   }
@@ -458,14 +466,6 @@ export function getPlotYieldAmount({
     if (isWithinAOE("Sir Goldensnout", position, plot)) {
       amount = amount + 0.5;
     }
-  }
-
-  if (
-    isOvernightCrop(crop) &&
-    collectibles["Hoot"] &&
-    isCollectibleBuilt({ name: "Hoot", game })
-  ) {
-    amount = amount + 0.5;
   }
 
   if (

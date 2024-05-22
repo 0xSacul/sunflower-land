@@ -15,6 +15,7 @@ import {
   BuildingDescriptions,
   BumpkinDelivery,
   BumpkinItemBuff,
+  BumpkinPart,
   BumpkinPartRequirements,
   BumpkinSkillsDescription,
   BumpkinTrade,
@@ -172,6 +173,7 @@ import {
   Leaderboard,
   GameOptions,
   GreenhouseKeys,
+  Minigame,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -320,6 +322,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "make.wish": "Make a Wish",
   "making.wish": "Making a wish",
   max: "Max",
+  "max.reached": "Max reached",
   message: "Message",
   messages: "Messages",
   minimum: "Minimum",
@@ -343,6 +346,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   ok: "OK",
   on: "On",
   open: "Open",
+  optional: "Optional",
   "open.gift": "Open Gift",
   "p2p.trading": "P2P Trading",
   "pass.required": "Pass Required",
@@ -375,7 +379,8 @@ const generalTerms: Record<GeneralTerms, string> = {
   remove: "Remove",
   reqSkillPts: "Required Skill Points:",
   reqSkills: "Required Skills:",
-  required: "required",
+  required: "Required",
+  "not.required": "Not Required",
   requires: "Requires",
   resale: "Resale",
   resources: "Resources",
@@ -646,6 +651,7 @@ const availableSeeds: Record<AvailableSeeds, string> = {
 const base: Record<Base, string> = {
   "base.missing": "Missing name in config",
   "base.far.away": "You are too far away",
+  "base.iam.far.away": "I am too far away",
 };
 
 const basicTreasure: Record<BasicTreasure, string> = {
@@ -1023,7 +1029,8 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
 
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
   "bumpkinItemBuff.chef.apron.boost": "+20% Cake Profit",
-  "bumpkinItemBuff.fruit.picker.apron.boost": "+0.1 Fruit",
+  "bumpkinItemBuff.fruit.picker.apron.boost":
+    "+0.1 Apple, Blueberry, Orange + Banana",
   "bumpkinItemBuff.angel.wings.boost": "30% Chance of Instant Crops",
   "bumpkinItemBuff.devil.wings.boost": "30% Chance of Instant Crops",
   "bumpkinItemBuff.eggplant.onesie.boost": "+0.1 Eggplant",
@@ -1054,6 +1061,25 @@ const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
   "bumpkinItemBuff.hornet.mask": "2x chance Bee Swarm",
   "bumpkinItemBuff.honeycomb.shield": "+1 Honey per Full Beehive",
   "bumpkinItemBuff.flower.crown": "-50% Flower Growth Time",
+};
+
+const bumpkinPart: Record<BumpkinPart, string> = {
+  "equip.background": "Background",
+  "equip.hair": "Hair",
+  "equip.body": "Body",
+  "equip.shirt": "Shirt",
+  "equip.pants": "Pants",
+  "equip.shoes": "Shoes",
+  "equip.tool": "Tool",
+  "equip.necklace": "Necklace",
+  "equip.coat": "Coat",
+  "equip.hat": "Hat",
+  "equip.secondaryTool": "Secondary Tool",
+  "equip.onesie": "Onesie",
+  "equip.suit": "Suit",
+  "equip.wings": "Wings",
+  "equip.dress": "Dress",
+  "equip.beard": "Beard",
 };
 
 const bumpkinPartRequirements: Record<BumpkinPartRequirements, string> = {
@@ -4087,7 +4113,7 @@ const removeKuebiko: Record<RemoveKuebiko, string> = {
 };
 
 const removeHungryCaterpillar: Record<RemoveHungryCaterpillar, string> = {
-  "removeHungryCaterpillar.title": "Remove Hungry Catepillar?",
+  "removeHungryCaterpillar.title": "Remove Hungry Caterpillar?",
   "removeHungryCaterpillar.description":
     "This action will remove all your flower seeds from your inventory.",
   "removeHungryCaterpillar.removeFlowerSeeds": "Remove flower seeds",
@@ -4144,6 +4170,7 @@ const rewardTerms: Record<RewardTerms, string> = {
   "reward.promo.code": "Enter your promo code:",
   "reward.woohoo": "Woohoo! You found a hidden reward.",
   "reward.connectWeb3Wallet": "Connect a Web3 Wallet for a daily reward.",
+  "reward.factionPoints": "Earn glory for your faction!",
 };
 
 const rulesGameStart: Record<RulesGameStart, string> = {
@@ -4756,6 +4783,7 @@ const restrictionReason: Record<RestrictionReason, string> = {
   "restrictionReason.isGrowing": "{{item}} is growing",
   "restrictionReason.beanPlanted": "Magic Bean is planted",
   "restrictionReason.cropsGrowing": "Crops are growing",
+  "restrictionReason.?cropGrowing": "{{crop}} is growing",
   "restrictionReason.basicCropsGrowing": "Basic crops are growing",
   "restrictionReason.mediumCropsGrowing": "Medium crops are growing",
   "restrictionReason.advancedCropsGrowing": "Advanced crops are growing",
@@ -4776,6 +4804,7 @@ const restrictionReason: Record<RestrictionReason, string> = {
   "restrictionReason.festiveSeason": "Locked during festive season",
   "restrictionReason.noRestriction": "No restriction",
   "restrictionReason.genieLampRubbed": "Genie Lamp rubbed",
+  "restrictionReason.oilReserveDrilled": "Oil reserves are drilled",
 };
 
 export const leaderboardTerms: Record<Leaderboard, string> = {
@@ -4829,6 +4858,20 @@ const gameOptions: Record<GameOptions, string> = {
 const greenhouse: Record<GreenhouseKeys, string> = {
   "greenhouse.oilDescription": "The greenhouse needs oil to grow plants.",
   "greenhouse.oilRequired": "Oil required",
+  "greenhouse.oilInMachine": "{{oil}} Oil in machine",
+  "greenhouse.insertOil": "Insert Oil: {{oil}} available",
+  "greenhouse.numberOil": "{{oil}} Oil",
+};
+
+const minigame: Record<Minigame, string> = {
+  "minigame.chickenRescue": "Minigame - Chicken Rescue",
+  "minigame.comingSoon": "Coming soon...",
+  "minigame.completed": "Complete",
+  "minigame.confirm": "Are you sure you want to spend ",
+  "minigame.noPrizeAvailable": "No daily prize available",
+  "minigame.playNow": "Play now",
+  "minigame.purchase": "Purchase",
+  "minigame.chickenRescueHelp": "Can you help me rescue the chickens?",
 };
 
 export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
@@ -4848,6 +4891,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...buildingDescriptions,
   ...bumpkinDelivery,
   ...bumpkinItemBuff,
+  ...bumpkinPart,
   ...bumpkinPartRequirements,
   ...bumpkinSkillsDescription,
   ...bumpkinTrade,
@@ -4930,6 +4974,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...megaStore,
   ...milestoneMessages,
   ...modalDescription,
+  ...minigame,
   ...nftminting,
   ...noaccount,
   ...noBumpkin,
