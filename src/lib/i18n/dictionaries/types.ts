@@ -699,7 +699,11 @@ export type BuildingDescriptions =
   | "description.workbench"
   | "description.tent"
   | "description.house"
-  | "description.crop.machine";
+  | "description.crop.machine"
+  | "building.oil.remaining"
+  | "cooking.building.oil.description"
+  | "cooking.building.oil.boost"
+  | "cooking.building.runtime";
 
 export type BumpkinDelivery =
   | "bumpkin.delivery.haveFlower"
@@ -823,6 +827,9 @@ export type BumpkinTrade =
   | "bumpkinTrade.list"
   | "bumpkinTrade.maxListings"
   | "bumpkinTrade.max"
+  | "bumpkinTrade.min"
+  | "bumpkinTrade.minimumFloor"
+  | "bumpkinTrade.maximumFloor"
   | "bumpkinTrade.floorPrice"
   | "bumpkinTrade.sellConfirmation";
 
@@ -1464,7 +1471,9 @@ export type ErrorTerms =
   | "error.ClientRPC"
   | "error.walletInUse.one"
   | "error.walletInUse.two"
-  | "error.walletInUse.three";
+  | "error.walletInUse.three"
+  | "error.notEnoughOil"
+  | "error.oilCapacityExceeded";
 
 export type ExoticShopItems =
   | "exoticShopItems.line1"
@@ -3400,6 +3409,8 @@ export type Minigame =
   | "minigame.purchase"
   | "minigame.comingSoon"
   | "minigame.chickenRescueHelp";
+
+export type KitchenKeys = "kitchen.oilRemaining";
 
 export type TranslationKeys =
   | AchievementsTerms

@@ -1016,6 +1016,12 @@ const buildingDescriptions: Record<BuildingDescriptions, string> = {
   "description.tent": "(Discontinued)",
   "description.house": "A place to rest your head",
   "description.crop.machine": "Automate your crop production",
+  "building.oil.remaining": "{{oil}} Oil in building",
+
+  "cooking.building.oil.description":
+    "You can boost your recipe cooking times by {{boost}}% when adding oil into the {{buildingName}}.",
+  "cooking.building.oil.boost": "Oil boost",
+  "cooking.building.runtime": "Runtime {{time}}",
 };
 
 const bumpkinDelivery: Record<BumpkinDelivery, string> = {
@@ -1146,6 +1152,9 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.list": "List",
   "bumpkinTrade.maxListings": "Max listings reached",
   "bumpkinTrade.max": "Max: {{max}}",
+  "bumpkinTrade.min": "Min: {{min}}",
+  "bumpkinTrade.minimumFloor": "Min unit price: {{min}}",
+  "bumpkinTrade.maximumFloor": "Max unit price: {{max}}",
   "bumpkinTrade.floorPrice": "Floor Price: {{price}} SFL",
   "bumpkinTrade.price/unit": "{{price}} / unit",
   "bumpkinTrade.sellConfirmation":
@@ -2012,6 +2021,8 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.walletInUse.two":
     "This wallet is already linked to a farm. Please use social login or another wallet.",
   "error.walletInUse.three": "Try another login method",
+  "error.notEnoughOil": "Not enough oil",
+  "error.oilCapacityExceeded": "Oil capacity exceeded",
 };
 
 const event: Record<Event, string> = {
