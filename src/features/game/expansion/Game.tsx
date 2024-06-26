@@ -69,6 +69,7 @@ import { PriceChange } from "../components/PriceChange";
 import { VIPOffer } from "../components/modal/components/VIPItems";
 import { GreenhouseInside } from "features/greenhouse/GreenhouseInside";
 import { useSound } from "lib/utils/hooks/useSound";
+import { SomethingArrived } from "./components/SomethingArrived";
 
 export const AUTO_SAVE_INTERVAL = 1000 * 30; // autosave every 30 seconds
 const SHOW_MODAL: Record<StateValues, boolean> = {
@@ -122,6 +123,7 @@ const SHOW_MODAL: Record<StateValues, boolean> = {
   withdrawing: true,
   withdrawn: true,
   sellMarketResource: false,
+  somethingArrived: true,
 };
 
 // State change selectors
@@ -178,6 +180,8 @@ const isBlacklisted = (state: MachineState) => state.matches("blacklisted");
 const hasAirdrop = (state: MachineState) => state.matches("airdrop");
 const hasSpecialOffer = (state: MachineState) => state.matches("specialOffer");
 const isPlaying = (state: MachineState) => state.matches("playing");
+const somethingArrived = (state: MachineState) =>
+  state.matches("somethingArrived");
 const isProvingPersonhood = (state: MachineState) =>
   state.matches("provingPersonhood");
 
@@ -306,6 +310,7 @@ export const GameWrapper: React.FC = ({ children }) => {
   const airdrop = useSelector(gameService, hasAirdrop);
   const specialOffer = useSelector(gameService, hasSpecialOffer);
   const playing = useSelector(gameService, isPlaying);
+  const hasSomethingArrived = useSelector(gameService, somethingArrived);
 
   const showPWAInstallPrompt = useSelector(authService, _showPWAInstallPrompt);
 
@@ -392,7 +397,7 @@ export const GameWrapper: React.FC = ({ children }) => {
                     <img id="logo" src={logo} className="w-full" />
                   )}
                   <div className="flex justify-center">
-                    <Label type="default">
+                    <Label type="default" className="font-secondary">
                       {CONFIG.RELEASE_VERSION?.split("-")[0]}
                     </Label>
                     {hasFeatureAccess(TEST_FARM, "EASTER") && (
@@ -470,6 +475,7 @@ export const GameWrapper: React.FC = ({ children }) => {
             {specialOffer && <VIPOffer />}
             {withdrawing && <Withdrawing />}
             {withdrawn && <Withdrawn />}
+            {hasSomethingArrived && <SomethingArrived />}
           </Panel>
         </Modal>
 

@@ -68,7 +68,6 @@ import {
   GoldTooth,
   GuideCompost,
   GuideTerms,
-  HalveningCountdown,
   Harvestflower,
   HarvestBeeHive,
   HayseedHankPlaza,
@@ -176,6 +175,9 @@ import {
   CropMachine,
   RemoveCropMachine,
   Username,
+  EasterEggKeys,
+  ChangeLanguage,
+  FactionShopDescription,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -281,8 +283,8 @@ const generalTerms: Record<GeneralTerms, string> = {
   info: "Bilgi",
   item: "Öğe",
   land: "Ada",
+  landscaping: ENGLISH_TERMS.landscaping,
   "last.updated": "Son güncelleme:",
-  left: "Çıktı",
   "lets.go": "Hadi Gidelim!",
   limit: "Sınır",
   "linked.wallet": "Bağlantılı Cüzdan",
@@ -347,6 +349,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   retry: "Tekrar Dene",
   reward: "Ödül",
   "reward.discovered": "Ödül Keşfedildi",
+  "reward.whatsNew": ENGLISH_TERMS["reward.whatsNew"],
   save: "Kaydet",
   saving: "Kaydediliyor",
   seeds: "Tohumlar",
@@ -429,19 +432,47 @@ const generalTerms: Record<GeneralTerms, string> = {
   requirements: ENGLISH_TERMS.requirements,
   "max.reached": ENGLISH_TERMS["max.reached"],
   bought: ENGLISH_TERMS.bought,
+  "time.remaining": ENGLISH_TERMS["time.remaining"],
+  expired: ENGLISH_TERMS.expired,
 };
 
 const timeUnits: Record<TimeUnits, string> = {
-  // Time
-  sec: "saniye",
-  min: "dakika",
-  hr: "saat",
-  day: "gün",
+  // Full Singular
+  "time.second.full": "saniye",
+  "time.minute.full": "dakika",
+  "time.hour.full": "saat",
+  "time.day.full": "gün",
 
-  secs: "saniye",
-  mins: "dakika",
-  hrs: "saat",
-  days: "gün",
+  // Full Plural
+  "time.seconds.full": "saniye",
+  "time.minutes.full": "dakika",
+  "time.hours.full": "saat",
+  "time.days.full": "gün",
+
+  // Medium Singular
+  "time.sec.med": "sn",
+  "time.min.med": "dk",
+  "time.hr.med": "sa",
+  "time.day.med": "gnn",
+
+  // Medium Plural
+  "time.secs.med": "sn",
+  "time.mins.med": "dk",
+  "time.hrs.med": "sa",
+  "time.days.med": "gn",
+
+  // Short
+  "time.second.short": "sn",
+  "time.minute.short": "d",
+  "time.hour.short": "sa",
+  "time.day.short": "g",
+
+  // Relative Time
+  // Example: 5(time) minutes (singular or plural form) ago
+  "time.seconds.ago": "{{time}} saniye önce",
+  "time.minutes.ago": "{{time}} dakika önce ",
+  "time.hours.ago": "{{time}} saat önce ",
+  "time.days.ago": "{{time}} gün önce",
 };
 
 const achievementTerms: Record<AchievementsTerms, string> = {
@@ -576,6 +607,9 @@ const availableSeeds: Record<AvailableSeeds, string> = {
   "availableSeeds.select.plant": "Hangi tohumu seçip dikmek istersiniz?",
   "quickSelect.empty": ENGLISH_TERMS["quickSelect.empty"],
   "quickSelect.label": ENGLISH_TERMS["quickSelect.label"],
+  "quickSelect.cropSeeds": ENGLISH_TERMS["quickSelect.cropSeeds"],
+  "quickSelect.greenhouseSeeds": ENGLISH_TERMS["quickSelect.greenhouseSeeds"],
+  "quickSelect.purchase": ENGLISH_TERMS["quickSelect.purchase"],
 };
 
 const base: Record<Base, string> = {
@@ -619,6 +653,15 @@ const beehive: Record<Beehive, string> = {
   "beehive.beeSwarm": "Arı sürüsü",
   "beehive.pollinationCelebration":
     "Tozlaşma kutlaması! Mahsulleriniz, dost canlısı bir arı sürüsü sayesinde 0,2'lik bir destekle ödüllendirilecek!",
+  "beehive.honeyProductionPaused":
+    ENGLISH_TERMS["beehive.honeyProductionPaused"],
+  "beehive.yield": ENGLISH_TERMS["beehive.yield"],
+  "beehive.honeyPerFullHive": ENGLISH_TERMS["beehive.honeyPerFullHive"],
+  "beehive.speed": ENGLISH_TERMS["beehive.speed"],
+  "beehive.fullHivePerDay": ENGLISH_TERMS["beehive.fullHivePerDay"],
+  "beehive.estimatedFull": ENGLISH_TERMS["beehive.estimatedFull"],
+  "beehive.hive.singular": ENGLISH_TERMS["beehive.hive.singular"],
+  "beehive.hives.plural": ENGLISH_TERMS["beehive.hives.plural"],
 };
 
 const birdiePlaza: Record<BirdiePlaza, string> = {
@@ -703,8 +746,8 @@ const boostDescriptions: Record<BoostDescriptions, string> = {
     "Savaşın talihsiz bir kaybı. Yumurta veriminde 10% artış.",
   "description.observatory": "Yıldızları keşfedin ve bilimsel gelişimi artırın",
   "description.engine.core": "Ayçiçeğinin gücü",
-  "description.time.warp.totem":
-    "Mahsuller,ağaçlar,yemek pişirme ve mineraller için 2 kat hız. Sadece 2 saat geçerli",
+  "description.time.warp.totem": ENGLISH_TERMS["description.time.warp.totem"],
+  //"Mahsuller,ağaçlar,yemek pişirme ve mineraller için 2 kat hız. Sadece 2 saat geçerli",
   "description.time.warp.totem.expired":
     "Zaman bükme toteminin süresi doldu. Çiftçilik yeteneklerini geliştirecek daha fazla sihirli eşya keşfetmek ve üretmek için Balkabağı Plazasına git!",
   "description.time.warp.totem.temporarily":
@@ -738,12 +781,10 @@ const boostDescriptions: Record<BoostDescriptions, string> = {
     "Sahibini değerli bir hazineye götüren gizemli bir harita. Plaj ödül eşyalarından +20% kar.",
   "description.genie.lamp":
     "İçinde sana 3 dilek hakkı verecek bir cin içeren sihirli bir lamba.",
-  "description.basic.scarecrow":
-    "Çiftliğinizin ÇÖB’ünün seçici savunucusu (Çok Önemli Bitkiler)",
-  "description.scary.mike":
-    "Sebzelere fısıldayan ve korkunç derecede iyi hasatların şampiyonu!",
+  "description.basic.scarecrow": ENGLISH_TERMS["description.basic.scarecrow"],
+  "description.scary.mike": ENGLISH_TERMS["description.scary.mike"],
   "description.laurie.chuckle.crow":
-    "Rahatsız edici kıkırdaması ile gagalayanları mahsullerinden kaçırıyor!",
+    ENGLISH_TERMS["description.laurie.chuckle.crow"],
   "description.immortal.pear": ENGLISH_TERMS["description.immortal.pear"],
   "description.bale":
     "Tavuklar için konforlu bir sığınak sağlayan,kümes hayvanlarının en sevdiği komşusu.",
@@ -858,7 +899,8 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.christmas.festive.tree.boost": "Noelde Ücretsiz Hediye",
   "description.grinxs.hammer.boost": "Genişleme maliyetlerini yarıya indirir",
   "description.time.warp.totem.boost":
-    "Mahsul, Pişirme, Mineral ve Ağaç Yenilenme Sürelerinde 50% azalma",
+    ENGLISH_TERMS["description.time.warp.totem.boost"],
+  //"Mahsul, Pişirme, Mineral ve Ağaç Yenilenme Sürelerinde 50% azalma",
   "description.radiant.ray.boost": "+0.1 Demir",
   "description.beekeeper.hat.boost": "+0.2 Bal Üretim Hızı",
   "description.babyPanda.boost": "Başlangıç 2x XP Takviyesi",
@@ -880,6 +922,25 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.olive.shirt.boost":
     ENGLISH_TERMS["description.olive.shirt.boost"],
   "description.tofu.mask.boost": ENGLISH_TERMS["description.tofu.mask.boost"],
+
+  "description.gourmet.hourglass.boost":
+    ENGLISH_TERMS["description.gourmet.hourglass.boost"],
+  "description.harvest.hourglass.boost":
+    ENGLISH_TERMS["description.harvest.hourglass.boost"],
+  "description.timber.hourglass.boost":
+    ENGLISH_TERMS["description.timber.hourglass.boost"],
+  "description.ore.hourglass.boost":
+    ENGLISH_TERMS["description.ore.hourglass.boost"],
+  "description.orchard.hourglass.boost":
+    ENGLISH_TERMS["description.orchard.hourglass.boost"],
+  "description.fishers.hourglass.boost":
+    ENGLISH_TERMS["description.fishers.hourglass.boost"],
+  "description.blossom.hourglass.boost":
+    ENGLISH_TERMS["description.blossom.hourglass.boost"],
+  "description.hourglass.expired":
+    ENGLISH_TERMS["description.hourglass.expired"],
+  "description.hourglass.running":
+    ENGLISH_TERMS["description.hourglass.running"],
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -976,6 +1037,43 @@ const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
   "bumpkinItemBuff.honeycomb.shield":
     ENGLISH_TERMS["bumpkinItemBuff.honeycomb.shield"],
   "bumpkinItemBuff.flower.crown": "-50% Çiçek Büyüme süresi",
+  "bumpkinItemBuff.goblin.armor": ENGLISH_TERMS["bumpkinItemBuff.goblin.armor"],
+  "bumpkinItemBuff.goblin.helmet":
+    ENGLISH_TERMS["bumpkinItemBuff.goblin.helmet"],
+  "bumpkinItemBuff.goblin.axe": ENGLISH_TERMS["bumpkinItemBuff.goblin.axe"],
+  "bumpkinItemBuff.goblin.pants": ENGLISH_TERMS["bumpkinItemBuff.goblin.pants"],
+  "bumpkinItemBuff.goblin.sabatons":
+    ENGLISH_TERMS["bumpkinItemBuff.goblin.sabatons"],
+  "bumpkinItemBuff.nightshade.armor":
+    ENGLISH_TERMS["bumpkinItemBuff.nightshade.armor"],
+  "bumpkinItemBuff.nightshade.helmet":
+    ENGLISH_TERMS["bumpkinItemBuff.nightshade.helmet"],
+  "bumpkinItemBuff.nightshade.sword":
+    ENGLISH_TERMS["bumpkinItemBuff.nightshade.sword"],
+  "bumpkinItemBuff.nightshade.pants":
+    ENGLISH_TERMS["bumpkinItemBuff.nightshade.pants"],
+  "bumpkinItemBuff.nightshade.sabatons":
+    ENGLISH_TERMS["bumpkinItemBuff.nightshade.sabatons"],
+  "bumpkinItemBuff.sunflorian.armor":
+    ENGLISH_TERMS["bumpkinItemBuff.sunflorian.armor"],
+  "bumpkinItemBuff.sunflorian.helmet":
+    ENGLISH_TERMS["bumpkinItemBuff.sunflorian.helmet"],
+  "bumpkinItemBuff.sunflorian.sword":
+    ENGLISH_TERMS["bumpkinItemBuff.sunflorian.sword"],
+  "bumpkinItemBuff.sunflorian.pants":
+    ENGLISH_TERMS["bumpkinItemBuff.sunflorian.pants"],
+  "bumpkinItemBuff.sunflorian.sabatons":
+    ENGLISH_TERMS["bumpkinItemBuff.sunflorian.sabatons"],
+  "bumpkinItemBuff.bumpkin.armor":
+    ENGLISH_TERMS["bumpkinItemBuff.bumpkin.armor"],
+  "bumpkinItemBuff.bumpkin.helmet":
+    ENGLISH_TERMS["bumpkinItemBuff.bumpkin.helmet"],
+  "bumpkinItemBuff.bumpkin.sword":
+    ENGLISH_TERMS["bumpkinItemBuff.bumpkin.sword"],
+  "bumpkinItemBuff.bumpkin.pants":
+    ENGLISH_TERMS["bumpkinItemBuff.bumpkin.pants"],
+  "bumpkinItemBuff.bumpkin.sabatons":
+    ENGLISH_TERMS["bumpkinItemBuff.bumpkin.sabatons"],
 };
 
 const bumpkinPart: Record<BumpkinPart, string> = {
@@ -1059,6 +1157,7 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.maximumFloor": ENGLISH_TERMS["bumpkinTrade.maximumFloor"],
   "bumpkinTrade.sellConfirmation":
     ENGLISH_TERMS["bumpkinTrade.sellConfirmation"],
+  "bumpkinTrade.cant.sell.all": ENGLISH_TERMS["bumpkinTrade.cant.sell.all"],
 };
 
 const goblinTrade: Record<GoblinTrade, string> = {
@@ -1082,6 +1181,15 @@ const buyFarmHand: Record<BuyFarmHand, string> = {
   "buyFarmHand.buyBumpkin": "Bumpkin satın al",
   "buyFarmHand.newFarmhandGreeting":
     "Ben senin yeni çiftçinim. İşe gitmek için sabırsızlanıyorum!",
+};
+
+const changeLanguage: Record<ChangeLanguage, string> = {
+  "changeLanguage.confirm": ENGLISH_TERMS["changeLanguage.confirm"],
+  "changeLanguage.contribute": ENGLISH_TERMS["changeLanguage.contribute"],
+  "changeLanguage.contribute.message":
+    ENGLISH_TERMS["changeLanguage.contribute.message"],
+  "changeLanguage.currentLanguage":
+    ENGLISH_TERMS["changeLanguage.currentLanguage"],
 };
 
 const chat: Record<Chat, string> = {
@@ -1111,6 +1219,7 @@ const choresStart: Record<ChoresStart, string> = {
   "chores.newSeason":
     "Yeni bir sezon yaklaşıyor, işler geçici olarak kapanacak.",
   "chores.choresFrozen": ENGLISH_TERMS["chores.choresFrozen"],
+  "chores.left": ENGLISH_TERMS["chores.left"],
 };
 
 const chumDetails: Record<ChumDetails, string> = {
@@ -1187,6 +1296,7 @@ const composterDescription: Record<ComposterDescription, string> = {
 
 const confirmationTerms: Record<ConfirmationTerms, string> = {
   "confirmation.sellCrops": ENGLISH_TERMS["confirmation.sellCrops"],
+  "confirmation.buyCrops": ENGLISH_TERMS["confirmation.buyCrops"],
 };
 
 const confirmSkill: Record<ConfirmSkill, string> = {
@@ -1194,6 +1304,12 @@ const confirmSkill: Record<ConfirmSkill, string> = {
 };
 
 const conversations: Record<Conversations, string> = {
+  "home-intro.one": ENGLISH_TERMS["home-intro.one"],
+  "home-intro.three": ENGLISH_TERMS["home-intro.three"],
+  "home-intro.two": ENGLISH_TERMS["home-intro.two"],
+  "firepit-intro.one": ENGLISH_TERMS["firepit-intro.one"],
+  "firepit-intro.two": ENGLISH_TERMS["firepit-intro.two"],
+  "firepit.increasedXP": ENGLISH_TERMS["firepit.increasedXP"],
   "hank-intro.headline": "Yaşlı bir adama yardım mı edeceksin?",
   "hank-intro.one": "Selam Bumpkin! Küçük cennet bölgemize hoş geldiniz.",
   "hank-intro.two":
@@ -1366,6 +1482,7 @@ const cropMachine: Record<CropMachine, string> = {
   "cropMachine.addOil": ENGLISH_TERMS["cropMachine.addOil"],
   "cropMachine.addSeedPack": ENGLISH_TERMS["cropMachine.addSeedPack"],
   "cropMachine.addSeeds": ENGLISH_TERMS["cropMachine.addSeeds"],
+  "cropMachine.all": ENGLISH_TERMS["cropMachine.all"],
   "cropMachine.availableInventory":
     ENGLISH_TERMS["cropMachine.availableInventory"],
   "cropMachine.boosted": ENGLISH_TERMS["cropMachine.boosted"],
@@ -1373,7 +1490,7 @@ const cropMachine: Record<CropMachine, string> = {
   "cropMachine.growTimeRemaining":
     ENGLISH_TERMS["cropMachine.growTimeRemaining"],
   "cropMachine.harvest": ENGLISH_TERMS["cropMachine.harvest"],
-  "cropMachine.harvestAllCrops": ENGLISH_TERMS["cropMachine.harvestAllCrops"],
+  "cropMachine.harvestCropPack": ENGLISH_TERMS["cropMachine.harvestCropPack"],
   "cropMachine.machineRuntime": ENGLISH_TERMS["cropMachine.machineRuntime"],
   "cropMachine.maxRuntime": ENGLISH_TERMS["cropMachine.maxRuntime"],
   "cropMachine.moreOilRequired": ENGLISH_TERMS["cropMachine.moreOilRequired"],
@@ -1392,6 +1509,10 @@ const cropMachine: Record<CropMachine, string> = {
   "cropMachine.totalCrops": ENGLISH_TERMS["cropMachine.totalCrops"],
   "cropMachine.totalRuntime": ENGLISH_TERMS["cropMachine.totalRuntime"],
   "cropMachine.totalSeeds": ENGLISH_TERMS["cropMachine.totalSeeds"],
+  "cropMachine.running": ENGLISH_TERMS["cropMachine.running"],
+  "cropMachine.stopped": ENGLISH_TERMS["cropMachine.stopped"],
+  "cropMachine.idle": ENGLISH_TERMS["cropMachine.idle"],
+  "cropMachine.name": ENGLISH_TERMS["cropMachine.name"],
 };
 
 const decorationDescriptions: Record<DecorationDescriptions, string> = {
@@ -1754,6 +1875,12 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
   "description.traineeTarget": ENGLISH_TERMS["description.traineeTarget"],
   "description.twisterRug": ENGLISH_TERMS["description.twisterRug"],
   "description.ricePanda": ENGLISH_TERMS["description.ricePanda"],
+  "description.benevolenceFlag": ENGLISH_TERMS["description.benevolenceFlag"],
+  "description.devotionFlag": ENGLISH_TERMS["description.devotionFlag"],
+  "description.generosityFlag": ENGLISH_TERMS["description.generosityFlag"],
+  "description.splendorFlag": ENGLISH_TERMS["description.splendorFlag"],
+  "description.jellyLamp": ENGLISH_TERMS["description.jellyLamp"],
+  "description.paintCan": ENGLISH_TERMS["description.paintCan"],
 };
 
 const defaultDialogue: Record<DefaultDialogue, string> = {
@@ -1949,6 +2076,13 @@ const exoticShopItems: Record<ExoticShopItems, string> = {
 };
 
 const factions: Record<Factions, string> = {
+  "faction.emblems": ENGLISH_TERMS["faction.emblems"],
+  "faction.emblems.intro.one": ENGLISH_TERMS["faction.emblems.intro.one"],
+  "faction.emblems.intro.three": ENGLISH_TERMS["faction.emblems.intro.three"],
+  "faction.emblems.intro.two": ENGLISH_TERMS["faction.emblems.intro.two"],
+  "faction.tradeEmblems": ENGLISH_TERMS["faction.tradeEmblems"],
+  "faction.marksBoost": ENGLISH_TERMS["faction.marksBoost"],
+  "faction.openingSoon": ENGLISH_TERMS["faction.openingSoon"],
   "faction.join": ENGLISH_TERMS["faction.join"],
   "faction.description.bumpkins": ENGLISH_TERMS["faction.description.bumpkins"],
   "faction.description.goblins": ENGLISH_TERMS["faction.description.goblins"],
@@ -1989,6 +2123,7 @@ const factions: Record<Factions, string> = {
   "faction.points.pledge.warning":
     ENGLISH_TERMS["faction.points.pledge.warning"],
   "faction.emblemAirdrop": ENGLISH_TERMS["faction.emblemAirdrop"],
+  "faction.emblemAirdrop.closes": ENGLISH_TERMS["faction.emblemAirdrop.closes"],
 
   // Kingdom
   "faction.restrited.area": ENGLISH_TERMS["faction.restrited.area"],
@@ -2021,12 +2156,158 @@ const factions: Record<Factions, string> = {
   "faction.claimEmblems.claim": ENGLISH_TERMS["faction.claimEmblems.claim"],
   "faction.claimEmblems.congratulations":
     ENGLISH_TERMS["faction.claimEmblems.congratulations"],
+  "faction.claimEmblems.comparison":
+    ENGLISH_TERMS["faction.claimEmblems.comparison"],
   "faction.claimEmblems.totalMembers":
     ENGLISH_TERMS["faction.claimEmblems.totalMembers"],
   "faction.claimEmblems.totalEmblems":
     ENGLISH_TERMS["faction.claimEmblems.totalEmblems"],
   "faction.claimEmblems.percentile":
     ENGLISH_TERMS["faction.claimEmblems.percentile"],
+  "faction.claimEmblems.travelNow":
+    ENGLISH_TERMS["faction.claimEmblems.travelNow"],
+  "faction.claimEmblems.visitMe": ENGLISH_TERMS["faction.claimEmblems.visitMe"],
+  "faction.kitchen.gatherResources":
+    ENGLISH_TERMS["faction.kitchen.gatherResources"],
+  "faction.kitchen.opensIn": ENGLISH_TERMS["faction.kitchen.opensIn"],
+  "faction.kitchen.notReady": ENGLISH_TERMS["faction.kitchen.notReady"],
+  "faction.kitchen.preparing": ENGLISH_TERMS["faction.kitchen.preparing"],
+  "faction.kitchen.newRequests": ENGLISH_TERMS["faction.kitchen.newRequests"],
+
+  // Faction Shop
+  "faction.shop.onlyFor": ENGLISH_TERMS["faction.shop.onlyFor"],
+  "faction.shop.welcome": ENGLISH_TERMS["faction.shop.welcome"],
+};
+
+const factionShopDescription: Record<FactionShopDescription, string> = {
+  "description.factionShop.sunflorianThrone":
+    ENGLISH_TERMS["description.factionShop.sunflorianThrone"],
+  "description.factionShop.nightshadeThrone":
+    ENGLISH_TERMS["description.factionShop.nightshadeThrone"],
+  "description.factionShop.goblinThrone":
+    ENGLISH_TERMS["description.factionShop.goblinThrone"],
+  "description.factionShop.bumpkinThrone":
+    ENGLISH_TERMS["description.factionShop.bumpkinThrone"],
+  "description.factionShop.goldenSunflorianEgg":
+    ENGLISH_TERMS["description.factionShop.goldenSunflorianEgg"],
+  "description.factionShop.goblinMischiefEgg":
+    ENGLISH_TERMS["description.factionShop.goblinMischiefEgg"],
+  "description.factionShop.bumpkinCharmEgg":
+    ENGLISH_TERMS["description.factionShop.bumpkinCharmEgg"],
+  "description.factionShop.nightshadeVeilEgg":
+    ENGLISH_TERMS["description.factionShop.nightshadeVeilEgg"],
+  "description.factionShop.emeraldGoblinGoblet":
+    ENGLISH_TERMS["description.factionShop.emeraldGoblinGoblet"],
+  "description.factionShop.opalSunflorianGoblet":
+    ENGLISH_TERMS["description.factionShop.opalSunflorianGoblet"],
+  "description.factionShop.sapphireBumpkinGoblet":
+    ENGLISH_TERMS["description.factionShop.sapphireBumpkinGoblet"],
+  "description.factionShop.amethystNightshadeGoblet":
+    ENGLISH_TERMS["description.factionShop.amethystNightshadeGoblet"],
+  "description.factionShop.goldenFactionGoblet":
+    ENGLISH_TERMS["description.factionShop.goldenFactionGoblet"],
+  "description.factionShop.rubyFactionGoblet":
+    ENGLISH_TERMS["description.factionShop.rubyFactionGoblet"],
+  "description.factionShop.sunflorianBunting":
+    ENGLISH_TERMS["description.factionShop.sunflorianBunting"],
+  "description.factionShop.nightshadeBunting":
+    ENGLISH_TERMS["description.factionShop.nightshadeBunting"],
+  "description.factionShop.goblinBunting":
+    ENGLISH_TERMS["description.factionShop.goblinBunting"],
+  "description.factionShop.bumpkinBunting":
+    ENGLISH_TERMS["description.factionShop.bumpkinBunting"],
+  "description.factionShop.sunflorianCandles":
+    ENGLISH_TERMS["description.factionShop.sunflorianCandles"],
+  "description.factionShop.nightshadeCandles":
+    ENGLISH_TERMS["description.factionShop.nightshadeCandles"],
+  "description.factionShop.goblinCandles":
+    ENGLISH_TERMS["description.factionShop.goblinCandles"],
+  "description.factionShop.bumpkinCandles":
+    ENGLISH_TERMS["description.factionShop.bumpkinCandles"],
+  "description.factionShop.sunflorianLeftWallSconce":
+    ENGLISH_TERMS["description.factionShop.sunflorianLeftWallSconce"],
+  "description.factionShop.nightshadeLeftWallSconce":
+    ENGLISH_TERMS["description.factionShop.nightshadeLeftWallSconce"],
+  "description.factionShop.goblinLeftWallSconce":
+    ENGLISH_TERMS["description.factionShop.goblinLeftWallSconce"],
+  "description.factionShop.bumpkinLeftWallSconce":
+    ENGLISH_TERMS["description.factionShop.bumpkinLeftWallSconce"],
+  "description.factionShop.sunflorianRightWallSconce":
+    ENGLISH_TERMS["description.factionShop.sunflorianRightWallSconce"],
+  "description.factionShop.nightshadeRightWallSconce":
+    ENGLISH_TERMS["description.factionShop.nightshadeRightWallSconce"],
+  "description.factionShop.goblinRightWallSconce":
+    ENGLISH_TERMS["description.factionShop.goblinRightWallSconce"],
+  "description.factionShop.bumpkinRightWallSconce":
+    ENGLISH_TERMS["description.factionShop.bumpkinRightWallSconce"],
+  "description.factionShop.cookingBoost":
+    ENGLISH_TERMS["description.factionShop.cookingBoost"],
+  "description.factionShop.cropBoost":
+    ENGLISH_TERMS["description.factionShop.cropBoost"],
+  "description.factionShop.woodBoost":
+    ENGLISH_TERMS["description.factionShop.woodBoost"],
+  "description.factionShop.mineralBoost":
+    ENGLISH_TERMS["description.factionShop.mineralBoost"],
+  "description.factionShop.fruitBoost":
+    ENGLISH_TERMS["description.factionShop.fruitBoost"],
+  "description.factionShop.flowerBoost":
+    ENGLISH_TERMS["description.factionShop.flowerBoost"],
+  "description.factionShop.fishBoost":
+    ENGLISH_TERMS["description.factionShop.fishBoost"],
+  "description.factionShop.sunflorianFactionRug":
+    ENGLISH_TERMS["description.factionShop.sunflorianFactionRug"],
+  "description.factionShop.nightshadeFactionRug":
+    ENGLISH_TERMS["description.factionShop.nightshadeFactionRug"],
+  "description.factionShop.goblinFactionRug":
+    ENGLISH_TERMS["description.factionShop.goblinFactionRug"],
+  "description.factionShop.bumpkinFactionRug":
+    ENGLISH_TERMS["description.factionShop.bumpkinFactionRug"],
+  "description.factionShop.goblinArmor":
+    ENGLISH_TERMS["description.factionShop.goblinArmor"],
+  "description.factionShop.goblinHelmet":
+    ENGLISH_TERMS["description.factionShop.goblinHelmet"],
+  "description.factionShop.goblinPants":
+    ENGLISH_TERMS["description.factionShop.goblinPants"],
+  "description.factionShop.goblinSabatons":
+    ENGLISH_TERMS["description.factionShop.goblinSabatons"],
+  "description.factionShop.goblinAxe":
+    ENGLISH_TERMS["description.factionShop.goblinAxe"],
+  "description.factionShop.sunflorianArmor":
+    ENGLISH_TERMS["description.factionShop.sunflorianArmor"],
+  "description.factionShop.sunflorianHelmet":
+    ENGLISH_TERMS["description.factionShop.sunflorianHelmet"],
+  "description.factionShop.sunflorianPants":
+    ENGLISH_TERMS["description.factionShop.sunflorianPants"],
+  "description.factionShop.sunflorianSabatons":
+    ENGLISH_TERMS["description.factionShop.sunflorianSabatons"],
+  "description.factionShop.sunflorianSword":
+    ENGLISH_TERMS["description.factionShop.sunflorianSword"],
+  "description.factionShop.bumpkinArmor":
+    ENGLISH_TERMS["description.factionShop.bumpkinArmor"],
+  "description.factionShop.bumpkinHelmet":
+    ENGLISH_TERMS["description.factionShop.bumpkinHelmet"],
+  "description.factionShop.bumpkinPants":
+    ENGLISH_TERMS["description.factionShop.bumpkinPants"],
+  "description.factionShop.bumpkinSabatons":
+    ENGLISH_TERMS["description.factionShop.bumpkinSabatons"],
+  "description.factionShop.bumpkinSword":
+    ENGLISH_TERMS["description.factionShop.bumpkinSword"],
+  "description.factionShop.nightshadeArmor":
+    ENGLISH_TERMS["description.factionShop.nightshadeArmor"],
+  "description.factionShop.nightshadeHelmet":
+    ENGLISH_TERMS["description.factionShop.nightshadeHelmet"],
+  "description.factionShop.nightshadePants":
+    ENGLISH_TERMS["description.factionShop.nightshadePants"],
+  "description.factionShop.nightshadeSabatons":
+    ENGLISH_TERMS["description.factionShop.nightshadeSabatons"],
+  "description.factionShop.nightshadeSword":
+    ENGLISH_TERMS["description.factionShop.nightshadeSword"],
+  "description.factionShop.knightGambit":
+    ENGLISH_TERMS["description.factionShop.knightGambit"],
+  "description.factionShop.motley":
+    ENGLISH_TERMS["description.factionShop.motley"],
+  "description.factionShop.royalBraids":
+    ENGLISH_TERMS["description.factionShop.royalBraids"],
 };
 
 const festiveTree: Record<FestiveTree, string> = {
@@ -2470,6 +2751,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
     ENGLISH_TERMS["description.sunflorian.emblem"],
   "description.nightshade.emblem":
     ENGLISH_TERMS["description.nightshade.emblem"],
+  "description.faction.mark": ENGLISH_TERMS["description.faction.mark"],
 };
 
 const gameTerms: Record<GameTerms, string> = {
@@ -2495,6 +2777,8 @@ const gameTerms: Record<GameTerms, string> = {
   "visiting.farmId": ENGLISH_TERMS["visiting.farmId"],
   "harvest.number": ENGLISH_TERMS["harvest.number"],
   "level.number": ENGLISH_TERMS["level.number"],
+  "stock.left": ENGLISH_TERMS["stock.left"],
+  "stock.inStock": ENGLISH_TERMS["stock.inStock"],
 };
 
 const garbageCollector: Record<GarbageCollector, string> = {
@@ -2554,8 +2838,8 @@ const goldTooth: Record<GoldTooth, string> = {
 };
 
 const guideCompost: Record<GuideCompost, string> = {
-  "guide.compost.add.eggs.speed": "Üretimi hızlandırmak için yumurta ekleyin",
-  "guide.compost.add.eggs": "Yumurta Ekle",
+  "guide.compost.addEggs.speed": "Üretimi hızlandırmak için yumurta ekleyin",
+  "guide.compost.addEggs": "Yumurta Ekle",
   "guide.compost.eggs": "Yumurtalar",
   "guide.compost.cropGrowthTime": "-50% Mahsul Büyüme Süresi",
   "guide.compost.fishingBait": "Balık yemi",
@@ -2567,6 +2851,8 @@ const guideCompost: Record<GuideCompost, string> = {
     "Her kompost, balık tutmak için yem olarak kullanılabilecek solucanlar üretir",
   "guide.compost.useEggs":
     "Beklemekten yoruldunuz mu? Kompost üretimini hızlandırmak için Yumurta kullanın",
+  "guide.compost.addEggs.confirmation":
+    ENGLISH_TERMS["guide.compost.addEggs.confirmation"],
 };
 
 const guideTerms: Record<GuideTerms, string> = {
@@ -2651,14 +2937,6 @@ const guideTerms: Record<GuideTerms, string> = {
   "pete.teaser.eight": "Yemek pişirin ve seviye atlayın",
 };
 
-const halveningCountdown: Record<HalveningCountdown, string> = {
-  "halveningCountdown.approaching": "Yarılanma Yaklaşıyor!",
-  "halveningCountdown.description":
-    "Halving'de tüm mahsullerin ve belirli kaynakların fiyatları yarıya iner. Bu, SFL’ye ulaşmayı daha da zorlaştırır.",
-  "halveningCountdown.preparation": "Hazır olduğunuzdan emin olun!",
-  "halveningCountdown.title": "Yarınlanma",
-};
-
 const harvestBeeHive: Record<HarvestBeeHive, string> = {
   "harvestBeeHive.notPlaced": "Bu arı kovanı yerleştirilmemiş.",
   "harvestBeeHive.noHoney": "Bu arı kovanında bal yok.",
@@ -2695,7 +2973,7 @@ const heliosSunflower: Record<HeliosSunflower, string> = {
   "heliosSunflower.title": "Ayçiçeği Clytie",
   "heliosSunflower.description":
     "Yalnızca gerçek kurtarıcı bu Ayçiçeğini geri getirip hasat edebilir.",
-  "confirmation.craft": "Üretmek istediğinizden emin misiniz?",
+  "confirmation.craft": ENGLISH_TERMS["confirmation.craft"],
 };
 
 const helper: Record<Helper, string> = {
@@ -4052,15 +4330,6 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.default.reward":
     "Vay be, teşekkürler Bumpkin.  İşte yardımınız için küçük bir hediye!",
   "npcDialogues.default.locked": "Lütfen yarın tekrar gelin.",
-  // Glinteye Intro
-  "npcDialogues.glinteye.intro1":
-    "Ah, maceracı!  Glinteye hizmetinizde. Sırları ve kaynakları takas etmeye hazır mısınız?  Listelerime dalın veya kendinizinkini ekleyin.  Bir anlaşma yapalım!",
-  "npcDialogues.glinteye.intro2":
-    "Hoş geldin meraklı ruh!  Ben Glinteye, ticaret harikaları rehberiniz.  Kaynakları benimle arayın veya listeleyin;  şans cesurdan yanadır!",
-  "npcDialogues.glinteye.intro3":
-    "Benim adım Glinteye, ticaret benim oyunum! Göz atın veya listeleyin, her zaman bir değişiklik vardır. Bugünkü hayalin ne?",
-  "npcDialogues.glinteye.intro4":
-    "Selamlar! Ben Glinteye, ticaretin gobliniyim. Oyuncu takaslarını keşfedin veya eşyalarınızı listeleyin. Gelin birlikte neler bulabileceğimize bakalım!",
 };
 
 const nyeButton: Record<NyeButton, string> = {
@@ -4201,6 +4470,9 @@ const playerTrade: Record<PlayerTrade, string> = {
 const portal: Record<Portal, string> = {
   "portal.wrong": "Bir şeyler yanlış gitti",
   "portal.unauthorised": "Yetkisiz",
+  "portal.example.intro": ENGLISH_TERMS["portal.example.intro"],
+  "portal.example.claimPrize": ENGLISH_TERMS["portal.example.claimPrize"],
+  "portal.example.purchase": ENGLISH_TERMS["portal.example.purchase"],
 };
 
 const promo: Record<Promo, string> = {
@@ -4292,7 +4564,8 @@ const restock: Record<Restock, string> = {
   "restock.one.buck":
     "Tüm mağaza ürünlerini yenilemek için 1 Block Bucks kullanacaksınız.",
   "restock.sure": "Yenilemek istediğinizden emin misiniz?",
-  "restock.seed.buy": "Sepetinizde fazla tohum var!",
+  "restock.tooManySeeds": "Sepetinizde fazla tohum var!",
+  "seeds.reachingInventoryLimit": ENGLISH_TERMS["seeds.reachingInventoryLimit"],
 };
 
 const retreatTerms: Record<RetreatTerms, string> = {
@@ -4585,7 +4858,6 @@ const statements: Record<Statements, string> = {
   "statements.water.well.needed.two":
     "Daha fazla mahsulü desteklemek için bir kuyu inşa edin.",
   "statements.soldOut": "Hepsi satıldı",
-  "statements.inStock": "Stokta var",
   "statements.soldOutWearables": "Tükenen giyilebilir ürünleri görüntüle",
   "statements.craft.composter": "Composter'da üret",
   "statements.wallet.to.inventory.transfer": "Cüzdanınızdan eşya yatırma",
@@ -4600,10 +4872,6 @@ const statements: Record<Statements, string> = {
 
   "statements.session.expired":
     "Oturumunuzun süresi dolmuş gibi görünüyor. Oynamaya devam etmek için lütfen sayfayı yenileyin.",
-  "statements.translation.want2contribute":
-    ENGLISH_TERMS["statements.translation.want2contribute"],
-  "statements.translation.contribution":
-    ENGLISH_TERMS["statements.translation.contribution"],
   "statements.translation.joinDiscord":
     ENGLISH_TERMS["statements.translation.joinDiscord"],
 };
@@ -4664,6 +4932,7 @@ const trader: Record<Trader, string> = {
 };
 
 const transactionTerms: Record<TransactionTerms, string> = {
+  "transaction.starterOffer": ENGLISH_TERMS["transaction.starterOffer"],
   "transaction.t&c.one":
     "Sunflower Land'de oturum açmak için şartlar ve koşulları kabul edin.",
   "transaction.t&c.two": "Şartlar ve Koşulları kabul edin",
@@ -4905,7 +5174,11 @@ const world: Record<World, string> = {
   "world.intro.one": "Merhaba Gezgin! Balkabağı Plazasına hoş geldiniz.",
   "world.intro.two":
     "Plaza, yardımınıza ihtiyacı olan çok çeşitli aç Bumpkins ve Goblinlere ev sahipliği yapıyor!",
-  "world.intro.three": "Maceranıza başlamadan önce birkaç kısa ipucu:",
+  "world.intro.delivery": ENGLISH_TERMS["world.intro.delivery"],
+  "world.intro.levelUpToTravel": ENGLISH_TERMS["world.intro.levelUpToTravel"],
+  "world.intro.find": ENGLISH_TERMS["world.intro.find"],
+  "world.intro.findNPC": ENGLISH_TERMS["world.intro.findNPC"],
+  "world.intro.missingDelivery": ENGLISH_TERMS["world.intro.missingDelivery"],
   "world.intro.visit":
     "NPC'leri ziyaret edin ve teslimatları tamamlayarak SFL, Coins ve nadir ödüller kazanın.",
   "world.intro.craft":
@@ -4929,6 +5202,7 @@ const world: Record<World, string> = {
   "world.woodlands": ENGLISH_TERMS["world.woodlands"],
   "world.home": ENGLISH_TERMS["world.home"],
   "world.kingdom": ENGLISH_TERMS["world.kingdom"],
+  "world.travelTo": ENGLISH_TERMS["world.travelTo"],
 };
 
 const wornDescription: Record<WornDescription, string> = {
@@ -5010,6 +5284,8 @@ const restrictionReason: Record<RestrictionReason, string> = {
     ENGLISH_TERMS["restrictionReason.oilReserveDrilled"],
   "restrictionReason.buildingInUse":
     ENGLISH_TERMS["restrictionReason.buildingInUse"],
+  "restrictionReason.beehiveInUse":
+    ENGLISH_TERMS["restrictionReason.beehiveInUse"],
 };
 
 export const leaderboardTerms: Record<Leaderboard, string> = {
@@ -5049,9 +5325,16 @@ const gameOptions: Record<GameOptions, string> = {
   "gameOptions.generalSettings.assignRole":
     ENGLISH_TERMS["gameOptions.generalSettings.assignRole"],
   "gameOptions.generalSettings.changeLanguage": "Dili değiştir",
+  "gameOptions.generalSettings.darkMode":
+    ENGLISH_TERMS["gameOptions.generalSettings.darkMode"],
+  "gameOptions.generalSettings.lightMode":
+    ENGLISH_TERMS["gameOptions.generalSettings.lightMode"],
+  "gameOptions.generalSettings.font":
+    ENGLISH_TERMS["gameOptions.generalSettings.font"],
   "gameOptions.generalSettings.disableAnimations": "Animasyonları Kapat",
   "gameOptions.generalSettings.enableAnimations": "Animasyonları Etkinleştir",
   "gameOptions.generalSettings.share": "Paylaş",
+  "gameOptions.generalSettings.appearance": "Appearance Settings",
 
   // Plaza Settings
   "gameOptions.plazaSettings": "Plaza Ayarları",
@@ -5082,6 +5365,30 @@ const minigame: Record<Minigame, string> = {
   "minigame.playNow": ENGLISH_TERMS["minigame.playNow"],
   "minigame.purchase": ENGLISH_TERMS["minigame.purchase"],
   "minigame.chickenRescueHelp": ENGLISH_TERMS["minigame.chickenRescueHelp"],
+  "minigame.discovered.one": ENGLISH_TERMS["minigame.discovered.one"],
+  "minigame.discovered.two": ENGLISH_TERMS["minigame.discovered.two"],
+  "minigame.communityEvent": ENGLISH_TERMS["minigame.communityEvent"],
+  "minigame.festivalOfColors": ENGLISH_TERMS["minigame.festivalOfColors"],
+  "minigame.festivalOfColors.comingSoon":
+    ENGLISH_TERMS["minigame.festivalOfColors.comingSoon"],
+  "minigame.festivalOfColors.intro":
+    ENGLISH_TERMS["minigame.festivalOfColors.intro"],
+  "minigame.festivalOfColors.mission":
+    ENGLISH_TERMS["minigame.festivalOfColors.mission"],
+};
+
+export const easterEggTerms: Record<EasterEggKeys, string> = {
+  "easterEgg.queensDiary": "Victoria's Diary",
+  "easterEgg.jesterDiary": "Jester's Diary",
+  "easterEgg.tywinDiary": "Tywin's Diary",
+  "easterEgg.kingDiary": "King's Diary",
+  "easterEgg.lostKnight": ENGLISH_TERMS["easterEgg.lostKnight"],
+  "easterEgg.knight": ENGLISH_TERMS["easterEgg.knight"],
+  "easterEgg.kingdomBook1": ENGLISH_TERMS["easterEgg.kingdomBook1"],
+  "easterEgg.kingdomBook2": ENGLISH_TERMS["easterEgg.kingdomBook2"],
+  "easterEgg.kingdomBook3": ENGLISH_TERMS["easterEgg.kingdomBook3"],
+  "easterEgg.kingdomBook4": ENGLISH_TERMS["easterEgg.kingdomBook4"],
+  "easterEgg.kingdomBook5": ENGLISH_TERMS["easterEgg.kingdomBook5"],
 };
 
 export const TURKISH_TERMS: Record<TranslationKeys, string> = {
@@ -5104,6 +5411,7 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...bumpkinSkillsDescription,
   ...bumpkinTrade,
   ...buyFarmHand,
+  ...changeLanguage,
   ...chat,
   ...chickenWinner,
   ...choresStart,
@@ -5133,6 +5441,7 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...event,
   ...exoticShopItems,
   ...factions,
+  ...factionShopDescription,
   ...festiveTree,
   ...fishDescriptions,
   ...fishermanModal,
@@ -5158,7 +5467,6 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...greenhouse,
   ...guideCompost,
   ...guideTerms,
-  ...halveningCountdown,
   ...harvestBeeHive,
   ...harvestflower,
   ...hayseedHankPlaza,
@@ -5260,4 +5568,5 @@ export const TURKISH_TERMS: Record<TranslationKeys, string> = {
   ...wornDescription,
   ...restrictionReason,
   ...removeCropMachine,
+  ...easterEggTerms,
 };

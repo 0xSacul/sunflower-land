@@ -21,6 +21,7 @@ describe("joinFaction", () => {
       joinFaction({
         state: {
           ...TEST_FARM,
+          balance: new Decimal(20),
           faction: {
             name: "bumpkins",
             pledgedAt: Date.now() - 1000,
@@ -44,7 +45,7 @@ describe("joinFaction", () => {
 
   it("joins a faction", () => {
     const state = joinFaction({
-      state: TEST_FARM,
+      state: { ...TEST_FARM, balance: new Decimal(20) },
       action: {
         type: "faction.joined",
         faction: "sunflorians",
@@ -64,7 +65,7 @@ describe("joinFaction", () => {
 
   it("adds the faction banner to the players inventory", () => {
     const state = joinFaction({
-      state: TEST_FARM,
+      state: { ...TEST_FARM, balance: new Decimal(20) },
       action: {
         type: "faction.joined",
         faction: "sunflorians",
@@ -94,15 +95,29 @@ describe("joinFaction", () => {
     expect(state.balance).toEqual(new Decimal(90));
   });
 
-  it("adds 5 Emblems to the players inventory", () => {
+  it("adds 1 Emblem to the players inventory", () => {
     const state = joinFaction({
-      state: TEST_FARM,
+      state: { ...TEST_FARM, balance: new Decimal(20) },
       action: {
         type: "faction.joined",
         faction: "sunflorians",
       },
     });
 
-    expect(state.inventory["Sunflorian Emblem"]).toEqual(new Decimal(5));
+    expect(state.inventory["Sunflorian Emblem"]).toEqual(new Decimal(1));
+  });
+  it("throws an error if the player doesn't have enough SFL", () => {
+    expect(() =>
+      joinFaction({
+        state: {
+          ...TEST_FARM,
+          balance: new Decimal(0),
+        },
+        action: {
+          type: "faction.joined",
+          faction: "sunflorians",
+        },
+      })
+    ).toThrow("Not enough SFL");
   });
 });

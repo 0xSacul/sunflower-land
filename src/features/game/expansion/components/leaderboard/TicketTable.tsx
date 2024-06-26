@@ -36,9 +36,9 @@ export const TicketTable: React.FC<Props> = ({
         {rankings.map(({ id, count, rank }, index) => (
           <tr
             key={index}
-            className={classNames({ "text-green-400": id === playerId })}
+            className={classNames({ "bg-[#ead4aa]": id === playerId })}
           >
-            <td style={{ border: "1px solid #b96f50" }} className="p-1.5">
+            <td style={{ border: "1px solid #b96f50" }} className="p-1.5 w-1/5">
               {rank ?? index + 1}
             </td>
             <td
@@ -47,7 +47,7 @@ export const TicketTable: React.FC<Props> = ({
             >
               {id}
             </td>
-            <td style={{ border: "1px solid #b96f50" }} className="p-1.5">
+            <td style={{ border: "1px solid #b96f50" }} className="p-1.5 w-1/5">
               {count}
             </td>
           </tr>

@@ -25,11 +25,13 @@ import { useSound } from "lib/utils/hooks/useSound";
 import trophy from "assets/icons/trophy.png";
 import factions from "assets/icons/factions.webp";
 import chores from "assets/icons/chores.webp";
+import factionMark from "assets/icons/faction_mark.webp";
 import { TicketsLeaderboard } from "./pages/TicketsLeaderboard";
 import { Leaderboards } from "features/game/expansion/components/leaderboard/actions/cache";
 import { fetchLeaderboardData } from "features/game/expansion/components/leaderboard/actions/leaderboard";
 import { hasFeatureAccess } from "lib/flags";
 import { FactionsLeaderboard } from "./pages/FactionsLeaderboard";
+import { MarksLeaderboard } from "./pages/MarksLeaderboard";
 
 interface Props {
   show: boolean;
@@ -123,27 +125,34 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
       icon: ITEM_DETAILS["Red Pansy"].image,
       count: 0,
     },
-    ...(hasFeatureAccess(state, "FACTION_LEADERBOARD")
+
+    {
+      name: "Leaderboard" as const,
+      icon: trophy,
+      count: 0,
+    },
+    ...(state.faction
       ? [
           {
-            name: "Leaderboard" as const,
-            icon: trophy,
+            name: "Factions" as const,
+            icon: factions,
             count: 0,
           },
-          ...(state.faction
-            ? [
-                {
-                  name: "Factions" as const,
-                  icon: factions,
-                  count: 0,
-                },
-              ]
-            : []),
+        ]
+      : []),
+    ...(hasFeatureAccess(state, "MARKS_LEADERBOARD")
+      ? [
+          {
+            name: "Marks" as const,
+            icon: factionMark,
+            count: 0,
+          },
         ]
       : []),
   ];
 
   return (
+    // TODO feat/marks-leaderboard ADD SHOW
     <Modal show={show} onHide={handleHide} dialogClassName="md:max-w-3xl">
       <div className="h-[500px] relative">
         {/* Header */}
@@ -176,17 +185,22 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
                   <OuterPanel
                     key={`${tab}-${index}`}
                     className={classNames(
-                      "flex items-center relative p-0.5 mb-1 cursor-pointer",
-                      {
-                        "bg-[#ead4aa]": currentTab === index,
-                      }
+                      "flex items-center relative p-0.5 mb-1 cursor-pointer"
                     )}
                     onClick={() => handleTabClick(index)}
+                    style={{
+                      background: currentTab === index ? "#ead4aa" : undefined,
+                    }}
                   >
                     {!!tab.count && (
                       <Label
                         type="default"
                         className="absolute -top-3 left-3 z-10"
+                        style={{
+                          paddingLeft: "2.5px",
+                          paddingRight: "1.5px",
+                          height: "24px",
+                        }}
                       >
                         {tab.count}
                       </Label>
@@ -198,39 +212,52 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
               </div>
             </div>
             {/* Content */}
-            <InnerPanel
+            {/* <InnerPanel
               className={classNames("flex flex-col h-full overflow-hidden", {
                 "overflow-y-auto scrollable": currentTab !== 5,
               })}
-            >
-              {currentTab === 0 && <Deliveries />}
-              {currentTab === 1 && <Chores farmId={farmId} />}
-              {currentTab === 2 && (
-                <Fish onMilestoneReached={handleMilestoneReached} />
-              )}
-              {currentTab === 3 && (
-                <Flowers onMilestoneReached={handleMilestoneReached} />
-              )}
-              {currentTab === 4 && (
+            > */}
+            {currentTab === 0 && <Deliveries onClose={onHide} />}
+            {currentTab === 1 && <Chores farmId={farmId} />}
+            {currentTab === 2 && (
+              <Fish onMilestoneReached={handleMilestoneReached} />
+            )}
+            {currentTab === 3 && (
+              <Flowers onMilestoneReached={handleMilestoneReached} />
+            )}
+            {currentTab === 4 && (
+              <InnerPanel
+                className={classNames(
+                  "flex flex-col h-full overflow-hidden overflow-y-auto scrollable"
+                )}
+              >
                 <TicketsLeaderboard
                   id={id}
                   isLoading={data === undefined}
                   data={data?.tickets ?? null}
                 />
-              )}
-              {currentTab === 5 && state.faction && (
+              </InnerPanel>
+            )}
+            {currentTab === 5 && state.faction && (
+              <InnerPanel
+                className={classNames(
+                  "flex flex-col h-full overflow-hidden overflow-y-auto scrollable"
+                )}
+              >
                 <FactionsLeaderboard
                   id={id}
                   faction={state.faction.name}
                   isLoading={data === undefined}
-                  data={data?.factions ?? null}
+                  data={data?.kingdom.emblems ?? null}
+                  lastUpdated={data?.kingdom.lastUpdated ?? null}
                 />
-              )}
-            </InnerPanel>
+              </InnerPanel>
+            )}
+            {currentTab === 6 && state.faction && <MarksLeaderboard />}
           </div>
         </OuterPanel>
         {showMilestoneReached && (
-          <div className="absolute w-full sm:w-5/6 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="absolute w-full sm:w-5/6 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[200]">
             <MilestoneReached
               milestoneName={milestoneName as MilestoneName}
               onClose={handleCloseMilestoneReached}

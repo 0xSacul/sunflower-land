@@ -1,9 +1,11 @@
-import { GameState } from "features/game/types/game";
+import cloneDeep from "lodash.clonedeep";
+import Decimal from "decimal.js-light";
 import {
   MinigameName,
   SUPPORTED_MINIGAMES,
 } from "features/game/types/minigames";
-import cloneDeep from "lodash.clonedeep";
+import { GameState } from "features/game/types/game";
+import { getKeys } from "features/game/types/craftables";
 
 export function isMinigameComplete({
   game,
@@ -84,9 +86,7 @@ export function claimMinigamePrize({
   }
 
   // Has reached score
-  if (
-    !isMinigameComplete({ game, name: action.id, now: new Date(createdAt) })
-  ) {
+  if (history.highscore < prize.score) {
     throw new Error(`Score ${history.highscore} is less than ${prize.score}`);
   }
 
@@ -103,10 +103,19 @@ export function claimMinigamePrize({
     game.coins += prize.coins;
   }
 
-  // Claim points
-  if (!!prize.factionPoints && game.faction) {
-    game.faction.points += prize.factionPoints;
-  }
+  // Claims items
+  getKeys(prize.items).forEach((name) => {
+    const count = game.inventory[name] ?? new Decimal(0);
+
+    game.inventory[name] = count.add(prize.items[name] ?? 0);
+  });
+
+  // Claims wearables
+  getKeys(prize.wearables).forEach((name) => {
+    const count = game.wardrobe[name] ?? 0;
+
+    game.wardrobe[name] = count + (prize.wearables[name] ?? 0);
+  });
 
   return game;
 }

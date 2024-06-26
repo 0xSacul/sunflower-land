@@ -1,9 +1,15 @@
 import { canChop } from "features/game/events/landExpansion/chop";
-import { CHICKEN_TIME_TO_EGG } from "features/game/lib/constants";
+import {
+  CHICKEN_TIME_TO_EGG,
+  CRIMSTONE_RECOVERY_TIME,
+  GOLD_RECOVERY_TIME,
+  IRON_RECOVERY_TIME,
+  STONE_RECOVERY_TIME,
+} from "features/game/lib/constants";
 import { FruitName, GreenHouseFruitName } from "features/game/types/fruits";
 import { GameState, InventoryItemName } from "features/game/types/game";
 import { CropName, GreenHouseCropName } from "features/game/types/crops";
-import { canMine } from "features/game/events/landExpansion/stoneMine";
+import { canMine } from "../expansion/lib/utils";
 import { areUnsupportedChickensBrewing } from "features/game/events/landExpansion/removeBuilding";
 import { Bud, StemTrait, TypeTrait } from "./buds";
 import {
@@ -40,7 +46,7 @@ type CanRemoveGreenhouseCropsArgs = {
   game: GameState;
 };
 
-function greenhouseCropIsGrowing({
+export function greenhouseCropIsGrowing({
   crop,
   game,
 }: CanRemoveGreenhouseCropsArgs): Restriction {
@@ -142,28 +148,28 @@ function areAnyTreesChopped(game: GameState): Restriction {
 
 function areAnyStonesMined(game: GameState): Restriction {
   const stoneMined = Object.values(game.stones ?? {}).some(
-    (stone) => !canMine(stone)
+    (stone) => !canMine(stone, STONE_RECOVERY_TIME)
   );
   return [stoneMined, translate("restrictionReason.stoneMined")];
 }
 
 function areAnyIronsMined(game: GameState): Restriction {
   const ironMined = Object.values(game.iron ?? {}).some(
-    (iron) => !canMine(iron)
+    (iron) => !canMine(iron, IRON_RECOVERY_TIME)
   );
   return [ironMined, translate("restrictionReason.ironMined")];
 }
 
 function areAnyGoldsMined(game: GameState): Restriction {
   const goldMined = Object.values(game.gold ?? {}).some(
-    (gold) => !canMine(gold)
+    (gold) => !canMine(gold, GOLD_RECOVERY_TIME)
   );
   return [goldMined, translate("restrictionReason.goldMined")];
 }
 
-function areAnyCrimstonessMined(game: GameState): Restriction {
+export function areAnyCrimstonesMined(game: GameState): Restriction {
   const crimstoneMined = Object.values(game.crimstones ?? {}).some(
-    (crimstone) => !canMine(crimstone)
+    (crimstone) => !canMine(crimstone, CRIMSTONE_RECOVERY_TIME)
   );
   return [crimstoneMined, translate("restrictionReason.crimstoneMined")];
 }
@@ -220,7 +226,7 @@ function hasFishedToday(game: GameState): Restriction {
   ];
 }
 
-function areFlowersGrowing(game: GameState): Restriction {
+export function areFlowersGrowing(game: GameState): Restriction {
   const flowerGrowing = Object.values(game.flowers.flowerBeds).some(
     (flowerBed) => {
       const flower = flowerBed.flower;
@@ -238,17 +244,19 @@ function areFlowersGrowing(game: GameState): Restriction {
   return [flowerGrowing, translate("restrictionReason.flowersGrowing")];
 }
 
-function isBeehivesFull(game: GameState): boolean {
+export function isBeehivesFull(game: GameState): Restriction {
   // 0.9 Small buffer in case of any rounding errors
-  return Object.values(game.beehives).every(
+  const beehiveProducing = Object.values(game.beehives).every(
     (hive) =>
       getCurrentHoneyProduced(hive) >= DEFAULT_HONEY_PRODUCTION_TIME * 0.9
   );
+
+  return [beehiveProducing, translate("restrictionReason.beehiveInUse")];
 }
 
-function isProducingHoney(game: GameState): Restriction {
+export function isProducingHoney(game: GameState): Restriction {
   return [
-    areFlowersGrowing(game)[0] && !isBeehivesFull(game),
+    areFlowersGrowing(game)[0] && !isBeehivesFull(game)[0],
     translate("restrictionReason.beesBusy"),
   ];
 }
@@ -297,7 +305,7 @@ function hasShakenTree(game: GameState): Restriction {
   return [hasShakenRecently, translate("restrictionReason.festiveSeason")];
 }
 
-function areAnyOilReservesDrilled(game: GameState): Restriction {
+export function areAnyOilReservesDrilled(game: GameState): Restriction {
   const now = Date.now();
 
   const oilReservesDrilled = Object.values(game.oilReserves).some(
@@ -330,7 +338,7 @@ export const REMOVAL_RESTRICTIONS: Partial<
   Rooster: (game) => areAnyChickensFed(game),
   Bale: (game) => areAnyChickensFed(game),
   "Banana Chicken": (game) => areFruitsGrowing(game, "Banana"),
-  "Crim Peckster": (game) => areAnyCrimstonessMined(game),
+  "Crim Peckster": (game) => areAnyCrimstonesMined(game),
 
   // Crop Boosts
   Nancy: (game) => areAnyCropsGrowing(game),

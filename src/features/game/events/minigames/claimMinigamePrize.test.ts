@@ -1,7 +1,17 @@
 import { TEST_FARM } from "features/game/lib/constants";
 import { claimMinigamePrize } from "./claimMinigamePrize";
+import Decimal from "decimal.js-light";
 
 describe("minigame.prizeClaimed", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2024-05-01"));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it("requires minigame exists", () => {
     expect(() =>
       claimMinigamePrize({
@@ -38,8 +48,9 @@ describe("minigame.prizeClaimed", () => {
                 coins: 100,
                 startAt: Date.now() + 100,
                 endAt: Date.now() + 1000,
-                factionPoints: 10,
                 score: 10,
+                items: {},
+                wearables: {},
               },
             },
           },
@@ -64,8 +75,10 @@ describe("minigame.prizeClaimed", () => {
                 coins: 100,
                 startAt: Date.now() - 100,
                 endAt: Date.now() + 1000,
-                factionPoints: 10,
+
                 score: 10,
+                items: {},
+                wearables: {},
               },
             },
           },
@@ -101,7 +114,8 @@ describe("minigame.prizeClaimed", () => {
                 coins: 100,
                 startAt: date.getTime() - 100,
                 endAt: date.getTime() + 1000,
-                factionPoints: 10,
+                items: {},
+                wearables: {},
                 score: 20,
               },
             },
@@ -140,7 +154,8 @@ describe("minigame.prizeClaimed", () => {
                 coins: 100,
                 startAt: date.getTime() - 100,
                 endAt: date.getTime() + 1000,
-                factionPoints: 10,
+                items: {},
+                wearables: {},
                 score: 20,
               },
             },
@@ -155,11 +170,14 @@ describe("minigame.prizeClaimed", () => {
     ).toThrow("Already claimed chicken-rescue prize");
   });
 
-  it("claims a prize", () => {
+  it("claims an item prize", () => {
     const date = new Date("2024-05-05T00:00:00");
     const state = claimMinigamePrize({
       state: {
         ...TEST_FARM,
+        inventory: {
+          Mark: new Decimal(10),
+        },
         faction: {
           name: "bumpkins",
           pledgedAt: 10002000,
@@ -179,7 +197,6 @@ describe("minigame.prizeClaimed", () => {
           games: {
             "chicken-rescue": {
               highscore: 30,
-
               history: {
                 [date.toISOString().substring(0, 10)]: {
                   attempts: 2,
@@ -193,7 +210,10 @@ describe("minigame.prizeClaimed", () => {
               coins: 100,
               startAt: date.getTime() - 100,
               endAt: date.getTime() + 1000,
-              factionPoints: 10,
+              items: {
+                Mark: 20,
+              },
+              wearables: {},
               score: 20,
             },
           },
@@ -207,10 +227,115 @@ describe("minigame.prizeClaimed", () => {
     });
 
     expect(state.coins).toEqual(100);
-    expect(state.faction?.points).toEqual(10);
+    expect(state.inventory["Mark"]?.toNumber()).toEqual(30);
 
     expect(
-      state.minigames.games["chicken-rescue"]?.history[
+      state.minigames.games["chicken-rescue"]?.history?.[
+        date.toISOString().substring(0, 10)
+      ].prizeClaimedAt
+    ).toEqual(date.getTime());
+  });
+
+  it("claims a coin prize", () => {
+    const date = new Date("2024-05-05T00:00:00");
+    const state = claimMinigamePrize({
+      state: {
+        ...TEST_FARM,
+        inventory: {
+          Mark: new Decimal(10),
+        },
+        minigames: {
+          games: {
+            "chicken-rescue": {
+              highscore: 30,
+              history: {
+                [date.toISOString().substring(0, 10)]: {
+                  attempts: 2,
+                  highscore: 30,
+                },
+              },
+            },
+          },
+          prizes: {
+            "chicken-rescue": {
+              coins: 100,
+              startAt: date.getTime() - 100,
+              endAt: date.getTime() + 1000,
+              items: {},
+              wearables: {},
+              score: 20,
+            },
+          },
+        },
+      },
+      action: {
+        id: "chicken-rescue",
+        type: "minigame.prizeClaimed",
+      },
+      createdAt: date.getTime(),
+    });
+
+    expect(state.coins).toEqual(100);
+
+    expect(
+      state.minigames.games["chicken-rescue"]?.history?.[
+        date.toISOString().substring(0, 10)
+      ].prizeClaimedAt
+    ).toEqual(date.getTime());
+  });
+
+  it("claims a wearable prize", () => {
+    const date = new Date("2024-05-05T00:00:00");
+    const state = claimMinigamePrize({
+      state: {
+        ...TEST_FARM,
+        inventory: {
+          Mark: new Decimal(10),
+        },
+        wardrobe: {
+          "Red Farmer Shirt": 2,
+          "Blue Farmer Shirt": 1,
+        },
+        minigames: {
+          games: {
+            "chicken-rescue": {
+              highscore: 30,
+              history: {
+                [date.toISOString().substring(0, 10)]: {
+                  attempts: 2,
+                  highscore: 30,
+                },
+              },
+            },
+          },
+          prizes: {
+            "chicken-rescue": {
+              coins: 0,
+              startAt: date.getTime() - 100,
+              endAt: date.getTime() + 1000,
+              items: {},
+              wearables: {
+                "Red Farmer Shirt": 1,
+              },
+              score: 20,
+            },
+          },
+        },
+      },
+      action: {
+        id: "chicken-rescue",
+        type: "minigame.prizeClaimed",
+      },
+      createdAt: date.getTime(),
+    });
+
+    expect(state.wardrobe).toEqual({
+      "Red Farmer Shirt": 3,
+      "Blue Farmer Shirt": 1,
+    });
+
+    expect(
+      state.minigames.games["chicken-rescue"]?.history?.[
         date.toISOString().substring(0, 10)
       ].prizeClaimedAt
     ).toEqual(date.getTime());

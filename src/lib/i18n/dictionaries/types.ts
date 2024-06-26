@@ -75,6 +75,7 @@ export type GeneralTerms =
   | "exotics"
   | "expand.land"
   | "expand"
+  | "expired"
   | "explore"
   | "faction"
   | "farm"
@@ -104,8 +105,8 @@ export type GeneralTerms =
   | "info"
   | "item"
   | "land"
+  | "landscaping"
   | "last.updated"
-  | "left"
   | "lets.go"
   | "linked.wallet"
   | "limit"
@@ -173,6 +174,7 @@ export type GeneralTerms =
   | "retry"
   | "reward"
   | "reward.discovered"
+  | "reward.whatsNew"
   | "save"
   | "saving"
   | "searching"
@@ -200,6 +202,7 @@ export type GeneralTerms =
   | "task"
   | "test"
   | "thank.you"
+  | "time.remaining"
   | "tools"
   | "total"
   | "trades"
@@ -251,17 +254,41 @@ export type GeneralTerms =
   | "vipAccess";
 
 export type TimeUnits =
-  // Singular
-  | "sec"
-  | "min"
-  | "hr"
-  | "day"
+  // Full Singular
+  | "time.second.full"
+  | "time.minute.full"
+  | "time.hour.full"
+  | "time.day.full"
 
-  //Plural
-  | "secs"
-  | "mins"
-  | "hrs"
-  | "days";
+  // Full Plural
+  | "time.seconds.full"
+  | "time.minutes.full"
+  | "time.hours.full"
+  | "time.days.full"
+
+  // Medium Singular
+  | "time.sec.med"
+  | "time.min.med"
+  | "time.hr.med"
+  | "time.day.med"
+
+  // Medium Plural
+  | "time.secs.med"
+  | "time.mins.med"
+  | "time.hrs.med"
+  | "time.days.med"
+
+  // Short
+  | "time.second.short"
+  | "time.minute.short"
+  | "time.hour.short"
+  | "time.day.short"
+
+  // Relative time
+  | "time.seconds.ago"
+  | "time.minutes.ago"
+  | "time.hours.ago"
+  | "time.days.ago";
 
 export type AchievementsTerms =
   | "breadWinner.description"
@@ -355,7 +382,10 @@ export type AvailableSeeds =
   | "availableSeeds.select"
   | "availableSeeds.select.plant"
   | "quickSelect.label"
-  | "quickSelect.empty";
+  | "quickSelect.empty"
+  | "quickSelect.purchase"
+  | "quickSelect.cropSeeds"
+  | "quickSelect.greenhouseSeeds";
 
 export type Base = "base.far.away" | "base.iam.far.away";
 
@@ -384,7 +414,15 @@ export type Beehive =
   | "beehive.harvestHoney"
   | "beehive.noFlowersGrowing"
   | "beehive.beeSwarm"
-  | "beehive.pollinationCelebration";
+  | "beehive.pollinationCelebration"
+  | "beehive.honeyProductionPaused"
+  | "beehive.yield"
+  | "beehive.honeyPerFullHive"
+  | "beehive.speed"
+  | "beehive.fullHivePerDay"
+  | "beehive.estimatedFull"
+  | "beehive.hive.singular"
+  | "beehive.hives.plural";
 
 export type BirdiePlaza =
   | "birdieplaza.birdieIntro"
@@ -579,7 +617,16 @@ export type BoostEffectDescriptions =
   | "description.vinny.boost"
   | "description.rice.panda.boost"
   | "description.olive.shirt.boost"
-  | "description.tofu.mask.boost";
+  | "description.tofu.mask.boost"
+  | "description.gourmet.hourglass.boost"
+  | "description.harvest.hourglass.boost"
+  | "description.timber.hourglass.boost"
+  | "description.ore.hourglass.boost"
+  | "description.orchard.hourglass.boost"
+  | "description.fishers.hourglass.boost"
+  | "description.blossom.hourglass.boost"
+  | "description.hourglass.expired"
+  | "description.hourglass.running";
 
 export type BountyDescription =
   | "description.clam.shell"
@@ -661,7 +708,27 @@ export type BumpkinItemBuff =
   | "bumpkinItemBuff.crimstone.armor"
   | "bumpkinItemBuff.hornet.mask"
   | "bumpkinItemBuff.honeycomb.shield"
-  | "bumpkinItemBuff.flower.crown";
+  | "bumpkinItemBuff.flower.crown"
+  | "bumpkinItemBuff.goblin.armor"
+  | "bumpkinItemBuff.goblin.helmet"
+  | "bumpkinItemBuff.goblin.axe"
+  | "bumpkinItemBuff.goblin.pants"
+  | "bumpkinItemBuff.goblin.sabatons"
+  | "bumpkinItemBuff.nightshade.armor"
+  | "bumpkinItemBuff.nightshade.helmet"
+  | "bumpkinItemBuff.nightshade.sword"
+  | "bumpkinItemBuff.nightshade.pants"
+  | "bumpkinItemBuff.nightshade.sabatons"
+  | "bumpkinItemBuff.sunflorian.armor"
+  | "bumpkinItemBuff.sunflorian.helmet"
+  | "bumpkinItemBuff.sunflorian.sword"
+  | "bumpkinItemBuff.sunflorian.pants"
+  | "bumpkinItemBuff.sunflorian.sabatons"
+  | "bumpkinItemBuff.bumpkin.armor"
+  | "bumpkinItemBuff.bumpkin.helmet"
+  | "bumpkinItemBuff.bumpkin.sword"
+  | "bumpkinItemBuff.bumpkin.pants"
+  | "bumpkinItemBuff.bumpkin.sabatons";
 
 export type BumpkinPart =
   | "equip.background"
@@ -744,7 +811,8 @@ export type BumpkinTrade =
   | "bumpkinTrade.minimumFloor"
   | "bumpkinTrade.maximumFloor"
   | "bumpkinTrade.floorPrice"
-  | "bumpkinTrade.sellConfirmation";
+  | "bumpkinTrade.sellConfirmation"
+  | "bumpkinTrade.cant.sell.all";
 
 export type GoblinTrade =
   | "goblinTrade.select"
@@ -782,7 +850,8 @@ export type ChoresStart =
   | "chores.helpWithTrees"
   | "chores.noChore"
   | "chores.newSeason"
-  | "chores.choresFrozen";
+  | "chores.choresFrozen"
+  | "chores.left";
 
 export type ChumDetails =
   | "chumDetails.gold"
@@ -835,7 +904,9 @@ export type ComposterDescription =
 
 export type ConfirmSkill = "confirm.skillClaim";
 
-export type ConfirmationTerms = "confirmation.sellCrops";
+export type ConfirmationTerms =
+  | "confirmation.sellCrops"
+  | "confirmation.buyCrops";
 
 export type Conversations =
   | "hank-intro.headline"
@@ -850,10 +921,16 @@ export type Conversations =
   | "betty-intro.one"
   | "betty-intro.two"
   | "betty-intro.three"
+  | "home-intro.one"
+  | "home-intro.two"
+  | "home-intro.three"
   | "betty.market-intro.one"
   | "betty.market-intro.two"
   | "betty.market-intro.three"
   | "betty.market-intro.four"
+  | "firepit-intro.one"
+  | "firepit-intro.two"
+  | "firepit.increasedXP"
   | "bruce-intro.headline"
   | "bruce-intro.one"
   | "bruce-intro.two"
@@ -954,6 +1031,7 @@ export type CropMachine =
   | "cropMachine.moreOilRequired"
   | "cropMachine.oilTank"
   | "cropMachine.addOil"
+  | "cropMachine.all"
   | "cropMachine.oil.description"
   | "cropMachine.machineRuntime"
   | "cropMachine.growTimeRemaining"
@@ -973,10 +1051,14 @@ export type CropMachine =
   | "cropMachine.seedPacks"
   | "cropMachine.readyCropPacks"
   | "cropMachine.readyCropPacks.description"
-  | "cropMachine.harvestAllCrops"
+  | "cropMachine.harvestCropPack"
   | "cropMachine.maxRuntime"
   | "cropMachine.oilToAdd"
-  | "cropMachine.totalRuntime";
+  | "cropMachine.totalRuntime"
+  | "cropMachine.running"
+  | "cropMachine.stopped"
+  | "cropMachine.idle"
+  | "cropMachine.name";
 
 export type DeliveryItem =
   | "deliveryitem.inventory"
@@ -1259,7 +1341,13 @@ export type DecorationDescriptions =
   | "description.fancy.rug"
   | "description.clock"
   | "description.vinny"
-  | "description.ricePanda";
+  | "description.ricePanda"
+  | "description.splendorFlag"
+  | "description.benevolenceFlag"
+  | "description.devotionFlag"
+  | "description.generosityFlag"
+  | "description.jellyLamp"
+  | "description.paintCan";
 
 export type Delivery =
   | "delivery.resource"
@@ -1417,6 +1505,7 @@ export type Factions =
   | "faction.points.title"
   | "faction.points.pledge.warning"
   | "faction.emblemAirdrop"
+  | "faction.emblemAirdrop.closes"
   // Kingdom
   | "faction.restrited.area"
   | "faction.not.pledged"
@@ -1427,6 +1516,11 @@ export type Factions =
   | "faction.greeting.sunflorians"
   | "faction.greeting.bumpkins"
   | "faction.greeting.nightshades"
+  | "faction.kitchen.opensIn"
+  | "faction.kitchen.notReady"
+  | "faction.kitchen.gatherResources"
+  | "faction.kitchen.preparing"
+  | "faction.kitchen.newRequests"
   // Emblem Airdrop
   | "faction.claimEmblems.alreadyClaimed"
   | "faction.claimEmblems.emblemsEarned"
@@ -1439,9 +1533,87 @@ export type Factions =
   | "faction.claimEmblems.claimMessage"
   | "faction.claimEmblems.claim"
   | "faction.claimEmblems.congratulations"
+  | "faction.claimEmblems.comparison"
   | "faction.claimEmblems.totalMembers"
   | "faction.claimEmblems.totalEmblems"
-  | "faction.claimEmblems.percentile";
+  | "faction.claimEmblems.percentile"
+  | "faction.claimEmblems.travelNow"
+  | "faction.claimEmblems.visitMe"
+  | "faction.openingSoon"
+  | "faction.emblems"
+  | "faction.emblems.intro.one"
+  | "faction.emblems.intro.two"
+  | "faction.emblems.intro.three"
+  | "faction.tradeEmblems"
+  | "faction.marksBoost"
+  | "faction.shop.onlyFor"
+  | "faction.shop.welcome";
+
+export type FactionShopDescription =
+  | "description.factionShop.sunflorianThrone"
+  | "description.factionShop.nightshadeThrone"
+  | "description.factionShop.goblinThrone"
+  | "description.factionShop.bumpkinThrone"
+  | "description.factionShop.goldenSunflorianEgg"
+  | "description.factionShop.goblinMischiefEgg"
+  | "description.factionShop.bumpkinCharmEgg"
+  | "description.factionShop.nightshadeVeilEgg"
+  | "description.factionShop.emeraldGoblinGoblet"
+  | "description.factionShop.opalSunflorianGoblet"
+  | "description.factionShop.sapphireBumpkinGoblet"
+  | "description.factionShop.amethystNightshadeGoblet"
+  | "description.factionShop.goldenFactionGoblet"
+  | "description.factionShop.rubyFactionGoblet"
+  | "description.factionShop.sunflorianBunting"
+  | "description.factionShop.nightshadeBunting"
+  | "description.factionShop.goblinBunting"
+  | "description.factionShop.bumpkinBunting"
+  | "description.factionShop.sunflorianCandles"
+  | "description.factionShop.nightshadeCandles"
+  | "description.factionShop.goblinCandles"
+  | "description.factionShop.bumpkinCandles"
+  | "description.factionShop.sunflorianLeftWallSconce"
+  | "description.factionShop.nightshadeLeftWallSconce"
+  | "description.factionShop.goblinLeftWallSconce"
+  | "description.factionShop.bumpkinLeftWallSconce"
+  | "description.factionShop.sunflorianRightWallSconce"
+  | "description.factionShop.nightshadeRightWallSconce"
+  | "description.factionShop.goblinRightWallSconce"
+  | "description.factionShop.bumpkinRightWallSconce"
+  | "description.factionShop.cookingBoost"
+  | "description.factionShop.cropBoost"
+  | "description.factionShop.woodBoost"
+  | "description.factionShop.mineralBoost"
+  | "description.factionShop.fruitBoost"
+  | "description.factionShop.flowerBoost"
+  | "description.factionShop.fishBoost"
+  | "description.factionShop.sunflorianFactionRug"
+  | "description.factionShop.nightshadeFactionRug"
+  | "description.factionShop.goblinFactionRug"
+  | "description.factionShop.bumpkinFactionRug"
+  | "description.factionShop.goblinArmor"
+  | "description.factionShop.goblinHelmet"
+  | "description.factionShop.goblinPants"
+  | "description.factionShop.goblinSabatons"
+  | "description.factionShop.goblinAxe"
+  | "description.factionShop.sunflorianArmor"
+  | "description.factionShop.sunflorianHelmet"
+  | "description.factionShop.sunflorianPants"
+  | "description.factionShop.sunflorianSabatons"
+  | "description.factionShop.sunflorianSword"
+  | "description.factionShop.bumpkinArmor"
+  | "description.factionShop.bumpkinHelmet"
+  | "description.factionShop.bumpkinPants"
+  | "description.factionShop.bumpkinSabatons"
+  | "description.factionShop.bumpkinSword"
+  | "description.factionShop.nightshadeArmor"
+  | "description.factionShop.nightshadeHelmet"
+  | "description.factionShop.nightshadePants"
+  | "description.factionShop.nightshadeSabatons"
+  | "description.factionShop.nightshadeSword"
+  | "description.factionShop.knightGambit"
+  | "description.factionShop.motley"
+  | "description.factionShop.royalBraids";
 
 export type FestiveTree =
   | "festivetree.greedyBumpkin"
@@ -1767,7 +1939,8 @@ export type GameDescriptions =
   | "description.goblin.emblem"
   | "description.sunflorian.emblem"
   | "description.bumpkin.emblem"
-  | "description.nightshade.emblem";
+  | "description.nightshade.emblem"
+  | "description.faction.mark";
 
 export type GameTerms =
   | "auction.winner"
@@ -1791,7 +1964,9 @@ export type GameTerms =
   | "compost.complete"
   | "aoe.locked"
   | "sunflowerLandCodex"
-  | "visiting.farmId";
+  | "visiting.farmId"
+  | "stock.left"
+  | "stock.inStock";
 
 export type GarbageCollector =
   | "garbageCollector.welcome"
@@ -1829,15 +2004,16 @@ export type GOBLIN_MESSAGES =
 export type GoldTooth = "goldTooth.intro.part1" | "goldTooth.intro.part2";
 
 export type GuideCompost =
-  | "guide.compost.add.eggs.speed"
-  | "guide.compost.add.eggs"
+  | "guide.compost.addEggs.speed"
+  | "guide.compost.addEggs"
   | "guide.compost.eggs"
   | "guide.compost.cropGrowthTime"
   | "guide.compost.fishingBait"
   | "guide.compost.placeCrops"
   | "guide.compost.compostCycle"
   | "guide.compost.yieldsWorms"
-  | "guide.compost.useEggs";
+  | "guide.compost.useEggs"
+  | "guide.compost.addEggs.confirmation";
 
 export type GuideTerms =
   | "guide.intro"
@@ -1880,12 +2056,6 @@ export type GuideTerms =
   | "pete.teaser.six"
   | "pete.teaser.seven"
   | "pete.teaser.eight";
-
-export type HalveningCountdown =
-  | "halveningCountdown.approaching"
-  | "halveningCountdown.description"
-  | "halveningCountdown.preparation"
-  | "halveningCountdown.title";
 
 export type Harvestflower =
   | "harvestflower.noFlowerBed"
@@ -2657,12 +2827,6 @@ export type NpcDialogues =
   | "npcDialogues.tywin.badFlower"
   | "npcDialogues.tywin.goodFlower"
 
-  // Glinteye dialogue
-  | "npcDialogues.glinteye.intro1"
-  | "npcDialogues.glinteye.intro2"
-  | "npcDialogues.glinteye.intro3"
-  | "npcDialogues.glinteye.intro4"
-
   // Queen Victoria NoOrde
   | "npcDialogues.queenVictoria.intro1"
   | "npcDialogues.queenVictoria.intro2"
@@ -2726,7 +2890,8 @@ export type NpcDialogues =
   | "npcDialogues.jester.flowerIntro"
   | "npcDialogues.jester.averageFlower"
   | "npcDialogues.jester.badFlower"
-  | "npcDialogues.jester.goodFlower";
+  | "npcDialogues.jester.goodFlower"
+  | "npcDialogues.tywin.goodFlower";
 
 export type NyeButton = "plaza.magicButton.query";
 
@@ -2824,7 +2989,12 @@ export type PlayerTrade =
   | "playerTrade.sale"
   | "playerTrade.title.congrat";
 
-export type Portal = "portal.wrong" | "portal.unauthorised";
+export type Portal =
+  | "portal.wrong"
+  | "portal.unauthorised"
+  | "portal.example.intro"
+  | "portal.example.purchase"
+  | "portal.example.claimPrize";
 
 export type PurchaseableBaitTranslation =
   | "purchaseableBait.fishingLure.description";
@@ -2876,7 +3046,11 @@ export type ResourceTerms =
   | "wildMushroom.description"
   | "honey.description";
 
-export type Restock = "restock.one.buck" | "restock.sure" | "restock.seed.buy";
+export type Restock =
+  | "restock.one.buck"
+  | "restock.sure"
+  | "restock.tooManySeeds"
+  | "seeds.reachingInventoryLimit";
 
 export type RetreatTerms =
   | "retreatTerms.lookingForRareItems"
@@ -3097,7 +3271,6 @@ export type Statements =
   | "statements.water.well.needed.one"
   | "statements.water.well.needed.two"
   | "statements.soldOut"
-  | "statements.inStock"
   | "statements.soldOutWearables"
   | "statements.wallet.to.inventory.transfer"
   | "statements.crop.water"
@@ -3109,8 +3282,6 @@ export type Statements =
   | "statements.startgame"
   | "statements.session.expired"
   | "statements.price.change"
-  | "statements.translation.want2contribute"
-  | "statements.translation.contribution"
   | "statements.translation.joinDiscord";
 
 export type StopGoblin =
@@ -3150,6 +3321,7 @@ export type TransactionTerms =
   | "transaction.creditCard"
   | "transaction.estimated.fee"
   | "transaction.excludeFees"
+  | "transaction.starterOffer"
   | "transaction.id"
   | "transaction.termsOfService"
   | "transaction.matic"
@@ -3314,7 +3486,11 @@ export type WornDescription =
 export type World =
   | "world.intro.one"
   | "world.intro.two"
-  | "world.intro.three"
+  | "world.intro.missingDelivery"
+  | "world.intro.delivery"
+  | "world.intro.findNPC"
+  | "world.intro.find"
+  | "world.intro.levelUpToTravel"
   | "world.intro.visit"
   | "world.intro.craft"
   | "world.intro.carf.limited"
@@ -3329,7 +3505,8 @@ export type World =
   | "world.retreat"
   | "world.woodlands"
   | "world.home"
-  | "world.kingdom";
+  | "world.kingdom"
+  | "world.travelTo";
 
 export type Event =
   | "event.christmas"
@@ -3390,7 +3567,8 @@ export type RestrictionReason =
   | "restrictionReason.noRestriction"
   | "restrictionReason.genieLampRubbed"
   | "restrictionReason.oilReserveDrilled"
-  | "restrictionReason.buildingInUse";
+  | "restrictionReason.buildingInUse"
+  | "restrictionReason.beehiveInUse";
 
 export type Leaderboard =
   | "leaderboard.leaderboard"
@@ -3414,6 +3592,10 @@ export type GameOptions =
   | "gameOptions.generalSettings.connectDiscord"
   | "gameOptions.generalSettings.assignRole"
   | "gameOptions.generalSettings.changeLanguage"
+  | "gameOptions.generalSettings.darkMode"
+  | "gameOptions.generalSettings.lightMode"
+  | "gameOptions.generalSettings.font"
+  | "gameOptions.generalSettings.appearance"
   | "gameOptions.generalSettings.disableAnimations"
   | "gameOptions.generalSettings.enableAnimations"
   | "gameOptions.generalSettings.share"
@@ -3442,9 +3624,35 @@ export type Minigame =
   | "minigame.confirm"
   | "minigame.purchase"
   | "minigame.comingSoon"
-  | "minigame.chickenRescueHelp";
+  | "minigame.chickenRescueHelp"
+  | "minigame.discovered.one"
+  | "minigame.discovered.two"
+  | "minigame.festivalOfColors"
+  | "minigame.communityEvent"
+  | "minigame.festivalOfColors.intro"
+  | "minigame.festivalOfColors.mission"
+  | "minigame.festivalOfColors.comingSoon";
 
 export type KitchenKeys = "kitchen.oilRemaining";
+
+export type EasterEggKeys =
+  | "easterEgg.lostKnight"
+  | "easterEgg.queensDiary"
+  | "easterEgg.jesterDiary"
+  | "easterEgg.tywinDiary"
+  | "easterEgg.kingDiary"
+  | "easterEgg.kingdomBook1"
+  | "easterEgg.kingdomBook2"
+  | "easterEgg.kingdomBook3"
+  | "easterEgg.kingdomBook4"
+  | "easterEgg.kingdomBook5"
+  | "easterEgg.knight";
+
+export type ChangeLanguage =
+  | "changeLanguage.confirm"
+  | "changeLanguage.contribute"
+  | "changeLanguage.contribute.message"
+  | "changeLanguage.currentLanguage";
 
 export type TranslationKeys =
   | AchievementsTerms
@@ -3466,11 +3674,12 @@ export type TranslationKeys =
   | BumpkinSkillsDescription
   | BumpkinTrade
   | BuyFarmHand
-  | ClaimAchievement
+  | ChangeLanguage
   | Chat
   | ChickenWinner
   | ChoresStart
   | ChumDetails
+  | ClaimAchievement
   | Community
   | CompostDescription
   | ComposterDescription
@@ -3493,6 +3702,7 @@ export type TranslationKeys =
   | ErrorAndAccess
   | ErrorTerms
   | ExoticShopItems
+  | FactionShopDescription
   | FestiveTree
   | FishDescriptions
   | FishermanModal
@@ -3520,7 +3730,6 @@ export type TranslationKeys =
   | GuideCompost
   | GuideCompost
   | Factions
-  | HalveningCountdown
   | Harvestflower
   | HarvestBeeHive
   | HayseedHankPlaza
@@ -3622,4 +3831,5 @@ export type TranslationKeys =
   | NyonStatue
   | Trading
   | RestrictionReason
-  | Leaderboard;
+  | Leaderboard
+  | EasterEggKeys;

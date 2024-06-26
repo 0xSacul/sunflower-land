@@ -32,7 +32,7 @@ export const FACTION_BANNERS: Record<FactionName, FactionBanner> = {
   nightshades: "Nightshade Faction Banner",
 };
 
-const FACTION_EMBLEMS: Record<FactionName, FactionEmblem> = {
+export const FACTION_EMBLEMS: Record<FactionName, FactionEmblem> = {
   bumpkins: "Bumpkin Emblem",
   sunflorians: "Sunflorian Emblem",
   goblins: "Goblin Emblem",
@@ -40,7 +40,7 @@ const FACTION_EMBLEMS: Record<FactionName, FactionEmblem> = {
 };
 
 export const SFL_COST = 10;
-export const EMBLEM_QTY = 5;
+export const EMBLEM_QTY = 1;
 
 export function joinFaction({
   state,
@@ -55,6 +55,11 @@ export function joinFaction({
 
   if (stateCopy.faction && stateCopy.faction.pledgedAt) {
     throw new Error("You already pledged a faction");
+  }
+
+  // not enough SFL
+  if (stateCopy.balance.lt(SFL_COST)) {
+    throw new Error("Not enough SFL");
   }
 
   stateCopy.faction = {

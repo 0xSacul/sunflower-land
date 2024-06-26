@@ -133,7 +133,6 @@ export const QUEST_NPC_NAMES: QuestNPCName[] = [
 ];
 
 const DELIVERY_FRIENDSHIP_POINTS = 3;
-export const FACTION_POINT_MULTIPLIER = 5;
 
 export function populateOrders(
   game: GameState,
@@ -292,12 +291,6 @@ export function deliverOrder({
     const amount = tickets || new Decimal(0);
 
     game.inventory[seasonalTicket] = count.add(amount);
-
-    if (game.faction) {
-      game.faction.points =
-        game.faction.points +
-        new Decimal(amount).mul(FACTION_POINT_MULTIPLIER).toNumber();
-    }
   }
 
   const rewardItems = order.reward.items ?? {};

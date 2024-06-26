@@ -12,7 +12,7 @@ import {
 } from "features/game/types/consumables";
 import { MachineInterpreter } from "features/island/buildings/lib/craftingMachine";
 import { CloseButtonPanel } from "features/game/components/CloseablePanel";
-import { Panel } from "components/ui/Panel";
+import { OuterPanel, Panel } from "components/ui/Panel";
 import { NPC_WEARABLES } from "lib/npcs";
 import { SpeakingText } from "features/game/components/SpeakingModal";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
@@ -49,7 +49,7 @@ export const FirePitModal: React.FC<Props> = ({
   const [showIntro, setShowIntro] = React.useState(!hasRead());
   const { t } = useAppTranslation();
   const firePitRecipes = Object.values(FIRE_PIT_COOKABLES).sort(
-    (a, b) => a.cookingSeconds - b.cookingSeconds // Sorts Foods based on their cooking time
+    (a, b) => a.experience - b.experience // Sorts Foods based on their cooking time
   );
 
   const [selected, setSelected] = useState<Cookable>(
@@ -83,6 +83,7 @@ export const FirePitModal: React.FC<Props> = ({
           tabs={[{ icon: chefHat, name: "Fire Pit" }]}
           onClose={onClose}
           bumpkinParts={NPC_WEARABLES.bruce}
+          container={OuterPanel}
         >
           <Recipes
             selected={selected}

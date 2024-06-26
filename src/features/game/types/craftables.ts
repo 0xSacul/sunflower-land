@@ -19,6 +19,7 @@ import { MarineMarvelName } from "./fishing";
 import { SeasonalBanner } from "./seasons";
 import { EpicFlowerName } from "./flowers";
 import { translate } from "lib/i18n/translate";
+import { FactionShopCollectibleName } from "./factionShop";
 
 export { FLAGS };
 
@@ -210,7 +211,8 @@ export type CollectibleName =
   | MegaStoreCollectibleName
   | EpicFlowerName
   | FactionBanner
-  | "Lifetime Farmer Banner";
+  | "Lifetime Farmer Banner"
+  | FactionShopCollectibleName;
 
 export type ToolName =
   | "Axe"
@@ -1059,24 +1061,6 @@ export const getEntries = Object.entries as <T extends object>(
   obj: T
 ) => Entries<T>[];
 
-export const LIMITED_ITEMS = {
-  ...BLACKSMITH_ITEMS,
-  ...BARN_ITEMS,
-  ...MARKET_ITEMS,
-  ...FLAGS,
-  ...MOM_EVENT_ITEMS,
-  ...QUEST_ITEMS,
-  ...MUTANT_CHICKENS,
-  ...SALESMAN_ITEMS,
-  ...WAR_TENT_ITEMS,
-};
-
-export const isLimitedItem = (itemName: any) => {
-  return !!getKeys(LIMITED_ITEMS).find(
-    (limitedItemName) => limitedItemName === itemName
-  );
-};
-
 export type Dimensions = { width: number; height: number };
 
 const flagsDimension = getKeys(FLAGS).reduce(
@@ -1317,6 +1301,171 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Regular Pawn": { width: 1, height: 1 },
   "Silver Squire": { width: 1, height: 1 },
   "Rice Panda": { width: 1, height: 2 },
+  // Faction Shop
+  "Sunflorian Throne": {
+    width: 1,
+    height: 2,
+  },
+  "Nightshade Throne": {
+    width: 1,
+    height: 2,
+  },
+  "Goblin Throne": {
+    width: 1,
+    height: 2,
+  },
+  "Bumpkin Throne": {
+    width: 1,
+    height: 2,
+  },
+  "Golden Sunflorian Egg": {
+    width: 1,
+    height: 1,
+  },
+  "Goblin Mischief Egg": {
+    width: 1,
+    height: 1,
+  },
+  "Bumpkin Charm Egg": {
+    width: 1,
+    height: 1,
+  },
+  "Nightshade Veil Egg": {
+    width: 1,
+    height: 1,
+  },
+  "Emerald Goblin Goblet": {
+    width: 1,
+    height: 1,
+  },
+  "Opal Sunflorian Goblet": {
+    width: 1,
+    height: 1,
+  },
+  "Sapphire Bumpkin Goblet": {
+    width: 1,
+    height: 1,
+  },
+  "Amethyst Nightshade Goblet": {
+    width: 1,
+    height: 1,
+  },
+  "Golden Faction Goblet": {
+    width: 1,
+    height: 1,
+  },
+  "Ruby Faction Goblet": {
+    width: 1,
+    height: 1,
+  },
+  "Sunflorian Bunting": {
+    width: 2,
+    height: 1,
+  },
+  "Nightshade Bunting": {
+    width: 2,
+    height: 1,
+  },
+  "Goblin Bunting": {
+    width: 2,
+    height: 1,
+  },
+  "Bumpkin Bunting": {
+    width: 2,
+    height: 1,
+  },
+  "Sunflorian Candles": {
+    width: 1,
+    height: 1,
+  },
+  "Nightshade Candles": {
+    width: 1,
+    height: 1,
+  },
+  "Goblin Candles": {
+    width: 1,
+    height: 1,
+  },
+  "Bumpkin Candles": {
+    width: 1,
+    height: 1,
+  },
+  "Sunflorian Left Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Nightshade Left Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Goblin Left Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Bumpkin Left Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Sunflorian Right Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Nightshade Right Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Goblin Right Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Bumpkin Right Wall Sconce": {
+    width: 1,
+    height: 1,
+  },
+  "Gourmet Hourglass": {
+    width: 1,
+    height: 1,
+  },
+  "Harvest Hourglass": {
+    width: 1,
+    height: 1,
+  },
+  "Timber Hourglass": {
+    width: 1,
+    height: 1,
+  },
+  "Ore Hourglass": {
+    width: 1,
+    height: 1,
+  },
+  "Orchard Hourglass": {
+    width: 1,
+    height: 1,
+  },
+  "Blossom Hourglass": {
+    width: 1,
+    height: 1,
+  },
+  "Fisher's Hourglass": {
+    width: 1,
+    height: 1,
+  },
+  "Sunflorian Faction Rug": {
+    width: 3,
+    height: 2,
+  },
+  "Nightshade Faction Rug": {
+    width: 3,
+    height: 2,
+  },
+  "Goblin Faction Rug": {
+    width: 3,
+    height: 2,
+  },
+  "Bumpkin Faction Rug": {
+    width: 3,
+    height: 2,
+  },
 };
 
 export const ANIMAL_DIMENSIONS: Record<"Chicken", Dimensions> = {

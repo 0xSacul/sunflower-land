@@ -1,6 +1,7 @@
 import { Equipped } from "features/game/types/bumpkin";
 
 export type NPCName =
+  | "portaller"
   | "gambit"
   | "victoria"
   | "jester"
@@ -81,15 +82,83 @@ export type NPCName =
   | "graxle" // faction recruiter;
   | "barlow" // faction recruiter;
   | "nyx" // faction recruiter;
-  | "reginald"; // faction recruiter;
+  | "reginald" // faction recruiter;
+  | "chef tuck" // goblin chef
+  | "chef ebon" // nightshade chef
+  | "chef maple" // bumpkins chef
+  | "chef lumen" // sunflorian chef
+  | "glinteye"
+  | "solara"
+  | "dusk"
+  | "haymitch"
+  | "grizzle"
+  | "buttercup"
+  | "shadow"
+  | "flora"
+  | "eldric";
 
 export const NPC_WEARABLES: Record<NPCName, Equipped> = {
+  "chef tuck": {
+    body: "Goblin Potion",
+    hair: "Wise Hair",
+    hat: "Chef Hat",
+    shirt: "Goblin Armor",
+    pants: "Goblin Pants",
+    tool: "Skinning Knife",
+    background: "Farm Background",
+    shoes: "Black Farmer Boots",
+    coat: "Chef Apron",
+  },
+  "chef maple": {
+    body: "Light Brown Farmer Potion",
+    hair: "Brown Long Hair",
+    hat: "Chef Hat",
+    shirt: "Bumpkin Armor",
+    pants: "Bumpkin Pants",
+    tool: "Pan",
+    background: "Farm Background",
+    shoes: "Black Farmer Boots",
+    coat: "Chef Apron",
+  },
+  "chef ebon": {
+    body: "Dark Brown Farmer Potion",
+    hair: "Sun Spots",
+    hat: "Chef Hat",
+    shirt: "Nightshade Armor",
+    pants: "Nightshade Pants",
+    tool: "Golden Spatula",
+    background: "Farm Background",
+    shoes: "Black Farmer Boots",
+    coat: "Chef Apron",
+  },
+  "chef lumen": {
+    body: "Beige Farmer Potion",
+    hair: "Parlour Hair",
+    hat: "Chef Hat",
+    shirt: "Sunflorian Armor",
+    pants: "Sunflorian Pants",
+    tool: "Parsnip",
+    background: "Farm Background",
+    shoes: "Black Farmer Boots",
+    coat: "Chef Apron",
+  },
   gambit: {
     body: "Goblin Potion",
     hair: "Sun Spots",
     hat: "Knight Gambit",
     pants: "Farmer Pants",
     shirt: "Fire Shirt",
+    tool: "Goblin Puppet",
+    background: "Farm Background",
+    shoes: "Brown Boots",
+  },
+  portaller: {
+    body: "Beige Farmer Potion",
+    hair: "Sun Spots",
+    hat: "Knight Gambit",
+    pants: "Farmer Pants",
+    shirt: "Fire Shirt",
+    suit: "Motley",
     tool: "Goblin Puppet",
     background: "Farm Background",
     shoes: "Brown Boots",
@@ -107,7 +176,7 @@ export const NPC_WEARABLES: Record<NPCName, Equipped> = {
   },
   victoria: {
     body: "Beige Farmer Potion",
-    hair: "Luscious Hair",
+    hair: "Royal Braids",
     dress: "Royal Dress",
     tool: "Royal Scepter",
     background: "Farm Background",
@@ -858,7 +927,7 @@ export const NPC_WEARABLES: Record<NPCName, Equipped> = {
     pants: "Bumpkin Pants",
     tool: "Bumpkin Sword",
     background: "Farm Background",
-    shoes: "Bumpkin Sabaton",
+    shoes: "Bumpkin Sabatons",
   },
   graxle: {
     body: "Goblin Potion",
@@ -868,7 +937,7 @@ export const NPC_WEARABLES: Record<NPCName, Equipped> = {
     pants: "Goblin Pants",
     tool: "Goblin Axe",
     background: "Farm Background",
-    shoes: "Goblin Sabaton",
+    shoes: "Goblin Sabatons",
   },
   nyx: {
     body: "Pale Potion",
@@ -878,7 +947,7 @@ export const NPC_WEARABLES: Record<NPCName, Equipped> = {
     pants: "Nightshade Pants",
     tool: "Nightshade Sword",
     background: "Farm Background",
-    shoes: "Nightshade Sabaton",
+    shoes: "Nightshade Sabatons",
   },
   reginald: {
     body: "Sunburst Potion",
@@ -888,7 +957,94 @@ export const NPC_WEARABLES: Record<NPCName, Equipped> = {
     pants: "Sunflorian Pants",
     tool: "Sunflorian Sword",
     background: "Farm Background",
-    shoes: "Sunflorian Sabaton",
+    shoes: "Sunflorian Sabatons",
+  },
+  glinteye: {
+    body: "Goblin Potion",
+    hair: "Greyed Glory",
+    shirt: "Fancy Top",
+    pants: "Fancy Pants",
+    beard: "Wise Beard",
+    tool: "Auction Megaphone",
+    shoes: "Black Farmer Boots",
+    background: "Farm Background",
+  },
+  solara: {
+    body: "Sunburst Potion",
+    hair: "Blondie",
+    shirt: "Fancy Top",
+    pants: "Sunflorian Pants",
+    tool: "Sunflorian Sword",
+    background: "Farm Background",
+    shoes: "Sunflorian Sabatons",
+  },
+  dusk: {
+    body: "Pale Potion",
+    hair: "Red Long Hair",
+    shirt: "Olive Royalty Shirt",
+    pants: "Nightshade Pants",
+    tool: "Nightshade Sword",
+    background: "Farm Background",
+    shoes: "Nightshade Sabatons",
+  },
+  haymitch: {
+    body: "Beige Farmer Potion",
+    hair: "Explorer Hair",
+    shirt: "Orange Monarch Shirt",
+    pants: "Bumpkin Pants",
+    tool: "Bumpkin Sword",
+    background: "Farm Background",
+    shoes: "Bumpkin Sabatons",
+  },
+  grizzle: {
+    body: "Goblin Potion",
+    hat: "Warrior Helmet",
+    hair: "Brown Long Hair",
+    shirt: "Fancy Top",
+    pants: "Fancy Pants",
+    beard: "Santa Beard",
+    tool: "Auction Megaphone",
+    shoes: "Black Farmer Boots",
+    background: "Farm Background",
+  },
+  buttercup: {
+    body: "Beige Farmer Potion",
+    hair: "Brown Long Hair",
+    shirt: "Daisy Tee",
+    pants: "Bumpkin Pants",
+    tool: "Dawn Lamp",
+    background: "Farm Background",
+    shoes: "Bumpkin Sabatons",
+  },
+  shadow: {
+    body: "Pale Potion",
+    hair: "White Long Hair",
+    shirt: "Mushroom Sweater",
+    pants: "Nightshade Pants",
+    tool: "Beehive Staff",
+    background: "Farm Background",
+    shoes: "Nightshade Sabatons",
+  },
+  flora: {
+    body: "Sunburst Potion",
+    hair: "Luscious Hair",
+    shirt: "Wise Robes",
+    pants: "Sunflorian Pants",
+    tool: "Mushroom Lamp",
+    background: "Farm Background",
+    shoes: "Sunflorian Sabatons",
+  },
+  eldric: {
+    background: "Farm Background",
+    body: "Dark Brown Farmer Potion",
+    beard: "Wise Beard",
+    hair: "Buzz Cut",
+    shirt: "Nightshade Armor",
+    hat: "Knight Gambit",
+    pants: "Bumpkin Pants",
+    shoes: "Sunflorian Sabatons",
+    tool: "Goblin Axe",
+    coat: "Royal Robe",
   },
 };
 

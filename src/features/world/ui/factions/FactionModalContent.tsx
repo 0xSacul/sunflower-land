@@ -2,10 +2,6 @@ import React, { useContext, useState } from "react";
 import { CloseButtonPanel } from "features/game/components/CloseablePanel";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { FactionDetailsPanel } from "./FactionDetailsPanel";
-import {
-  FactionDonationPanel,
-  FACTION_POINT_ICONS,
-} from "./FactionDonationPanel";
 import { FactionName } from "features/game/types/game";
 
 import factionsIcon from "assets/icons/factions.webp";
@@ -41,14 +37,6 @@ export const FactionModalContent: React.FC<Props> = ({
           name: t("faction"),
           icon: factionsIcon,
         },
-        ...(joinedFaction
-          ? [
-              {
-                name: t("donations"),
-                icon: FACTION_POINT_ICONS[joinedFaction.name],
-              },
-            ]
-          : []),
       ]}
       currentTab={tab}
       setCurrentTab={setTab}
@@ -61,7 +49,6 @@ export const FactionModalContent: React.FC<Props> = ({
       {tab === 0 && joinedFaction && (
         <FactionDetailsPanel faction={joinedFaction} onClose={onClose} />
       )}
-      {tab === 1 && <FactionDonationPanel onClose={onClose} />}
     </CloseButtonPanel>
   );
 };

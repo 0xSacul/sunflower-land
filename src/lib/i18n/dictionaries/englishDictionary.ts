@@ -68,7 +68,6 @@ import {
   GoldTooth,
   GuideCompost,
   GuideTerms,
-  HalveningCountdown,
   Harvestflower,
   HarvestBeeHive,
   HayseedHankPlaza,
@@ -175,10 +174,13 @@ import {
   Minigame,
   RemoveCropMachine,
   Username,
+  EasterEggKeys,
+  ChangeLanguage,
+  FactionShopDescription,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
-  "2x.sale": "2x Sale",
+  "2x.sale": "2x Coins",
   achievements: "Achievements",
   "amount.matic": "Amount in MATIC",
   deposit: "Deposit",
@@ -253,6 +255,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   exotics: "Exotics",
   "expand.land": "Expand your Land",
   expand: "Expand",
+  expired: "Expired",
   explore: "Explore",
   faction: "Faction",
   farm: "Farm",
@@ -282,8 +285,8 @@ const generalTerms: Record<GeneralTerms, string> = {
   info: "Info",
   item: "Item:",
   land: "Land",
+  landscaping: "Landscaping",
   "last.updated": "Last updated:",
-  left: "Left",
   "lets.go": "Let's Go!",
   limit: "Limit",
   "linked.wallet": "Linked wallet",
@@ -351,6 +354,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   retry: "Retry",
   reward: "Reward",
   "reward.discovered": "Reward Discovered",
+  "reward.whatsNew": "What's new",
   save: "Save",
   saving: "Saving",
   searching: "Searching",
@@ -377,6 +381,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   task: "Task",
   test: "Test",
   "thank.you": "Thank you!",
+  "time.remaining": "Time remaining: {{time}}",
   tools: "Tools",
   total: "Total",
   trades: "Trades",
@@ -431,16 +436,41 @@ const generalTerms: Record<GeneralTerms, string> = {
 };
 
 const timeUnits: Record<TimeUnits, string> = {
-  // time
-  sec: "sec",
-  min: "min",
-  hr: "hr",
-  day: "day",
+  // Full Singular
+  "time.second.full": "second",
+  "time.minute.full": "minute",
+  "time.hour.full": "hour",
+  "time.day.full": "day",
 
-  secs: "secs",
-  mins: "mins",
-  hrs: "hrs",
-  days: "days",
+  // Full Plural
+  "time.seconds.full": "seconds",
+  "time.minutes.full": "minutes",
+  "time.hours.full": "hours",
+  "time.days.full": "days",
+
+  // Medium Singular
+  "time.sec.med": "sec",
+  "time.min.med": "min",
+  "time.hr.med": "hr",
+  "time.day.med": "day",
+
+  // Medium Plural
+  "time.secs.med": "secs",
+  "time.mins.med": "mins",
+  "time.hrs.med": "hrs",
+  "time.days.med": "days",
+
+  // Short
+  "time.second.short": "s",
+  "time.minute.short": "m",
+  "time.hour.short": "h",
+  "time.day.short": "d",
+
+  // Relative Time
+  "time.seconds.ago": "{{time}} {{secondORseconds}} ago",
+  "time.minutes.ago": "{{time}} {{minuteORminutes}} ago ",
+  "time.hours.ago": "{{time}} {{hourORhours}} ago ",
+  "time.days.ago": "{{time}} {{dayORdays}} ago",
 };
 
 const achievementTerms: Record<AchievementsTerms, string> = {
@@ -575,7 +605,10 @@ const availableSeeds: Record<AvailableSeeds, string> = {
   "availableSeeds.select.plant":
     "What seed would you like to select and plant?",
   "quickSelect.empty": "No greenhouse seeds.",
+  "quickSelect.purchase": "Purchase {{name}} at the Market.",
   "quickSelect.label": "Quick select",
+  "quickSelect.cropSeeds": "crop seeds",
+  "quickSelect.greenhouseSeeds": "greenhouse seeds",
 };
 
 const base: Record<Base, string> = {
@@ -617,6 +650,14 @@ const beehive: Record<Beehive, string> = {
   "beehive.beeSwarm": "Bee swarm",
   "beehive.pollinationCelebration":
     "Pollination celebration! Your crops are in for a treat with a 0.2 boost from a friendly bee swarm!",
+  "beehive.honeyProductionPaused": "Honey production paused",
+  "beehive.yield": "Yield",
+  "beehive.honeyPerFullHive": "{{multiplier}} honey / full hive",
+  "beehive.speed": "Speed",
+  "beehive.fullHivePerDay": "{{speed}} full {{hive}} / day",
+  "beehive.estimatedFull": "Estimated full",
+  "beehive.hive.singular": "hive",
+  "beehive.hives.plural": "hives",
 };
 
 const birdiePlaza: Record<BirdiePlaza, string> = {
@@ -629,7 +670,7 @@ const birdiePlaza: Record<BirdiePlaza, string> = {
   "birdieplaza.collectTickets":
     "Collect enough {{seasonalTicket}}s and you can craft rare NFTs. That's how I got this rare outfit!",
   "birdieplaza.whatIsSeason": "What is a season?",
-  "birdieplaza.howToEarnTickets": "How do I earn {{seasonalTicket}}s?",
+  "birdieplaza.howToEarnTickets": "{{seasonalTicket}}s?",
   "birdieplaza.earnTicketsVariety":
     "You can earn {{seasonalTicket}} in a variety of ways.",
   "birdieplaza.commonMethod":
@@ -707,7 +748,7 @@ const boostDescriptions: Record<BoostDescriptions, string> = {
     "Explore the stars and improve scientific development",
   "description.engine.core": "The power of the sunflower",
   "description.time.warp.totem":
-    "2x speed for crops, trees, cooking & minerals. Only lasts for 2 hours",
+    "2x speed for crops, trees, fruits, cooking & minerals. Only lasts for 2 hours",
   "description.time.warp.totem.expired":
     "Your Time Warp Totem has expired. Head to the Pumpkin Plaza to discover and craft more magical items to boost your farming abilities!",
   "description.time.warp.totem.temporarily":
@@ -746,15 +787,13 @@ const boostDescriptions: Record<BoostDescriptions, string> = {
   "description.genie.lamp":
     "A magical lamp that contains a genie who will grant you three wishes.",
   "description.basic.scarecrow":
-    "Choosy defender of your farm's VIP (Very Important Plants)",
+    "Boost nearby Sunflowers, Potatoes and Pumpkins.",
   "description.scary.mike":
-    "The veggie whisperer and champion of frightfully good harvests!",
+    "Boost nearby Carrots, Cabbages, Soybeans, Beetroots, Cauliflowers and Parsnips",
   "description.laurie.chuckle.crow":
-    "With her disconcerting chuckle, she shooes peckers away from your crops!",
-  "description.immortal.pear":
-    "A long-lived pear that makes fruit trees growing in patches last longer.",
-  "description.bale":
-    "A poultry's favorite neighbor, providing a cozy retreat for chickens",
+    "Boost nearby Eggplant, Corn, Radish, Wheat and Kale",
+  "description.immortal.pear": "Increase the survival of your fruit patches.",
+  "description.bale": "Boost nearby chickens.",
   "description.sir.goldensnout":
     "A royal member, Sir Goldensnout infuses your farm with sovereign prosperity through its golden manure.",
   "description.freya.fox":
@@ -769,15 +808,11 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.freya.fox.boost": "+0.5 Pumpkin",
   "description.sir.goldensnout.boost": "+0.5 Crop (AOE 4x4)",
   "description.maximus.boost": "+1 Eggplant",
-  "description.basic.scarecrow.boost":
-    "-20% Basic Crop Growth Time: Sunflower, Potato and Pumpkin (AOE 3x3)",
-  "description.scary.mike.boost":
-    "+0.2 Medium Crop: Carrot, Cabbage, Soybean, Beetroot, Cauliflower and Parsnip (AOE 3x3)",
-  "description.laurie.chuckle.crow.boost":
-    "+0.2 Advanced Crop: Eggplant, Corn, Radish, Wheat, Kale (AOE 3x3)",
-  "description.bale.boost": "+0.2 Egg (AOE 4x4)",
-  "description.immortal.pear.boost":
-    "+1 Fruit Harvest for fruit seeds growing on Fruit Patches",
+  "description.basic.scarecrow.boost": "-20% Growth Time",
+  "description.scary.mike.boost": "+0.2 Medium Crops",
+  "description.laurie.chuckle.crow.boost": "+0.2 Advanced Crops",
+  "description.bale.boost": "+0.2 Eggs",
+  "description.immortal.pear.boost": "+1 Fruit Harvest per seed",
   "description.treasure.map.boost": "+20% Coins on Treasure Bounty Sales",
   "description.poppy.boost": "+0.1 Corn",
   "description.kernaldo.boost": "-25% Corn Growth Time",
@@ -862,7 +897,7 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.christmas.festive.tree.boost": "Free Gift at Christmas",
   "description.grinxs.hammer.boost": "Halves expansion costs",
   "description.time.warp.totem.boost":
-    "50% Reduction to Crop, Mineral, Cooking and Tree Time",
+    "50% Reduction to Crop, Mineral, Fruit, Cooking and Tree Time",
   "description.radiant.ray.boost": "+0.1 Iron",
   "description.babyPanda.boost": "Beginner 2x XP Boost",
   "description.hungryHare.boost": "Fermented Carrots 2x XP",
@@ -878,6 +913,17 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.rice.panda.boost": "+0.25 Rice",
   "description.olive.shirt.boost": "+0.25 Olive",
   "description.tofu.mask.boost": "+0.1 Soybean",
+  "description.gourmet.hourglass.boost": "+50% Cooking Speed (4hrs)",
+  "description.harvest.hourglass.boost": "-25% Crop Growth Time (6hrs)",
+  "description.timber.hourglass.boost": "-25% Tree Recovery Time (4hrs)",
+  "description.ore.hourglass.boost": "-50% Mineral Recovery Time (3hrs)",
+  "description.orchard.hourglass.boost": "-25% Fruit Growth Time (6hrs)",
+  "description.fishers.hourglass.boost": "50% Chance of +1 Fish (4hrs)",
+  "description.blossom.hourglass.boost": "-25% Flower Growth Time (4hrs)",
+  "description.hourglass.running":
+    "This {{hourglass}} provides a temporary boost of {{boost}}.",
+  "description.hourglass.expired":
+    "Your {{hourglass}} has expired. Time to grab another one!",
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -978,6 +1024,26 @@ const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
   "bumpkinItemBuff.hornet.mask": "2x chance Bee Swarm",
   "bumpkinItemBuff.honeycomb.shield": "+1 Honey per Full Beehive",
   "bumpkinItemBuff.flower.crown": "-50% Flower Growth Time",
+  "bumpkinItemBuff.goblin.armor": "+20% Marks",
+  "bumpkinItemBuff.goblin.helmet": "+10% Marks",
+  "bumpkinItemBuff.goblin.axe": "+10% Marks",
+  "bumpkinItemBuff.goblin.pants": "+5% Marks",
+  "bumpkinItemBuff.goblin.sabatons": "+5% Marks",
+  "bumpkinItemBuff.nightshade.armor": "+20% Marks",
+  "bumpkinItemBuff.nightshade.helmet": "+10% Marks",
+  "bumpkinItemBuff.nightshade.sword": "+10% Marks",
+  "bumpkinItemBuff.nightshade.pants": "+5% Marks",
+  "bumpkinItemBuff.nightshade.sabatons": "+5% Marks",
+  "bumpkinItemBuff.sunflorian.armor": "+20% Marks",
+  "bumpkinItemBuff.sunflorian.helmet": "+10% Marks",
+  "bumpkinItemBuff.sunflorian.sword": "+10% Marks",
+  "bumpkinItemBuff.sunflorian.pants": "+5% Marks",
+  "bumpkinItemBuff.sunflorian.sabatons": "+5% Marks",
+  "bumpkinItemBuff.bumpkin.armor": "+20% Marks",
+  "bumpkinItemBuff.bumpkin.helmet": "+10% Marks",
+  "bumpkinItemBuff.bumpkin.sword": "+10% Marks",
+  "bumpkinItemBuff.bumpkin.pants": "+5% Marks",
+  "bumpkinItemBuff.bumpkin.sabatons": "+5% Marks",
 };
 
 const bumpkinPart: Record<BumpkinPart, string> = {
@@ -1059,9 +1125,10 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.minimumFloor": "Min unit price: {{min}}",
   "bumpkinTrade.maximumFloor": "Max unit price: {{max}}",
   "bumpkinTrade.floorPrice": "Floor Price: {{price}} SFL",
-  "bumpkinTrade.price/unit": "{{price}} / unit",
   "bumpkinTrade.sellConfirmation":
     "Sell {{quantity}} {{resource}} for {{price}} SFL?",
+  "bumpkinTrade.cant.sell.all": "Can't sell all",
+  "bumpkinTrade.price/unit": "{{price}}/unit",
 };
 
 const goblinTrade: Record<GoblinTrade, string> = {
@@ -1086,6 +1153,15 @@ const buyFarmHand: Record<BuyFarmHand, string> = {
   "buyFarmHand.buyBumpkin": "Buy Bumpkin",
   "buyFarmHand.newFarmhandGreeting":
     "I am your new farmhand. I can't wait to get to work!",
+};
+
+const changeLanguage: Record<ChangeLanguage, string> = {
+  "changeLanguage.confirm":
+    "This action will refresh the browser. Are you sure you want to change your language?",
+  "changeLanguage.contribute": "Want to contribute your Language?",
+  "changeLanguage.contribute.message":
+    "If you are interested in contributing translations for your preferred language, please contact one of the Moderators in the Sunflower Land Discord Server:",
+  "changeLanguage.currentLanguage": "(Current Language)",
 };
 
 const chat: Record<Chat, string> = {
@@ -1114,6 +1190,7 @@ const choresStart: Record<ChoresStart, string> = {
   "chores.noChore": "Sorry, I don't have any chores that need doing right now.",
   "chores.newSeason": "A new season approaches, chores will temporarily close.",
   "chores.choresFrozen": "New seasonal chores will be available soon.",
+  "chores.left": "{{chores}} left",
 };
 
 const chumDetails: Record<ChumDetails, string> = {
@@ -1189,6 +1266,8 @@ const composterDescription: Record<ComposterDescription, string> = {
 const confirmationTerms: Record<ConfirmationTerms, string> = {
   "confirmation.sellCrops":
     "Are you sure you want to sell {{cropAmount}} {{cropName}} for {{coinAmount}} Coins?",
+  "confirmation.buyCrops":
+    "Are you sure you want to spend {{coinAmount}} Coins to buy {{seedNo}} {{seedName}}s?",
 };
 
 const confirmSkill: Record<ConfirmSkill, string> = {
@@ -1196,6 +1275,12 @@ const confirmSkill: Record<ConfirmSkill, string> = {
 };
 
 const conversations: Record<Conversations, string> = {
+  "home-intro.one":
+    "Howdy Bumpkin, welcome to your home...It's not much, but we all have to start somewhere!",
+  "home-intro.two":
+    "Throughout your adventures you will be able to store rare collectibles you find here.",
+  "home-intro.three":
+    "The bigger your home, the more Bumpkins that can live on your island.",
   "hank-intro.headline": "Help an old man?",
   "hank-intro.one": "Howdy Bumpkin! Welcome to our little patch of paradise.",
   "hank-intro.two":
@@ -1214,14 +1299,19 @@ const conversations: Record<Conversations, string> = {
     "Bring me your finest harvest, and I will give you a fair price for them!",
   "betty-intro.three":
     "You need seeds? From potatoes to parsnips, I've got you covered!",
-  "betty.market-intro.one":
-    "Hey there, Bumpkin! It's Betty from the farmer's market. I travel between islands to buy crops and sell fresh seeds.",
+  "betty.market-intro.one": "Great work Bumpkin! You've just discovered Crops!",
   "betty.market-intro.two":
-    "Good news: you just stumbled upon a shiny new shovel! Bad news: we've hit a bit of a crop shortage.",
+    "You can harvest and sell them at my market to earn coins and grow your island.",
+
   "betty.market-intro.three":
-    "For a limited time I am offering newcomers double the money for any crops you bring to me.",
+    "You can harvest them and sell them at my market to earn coins and grow your farming empire",
   "betty.market-intro.four":
     "Harvest those Sunflowers and let's start your farming empire.",
+
+  "firepit-intro.one": "Congratulations Bumpkin...You're a natural!",
+  "firepit-intro.two":
+    "If you want to level up & unlock new abilities, gather crops and visit my fire pit. I can cook some nutritious food for you.",
+  "firepit.increasedXP": "Increased XP",
   "bruce-intro.headline": "Cooking Introduction",
   "bruce-intro.one": "I'm the owner of this lovely little bistro.",
   "bruce-intro.two":
@@ -1246,9 +1336,9 @@ const conversations: Record<Conversations, string> = {
     "Head over to the work bench and craft a scarecrow to speed up those Sunflowers.",
   "pete.levelthree.one": "Congratulations, your green thumb is truly shining!",
   "pete.levelthree.two":
-    "It's high time we head to the Plaza, where your farming prowess can shine even brighter.",
+    "It looks like you've got some deliveries in the Plaza to complete.",
   "pete.levelthree.three":
-    "At the plaza you can deliver your resources for rewards, craft magical items & trade with other players.",
+    "View your deliveries in the bottom left of the screen. Once you've gathered the resources, you can travel and deliver the items to the Bumpkins.",
   "pete.levelthree.four":
     "You can travel by clicking on the world icon in the bottom left.",
   "pete.help.zero": "Visit the fire pit, cook food and eat to level up.",
@@ -1373,19 +1463,24 @@ const cropMachine: Record<CropMachine, string> = {
   "cropMachine.availableInventory": "Available {{amount}}",
   "cropMachine.seeds": "Seeds: {{amount}}",
   "cropMachine.growTime": "Grow time: {{time}}",
+  "cropMachine.all": "All",
   "cropMachine.addSeedPack": "Add seed pack",
   "cropMachine.notStartedYet": "Not started yet",
   "cropMachine.seedPacks": "Seed packs",
   "cropMachine.readyCropPacks": "Ready crop packs",
   "cropMachine.readyCropPacks.description":
-    "You currently have {{totalReady}} crop packs to harvest! Click the harvest button to collect all your crops.",
-  "cropMachine.harvestAllCrops": "Harvest all crops",
+    "You currently have {{totalReady}} crop packs to harvest! Click the the pack you want to harvest.",
+  "cropMachine.harvestCropPack": "Harvest crop pack",
   "cropMachine.addOil": "Add oil",
   "cropMachine.oil.description":
     "Your machine needs oil to run. Every seed pack will require a certain amount of oil based on how long the crops take to grow. As you add oil you can see how long the machine will run when given that amount.",
   "cropMachine.maxRuntime": "Max runtime: {{time}}",
   "cropMachine.oilToAdd": "Oil to add: {{amount}}",
   "cropMachine.totalRuntime": "Total runtime: {{time}}",
+  "cropMachine.running": "Crop Machine is running",
+  "cropMachine.stopped": "Crop Machine has stopped",
+  "cropMachine.idle": "Crop Machine is idle",
+  "cropMachine.name": "Crop Machine",
 };
 
 const decorationDescriptions: Record<DecorationDescriptions, string> = {
@@ -1747,6 +1842,16 @@ const decorationDescriptions: Record<DecorationDescriptions, string> = {
   "description.vinny":
     "Vinny, a friendly grapevine, is always ready for a chat.",
   "description.ricePanda": "A smart panda never forgets to water the rice.",
+  "description.benevolenceFlag":
+    "For players who have shown great benevolence by contributing significantly to the Bumpkins.",
+  "description.devotionFlag":
+    "For players who have shown unwavering devotion by donating extensively to the Nightshades, reflecting their cult-like dedication",
+  "description.generosityFlag":
+    "For players who have donated substantial resources to the Goblins.",
+  "description.splendorFlag":
+    "For players who have generously supported the Sunflorians, symbolizing their splendor in generosity.",
+  "description.jellyLamp": "A lamp that brings a touch of luxury to any room.",
+  "description.paintCan": "A paint can discovered in the festival of colors",
 };
 
 const defaultDialogue: Record<DefaultDialogue, string> = {
@@ -1977,13 +2082,14 @@ const factions: Record<Factions, string> = {
   "faction.donation.bulk.resources.unlimited.per.day":
     "{{donatedToday}}/unlimited per day",
   "faction.donation.confirm":
-    "Are you sure you want to donate the following for a total of {{factionPoints}} faction points?",
+    "Are you sure you want to donate the following for a total of {{factionPoints}} {{reward}}?",
   "faction.seasonal.delivery.start.at": "Seasonal Deliveries begin in {{days}}",
   "faction.points.with.number": "Faction points: {{points}}",
   "faction.points.title": "Faction Points",
   "faction.points.pledge.warning":
     "Pledge a faction to receive faction points!",
   "faction.emblemAirdrop": "Emblem Airdrop",
+  "faction.emblemAirdrop.closes": "Ends: {{date}}",
 
   // Kingdom NPCs
   "faction.restrited.area":
@@ -2016,10 +2122,160 @@ const factions: Record<Factions, string> = {
     "You contributed {{count}} faction points. Your rank was {{rank}}. You in the top {{percentile}}% of {{Faction}}.",
   "faction.claimEmblems.claim": "Claim {{count}} Emblems",
   "faction.claimEmblems.congratulations":
-    "Congratulations! You've received {{count}} emblems! Here is how you compare to your faction members.",
+    "Congratulations! You've received {{count}} emblems!",
+  "faction.claimEmblems.comparison":
+    "Here is how you compare to your faction members.",
   "faction.claimEmblems.totalMembers": "Total Faction Members",
   "faction.claimEmblems.totalEmblems": "Total Faction Emblems",
   "faction.claimEmblems.percentile": "Top {{percentile}}%",
+  "faction.claimEmblems.travelNow": "Travel Now",
+  "faction.claimEmblems.visitMe":
+    "Visit me, {{recruiterName}}, in the Kingdom to claim your emblems.",
+
+  "faction.kitchen.opensIn": "Opens in {{time}}",
+  "faction.kitchen.notReady":
+    "Ahhh I love your enthusiasm! However, the kitchen is not open yet. Please come back later.",
+  "faction.kitchen.gatherResources":
+    "So many new recruits... how will we feed them all! Can you help me gather some resources?",
+  "faction.kitchen.preparing":
+    "I'm still preparing my orders! Please come back in a few minutes.",
+  "faction.kitchen.newRequests": "New requests: {{time}}",
+  "faction.openingSoon":
+    "Faction houses are opening on July 1st. Earn marks, compete for glory and claim rewards!",
+  "faction.emblems": "Emblems",
+  "faction.emblems.intro.one":
+    "Wow, look at all those emblems. You are a true warrior!",
+  "faction.emblems.intro.two":
+    "On July 1st the Faction House will open. You will be able to complete tasks, earn marks and claim rewards.",
+  "faction.emblems.intro.three":
+    "The more emblems you have, the higher your rank and more marks you can earn.",
+  "faction.tradeEmblems": "Trade emblems to climb the ranks and attain perks.",
+  "faction.marksBoost":
+    "Marks boost applies to faction activities coming July 1st.",
+  "faction.shop.onlyFor": "{{faction}} only",
+  "faction.shop.welcome":
+    "Welcome to the Faction Shop! Use your marks to purchase temporary boosts, stylish wearables, and rare collectibles. Dive in and find your next great addition!",
+};
+
+const factionShopDescription: Record<FactionShopDescription, string> = {
+  "description.factionShop.sunflorianThrone": "A throne fit for a Sunflorian.",
+  "description.factionShop.nightshadeThrone": "A throne fit for a Nightshade.",
+  "description.factionShop.goblinThrone": "A throne fit for a Goblin.",
+  "description.factionShop.bumpkinThrone": "A throne fit for a Bumpkin.",
+  "description.factionShop.goldenSunflorianEgg":
+    "A jewelled egg created by the House of Sunflorian.",
+  "description.factionShop.goblinMischiefEgg":
+    "A jewelled egg created by the House of Goblin.",
+  "description.factionShop.bumpkinCharmEgg":
+    "A jewelled egg created by the House of Bumpkin.",
+  "description.factionShop.nightshadeVeilEgg":
+    "A jewelled egg created by the House of Nightshade.",
+  "description.factionShop.emeraldGoblinGoblet": "An emerald encrusted goblet.",
+  "description.factionShop.opalSunflorianGoblet": "An opal encrusted goblet.",
+  "description.factionShop.sapphireBumpkinGoblet":
+    "A sapphire encrusted goblet.",
+  "description.factionShop.amethystNightshadeGoblet":
+    "An amethyst encrusted goblet.",
+  "description.factionShop.goldenFactionGoblet": "A golden goblet.",
+  "description.factionShop.rubyFactionGoblet": "A ruby encrusted goblet.",
+  "description.factionShop.sunflorianBunting":
+    "Colorful flags celebrating the Sunflorian Faction.",
+  "description.factionShop.nightshadeBunting":
+    "Colorful flags celebrating the Nightshade faction.",
+  "description.factionShop.goblinBunting":
+    "Colorful flags celebrating the Goblin faction.",
+  "description.factionShop.bumpkinBunting":
+    "Colorful flags celebrating the Bumpkin faction.",
+  "description.factionShop.sunflorianCandles":
+    "Sunflorian Faction decorative candles.",
+  "description.factionShop.nightshadeCandles":
+    "Nightshade Faction decorative candles.",
+  "description.factionShop.goblinCandles": "Goblin Faction decorative candles.",
+  "description.factionShop.bumpkinCandles":
+    "Bumpkin Faction decorative candles.",
+  "description.factionShop.sunflorianLeftWallSconce":
+    "Illuminate your living quarters with a Sunflorian Wall Sconce.",
+  "description.factionShop.nightshadeLeftWallSconce":
+    "Illuminate your living quarters with a Nightshade Wall Sconce.",
+  "description.factionShop.goblinLeftWallSconce":
+    "Illuminate your living quarters with a Goblin Wall Sconce.",
+  "description.factionShop.bumpkinLeftWallSconce":
+    "Illuminate your living quarters with a Bumpkin Wall Sconce.",
+  "description.factionShop.sunflorianRightWallSconce":
+    "Illuminate your living quarters with a Sunflorian Wall Sconce.",
+  "description.factionShop.nightshadeRightWallSconce":
+    "Illuminate your living quarters with a Nightshade Wall Sconce.",
+  "description.factionShop.goblinRightWallSconce":
+    "Illuminate your living quarters with a Goblin Wall Sconce.",
+  "description.factionShop.bumpkinRightWallSconce":
+    "Illuminate your living quarters with a Bumpkin Wall Sconce.",
+  "description.factionShop.cookingBoost":
+    "Reduces cooking time by 50% for 4 hours.",
+  "description.factionShop.cropBoost":
+    "Reduces crop growth time by 25% for 6 hours.",
+  "description.factionShop.woodBoost":
+    "Reduces tree recovery time by 25% for 4 hours.",
+  "description.factionShop.mineralBoost":
+    "Reduces mineral replenish cooldown by 50% for 3 hours.",
+  "description.factionShop.fruitBoost":
+    "Reduces fruit growth time by 25% for 6 hours.",
+  "description.factionShop.flowerBoost":
+    "Reduces flower growth time by 25% for 4 hours.",
+  "description.factionShop.fishBoost":
+    "Gives a 50% chance of +1 fish for 4 hours.",
+  "description.factionShop.sunflorianFactionRug":
+    "A magnificent rug made by the talented Sunflorian faction artisans.",
+  "description.factionShop.nightshadeFactionRug":
+    "A magnificent rug made by the talented Nightshade faction artisans.",
+  "description.factionShop.goblinFactionRug":
+    "A magnificent rug made by the talented Goblin faction artisans.",
+  "description.factionShop.bumpkinFactionRug":
+    "A magnificent rug made by the talented Bumpkin faction artisans.",
+  "description.factionShop.goblinArmor":
+    "Rugged and rowdy, Goblin-approved protection. Earn +20% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.goblinHelmet":
+    "Strong and sturdy, crafted for fearless adventures in untamed lands. Earn +10% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.goblinPants":
+    "These pants blend agility with Goblin craftsmanship for swift maneuvers. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.goblinSabatons":
+    "Designed to outpace and outlast any foe. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.goblinAxe":
+    "This axe is a testament to Goblin strength and unmatched battle prowess. Earn +10% marks",
+  "description.factionShop.sunflorianArmor":
+    "A shimmering protection that mirrors the sun's strength. Earn +20% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.sunflorianHelmet":
+    "This helmet is a beacon of light and guardian against shadows. Earn +10% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.sunflorianPants":
+    "Stride confidently in attire that captures the warmth and energy of all Sunflorians. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.sunflorianSabatons":
+    "Each step taken in these shoes resonating with the power and vitality. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.sunflorianSword":
+    "A blade ablaze with the courage and brilliance of the sun. Earn +10% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.bumpkinArmor":
+    "A sturdy protection that honors tradition and strength. Earn +20% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.bumpkinHelmet":
+    "Adorn your head with a symbol of rustic fortitude and unwavering resolve. Earn +10% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.bumpkinPants":
+    "Navigate countryside and city alike blending comfort with the spirit of adventure. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.bumpkinSabatons":
+    "Stampede through fields in this sturdy footwear echoing the resilience of rural life. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.bumpkinSword":
+    "A weapon forged in fields and forests, ready for any challenge. Earn +10% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.nightshadeArmor":
+    "An Armor, crafted for stealth and resilience in the shadows. Earn +20% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.nightshadeHelmet":
+    "A strong helmet of secrecy and silent strength. Earn +10% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.nightshadePants":
+    "These pants are blending agility with the mystery of the night. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.nightshadeSabatons":
+    "Perfect design where every step is a whisper in the dark. Earn +5% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.nightshadeSword":
+    "A blade that strikes with the precision of moonlit steel. Earn +10% marks when pledged to this faction. Multiples of this item do not stack.",
+  "description.factionShop.knightGambit":
+    "Don this hat and be ready to charge into adventure with a playful twist of strategy and style.",
+  "description.factionShop.motley":
+    "A riot of colors stitched together in merry defiance of fashion norms.",
+  "description.factionShop.royalBraids": "A hairstyle fit for a royal.",
 };
 
 const festiveTree: Record<FestiveTree, string> = {
@@ -2476,6 +2732,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
   "description.sunflorian.emblem": "Show your allegiance to the Sunflorians",
   "description.bumpkin.emblem": "Show your allegiance to the Bumpkins",
   "description.nightshade.emblem": "Show your allegiance to the Nightshades",
+  "description.faction.mark": "Use these in the faction shop",
 };
 
 const gameTerms: Record<GameTerms, string> = {
@@ -2501,6 +2758,8 @@ const gameTerms: Record<GameTerms, string> = {
   "aoe.locked": "AOE Locked",
   sunflowerLandCodex: "Sunflower Land Codex",
   "visiting.farmId": "Visting #{{farmId}}",
+  "stock.inStock": "{{stock}} in stock",
+  "stock.left": "{{stock}} left",
 };
 
 const garbageCollector: Record<GarbageCollector, string> = {
@@ -2558,8 +2817,8 @@ const goldTooth: Record<GoldTooth, string> = {
 };
 
 const guideCompost: Record<GuideCompost, string> = {
-  "guide.compost.add.eggs.speed": "Add eggs to speed up production",
-  "guide.compost.add.eggs": "Add Eggs",
+  "guide.compost.addEggs.speed": "Add eggs to speed up production",
+  "guide.compost.addEggs": "Add Eggs",
   "guide.compost.eggs": "Eggs",
   "guide.compost.cropGrowthTime": "-50% Crop Growth Time",
   "guide.compost.fishingBait": "Fishing bait",
@@ -2570,6 +2829,8 @@ const guideCompost: Record<GuideCompost, string> = {
     "Each compost yields worms that can be used as bait for fishing",
   "guide.compost.useEggs":
     "Tired of waiting? Use Eggs to speed up the compost production",
+  "guide.compost.addEggs.confirmation":
+    "Are you sure you want to add {{noEggs}} Eggs to reduce compost production time by {{time}}?",
 };
 
 const guideTerms: Record<GuideTerms, string> = {
@@ -2655,14 +2916,6 @@ const guideTerms: Record<GuideTerms, string> = {
   "pete.teaser.eight": "Cook food and level up",
 };
 
-const halveningCountdown: Record<HalveningCountdown, string> = {
-  "halveningCountdown.approaching": "The Halvening is Approaching!",
-  "halveningCountdown.description":
-    "At the Halvening, all prices of crops & certain resources are halved. This makes it more difficult to attain SFL.",
-  "halveningCountdown.preparation": "Make sure you are prepared!",
-  "halveningCountdown.title": "Halvening",
-};
-
 const harvestBeeHive: Record<HarvestBeeHive, string> = {
   "harvestBeeHive.notPlaced": "This beehive is not placed.",
   "harvestBeeHive.noHoney": "This beehive has no honey.",
@@ -2690,7 +2943,7 @@ const hayseedHankV2: Record<HayseedHankV2, string> = {
     "However, my bones ain't what they used to be. If you can help me with my daily chores, I will reward you with {{seasonalTicket}}.",
   "hayseedHankv2.action": "Let's do it",
   "hayseedHankv2.title": "Hank's Daily Chores",
-  "hayseedHankv2.newChoresAvailable": "New chores available in",
+  "hayseedHankv2.newChoresAvailable": "New chores:",
   "hayseedHankv2.skipChores": "You can skip chores each new day",
   "hayseedHankv2.greeting":
     "Well, howdy there, young whippersnappers! I'm Hayseed Hank...",
@@ -2700,7 +2953,7 @@ const heliosSunflower: Record<HeliosSunflower, string> = {
   "heliosSunflower.title": "Clytie the Sunflower",
   "heliosSunflower.description":
     "Only the true saviour can return and harvest this Sunflower.",
-  "confirmation.craft": "Are you sure you want to craft",
+  "confirmation.craft": "Are you sure you want to craft {{item}}?",
 };
 
 const helper: Record<Helper, string> = {
@@ -2849,7 +3102,7 @@ const interactableModals: Record<InteractableModals, string> = {
     "Rumour has it they are searching for Bumpkin apprentices to grow mutant crops with them.",
   "interactableModals.guildHouse.message":
     "Hold on Bumpkin! You need a Bud if you want to enter the Guild House.",
-  "interactableModals.guildHouse.budsCollection": "Buds Collection on Opensea",
+  "interactableModals.guildHouse.budsCollection": "Opensea",
   "interactableModals.bettyHome.message":
     "Oh, sweetie, as much as I love my crops, my house is a private space, not open to visitors right now.",
   "interactableModals.bertHome.message":
@@ -3110,9 +3363,9 @@ const noBumpkin: Record<NoBumpkin, string> = {
   "noBumpkin.play": "Play",
   "noBumpkin.missingBumpkin": "You are missing your Bumpkin",
   "noBumpkin.bumpkinNFT":
-    "A Bumpkin is an NFT that is minted on the Blockchain.",
+    "Hmmm, that's strange. It looks like you are playing on a legacy account without a Bumpkin.",
   "noBumpkin.bumpkinHelp":
-    "You need a Bumpkin to help you plant, harvest, chop, mine and expand your land.",
+    "You need a Bumpkin to help you plant, harvest, chop, mine and expand your land. Support is coming soon to add a Bumpkin!.",
   "noBumpkin.mintBumpkin": "You can get a Bumpkin from OpenSea:",
   "noBumpkin.allBumpkins": "Wow, look at all those Bumpkins!",
   "noBumpkin.chooseBumpkin": "Which Bumpkin would you like to play with?",
@@ -3951,16 +4204,6 @@ const npcDialogues: Record<NpcDialogues, string> = {
     "Wow, thanks Bumpkin. Here is a small gift for your help!",
   "npcDialogues.default.locked": "Please come back tomorrow.",
 
-  // Glinteye Intro
-  "npcDialogues.glinteye.intro1":
-    "Ah, adventurer! Glinteye at your service. Ready to trade secrets and resources? Dive into my listings or add your own. Let's make a deal!",
-  "npcDialogues.glinteye.intro2":
-    "Welcome, curious soul! I'm Glinteye, your guide to trading wonders. Seek or list resources with me; fortune favors the bold!",
-  "npcDialogues.glinteye.intro3":
-    "Glinteye's my name, trading's my game! Browse or list, there's always a twist. What's your fancy today?",
-  "npcDialogues.glinteye.intro4":
-    "Hello there! I'm Glinteye, the goblin of trade. Explore player trades or list your items. Let's see what we can find together!",
-
   // Queen Victoria Intro
   "npcDialogues.queenVictoria.intro1":
     "Oh, it's you. Do you have my taxes ready, peasant?",
@@ -4255,6 +4498,9 @@ const playerTrade: Record<PlayerTrade, string> = {
 const portal: Record<Portal, string> = {
   "portal.wrong": "Something went wrong",
   "portal.unauthorised": "unauthorised",
+  "portal.example.claimPrize": "Claim your prize!",
+  "portal.example.intro": "Howdy Howdy, welcome to this test portal",
+  "portal.example.purchase": "Purchase fake pass",
 };
 
 const promo: Record<Promo, string> = {
@@ -4358,7 +4604,8 @@ const restock: Record<Restock, string> = {
   "restock.one.buck":
     "You are going to use 1 Block Buck to restock all shop items in the game.",
   "restock.sure": "Are you sure you want to Restock?",
-  "restock.seed.buy": "You have too many seeds in your basket!",
+  "restock.tooManySeeds": "You have too many seeds in your basket!",
+  "seeds.reachingInventoryLimit": "You are reaching your seed basket limit!",
 };
 
 const retreatTerms: Record<RetreatTerms, string> = {
@@ -4650,7 +4897,6 @@ const statements: Record<Statements, string> = {
   "statements.water.well.needed.two":
     "In order to support more crops, build a well.",
   "statements.soldOut": "Sold out",
-  "statements.inStock": "in stock",
   "statements.soldOutWearables": "View sold out wearables",
   "statements.craft.composter": "Craft at Composter",
   "statements.wallet.to.inventory.transfer": "Deposit items from your wallet",
@@ -4665,9 +4911,6 @@ const statements: Record<Statements, string> = {
 
   "statements.session.expired":
     "It looks like your session has expired. Please refresh the page to continue playing.",
-  "statements.translation.want2contribute": "Want to contribute your Language?",
-  "statements.translation.contribution":
-    "If you are interested in contributing translations for your preferred language, please contact one of the Moderators in the Sunflower Land Discord Server:",
   "statements.translation.joinDiscord": "Join Discord",
 };
 
@@ -4725,6 +4968,7 @@ const trader: Record<Trader, string> = {
 };
 
 const transactionTerms: Record<TransactionTerms, string> = {
+  "transaction.starterOffer": "Starter offer",
   "transaction.t&c.one":
     "Accept the terms and conditions to sign in to Sunflower Land.",
   "transaction.t&c.two": "Accept Terms and Conditions",
@@ -4961,7 +5205,13 @@ const world: Record<World, string> = {
     "Howdy Bumpkin, welcome to the Pumpkin Plaza. Here Bumpkins from far and wide come together to trade, complete deliveries and play mini-games.",
   "world.intro.two":
     "Explore the Plaza and find Bumpkins who are waiting for your deliveries. In exchange, they will give you rewards!",
-  "world.intro.three": "A few quick hints before you begin your adventure:",
+  "world.intro.missingDelivery":
+    "Hmmm, it looks like you haven't gathered resources for a delivery yet. You can still explore in the meantime.",
+  "world.intro.delivery":
+    "Oh great, it looks like you've got the resources for a delivery!",
+  "world.intro.levelUpToTravel": "Level up to travel",
+  "world.intro.findNPC": "Explore the plaza and find {{name}}.",
+  "world.intro.find": "Find",
   "world.intro.visit":
     "Visit NPCs and complete deliveries to earn SFL, Coins and rare rewards.",
   "world.intro.craft":
@@ -4984,6 +5234,7 @@ const world: Record<World, string> = {
   "world.retreat": "Retreat",
   "world.home": "Home",
   "world.kingdom": "Kingdom",
+  "world.travelTo": "Travel to {{location}}",
 };
 
 const wornDescription: Record<WornDescription, string> = {
@@ -5031,6 +5282,7 @@ const restrictionReason: Record<RestrictionReason, string> = {
   "restrictionReason.genieLampRubbed": "Genie Lamp rubbed",
   "restrictionReason.oilReserveDrilled": "Oil reserves are drilled",
   "restrictionReason.buildingInUse": "Building is in use",
+  "restrictionReason.beehiveInUse": "Beehive in use",
 };
 
 export const leaderboardTerms: Record<Leaderboard, string> = {
@@ -5065,6 +5317,11 @@ const gameOptions: Record<GameOptions, string> = {
   "gameOptions.generalSettings.connectDiscord": "Connect to Discord",
   "gameOptions.generalSettings.assignRole": "Assign Discord Role",
   "gameOptions.generalSettings.changeLanguage": "Change Language",
+  "gameOptions.generalSettings.darkMode": "Dark Mode",
+  "gameOptions.generalSettings.lightMode": "Light Mode",
+  "gameOptions.generalSettings.appearance": "Appearance",
+  "gameOptions.generalSettings.font": "Font",
+
   "gameOptions.generalSettings.disableAnimations": "Disable Animations",
   "gameOptions.generalSettings.enableAnimations": "Enable Animations",
   "gameOptions.generalSettings.share": "Share",
@@ -5093,11 +5350,40 @@ const minigame: Record<Minigame, string> = {
   "minigame.chickenRescue": "Minigame - Chicken Rescue",
   "minigame.comingSoon": "Coming soon...",
   "minigame.completed": "Complete",
-  "minigame.confirm": "Are you sure you want to spend ",
+  "minigame.confirm": "Are you sure you want to spend the following:",
   "minigame.noPrizeAvailable": "No daily prize available",
   "minigame.playNow": "Play now",
   "minigame.purchase": "Purchase",
   "minigame.chickenRescueHelp": "Can you help me rescue the chickens?",
+  "minigame.discovered.one": "Howdy Bumpkin, you've discovered a portal!",
+  "minigame.discovered.two":
+    "Step into the magical realm to earn rewards and glory. Good luck!",
+  "minigame.communityEvent": "Community event",
+  "minigame.festivalOfColors": "Festival of colors",
+  "minigame.festivalOfColors.comingSoon":
+    "A community event is coming on the 25th of June...",
+  "minigame.festivalOfColors.intro":
+    "Celebrate the season of colors in this community designed event.",
+  "minigame.festivalOfColors.mission": "Find the paint bombs!",
+};
+
+export const easterEggTerms: Record<EasterEggKeys, string> = {
+  "easterEgg.queensDiary": "Victoria's Diary",
+  "easterEgg.jesterDiary": "Jester's Diary",
+  "easterEgg.tywinDiary": "Tywin's Diary",
+  "easterEgg.kingDiary": "King's Diary",
+  "easterEgg.lostKnight": "Lost Knight",
+  "easterEgg.knight": "Hellllllp...Don't trust the Gambit or his dirty tricks!",
+  "easterEgg.kingdomBook1":
+    "Dear Diary, I fear the king may never return. Whispers in the court suggest someone may seize the throne in his absence. This kingdom teeters on a knife's edge.",
+  "easterEgg.kingdomBook2":
+    "Tywin is too weak and far too soft on the Bumpkins. They need to pay more taxes. This kingdom needs a firm hand, not his gentle touch.",
+  "easterEgg.kingdomBook3":
+    "The royals are a cruel bunch. They treat everyone like dirt beneath their feet. No wonder no one likes them! At least they give me plenty of material for my jokes.",
+  "easterEgg.kingdomBook4":
+    "Authority and respect are crucial to suppressing the Goblins. We didn’t endure the war only to hand them power. They must be kept in their place for our kingdom's safety.",
+  "easterEgg.kingdomBook5":
+    "To be king, I must be extra cruel. Once I ascend the throne, all Goblins will suffer. Their rebellion ends with me, and our kingdom will be stronger for it.",
 };
 
 export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
@@ -5120,6 +5406,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...bumpkinSkillsDescription,
   ...bumpkinTrade,
   ...buyFarmHand,
+  ...changeLanguage,
   ...chat,
   ...chickenWinner,
   ...choresStart,
@@ -5149,6 +5436,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...event,
   ...exoticShopItems,
   ...factions,
+  ...factionShopDescription,
   ...festiveTree,
   ...fishDescriptions,
   ...fishermanModal,
@@ -5174,7 +5462,6 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...greenhouse,
   ...guideCompost,
   ...guideTerms,
-  ...halveningCountdown,
   ...harvestBeeHive,
   ...harvestflower,
   ...hayseedHankPlaza,
@@ -5276,4 +5563,5 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...wornDescription,
   ...restrictionReason,
   ...removeCropMachine,
+  ...easterEggTerms,
 };

@@ -17,18 +17,23 @@ import {
 import { Finn } from "./npcs/Finn";
 import { GoldTooth } from "./npcs/GoldTooth";
 import { Mayor } from "./npcs/Mayor";
-import { FlowerShop } from "./flowerShop/FlowerShop";
 import { DecorationShopItems } from "features/helios/components/decorations/component/DecorationShopItems";
 import { Stylist } from "./stylist/Stylist";
 import { AuctionHouseModal } from "./AuctionHouseModal";
 import { translate } from "lib/i18n/translate";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
-import { SpecialEventModal } from "./SpecialEventModal";
 import { GarbageCollectorModal } from "features/helios/components/garbageCollector/components/GarbageCollectorModal";
 import { Hopper } from "./npcs/Hopper";
 import { FactionModalContent } from "./factions/FactionModalContent";
 import { ChickenRescue } from "./portals/ChickenRescue";
 import { JoinFactionModal } from "./factions/JoinFactionModal";
+import { EmblemsTrading } from "./factions/emblemTrading/EmblemsTrading";
+import { ChoresModal } from "./factions/chores/ChoresModal";
+import { OuterPanel } from "components/ui/Panel";
+import { FactionKitchenPanel } from "./factions/FactionKitchenPanel";
+import { PortalNPCExample } from "features/portal/example/components/PortalNPCExample";
+import { FlowerShop } from "./flowerShop/FlowerShop";
+import { FactionShop } from "./factionShop/FactionShop";
 
 class NpcModalManager {
   private listener?: (npc: NPCName, isOpen: boolean) => void;
@@ -47,7 +52,6 @@ class NpcModalManager {
 export const npcModalManager = new NpcModalManager();
 
 interface Props {
-  onNavigate: (sceneId: SceneId) => void;
   scene: SceneId;
   id: number;
 }
@@ -90,6 +94,7 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
           </CloseButtonPanel>
         )}
 
+        {npc === "portaller" && <PortalNPCExample onClose={closeModal} />}
         {npc === "shelly" && <DeliveryPanel npc={npc} onClose={closeModal} />}
         {npc === "poppy" && <FlowerShop onClose={closeModal} />}
         {npc === "frankie" && <DecorationShopItems onClose={closeModal} />}
@@ -125,6 +130,7 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
           <CloseButtonPanel
             onClose={closeModal}
             bumpkinParts={NPC_WEARABLES.garbo}
+            container={OuterPanel}
           >
             <GarbageCollectorModal />
           </CloseButtonPanel>
@@ -201,6 +207,7 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
         {npc === "robert" && <FactionModalContent onClose={closeModal} />}
         {npc === "grommy" && <FactionModalContent onClose={closeModal} />}
 
+        {/* Kingdom NPCs */}
         {npc === "barlow" && (
           <JoinFactionModal npc={npc} onClose={closeModal} />
         )}
@@ -211,15 +218,40 @@ export const NPCModals: React.FC<Props> = ({ scene, id }) => {
         {npc === "reginald" && (
           <JoinFactionModal npc={npc} onClose={closeModal} />
         )}
+
+        {/* Emblem Traders */}
+        {npc === "glinteye" && (
+          <EmblemsTrading onClose={closeModal} emblem="Goblin Emblem" />
+        )}
+        {npc === "solara" && (
+          <EmblemsTrading onClose={closeModal} emblem="Sunflorian Emblem" />
+        )}
+        {npc === "dusk" && (
+          <EmblemsTrading onClose={closeModal} emblem="Nightshade Emblem" />
+        )}
+        {npc === "haymitch" && (
+          <EmblemsTrading onClose={closeModal} emblem="Bumpkin Emblem" />
+        )}
+
+        {/* Faction Chores */}
+        {npc === "grizzle" && <ChoresModal onClose={closeModal} npc={npc} />}
+        {npc === "buttercup" && <ChoresModal onClose={closeModal} npc={npc} />}
+        {npc === "shadow" && <ChoresModal onClose={closeModal} npc={npc} />}
+        {npc === "flora" && <ChoresModal onClose={closeModal} npc={npc} />}
+        {npc === "chef ebon" && (
+          <FactionKitchenPanel bumpkinParts={NPC_WEARABLES["chef ebon"]} />
+        )}
+        {npc === "chef tuck" && (
+          <FactionKitchenPanel bumpkinParts={NPC_WEARABLES["chef tuck"]} />
+        )}
+        {npc === "chef maple" && (
+          <FactionKitchenPanel bumpkinParts={NPC_WEARABLES["chef maple"]} />
+        )}
+        {npc === "chef lumen" && (
+          <FactionKitchenPanel bumpkinParts={NPC_WEARABLES["chef lumen"]} />
+        )}
+        {npc === "eldric" && <FactionShop onClose={closeModal} />}
       </Modal>
-      {npc === "Chun Long" && (
-        <SpecialEventModal
-          onClose={closeModal}
-          show={npc === "Chun Long"}
-          npc={npc}
-          eventName="Lunar New Year"
-        />
-      )}
 
       {npc === "hammerin harry" && (
         <AuctionHouseModal

@@ -36,6 +36,9 @@ import { RequirementLabel } from "components/ui/RequirementsLabel";
 import { SquareIcon } from "components/ui/SquareIcon";
 import { OuterPanel } from "components/ui/Panel";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { setImageWidth } from "lib/images";
+import { Loading } from "features/auth/components";
+import { ConfirmationModal } from "components/ui/ConfirmationModal";
 
 const WORM_OUTPUT: Record<ComposterName, string> = {
   "Compost Bin": "2-4",
@@ -167,6 +170,12 @@ export const ComposterModal: React.FC<Props> = ({
     onBoost();
   };
 
+  const [isConfirmBoostModalOpen, showConfirmBoostModal] = useState(false);
+  const applyBoost = () => {
+    accelerate();
+    showConfirmBoostModal(false);
+  }; // We could do without this const but I added it for better security
+
   const Content = () => {
     if (isReady) {
       return (
@@ -261,7 +270,7 @@ export const ComposterModal: React.FC<Props> = ({
                   />
                 </div>
                 <p className="text-xs mb-2">
-                  {t("guide.compost.add.eggs.speed")}
+                  {t("guide.compost.addEggs.speed")}
                   {"."}
                 </p>
                 <Button
@@ -271,10 +280,33 @@ export const ComposterModal: React.FC<Props> = ({
                       composterInfo.eggBoostRequirements
                     )
                   }
-                  onClick={accelerate}
+                  onClick={() => showConfirmBoostModal(true)}
                 >
-                  {t("guide.compost.add.eggs")}
+                  {t("guide.compost.addEggs")}
                 </Button>
+                <ConfirmationModal
+                  show={isConfirmBoostModalOpen}
+                  onHide={() => showConfirmBoostModal(false)}
+                  messages={[
+                    t("guide.compost.addEggs.confirmation", {
+                      noEggs: composterInfo.eggBoostRequirements,
+                      time: secondsToString(
+                        composterInfo.eggBoostMilliseconds / 1000,
+                        {
+                          length: "short",
+                        }
+                      ),
+                    }),
+                  ]}
+                  onCancel={() => showConfirmBoostModal(false)}
+                  onConfirm={applyBoost}
+                  confirmButtonLabel={t("guide.compost.addEggs")}
+                  disabled={
+                    !state.inventory.Egg?.gte(
+                      composterInfo.eggBoostRequirements
+                    )
+                  }
+                />
               </OuterPanel>
             </>
           )}
@@ -306,12 +338,16 @@ export const ComposterModal: React.FC<Props> = ({
     if (getKeys(requires).length === 0) {
       return (
         <>
-          <div className="flex p-2 -mt-2">
+          <div className="flex p-2 -mt-2 items-center">
             <img
               src={COMPOSTER_IMAGES[composterName].ready}
-              className="w-14 object-contain mr-2"
+              className="object-contain mr-2"
+              onLoad={(e) => setImageWidth(e.currentTarget)}
+              style={{
+                opacity: 0,
+              }}
             />
-            <span className="mt-2 text-sm loading">{t("loading")}</span>
+            <Loading text={t("loading")} />
           </div>
         </>
       );

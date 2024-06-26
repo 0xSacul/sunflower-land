@@ -82,9 +82,9 @@ type BaseSceneOptions = {
 
 export const FACTION_NAME_COLORS: Record<FactionName, string> = {
   sunflorians: "#fee761",
-  bumpkins: "#124e89",
-  goblins: "#265c42",
-  nightshades: "#68386c",
+  bumpkins: "#528ec9",
+  goblins: "#669c82",
+  nightshades: "#a878ac",
 };
 
 export abstract class BaseScene extends Phaser.Scene {
@@ -328,6 +328,8 @@ export abstract class BaseScene extends Phaser.Scene {
       "Building Layer 3",
       "Building Layer 4",
       "Club House Roof",
+      "Building Layer 4",
+      "Building Decorations 2",
     ];
     this.map.layers.forEach((layerData, idx) => {
       if (layerData.name === "Crows") return;

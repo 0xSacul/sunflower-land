@@ -10,6 +10,36 @@ const randomXOffset = Math.random() * 60;
 const randomYOffset = Math.random() * 20;
 
 export const SPAWNS: () => SpawnLocation = () => ({
+  portal_example: {
+    default: {
+      x: 400 + randomXOffset,
+      y: 450 - randomYOffset,
+    },
+  },
+  goblin_house: {
+    default: {
+      x: 239,
+      y: 436,
+    },
+  },
+  sunflorian_house: {
+    default: {
+      x: 239,
+      y: 432,
+    },
+  },
+  nightshade_house: {
+    default: {
+      x: 240,
+      y: 432,
+    },
+  },
+  bumpkin_house: {
+    default: {
+      x: 240,
+      y: 434,
+    },
+  },
   faction_house: {
     // Make sure everyone doesn't spawn in same spot
     default: {
@@ -20,8 +50,24 @@ export const SPAWNS: () => SpawnLocation = () => ({
   kingdom: {
     // Make sure everyone doesn't spawn in same spot
     default: {
-      x: 220 + randomXOffset,
-      y: 850 - randomYOffset,
+      x: 235,
+      y: 845,
+    },
+    nightshade_house: {
+      x: 120,
+      y: 448,
+    },
+    sunflorian_house: {
+      x: 344,
+      y: 651,
+    },
+    goblin_house: {
+      x: 122,
+      y: 786,
+    },
+    bumpkin_house: {
+      x: 376,
+      y: 462,
     },
   },
   retreat: {
@@ -36,6 +82,11 @@ export const SPAWNS: () => SpawnLocation = () => ({
     default: {
       x: 400 + randomXOffset,
       y: 450 - randomYOffset,
+    },
+
+    kingdom: {
+      x: 64,
+      y: 35,
     },
 
     woodlands: {

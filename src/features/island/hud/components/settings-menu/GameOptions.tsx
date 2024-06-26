@@ -42,6 +42,10 @@ import { AmoyTestnetActions } from "./amoy-actions/AmoyTestnetActions";
 import { Discord } from "./general-settings/DiscordModal";
 import { DepositWrapper } from "features/goblins/bank/components/Deposit";
 import { useSound } from "lib/utils/hooks/useSound";
+import { AppearanceSettings } from "./general-settings/AppearanceSettings";
+import { FontSettings } from "./general-settings/FontSettings";
+import { ConfirmationModal } from "components/ui/ConfirmationModal";
+import ticket from "assets/icons/ticket.png";
 
 export interface ContentComponentProps {
   onSubMenuClick: (id: SettingMenuId) => void;
@@ -96,7 +100,7 @@ const GameOptions: React.FC<ContentComponentProps> = ({
     <>
       {/* Root menu */}
       <>
-        <div className="flex flex-wrap items-center justify-start mx-2">
+        <div className="flex flex-wrap items-center justify-between mx-2">
           <Label
             type="default"
             icon={SUNNYSIDE.icons.search}
@@ -115,7 +119,7 @@ const GameOptions: React.FC<ContentComponentProps> = ({
           {gameService.state?.context?.nftId !== undefined && (
             <Label
               type="default"
-              icon={SUNNYSIDE.icons.search}
+              icon={ticket}
               className="mb-1 mr-4"
               onClick={() => {
                 copypaste.play();
@@ -148,7 +152,7 @@ const GameOptions: React.FC<ContentComponentProps> = ({
         </div>
       </>
       {!isPWA && (
-        <Button className="p-1 mb-2" onClick={handleInstallApp}>
+        <Button className="p-1 mb-1" onClick={handleInstallApp}>
           <span>{t("install.app")}</span>
         </Button>
       )}
@@ -165,24 +169,24 @@ const GameOptions: React.FC<ContentComponentProps> = ({
                     </div>
                   </Button>
                   </li> */}
-      <Button className="p-1 mb-2" onClick={refreshSession}>
+      <Button className="p-1 mb-1" onClick={refreshSession}>
         {t("gameOptions.blockchainSettings.refreshChain")}
       </Button>
       {CONFIG.NETWORK === "amoy" && (
-        <Button className="p-1 mb-2" onClick={() => onSubMenuClick("amoy")}>
+        <Button className="p-1 mb-1" onClick={() => onSubMenuClick("amoy")}>
           <span>{t("gameOptions.amoyActions")}</span>
         </Button>
       )}
-      <Button className="p-1 mb-2" onClick={() => onSubMenuClick("blockchain")}>
+      <Button className="p-1 mb-1" onClick={() => onSubMenuClick("blockchain")}>
         <span>{t("gameOptions.blockchainSettings")}</span>
       </Button>
-      <Button className="p-1 mb-2" onClick={() => onSubMenuClick("general")}>
+      <Button className="p-1 mb-1" onClick={() => onSubMenuClick("general")}>
         <span>{t("gameOptions.generalSettings")}</span>
       </Button>
-      <Button className="p-1 mb-2" onClick={() => onSubMenuClick("plaza")}>
+      <Button className="p-1 mb-1" onClick={() => onSubMenuClick("plaza")}>
         <span>{t("gameOptions.plazaSettings")}</span>
       </Button>
-      <Button className="p-1 mb-2" onClick={() => showConfirmLogoutModal(true)}>
+      <Button className="p-1 mb-1" onClick={() => showConfirmLogoutModal(true)}>
         {t("gameOptions.logout")}
       </Button>
       <p className="mx-1 text-xxs">
@@ -195,24 +199,14 @@ const GameOptions: React.FC<ContentComponentProps> = ({
           {CONFIG.RELEASE_VERSION?.split("-")[0]}
         </a>
       </p>
-      <Modal
+      <ConfirmationModal
         show={isConfirmLogoutModalOpen}
         onHide={() => showConfirmLogoutModal(false)}
-      >
-        <CloseButtonPanel className="sm:w-4/5 m-auto">
-          <div className="flex flex-col p-2">
-            <span className="text-sm text-center">
-              {t("gameOptions.confirmLogout")}
-            </span>
-          </div>
-          <div className="flex justify-content-around mt-2 space-x-1">
-            <Button onClick={onLogout}>{t("gameOptions.logout")}</Button>
-            <Button onClick={() => showConfirmLogoutModal(false)}>
-              {t("cancel")}
-            </Button>
-          </div>
-        </CloseButtonPanel>
-      </Modal>
+        messages={[t("gameOptions.confirmLogout")]}
+        onCancel={() => showConfirmLogoutModal(false)}
+        onConfirm={onLogout}
+        confirmButtonLabel={t("gameOptions.logout")}
+      />
     </>
   );
 };
@@ -271,7 +265,9 @@ export type SettingMenuId =
   // General Settings
   | "discord"
   | "changeLanguage"
-  | "share";
+  | "share"
+  | "appearance"
+  | "font";
 
 interface SettingMenu {
   title: string;
@@ -354,5 +350,15 @@ export const settingMenus: Record<SettingMenuId, SettingMenu> = {
     title: translate("share.ShareYourFarmLink"),
     parent: "general",
     content: Share,
+  },
+  appearance: {
+    title: translate("gameOptions.generalSettings.appearance"),
+    parent: "general",
+    content: AppearanceSettings,
+  },
+  font: {
+    title: translate("gameOptions.generalSettings.font"),
+    parent: "appearance",
+    content: FontSettings,
   },
 };

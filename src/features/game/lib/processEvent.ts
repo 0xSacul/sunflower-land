@@ -115,6 +115,7 @@ export const maxItems: Inventory = {
   Wood: new Decimal("8000"),
   "Wild Mushroom": new Decimal("100"),
   Honey: new Decimal("220"),
+  Oil: new Decimal("300"),
 
   "War Bond": new Decimal(500),
   "Human War Banner": new Decimal(1),
@@ -125,10 +126,11 @@ export const maxItems: Inventory = {
   "Love Letter": new Decimal(400),
 
   // Emblems
-  "Goblin Emblem": new Decimal(500),
-  "Bumpkin Emblem": new Decimal(500),
-  "Sunflorian Emblem": new Decimal(500),
-  "Nightshade Emblem": new Decimal(500),
+  "Goblin Emblem": new Decimal(90_000),
+  "Bumpkin Emblem": new Decimal(90_000),
+  "Sunflorian Emblem": new Decimal(90_000),
+  "Nightshade Emblem": new Decimal(90_000),
+  Mark: new Decimal(500),
 
   // Stock limits
   Axe: new Decimal("900"),

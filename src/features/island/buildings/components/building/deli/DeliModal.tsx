@@ -11,6 +11,7 @@ import {
 } from "features/game/types/consumables";
 import { MachineInterpreter } from "features/island/buildings/lib/craftingMachine";
 import { CloseButtonPanel } from "features/game/components/CloseablePanel";
+import { OuterPanel } from "components/ui/Panel";
 
 interface Props {
   isOpen: boolean;
@@ -31,7 +32,7 @@ export const DeliModal: React.FC<Props> = ({
   buildingId,
 }) => {
   const deliRecipes = Object.values(DELI_COOKABLES).sort(
-    (a, b) => a.cookingSeconds - b.cookingSeconds // Sorts Foods based on their cooking time
+    (a, b) => a.experience - b.experience // Sorts Foods based on their cooking time
   );
   const [selected, setSelected] = useState<Cookable>(
     deliRecipes.find((recipe) => recipe.name === itemInProgress) ||
@@ -52,6 +53,7 @@ export const DeliModal: React.FC<Props> = ({
         }}
         tabs={[{ icon: chefHat, name: "Deli" }]}
         onClose={onClose}
+        container={OuterPanel}
       >
         <Recipes
           selected={selected}

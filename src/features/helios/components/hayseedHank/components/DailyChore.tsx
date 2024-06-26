@@ -3,26 +3,23 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Button } from "components/ui/Button";
 import { Context } from "features/game/GameProvider";
-import { ChoreV2, ChoreV2Name, GameState } from "features/game/types/game";
+import { ChoreV2, ChoreV2Name } from "features/game/types/game";
 
 import { setPrecision } from "lib/utils/formatNumber";
 import Decimal from "decimal.js-light";
 import { ITEM_DETAILS } from "features/game/types/images";
 import { ResizableBar } from "components/ui/ProgressBar";
 import { SUNNYSIDE } from "assets/sunnyside";
-import { OuterPanel } from "components/ui/Panel";
+import { InnerPanel } from "components/ui/Panel";
 import { getSeasonalTicket } from "features/game/types/seasons";
 import { getSeasonChangeover } from "lib/utils/getSeasonWeek";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { SquareIcon } from "components/ui/SquareIcon";
-import { FACTION_POINT_ICONS } from "features/world/ui/factions/FactionDonationPanel";
 import { MachineState } from "features/game/lib/gameMachine";
 
-import factions from "assets/icons/factions.webp";
-import { FACTION_POINT_MULTIPLIER } from "features/game/events/landExpansion/deliver";
 import classNames from "classnames";
-import { hasFeatureAccess } from "lib/flags";
 import { generateChoreTickets } from "features/game/events/landExpansion/completeChore";
+import { Loading } from "features/auth/components";
 
 const isDateOnSameDayAsToday = (date: Date) => {
   const today = new Date();
@@ -44,7 +41,6 @@ interface Props {
 const _autosaving = (state: MachineState) => state.matches("autosaving");
 const _bumpkin = (state: MachineState) => state.context.state.bumpkin;
 const _farmId = (state: MachineState) => state.context.farmId;
-const _faction = (state: MachineState) => state.context.state.faction;
 
 export const DailyChore: React.FC<Props> = ({
   id,
@@ -60,7 +56,6 @@ export const DailyChore: React.FC<Props> = ({
   const autosaving = useSelector(gameService, _autosaving);
   const bumpkin = useSelector(gameService, _bumpkin);
   const farmId = useSelector(gameService, _farmId);
-  const faction = useSelector(gameService, _faction);
 
   useEffect(() => {
     if (isSkipping && !autosaving) {
@@ -83,9 +78,9 @@ export const DailyChore: React.FC<Props> = ({
 
   if (isSkipping && autosaving) {
     return (
-      <OuterPanel className="!p-2 mb-2 text-xs">
-        <span className="loading text-sm">{t("skipping")}</span>
-      </OuterPanel>
+      <InnerPanel className="!p-2 mb-2 text-xs">
+        <Loading text={t("skipping")} />
+      </InnerPanel>
     );
   }
 
@@ -97,14 +92,14 @@ export const DailyChore: React.FC<Props> = ({
     id: farmId,
   });
 
-  const descriptionTextClass = isCodex ? "text-xxs sm:text-xs" : "text-xs";
+  const descriptionTextClass = isCodex ? "sm:text-xs" : "text-xs";
 
   const tickets = generateChoreTickets({
     game: gameService.state.context.state,
     id,
   });
   return (
-    <OuterPanel className="flex flex-col">
+    <InnerPanel className="flex flex-col">
       <div
         className={classNames("flex space-x-1 p-1", {
           "pb-0": isCodex,
@@ -121,7 +116,7 @@ export const DailyChore: React.FC<Props> = ({
                 height: 7,
               }}
             />
-            <span className="text-xxs ml-2">{`${setPrecision(
+            <span className="text-xs ml-2 font-secondary">{`${setPrecision(
               new Decimal(progress)
             )}/${chore.requirement}`}</span>
           </div>
@@ -130,27 +125,12 @@ export const DailyChore: React.FC<Props> = ({
         {!chore.completedAt && (
           <div className="flex flex-col text-xs space-y-1">
             <div className="flex items-center justify-end space-x-1">
-              <span className="mb-0.5">{tickets}</span>
+              <span className="mb-0.5 font-secondary">{tickets}</span>
               <SquareIcon
                 icon={ITEM_DETAILS[getSeasonalTicket()].image}
                 width={6}
               />
             </div>
-            {hasFeatureAccess({} as GameState, "FACTIONS") && (
-              <div className="flex items-center justify-end space-x-1">
-                <span
-                  className={classNames("mb-0.5 text-white", {
-                    "text-error": !faction,
-                  })}
-                >
-                  {tickets * FACTION_POINT_MULTIPLIER}
-                </span>
-                <SquareIcon
-                  icon={faction ? FACTION_POINT_ICONS[faction.name] : factions}
-                  width={6}
-                />
-              </div>
-            )}
           </div>
         )}
         {chore.completedAt && (
@@ -179,6 +159,6 @@ export const DailyChore: React.FC<Props> = ({
           </Button>
         </div>
       )}
-    </OuterPanel>
+    </InnerPanel>
   );
 };

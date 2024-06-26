@@ -26,6 +26,7 @@ import {
   Inventory,
   InventoryItemName,
   PlacedLamp,
+  Purchase,
 } from "../types/game";
 import { getPromoCode, loadSession } from "../actions/loadSession";
 import { EMPTY } from "./constants";
@@ -48,7 +49,6 @@ import { isSwarming } from "../events/detectBot";
 import { generateTestLand } from "../expansion/actions/generateLand";
 
 import { loadGameStateForVisit } from "../actions/loadGameStateForVisit";
-import { OFFLINE_FARM } from "./landData";
 import { randomID } from "lib/utils/random";
 
 import { buySFL } from "../actions/buySFL";
@@ -78,7 +78,6 @@ import { mmoBus } from "features/world/mmoMachine";
 import { onboardingAnalytics } from "lib/onboardingAnalytics";
 import { BudName } from "../types/buds";
 import { gameAnalytics } from "lib/gameAnalytics";
-import { isValidRedirect } from "features/portal/examples/cropBoom/lib/portalUtil";
 import { portal } from "features/world/ui/community/actions/portal";
 import { listRequest } from "../actions/listTrade";
 import { deleteListingRequest } from "../actions/deleteListing";
@@ -96,12 +95,11 @@ import {
 } from "../actions/sellMarketResource";
 import { setCachedMarketPrices } from "features/world/ui/market/lib/marketCache";
 import { MinigameName } from "../types/minigames";
+import { OFFLINE_FARM } from "./landData";
+import { isValidRedirect } from "features/portal/lib/portalUtil";
 
-const getPortal = () => {
-  const code = new URLSearchParams(window.location.search).get("portal");
-
-  return code;
-};
+// Run at startup in case removed from query params
+const portalName = new URLSearchParams(window.location.search).get("portal");
 
 const getRedirect = () => {
   const code = new URLSearchParams(window.location.search).get("redirect");
@@ -143,6 +141,7 @@ export interface Context {
   nftId?: number;
   paused?: boolean;
   verified?: boolean;
+  purchases: Purchase[];
 }
 
 export type Moderation = {
@@ -478,6 +477,7 @@ export type BlockchainState = {
     | "withdrawing"
     | "withdrawn"
     | "provingPersonhood"
+    | "somethingArrived"
     | "randomising"; // TEST ONLY
   context: Context;
 };
@@ -570,27 +570,14 @@ export function startGame(authContext: AuthContext) {
         actions: [],
         state: EMPTY,
         sessionId: INITIAL_SESSION,
-        announcements: {
-          coins: {
-            content: [
-              {
-                text: "Hello",
-              },
-            ],
-            reward: {
-              coins: 100,
-              items: {},
-            },
-            from: "betty",
-            headline: "reward",
-          },
-        },
+        announcements: {},
         moderation: {
           muted: [],
           kicked: [],
         },
         saveQueued: false,
         verified: !CONFIG.API_URL,
+        purchases: [],
       },
       states: {
         loading: {
@@ -641,6 +628,7 @@ export function startGame(authContext: AuthContext) {
                 nftId: response.nftId,
                 wallet: response.wallet,
                 verified: response.verified,
+                purchases: response.purchases,
               };
             },
             onDone: [
@@ -650,7 +638,7 @@ export function startGame(authContext: AuthContext) {
               },
               {
                 target: "portalling",
-                cond: () => !!getPortal(),
+                cond: () => !!portalName,
                 actions: ["assignGame"],
               },
               {
@@ -678,7 +666,7 @@ export function startGame(authContext: AuthContext) {
           id: "portalling",
           invoke: {
             src: async (context) => {
-              const portalId = getPortal() as MinigameName;
+              const portalId = portalName as MinigameName;
               const { token } = await portal({
                 portalId,
                 token: authContext.user.rawToken as string,
@@ -790,6 +778,7 @@ export function startGame(authContext: AuthContext) {
                 );
               },
             },
+
             // TODO - FIX
             // {
             //   target: "mailbox",
@@ -806,6 +795,10 @@ export function startGame(authContext: AuthContext) {
                 (context.state.bumpkin?.experience ?? 0) > 100 &&
                 !context.state.collectibles["Clash of Factions Banner"] &&
                 !getSeasonPassRead(),
+            },
+            {
+              target: "somethingArrived",
+              cond: (context) => !!context.revealed,
             },
             // EVENTS THAT TARGET NOTIFYING OR LOADING MUST GO ABOVE THIS LINE
 
@@ -858,6 +851,16 @@ export function startGame(authContext: AuthContext) {
             ],
             ACKNOWLEDGE: {
               target: "notifying",
+            },
+          },
+        },
+        somethingArrived: {
+          on: {
+            ACKNOWLEDGE: {
+              target: "notifying",
+              actions: assign((context: Context) => ({
+                revealed: undefined,
+              })),
             },
           },
         },
@@ -1071,6 +1074,15 @@ export function startGame(authContext: AuthContext) {
                     ).add(event.amount),
                   },
                 },
+                purchases: [
+                  ...context.purchases,
+                  {
+                    id: "Block Buck",
+                    method: "XSOLLA",
+                    purchasedAt: Date.now(),
+                    usd: 1, // Placeholder
+                  } as Purchase,
+                ],
               })),
             },
             UPDATE: {
@@ -1272,6 +1284,15 @@ export function startGame(authContext: AuthContext) {
                     ).add(event.data.amount),
                   },
                 },
+                purchases: [
+                  ...context.purchases,
+                  {
+                    id: `${event.data.amount} Block Buck`,
+                    method: "MATIC",
+                    purchasedAt: Date.now(),
+                    usd: 1, // Placeholder
+                  },
+                ],
               })),
             },
             onError: [
@@ -1443,6 +1464,9 @@ export function startGame(authContext: AuthContext) {
           on: {
             CONTINUE: {
               target: "playing",
+              actions: assign((_, event) => ({
+                revealed: undefined,
+              })),
             },
           },
         },
@@ -1469,6 +1493,7 @@ export function startGame(authContext: AuthContext) {
                       "Genie Lamp": newLamps,
                     },
                   },
+                  revealed: undefined,
                 };
               }),
             },
@@ -1493,6 +1518,7 @@ export function startGame(authContext: AuthContext) {
                       "Magic Bean": newBeans,
                     },
                   },
+                  revealed: undefined,
                 };
               }),
             },
@@ -1777,18 +1803,21 @@ export function startGame(authContext: AuthContext) {
           entry: "setTransactionId",
           invoke: {
             src: async (context, e) => {
-              const { success } = await reset({
+              const { success, changeset } = await reset({
                 farmId: context.farmId,
                 token: authContext.user.rawToken as string,
                 fingerprint: context.fingerprint as string,
                 transactionId: context.transactionId as string,
               });
 
-              return { success };
+              return { success, changeset };
             },
             onDone: [
               {
                 target: "loading",
+                actions: assign({
+                  revealed: (_, event) => event.data.changeset,
+                }),
               },
             ],
             onError: {
@@ -2104,6 +2133,7 @@ export function startGame(authContext: AuthContext) {
           wallet: (_, event) => event.data.wallet,
           nftId: (_, event) => event.data.nftId,
           verified: (_, event) => event.data.verified,
+          purchases: (_, event) => event.data.purchases,
         }),
         setTransactionId: assign<Context, any>({
           transactionId: () => randomID(),

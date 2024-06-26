@@ -12,7 +12,8 @@ export type BumpkinBackground =
   | "Dawn Breaker Background"
   | "Mushroom Lights Background"
   | "Northern Lights Background"
-  | "Valentine's Field Background";
+  | "Valentine's Field Background"
+  | "Festival of Colors Background";
 
 export type BumpkinBody =
   | "Beige Farmer Potion"
@@ -31,6 +32,7 @@ export type BumpkinBody =
   | "Elf Potion";
 
 export type BumpkinHair =
+  | "Royal Braids"
   | "Basic Hair"
   | "Rancher Hair"
   | "Explorer Hair"
@@ -182,10 +184,10 @@ export type BumpkinShoe =
   | "Elf Shoes"
   | "Crimstone Boots"
   | "Fairy Sandals"
-  | "Goblin Sabaton"
-  | "Nightshade Sabaton"
-  | "Sunflorian Sabaton"
-  | "Bumpkin Sabaton";
+  | "Goblin Sabatons"
+  | "Nightshade Sabatons"
+  | "Sunflorian Sabatons"
+  | "Bumpkin Sabatons";
 
 export type BumpkinNecklace =
   | "Sunflower Amulet"
@@ -197,6 +199,7 @@ export type BumpkinNecklace =
   | "Crimstone Amulet";
 
 export type BumpkinHat =
+  | "Painter's Cap"
   | "Queen's Crown"
   | "Knight Gambit"
   | "Cap n Bells"
@@ -705,29 +708,32 @@ export const ITEM_IDS: Record<BumpkinItem, number> = {
   "Goblin Armor": 320,
   "Goblin Helmet": 321,
   "Goblin Pants": 322,
-  "Goblin Sabaton": 323,
+  "Goblin Sabatons": 323,
   "Goblin Axe": 324,
   "Nightshade Armor": 325,
   "Nightshade Helmet": 326,
   "Nightshade Pants": 327,
-  "Nightshade Sabaton": 328,
+  "Nightshade Sabatons": 328,
   "Nightshade Sword": 329,
   "Bumpkin Armor": 330,
   "Bumpkin Helmet": 331,
   "Bumpkin Sword": 332,
   "Bumpkin Pants": 333,
-  "Bumpkin Sabaton": 334,
+  "Bumpkin Sabatons": 334,
   "Sunflorian Armor": 335,
   "Sunflorian Sword": 336,
   "Sunflorian Helmet": 337,
   "Sunflorian Pants": 338,
-  "Sunflorian Sabaton": 339,
+  "Sunflorian Sabatons": 339,
   "Cap n Bells": 340,
   "Knight Gambit": 341,
   "Pixel Perfect Hoodie": 342,
   "Queen's Crown": 343,
   "Royal Dress": 344,
   Motley: 345,
+  "Royal Braids": 346,
+  "Painter's Cap": 347,
+  "Festival of Colors Background": 348,
 };
 
 // The reverse of above
@@ -792,6 +798,8 @@ export const BUMPKIN_ITEMS: Record<string, number> = Object.assign(
 export const BUMPKIN_ITEMS_IDS = Object.values(ITEM_IDS);
 
 export const BUMPKIN_ITEM_PART: Record<BumpkinItem, keyof Wallet> = {
+  "Festival of Colors Background": "background",
+  "Painter's Cap": "hat",
   "Soybean Onesie": "onesie",
   "Beige Farmer Potion": "body",
   "Dark Brown Farmer Potion": "body",
@@ -1110,21 +1118,21 @@ export const BUMPKIN_ITEM_PART: Record<BumpkinItem, keyof Wallet> = {
   "Bumpkin Helmet": "hat",
   "Bumpkin Sword": "tool",
   "Bumpkin Pants": "pants",
-  "Bumpkin Sabaton": "shoes",
+  "Bumpkin Sabatons": "shoes",
   "Sunflorian Armor": "shirt",
   "Sunflorian Sword": "tool",
   "Sunflorian Helmet": "hat",
   "Sunflorian Pants": "pants",
-  "Sunflorian Sabaton": "shoes",
+  "Sunflorian Sabatons": "shoes",
   "Goblin Armor": "shirt",
   "Goblin Helmet": "hat",
   "Goblin Pants": "pants",
-  "Goblin Sabaton": "shoes",
+  "Goblin Sabatons": "shoes",
   "Goblin Axe": "tool",
   "Nightshade Armor": "shirt",
   "Nightshade Helmet": "hat",
   "Nightshade Pants": "pants",
-  "Nightshade Sabaton": "shoes",
+  "Nightshade Sabatons": "shoes",
   "Nightshade Sword": "tool",
   "Cap n Bells": "hat",
   "Knight Gambit": "hat",
@@ -1132,4 +1140,5 @@ export const BUMPKIN_ITEM_PART: Record<BumpkinItem, keyof Wallet> = {
   "Queen's Crown": "hat",
   "Royal Dress": "dress",
   Motley: "suit",
+  "Royal Braids": "hair",
 };
