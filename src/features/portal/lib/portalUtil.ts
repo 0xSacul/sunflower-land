@@ -43,11 +43,31 @@ export function purchase({
         sfl,
         items,
       },
-      "*"
+      "*",
     );
   } else {
     // Ask parent to confirm
     window.parent.postMessage({ event: "purchase", sfl, items }, "*");
+  }
+}
+
+/**
+ * Allow a player to donate to you
+ */
+export function donate({ matic, address }: { matic: number; address: string }) {
+  if (!isInIframe) {
+    // Auto confirmed - Simulate the event that would come from the parent
+    window.postMessage(
+      {
+        event: "donated",
+        matic,
+        address,
+      },
+      "*",
+    );
+  } else {
+    // Ask parent to confirm
+    window.parent.postMessage({ event: "donated", matic, address }, "*");
   }
 }
 

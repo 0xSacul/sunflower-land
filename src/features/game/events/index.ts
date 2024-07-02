@@ -327,6 +327,14 @@ import {
   BuyFactionShopItemAction,
   buyFactionShopItem,
 } from "./landExpansion/buyFactionShopItem";
+import {
+  claimFactionPrize,
+  ClaimFactionPrizeAction,
+} from "./landExpansion/claimFactionPrize";
+import {
+  FeedFactionPetAction,
+  feedFactionPet,
+} from "./landExpansion/feedFactionPet";
 
 export type PlayingEvent =
   | OilGreenhouseAction
@@ -422,7 +430,9 @@ export type PlayingEvent =
   | ClaimEmblemsAction
   | CompleteKingdomChoreAction
   | DeliverFactionKitchenAction
-  | BuyFactionShopItemAction;
+  | BuyFactionShopItemAction
+  | ClaimFactionPrizeAction
+  | FeedFactionPetAction;
 
 export type PlacementEvent =
   | ConstructBuildingAction
@@ -469,7 +479,7 @@ export type GameEventName<T> = Extract<T, { type: string }>["type"];
 
 export function isEventType<T extends PlayingEvent>(
   action: PlayingEvent,
-  typeName: T["type"]
+  typeName: T["type"],
 ): action is T {
   return action.type === typeName;
 }
@@ -488,6 +498,7 @@ type Handlers<T> = {
 };
 
 export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
+  "faction.prizeClaimed": claimFactionPrize,
   "greenhouse.oiled": oilGreenhouse,
   "greenhouse.harvested": harvestGreenHouse,
   "greenhouse.planted": plantGreenhouse,
@@ -584,6 +595,7 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "kingdomChore.completed": completeKingdomChore,
   "factionKitchen.delivered": deliverFactionKitchen,
   "factionShopItem.bought": buyFactionShopItem,
+  "factionPet.fed": feedFactionPet,
 };
 
 export const PLACEMENT_EVENTS: Handlers<PlacementEvent> = {

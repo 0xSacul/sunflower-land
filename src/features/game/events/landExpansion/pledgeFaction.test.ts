@@ -12,7 +12,7 @@ describe("pledgeFaction", () => {
           type: "faction.pledged",
           faction: "invalid" as FactionName,
         },
-      })
+      }),
     ).toThrow("Invalid faction");
   });
 
@@ -25,6 +25,7 @@ describe("pledgeFaction", () => {
             name: "bumpkins",
             pledgedAt: Date.now() - 1000,
             points: 0,
+            history: {},
             donated: {
               daily: {
                 resources: {},
@@ -38,7 +39,7 @@ describe("pledgeFaction", () => {
           type: "faction.pledged",
           faction: "sunflorians",
         },
-      })
+      }),
     ).toThrow("You already pledged a faction");
   });
 
@@ -72,7 +73,7 @@ describe("pledgeFaction", () => {
     });
 
     expect(state.inventory["Sunflorian Faction Banner"]).toEqual(
-      new Decimal(1)
+      new Decimal(1),
     );
   });
 });

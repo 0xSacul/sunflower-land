@@ -1013,12 +1013,26 @@ export type FactionName =
 export type ResourceRequest = {
   item: InventoryItemName;
   amount: number;
-  deliveryCount: number;
+  dailyFulfilled: {
+    [day: number]: number;
+  };
 };
 
-export type FactionKitchen = {
-  points: number;
+export type FactionPetRequest = {
+  food: ConsumableName;
+  quantity: Decimal;
+  dailyFulfilled: {
+    [day: number]: number;
+  };
+};
+
+type FactionPet = {
   week: number;
+  requests: FactionPetRequest[];
+};
+
+type FactionKitchen = {
+  week: string;
   requests: ResourceRequest[];
 };
 
@@ -1036,6 +1050,22 @@ export type FactionDonated = {
   totalItems: Partial<Record<InventoryItemName | "sfl", number>>;
 };
 
+export type FactionPrize = {
+  coins: number;
+  sfl: number;
+  items: Partial<Record<InventoryItemName, number>>;
+};
+
+export type FactionHistory = {
+  score: number;
+  petXP: number;
+  results?: {
+    rank: number;
+    reward?: FactionPrize;
+    claimedAt?: number;
+  };
+};
+
 export type Faction = {
   name: FactionName;
   pledgedAt: number;
@@ -1043,6 +1073,8 @@ export type Faction = {
   points: number;
   donated: FactionDonated;
   kitchen?: FactionKitchen;
+  pet?: FactionPet;
+  history: Record<string, FactionHistory>;
 };
 
 export type DonationItemName =

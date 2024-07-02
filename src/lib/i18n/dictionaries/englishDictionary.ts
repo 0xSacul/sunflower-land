@@ -908,7 +908,8 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.oil.can.boost": "+2 Oil",
   "description.olive.shield.boost": "+1 Olive",
   "description.pan.boost": "+25% XP",
-  "description.paw.shield.boost": "+25% Faction Pet Satiation",
+  "description.paw.shield.boost":
+    "+25% Faction Pet Satiation and Marks Awarded",
   "description.vinny.boost": "+0.25 Grape",
   "description.rice.panda.boost": "+0.25 Rice",
   "description.olive.shirt.boost": "+0.25 Olive",
@@ -1275,6 +1276,12 @@ const confirmSkill: Record<ConfirmSkill, string> = {
 };
 
 const conversations: Record<Conversations, string> = {
+  "faction-intro.one":
+    "Welcome to your new faction house... We need your help to become more powerful and dominate the kingdom.",
+  "faction-intro.two":
+    "You will be rewarded with marks by completing chores, delivering items to the kitchen and feeding our magestic pet.",
+  "faction-intro.three":
+    "At the end of each week, bonus prizes will be given to our best members. Good luck!",
   "home-intro.one":
     "Howdy Bumpkin, welcome to your home...It's not much, but we all have to start somewhere!",
   "home-intro.two":
@@ -1977,8 +1984,7 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.connection.four":
     "If the issue remains, you can reach out for help by either contacting our support team or jumping over to our discord and asking our community",
   "error.diagnostic.info": "Diagnostic Information",
-  "error.forbidden.goblinVillage":
-    "You are not allowed to visit Goblin Village!",
+  "error.forbidden.goblinVillage": "You are not supposed to be here!",
   "error.multipleDevices.one": "Multiple devices open",
   "error.multipleDevices.two":
     "Please close any other browser tabs or devices that you are operating on.",
@@ -2141,20 +2147,22 @@ const factions: Record<Factions, string> = {
     "I'm still preparing my orders! Please come back in a few minutes.",
   "faction.kitchen.newRequests": "New requests: {{time}}",
   "faction.openingSoon":
-    "Faction houses are opening on July 1st. Earn marks, compete for glory and claim rewards!",
+    "Faction houses are opening on July 8th. Earn marks, compete for glory and claim rewards!",
   "faction.emblems": "Emblems",
   "faction.emblems.intro.one":
     "Wow, look at all those emblems. You are a true warrior!",
   "faction.emblems.intro.two":
-    "On July 1st the Faction House will open. You will be able to complete tasks, earn marks and claim rewards.",
+    "On July 8th the Faction House will open. You will be able to complete tasks, earn marks and claim rewards.",
   "faction.emblems.intro.three":
     "The more emblems you have, the higher your rank and more marks you can earn.",
   "faction.tradeEmblems": "Trade emblems to climb the ranks and attain perks.",
   "faction.marksBoost":
-    "Marks boost applies to faction activities coming July 1st.",
+    "Marks boost applies to faction activities coming July 8th.",
   "faction.shop.onlyFor": "{{faction}} only",
   "faction.shop.welcome":
     "Welcome to the Faction Shop! Use your marks to purchase temporary boosts, stylish wearables, and rare collectibles. Dive in and find your next great addition!",
+  "faction.goodLuck": "Good luck this week!",
+  "faction.noPrizeFound": "No prize found",
 };
 
 const factionShopDescription: Record<FactionShopDescription, string> = {

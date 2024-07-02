@@ -31,12 +31,13 @@ import { ChickenRescue } from "./portals/ChickenRescue";
 import { InlineDialogue } from "./TypingMessage";
 import { Label } from "components/ui/Label";
 import { FestivalOfColors } from "./portals/FestivalOfColors";
-
-export type FanArtNPC = "fan_npc_1" | "fan_npc_2" | "fan_npc_3" | "fan_npc_4";
+import { FactionWeeklyPrize } from "./factions/weeklyPrize/FactionWeeklyPrize";
+import { FactionWelcome, hasReadFactionIntro } from "./factions/FactionWelcome";
 
 type InteractableName =
-  | FanArtNPC
+  | "faction_intro"
   | "vip_chest"
+  | "weekly_faction_prize"
   | "faction_launch"
   | "donations"
   | "garbage_collector"
@@ -106,7 +107,8 @@ type InteractableName =
   | "kingdom_book_3"
   | "kingdom_book_4"
   | "kingdom_book_5"
-  | "kingdom_knight";
+  | "kingdom_knight"
+  | "fan_art";
 
 class InteractableModalManager {
   private listener?: (name: InteractableName, isOpen: boolean) => void;
@@ -124,13 +126,28 @@ class InteractableModalManager {
 
 export const interactableModalManager = new InteractableModalManager();
 
+function getInitialModal(scene: SceneId): InteractableName | undefined {
+  if (
+    !hasReadFactionIntro() &&
+    (scene === "goblin_house" ||
+      scene === "bumpkin_house" ||
+      scene === "nightshade_house" ||
+      scene === "sunflorian_house")
+  )
+    return "faction_intro";
+
+  return undefined;
+}
+
 interface Props {
   id: number;
   scene: SceneId;
 }
 
 export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
-  const [interactable, setInteractable] = useState<InteractableName>();
+  const [interactable, setInteractable] = useState<
+    InteractableName | undefined
+  >(getInitialModal(scene));
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -147,6 +164,9 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
 
   return (
     <>
+      <Modal show={interactable === "weekly_faction_prize"} onHide={closeModal}>
+        <FactionWeeklyPrize onClose={closeModal} />
+      </Modal>
       <Modal show={interactable === "vip_chest"} onHide={closeModal}>
         <VIPGift onClose={closeModal} />
       </Modal>
@@ -159,6 +179,9 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
           isOpen={interactable === "auction_item"}
         />
       )}
+      <Modal show={interactable === "faction_intro"} onHide={closeModal}>
+        <FactionWelcome onClose={closeModal} />
+      </Modal>
       <Modal show={interactable === "donations"} onHide={closeModal}>
         <CloseButtonPanel title={t("enjoying.event")} onClose={closeModal}>
           <CommunityDonations />
@@ -516,7 +539,7 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
                   cb: () => {
                     window.open(
                       "https://docs.sunflower-land.com/player-guides/bud-nfts",
-                      "_blank"
+                      "_blank",
                     );
                   },
                 },
@@ -525,7 +548,7 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
                   cb: () => {
                     window.open(
                       "https://opensea.io/collection/sunflower-land-buds",
-                      "_blank"
+                      "_blank",
                     );
                   },
                 },
@@ -620,16 +643,8 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
         </Panel>
       </Modal>
 
-      <Modal
-        show={
-          interactable === "fan_npc_1" ||
-          interactable === "fan_npc_2" ||
-          interactable === "fan_npc_3" ||
-          interactable === "fan_npc_4"
-        }
-        onHide={closeModal}
-      >
-        <FanArt name={interactable as FanArtNPC} onClose={closeModal} />
+      <Modal show={interactable === "fan_art"} onHide={closeModal}>
+        <FanArt onClose={closeModal} />
       </Modal>
 
       <Modal show={interactable === "kingdom_knight"} onHide={closeModal}>

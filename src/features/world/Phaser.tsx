@@ -123,21 +123,13 @@ export const PhaserComponent: React.FC<Props> = ({
     new PlazaScene({ gameState: gameService.state.context.state }),
     RetreatScene,
     KingdomScene,
-    ...(hasHouseAccess(gameService.state.context.state, "goblins") &&
-    hasFeatureAccess(gameService.state.context.state, "FACTION_HOUSE")
-      ? [GoblinHouseScene]
-      : []),
-    ...(hasHouseAccess(gameService.state.context.state, "sunflorians") &&
-    hasFeatureAccess(gameService.state.context.state, "FACTION_HOUSE")
-      ? [SunflorianHouseScene]
-      : []),
-    ...(hasHouseAccess(gameService.state.context.state, "nightshades") &&
-    hasFeatureAccess(gameService.state.context.state, "FACTION_HOUSE")
-      ? [NightshadeHouseScene]
-      : []),
-    ...(hasHouseAccess(gameService.state.context.state, "bumpkins") &&
-    hasFeatureAccess(gameService.state.context.state, "FACTION_HOUSE")
-      ? [BumpkinHouseScene]
+    ...(hasFeatureAccess(gameService.state.context.state, "FACTION_HOUSE")
+      ? [
+          GoblinHouseScene,
+          SunflorianHouseScene,
+          NightshadeHouseScene,
+          BumpkinHouseScene,
+        ]
       : []),
   ];
 
@@ -162,7 +154,7 @@ export const PhaserComponent: React.FC<Props> = ({
 
     if (userModLogs.muted.length > 0) {
       const latestMute = userModLogs.muted.sort(
-        (a, b) => b.mutedUntil - a.mutedUntil
+        (a, b) => b.mutedUntil - a.mutedUntil,
       )[0];
 
       if (latestMute.mutedUntil > new Date().getTime()) {
@@ -283,7 +275,7 @@ export const PhaserComponent: React.FC<Props> = ({
           default:
             break;
         }
-      }
+      },
     );
 
     // Update Messages on change
@@ -293,7 +285,7 @@ export const PhaserComponent: React.FC<Props> = ({
 
       const sceneMessages =
         mmoService.state.context.server?.state.messages.filter(
-          (m) => m.sceneId === currentScene
+          (m) => m.sceneId === currentScene,
         ) as Message[];
 
       setMessages(
@@ -304,7 +296,7 @@ export const PhaserComponent: React.FC<Props> = ({
           sessionId: m.sessionId,
           sceneId: m.sceneId,
           sentAt: m.sentAt,
-        })) ?? []
+        })) ?? [],
       );
       updateMessages();
     });
@@ -319,7 +311,7 @@ export const PhaserComponent: React.FC<Props> = ({
 
           playersMap.forEach((player, playerId) => {
             const existingPlayer = currentPlayers.find(
-              (p) => p.playerId === playerId
+              (p) => p.playerId === playerId,
             );
 
             // do we really need to update the player when they move?
@@ -351,7 +343,7 @@ export const PhaserComponent: React.FC<Props> = ({
 
           // Remove players who left the server
           return updatedPlayers.filter((updatedPlayer) =>
-            playersMap.has(updatedPlayer.playerId)
+            playersMap.has(updatedPlayer.playerId),
           );
         });
       }
@@ -382,14 +374,14 @@ export const PhaserComponent: React.FC<Props> = ({
 
     const sceneMessages =
       mmoService.state.context.server?.state.messages.filter(
-        (m) => m.sceneId === currentScene
+        (m) => m.sceneId === currentScene,
       ) as Message[];
 
     const filteredMessages = sceneMessages.filter(
       (m) =>
         !JSON.parse(
-          localStorage.getItem("plaza-settings.mutedFarmIds") ?? "[]"
-        ).includes(m.farmId)
+          localStorage.getItem("plaza-settings.mutedFarmIds") ?? "[]",
+        ).includes(m.farmId),
     );
 
     setMessages(
@@ -400,7 +392,7 @@ export const PhaserComponent: React.FC<Props> = ({
         sessionId: m.sessionId,
         sceneId: m.sceneId,
         sentAt: m.sentAt,
-      })) ?? []
+      })) ?? [],
     );
   };
 
@@ -506,6 +498,7 @@ export const PhaserComponent: React.FC<Props> = ({
       <InteractableModals
         id={gameService.state.context.farmId as number}
         scene={scene}
+        key={scene}
       />
       <Modal
         show={mmoState === "loading" || mmoState === "initialising"}

@@ -2,13 +2,17 @@ import Decimal from "decimal.js-light";
 import { INITIAL_BUMPKIN, TEST_FARM } from "features/game/lib/constants";
 import { Faction, GameState } from "features/game/types/game";
 import { deliverFactionKitchen } from "./deliverFactionKitchen";
+import { START_DATE } from "features/game/lib/factions";
 
 const GAME_STATE: GameState = {
   ...TEST_FARM,
+  bumpkin: INITIAL_BUMPKIN,
   faction: {
     name: "goblins",
     pledgedAt: 0,
+    history: {},
     points: 0,
+
     donated: {
       daily: {
         sfl: {},
@@ -19,6 +23,9 @@ const GAME_STATE: GameState = {
   },
 };
 
+const week = START_DATE.toISOString().split("T")[0];
+const startTime = new Date(START_DATE).getTime();
+
 describe("factionKitchenDeliver", () => {
   it("throws and error if the player has not joined a faction", () => {
     expect(() =>
@@ -28,7 +35,7 @@ describe("factionKitchenDeliver", () => {
           type: "factionKitchen.delivered",
           resourceIndex: 0,
         },
-      })
+      }),
     ).toThrow("Player has not joined a faction");
   });
 
@@ -40,8 +47,8 @@ describe("factionKitchenDeliver", () => {
           type: "factionKitchen.delivered",
           resourceIndex: 0,
         },
-        createdAt: new Date("2024-06-01T00:00:00Z").getTime(),
-      })
+        createdAt: startTime - 1000,
+      }),
     ).toThrow("Faction kitchen has not started yet");
   });
 
@@ -53,8 +60,8 @@ describe("factionKitchenDeliver", () => {
           type: "factionKitchen.delivered",
           resourceIndex: 0,
         },
-        createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
-      })
+        createdAt: startTime,
+      }),
     ).toThrow("No kitchen data available");
   });
 
@@ -66,9 +73,8 @@ describe("factionKitchenDeliver", () => {
           faction: {
             ...(GAME_STATE.faction as Faction),
             kitchen: {
-              week: 1,
+              week,
               requests: [],
-              points: 0,
             },
           },
         },
@@ -76,8 +82,8 @@ describe("factionKitchenDeliver", () => {
           type: "factionKitchen.delivered",
           resourceIndex: 0,
         },
-        createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
-      })
+        createdAt: startTime,
+      }),
     ).toThrow("No requested resource found at index");
   });
 
@@ -90,9 +96,8 @@ describe("factionKitchenDeliver", () => {
           faction: {
             ...(GAME_STATE.faction as Faction),
             kitchen: {
-              week: 1,
-              requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-              points: 0,
+              week,
+              requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
             },
           },
         },
@@ -100,8 +105,8 @@ describe("factionKitchenDeliver", () => {
           type: "factionKitchen.delivered",
           resourceIndex: 0,
         },
-        createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
-      })
+        createdAt: startTime,
+      }),
     ).toThrow("Insufficient resources");
   });
 
@@ -113,9 +118,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -123,13 +127,13 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
     expect(state.inventory.Honey?.toNumber()).toBe(4);
   });
 
-  it("increments the delivery count by 1", () => {
+  it("increments the daily fulfilled count by 1", () => {
     const state = deliverFactionKitchen({
       state: {
         ...GAME_STATE,
@@ -137,9 +141,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -147,10 +150,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: new Date(START_DATE).getTime(),
     });
 
-    expect(state.faction?.kitchen?.requests[0].deliveryCount).toBe(1);
+    expect(state.faction?.kitchen?.requests[0].dailyFulfilled[1]).toBe(1);
   });
 
   it("adds 20 weekly points and marks for the first delivery", () => {
@@ -161,9 +164,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -171,10 +173,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(20);
+    expect(state.faction?.history?.[week].score).toBe(20);
     expect(state.inventory["Mark"]?.toNumber()).toBe(20);
   });
 
@@ -185,10 +187,12 @@ describe("factionKitchenDeliver", () => {
         inventory: { Honey: new Decimal(5), Mark: new Decimal(20) },
         faction: {
           ...(GAME_STATE.faction as Faction),
+          history: {
+            [week]: { score: 20, petXP: 0 },
+          },
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 1 }],
-            points: 20,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: { 1: 1 } }],
           },
         },
       },
@@ -196,10 +200,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(38);
+    expect(state.faction?.history?.[week].score).toBe(38);
     expect(state.inventory["Mark"]?.toNumber()).toBe(38);
   });
 
@@ -210,10 +214,12 @@ describe("factionKitchenDeliver", () => {
         inventory: { Honey: new Decimal(5), Mark: new Decimal(110) },
         faction: {
           ...(GAME_STATE.faction as Faction),
+          history: {
+            [week]: { score: 110, petXP: 0 },
+          },
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 10 }],
-            points: 110,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: { 1: 10 } }],
           },
         },
       },
@@ -221,10 +227,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(111);
+    expect(state.faction?.history?.[week].score).toBe(111);
     expect(state.inventory["Mark"]?.toNumber()).toBe(111);
   });
 
@@ -235,10 +241,12 @@ describe("factionKitchenDeliver", () => {
         inventory: { Honey: new Decimal(5), Mark: new Decimal(111) },
         faction: {
           ...(GAME_STATE.faction as Faction),
+          history: {
+            [week]: { score: 111, petXP: 0 },
+          },
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 11 }],
-            points: 111,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: { 1: 11 } }],
           },
         },
       },
@@ -246,10 +254,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(112);
+    expect(state.faction?.history?.[week].score).toBe(112);
     expect(state.inventory["Mark"]?.toNumber()).toBe(112);
   });
 
@@ -260,9 +268,8 @@ describe("factionKitchenDeliver", () => {
       faction: {
         ...(GAME_STATE.faction as Faction),
         kitchen: {
-          week: 1,
-          requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-          points: 0,
+          week,
+          requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
         },
       },
     };
@@ -274,11 +281,11 @@ describe("factionKitchenDeliver", () => {
           type: "factionKitchen.delivered",
           resourceIndex: 0,
         },
-        createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+        createdAt: startTime,
       });
     }
 
-    expect(state.faction?.kitchen?.points).toBe(111);
+    expect(state.faction?.history?.[week].score).toBe(111);
     expect(state.inventory["Mark"]?.toNumber()).toBe(111);
   });
 
@@ -296,10 +303,10 @@ describe("factionKitchenDeliver", () => {
         inventory: { Honey: new Decimal(5) },
         faction: {
           ...(GAME_STATE.faction as Faction),
+
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -307,10 +314,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(21);
+    expect(state.faction?.history?.[week].score).toBe(21);
     expect(state.inventory["Mark"]?.toNumber()).toBe(21);
   });
 
@@ -329,9 +336,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -339,10 +345,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(21);
+    expect(state.faction?.history?.[week].score).toBe(21);
     expect(state.inventory["Mark"]?.toNumber()).toBe(21);
   });
 
@@ -361,9 +367,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -371,10 +376,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(22);
+    expect(state.faction?.history?.[week].score).toBe(22);
     expect(state.inventory["Mark"]?.toNumber()).toBe(22);
   });
 
@@ -394,9 +399,8 @@ describe("factionKitchenDeliver", () => {
           ...(GAME_STATE.faction as Faction),
           name: "sunflorians",
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -404,10 +408,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(22);
+    expect(state.faction?.history?.[week].score).toBe(22);
     expect(state.inventory["Mark"]?.toNumber()).toBe(22);
   });
 
@@ -426,9 +430,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -436,10 +439,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(22);
+    expect(state.faction?.history?.[week].score).toBe(22);
     expect(state.inventory["Mark"]?.toNumber()).toBe(22);
   });
 
@@ -458,9 +461,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -468,10 +470,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(24);
+    expect(state.faction?.history?.[week].score).toBe(24);
     expect(state.inventory["Mark"]?.toNumber()).toBe(24);
   });
 
@@ -494,9 +496,8 @@ describe("factionKitchenDeliver", () => {
         faction: {
           ...(GAME_STATE.faction as Faction),
           kitchen: {
-            week: 1,
-            requests: [{ item: "Honey", amount: 1, deliveryCount: 0 }],
-            points: 0,
+            week,
+            requests: [{ item: "Honey", amount: 1, dailyFulfilled: {} }],
           },
         },
       },
@@ -504,10 +505,10 @@ describe("factionKitchenDeliver", () => {
         type: "factionKitchen.delivered",
         resourceIndex: 0,
       },
-      createdAt: new Date("2024-07-01T00:00:00Z").getTime(),
+      createdAt: startTime,
     });
 
-    expect(state.faction?.kitchen?.points).toBe(30);
+    expect(state.faction?.history?.[week].score).toBe(30);
     expect(state.inventory["Mark"]?.toNumber()).toBe(30);
   });
 });

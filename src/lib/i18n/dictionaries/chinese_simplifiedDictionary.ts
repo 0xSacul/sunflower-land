@@ -1218,6 +1218,9 @@ const confirmSkill: Record<ConfirmSkill, string> = {
 };
 
 const conversations: Record<Conversations, string> = {
+  "faction-intro.one": ENGLISH_TERMS["faction-intro.one"],
+  "faction-intro.three": ENGLISH_TERMS["faction-intro.three"],
+  "faction-intro.two": ENGLISH_TERMS["faction-intro.two"],
   "home-intro.one": ENGLISH_TERMS["home-intro.one"],
   "home-intro.three": ENGLISH_TERMS["home-intro.three"],
   "home-intro.two": ENGLISH_TERMS["home-intro.two"],
@@ -1984,6 +1987,8 @@ const factions: Record<Factions, string> = {
   "faction.marksBoost": ENGLISH_TERMS["faction.marksBoost"],
   "faction.shop.onlyFor": ENGLISH_TERMS["faction.shop.onlyFor"],
   "faction.shop.welcome": ENGLISH_TERMS["faction.shop.welcome"],
+  "faction.goodLuck": ENGLISH_TERMS["faction.goodLuck"],
+  "faction.noPrizeFound": ENGLISH_TERMS["faction.noPrizeFound"],
 };
 
 const factionShopDescription: Record<FactionShopDescription, string> = {

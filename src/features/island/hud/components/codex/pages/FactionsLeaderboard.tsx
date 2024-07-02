@@ -4,7 +4,7 @@ import classNames from "classnames";
 import { Label } from "components/ui/Label";
 import { ButtonPanel } from "components/ui/Panel";
 import { Loading } from "features/auth/components";
-import { KingdomLeaderboard } from "features/game/expansion/components/leaderboard/actions/leaderboard";
+import { EmblemsLeaderboard } from "features/game/expansion/components/leaderboard/actions/leaderboard";
 
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { getRelativeTime } from "lib/utils/time";
@@ -34,7 +34,7 @@ interface LeaderboardProps {
   id: string;
   faction: FactionName;
   isLoading: boolean;
-  data: KingdomLeaderboard["emblems"] | null;
+  data: EmblemsLeaderboard["emblems"] | null;
   lastUpdated: number | null;
 }
 
@@ -115,7 +115,7 @@ export const FactionsLeaderboard: React.FC<LeaderboardProps> = ({
             )}
             <Label type="default" className="capitalize">{`${selected.slice(
               0,
-              -1
+              -1,
             )} ${t("leaderboard.leaderboard")}`}</Label>
           </div>
           {lastUpdated && (
@@ -161,7 +161,7 @@ export const FactionsLeaderboard: React.FC<LeaderboardProps> = ({
           <div className="flex justify-end">
             <p className="font-secondary text-xs">
               {`${t("leaderboard.factionMembers")}: ${formatNumber(
-                data.totalMembers?.[selected] ?? 0
+                data.totalMembers?.[selected] ?? 0,
               )}`}
             </p>
           </div>
@@ -214,7 +214,7 @@ const Faction: React.FC<FactionProps> = ({
       <ButtonPanel
         onClick={onClick}
         className={classNames(
-          "w-full cursor-pointer hover:bg-brown-200 pt-2 relative"
+          "w-full cursor-pointer hover:bg-brown-200 pt-2 relative",
         )}
         style={{ paddingBottom: "20px" }}
       >

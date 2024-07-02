@@ -180,36 +180,36 @@ const INITIAL_STOCK: Inventory = {
 
 const OFFLINE_FARM_CROPS = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Crop Plot"
+  "Crop Plot",
 );
 const OFFLINE_FARM_TREES = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Tree"
+  "Tree",
 );
 const OFFLINE_FARM_STONES = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Stone Rock"
+  "Stone Rock",
 );
 const OFFLINE_FARM_IRON = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Iron Rock"
+  "Iron Rock",
 );
 const OFFLINE_FARM_GOLD = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Gold Rock"
+  "Gold Rock",
 );
 const OFFLINE_FARM_CRIMSTONE = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Crimstone Rock"
+  "Crimstone Rock",
 );
 
 const OFFLINE_FARM_SUNSTONE = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Sunstone Rock"
+  "Sunstone Rock",
 );
 const OFFLINE_FARM_FRUIT = getEnabledNodeCount(
   INITIAL_BUMPKIN_LEVEL as BumpkinLevel,
-  "Fruit Patch"
+  "Fruit Patch",
 );
 
 export const STATIC_OFFLINE_FARM: GameState = {
@@ -412,7 +412,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     Pickaxe: new Decimal(100),
     Warehouse: new Decimal(1),
     Wheat: new Decimal(100),
-    Oil: new Decimal(500),
+    Oil: new Decimal(100),
     Manor: new Decimal(1),
     House: new Decimal(1),
     "Sunflower Seed": new Decimal(100),
@@ -641,6 +641,8 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Sunflorian Faction Banner": new Decimal(1),
     "Nightshade Faction Banner": new Decimal(1),
     "Earn Alliance Banner": new Decimal(1),
+    "Goblin Gold Champion": new Decimal(1),
+    "Goblin Silver Champion": new Decimal(1),
   },
   wardrobe: {
     "Tofu Mask": 1,
@@ -1336,7 +1338,7 @@ export const STATIC_OFFLINE_FARM: GameState = {
     amount: new Decimal(1000),
   },
   faction: {
-    name: "bumpkins",
+    name: "goblins",
     pledgedAt: 0,
     points: 100,
     donated: {
@@ -1346,14 +1348,29 @@ export const STATIC_OFFLINE_FARM: GameState = {
       },
       totalItems: {},
     },
+    history: {
+      "2024-06-24": {
+        score: 200,
+        petXP: 0,
+        results: {
+          rank: 10,
+          reward: {
+            sfl: 100,
+            coins: 200,
+            items: {
+              Mark: 100,
+            },
+          },
+        },
+      },
+    },
     kitchen: {
-      week: 1,
+      week: "2024-06-24",
       requests: [
-        { item: "Sunflower", amount: 1, deliveryCount: 0 },
-        { item: "Honey", amount: 1, deliveryCount: 0 },
-        { item: "Tuna", amount: 1, deliveryCount: 0 },
+        { item: "Sunflower", amount: 1, dailyFulfilled: {} },
+        { item: "Honey", amount: 1, dailyFulfilled: {} },
+        { item: "Tuna", amount: 1, dailyFulfilled: {} },
       ],
-      points: 0,
     },
   },
 };

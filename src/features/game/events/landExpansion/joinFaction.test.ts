@@ -12,7 +12,7 @@ describe("joinFaction", () => {
           type: "faction.joined",
           faction: "invalid" as FactionName,
         },
-      })
+      }),
     ).toThrow("Invalid faction");
   });
 
@@ -26,6 +26,8 @@ describe("joinFaction", () => {
             name: "bumpkins",
             pledgedAt: Date.now() - 1000,
             points: 0,
+            history: {},
+
             donated: {
               daily: {
                 resources: {},
@@ -39,7 +41,7 @@ describe("joinFaction", () => {
           type: "faction.joined",
           faction: "sunflorians",
         },
-      })
+      }),
     ).toThrow("You already pledged a faction");
   });
 
@@ -73,7 +75,7 @@ describe("joinFaction", () => {
     });
 
     expect(state.inventory["Sunflorian Faction Banner"]).toEqual(
-      new Decimal(1)
+      new Decimal(1),
     );
   });
 
@@ -117,7 +119,7 @@ describe("joinFaction", () => {
           type: "faction.joined",
           faction: "sunflorians",
         },
-      })
+      }),
     ).toThrow("Not enough SFL");
   });
 });

@@ -921,6 +921,9 @@ export type Conversations =
   | "betty-intro.one"
   | "betty-intro.two"
   | "betty-intro.three"
+  | "faction-intro.one"
+  | "faction-intro.two"
+  | "faction-intro.three"
   | "home-intro.one"
   | "home-intro.two"
   | "home-intro.three"
@@ -1547,7 +1550,9 @@ export type Factions =
   | "faction.tradeEmblems"
   | "faction.marksBoost"
   | "faction.shop.onlyFor"
-  | "faction.shop.welcome";
+  | "faction.shop.welcome"
+  | "faction.noPrizeFound"
+  | "faction.goodLuck";
 
 export type FactionShopDescription =
   | "description.factionShop.sunflorianThrone"
@@ -2997,7 +3002,7 @@ export type Portal =
   | "portal.example.claimPrize";
 
 export type PurchaseableBaitTranslation =
-  | "purchaseableBait.fishingLure.description";
+  "purchaseableBait.fishingLure.description";
 
 export type Quest =
   | "quest.mint.free"

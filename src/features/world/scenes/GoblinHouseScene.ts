@@ -1,7 +1,8 @@
 import mapJSON from "assets/map/goblin_house.json";
 
 import { SceneId } from "../mmoMachine";
-import { BaseScene, NPCBumpkin } from "./BaseScene";
+import { NPCBumpkin } from "./BaseScene";
+import { FactionHouseScene } from "./FactionHouseScene";
 
 export const GOBLIN_HOUSE_NPCS: NPCBumpkin[] = [
   {
@@ -24,7 +25,7 @@ export const GOBLIN_HOUSE_NPCS: NPCBumpkin[] = [
   },
 ];
 
-export class GoblinHouseScene extends BaseScene {
+export class GoblinHouseScene extends FactionHouseScene {
   sceneId: SceneId = "goblin_house";
 
   constructor() {
@@ -37,6 +38,16 @@ export class GoblinHouseScene extends BaseScene {
 
   preload() {
     super.preload();
+
+    this.load.image("pet_sleeping", "world/goblins_pet_sleeping.webp");
+    this.load.image("pet_satiated", "world/goblins_pet_happy.webp");
+    this.load.image("pet_hungry", "world/goblins_pet_hungry.webp");
+  }
+
+  setUpPet() {
+    // check game state to determine the pet status
+    // render the correct pet
+    this.add.image(242, 236, "pet_hungry");
   }
 
   create() {
@@ -46,5 +57,11 @@ export class GoblinHouseScene extends BaseScene {
     });
 
     this.initialiseNPCs(GOBLIN_HOUSE_NPCS);
+
+    this.setupPrize({ x: 240, y: 416 });
+    // this.setUpPet();
+  }
+  update() {
+    super.update();
   }
 }
