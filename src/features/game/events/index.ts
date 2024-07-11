@@ -180,10 +180,6 @@ import {
   ClaimMilestoneAction,
 } from "./landExpansion/claimMilestone";
 import { missFish, MissFishAction } from "./landExpansion/missFish";
-import {
-  tradeTentacle,
-  TradeTentacleAction,
-} from "./landExpansion/tradeTentacle";
 import { revealLand, RevealLandAction } from "./landExpansion/revealLand";
 import {
   burnCollectible,
@@ -335,6 +331,14 @@ import {
   FeedFactionPetAction,
   feedFactionPet,
 } from "./landExpansion/feedFactionPet";
+import {
+  refreshKingdomChores,
+  RefreshKingdomChoresAction,
+} from "./landExpansion/refreshKingdomChores";
+import {
+  skipKingdomChore,
+  SkipKingdomChoreAction,
+} from "./landExpansion/skipKingdomChore";
 
 export type PlayingEvent =
   | OilGreenhouseAction
@@ -399,7 +403,6 @@ export type PlayingEvent =
   | ReelRodAction
   | ClaimMilestoneAction
   | MissFishAction
-  | TradeTentacleAction
   | RevealLandAction
   | BurnCollectibleAction
   | ClaimBonusAction
@@ -429,6 +432,8 @@ export type PlayingEvent =
   | JoinFactionAction
   | ClaimEmblemsAction
   | CompleteKingdomChoreAction
+  | SkipKingdomChoreAction
+  | RefreshKingdomChoresAction
   | DeliverFactionKitchenAction
   | BuyFactionShopItemAction
   | ClaimFactionPrizeAction
@@ -565,7 +570,6 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "rod.reeled": reelRod,
   "milestone.claimed": claimMilestone,
   "fish.missed": missFish,
-  "shelly.tradeTentacle": tradeTentacle,
   "land.revealed": revealLand,
   "collectible.burned": burnCollectible,
   "bonus.claimed": claimBonus,
@@ -593,6 +597,8 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "cookingOil.supplied": supplyCookingOil,
   "emblems.claimed": claimEmblems,
   "kingdomChore.completed": completeKingdomChore,
+  "kingdomChore.skipped": skipKingdomChore,
+  "kingdomChores.refreshed": refreshKingdomChores,
   "factionKitchen.delivered": deliverFactionKitchen,
   "factionShopItem.bought": buyFactionShopItem,
   "factionPet.fed": feedFactionPet,

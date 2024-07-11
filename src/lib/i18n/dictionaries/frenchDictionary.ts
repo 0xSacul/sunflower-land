@@ -130,8 +130,6 @@ import {
   SeasonTerms,
   Share,
   SharkBumpkinDialogues,
-  Shelly,
-  ShellyDialogue,
   ShopItems,
   ShowingFarm,
   SnorklerDialogues,
@@ -178,6 +176,7 @@ import {
   EasterEggKeys,
   ChangeLanguage,
   FactionShopDescription,
+  GuideFactionPet,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -315,6 +314,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   maintenance: "Maintenance",
   "make.wish": "Faire un vœu",
   "making.wish": "En train de faire un vœu",
+  marks: ENGLISH_TERMS["marks"],
   max: "Max",
   minimum: "Minimum",
   mint: "Frapper monnaie",
@@ -382,11 +382,14 @@ const generalTerms: Record<GeneralTerms, string> = {
   "sell.all": "Tout vendre",
   "sell.one": "Vendre 1",
   "sell.ten": "Vendre 10",
+  "sell.amount": ENGLISH_TERMS["sell.amount"],
+  "sell.inBulk": ENGLISH_TERMS["sell.inBulk"],
   "session.expired": "Session expirée!",
   share: "Partager",
   skillPts: "Points de compétence",
   skills: "Compétences",
   skip: "Passer",
+  skipped: ENGLISH_TERMS["skipped"],
   skipping: "Saut",
   "skip.order": "Ignorer la commande",
   "sound.effects": "Effets sonores",
@@ -413,6 +416,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   unlocked: "Débloqué",
   unlocking: "Déverrouillage",
   unmute: "Réactiver le son",
+  upcoming: ENGLISH_TERMS["upcoming"],
   "use.craft": "Utilisé pour fabriquer des objets",
   verify: "Vérifier",
   version: "Version",
@@ -1249,7 +1253,16 @@ const choresStart: Record<ChoresStart, string> = {
   "chores.newSeason":
     "Une nouvelle saison approche, les tâches seront temporairement fermées.",
   "chores.choresFrozen": ENGLISH_TERMS["chores.choresFrozen"],
-  "chores.left": ENGLISH_TERMS["chores.left"],
+  "kingdomChores.preparing": ENGLISH_TERMS["kingdomChores.preparing"],
+  "kingdomChores.completed": ENGLISH_TERMS["kingdomChores.completed"],
+  "kingdomChores.noChores": ENGLISH_TERMS["kingdomChores.noChores"],
+  "kingdomChores.noUpcoming": ENGLISH_TERMS["kingdomChores.noUpcoming"],
+  "kingdomChores.progress": ENGLISH_TERMS["kingdomChores.progress"],
+  "kingdomChores.nextSkip": ENGLISH_TERMS["kingdomChores.nextSkip"],
+  "kingdomChores.skipWarning": ENGLISH_TERMS["kingdomChores.skipWarning"],
+  "kingdomChores.completeActive": ENGLISH_TERMS["kingdomChores.completeActive"],
+  "kingdomChores.loading": ENGLISH_TERMS["kingdomChores.loading"],
+  "kingdomChores.reset": ENGLISH_TERMS["kingdomChores.reset"],
 };
 
 const chumDetails: Record<ChumDetails, string> = {
@@ -1307,6 +1320,7 @@ const chumDetails: Record<ChumDetails, string> = {
     "Délice pour la terreur au ventre lumineux de l'écran.",
   "chumDetails.horseMackerel": ENGLISH_TERMS["chumDetails.horseMackerel"],
   "chumDetails.sunfish": ENGLISH_TERMS["chumDetails.sunfish"],
+  "chumDetails.zebraFish": ENGLISH_TERMS["chumDetails.zebraFish"],
 };
 
 const claimAchievement: Record<ClaimAchievement, string> = {
@@ -1343,6 +1357,7 @@ const confirmationTerms: Record<ConfirmationTerms, string> = {
   "confirmation.sellCrops":
     "Êtes-vous sûr de vouloir vendre {{cropAmount}} {{cropName}} pour {{coinAmount}} pièces ?",
   "confirmation.buyCrops": ENGLISH_TERMS["confirmation.buyCrops"],
+  "confirmation.enterAmount": ENGLISH_TERMS["confirmation.enterAmount"],
 };
 
 const conversations: Record<Conversations, string> = {
@@ -2199,6 +2214,14 @@ const factions: Record<Factions, string> = {
   "faction.emblemAirdrop.closes": ENGLISH_TERMS["faction.emblemAirdrop.closes"],
 
   // Kingdom
+  "kingdom.noticeboard.one": ENGLISH_TERMS["kingdom.noticeboard.one"],
+  "kingdom.noticeboard.two": ENGLISH_TERMS["kingdom.noticeboard.two"],
+  "kingdom.noticeboard.three": ENGLISH_TERMS["kingdom.noticeboard.three"],
+  "kingdom.noticeboard.four": ENGLISH_TERMS["kingdom.noticeboard.four"],
+  "faction.noticeboard.one": ENGLISH_TERMS["faction.noticeboard.one"],
+  "faction.noticeboard.two": ENGLISH_TERMS["faction.noticeboard.two"],
+  "faction.noticeboard.three": ENGLISH_TERMS["faction.noticeboard.three"],
+  "faction.noticeboard.four": ENGLISH_TERMS["faction.noticeboard.four"],
   "faction.restrited.area": ENGLISH_TERMS["faction.restrited.area"],
   "faction.not.pledged": ENGLISH_TERMS["faction.not.pledged"],
   "faction.cost": ENGLISH_TERMS["faction.cost"],
@@ -2243,6 +2266,8 @@ const factions: Record<Factions, string> = {
   "faction.claimEmblems.visitMe": ENGLISH_TERMS["faction.claimEmblems.visitMe"],
   "faction.kitchen.gatherResources":
     ENGLISH_TERMS["faction.kitchen.gatherResources"],
+  "faction.pet.gatherResources": ENGLISH_TERMS["faction.pet.gatherResources"],
+
   "faction.kitchen.opensIn": ENGLISH_TERMS["faction.kitchen.opensIn"],
   "faction.kitchen.notReady": ENGLISH_TERMS["faction.kitchen.notReady"],
   "faction.kitchen.preparing": ENGLISH_TERMS["faction.kitchen.preparing"],
@@ -2252,6 +2277,17 @@ const factions: Record<Factions, string> = {
   "faction.shop.welcome": ENGLISH_TERMS["faction.shop.welcome"],
   "faction.goodLuck": ENGLISH_TERMS["faction.goodLuck"],
   "faction.noPrizeFound": ENGLISH_TERMS["faction.noPrizeFound"],
+  "faction.boostsApplied": ENGLISH_TERMS["faction.boostsApplied"],
+  "faction.no.boostsApplied": ENGLISH_TERMS["faction.no.boostsApplied"],
+
+  // Faction Pet
+  "faction.pet.weeklyGoal": ENGLISH_TERMS["faction.pet.weeklyGoal"],
+  "faction.pet.fed": ENGLISH_TERMS["faction.pet.fed"],
+  "faction.pet.hungry": ENGLISH_TERMS["faction.pet.hungry"],
+  "faction.pet.newRequests": ENGLISH_TERMS["faction.pet.newRequests"],
+  "faction.pet.sleeping": ENGLISH_TERMS["faction.pet.sleeping"],
+  "faction.pet.streak": ENGLISH_TERMS["faction.pet.streak"],
+  "faction.pet.wakes.in": ENGLISH_TERMS["faction.pet.wakes.in"],
 };
 
 const factionShopDescription: Record<FactionShopDescription, string> = {
@@ -2498,6 +2534,14 @@ const fishDescriptions: Record<FishDescriptions, string> = {
     "Un espadon aux écailles qui scintillent comme de l'or, la capture ultime!",
   "description.crimson.carp": "Un joyau rare et vibrant des eaux du printemps.",
   "description.battle.fish": ENGLISH_TERMS["description.battle.fish"],
+};
+
+const guideFactionPet: Record<GuideFactionPet, string> = {
+  "guide.factionPet.one": ENGLISH_TERMS["guide.factionPet.one"],
+  "guide.factionPet.two": ENGLISH_TERMS["guide.factionPet.two"],
+  "guide.factionPet.three": ENGLISH_TERMS["guide.factionPet.three"],
+  "guide.factionPet.four": ENGLISH_TERMS["guide.factionPet.four"],
+  "guide.factionPet.five": ENGLISH_TERMS["guide.factionPet.five"],
 };
 
 const fishermanModal: Record<FishermanModal, string> = {
@@ -2788,35 +2832,36 @@ const gameDescriptions: Record<GameDescriptions, string> = {
 
   // Coupons
   "description.community.coin":
-    "Une pièce de valeur pouvant être échangée contre des récompenses",
+    "(WIP) Une pièce de valeur pouvant être échangée contre des récompenses",
   "description.bud.seedling":
-    "Une jeune pousse à échanger contre un NFT Bud gratuit",
+    "(LEGACY) Une jeune pousse à échanger contre un NFT Bud gratuit",
   "description.gold.pass":
-    "Un laissez-passer exclusif permettant au détenteur de fabriquer des NFT rares, de commercer, de retirer et d'accéder à du contenu bonus.",
+    "(LEGACY) Un laissez-passer exclusif permettant au détenteur de fabriquer des NFT rares, de commercer, de retirer et d'accéder à du contenu bonus.",
   "description.rapid.growth":
-    "À appliquer sur une culture pour une croissance deux fois plus rapide",
+    "(LEGACY) À appliquer sur une culture pour une croissance deux fois plus rapide",
   "description.bud.ticket":
-    "Une place garantie pour frapper un Bud lors de la distribution des NFT Sunflower Land Buds.",
+    "(LEGACY) Une place garantie pour frapper un Bud lors de la distribution des NFT Sunflower Land Buds.",
   "description.potion.ticket":
     "Une récompense de la Maison des Potions. Utilisez-la pour acheter des articles auprès de Garth.",
-  "description.trading.ticket": "Échanges gratuits ! Hourra!",
+  "description.trading.ticket": "(LEGACY) Échanges gratuits ! Hourra!",
   "description.block.buck": "Un jeton précieux dans Sunflower Land!",
   "description.beta.pass":
-    "Accédez en avant-première à des fonctionnalités pour les tester.",
-  "description.war.bond": "La marque d'un vrai guerrier",
-  "description.allegiance": "Une déclaration d'allégeance",
-  "description.jack.o.lantern": "Un objet spécial d'événement d'Halloween",
-  "description.golden.crop": "Une culture dorée étincelante",
-  "description.red.envelope": "Wow, vous avez de la chance!",
-  "description.love.letter": "Transmettez des sentiments d'amour",
+    "(EXCLUSIVE) Accédez en avant-première à des fonctionnalités pour les tester.",
+  "description.war.bond": "(LEGACY) La marque d'un vrai guerrier",
+  "description.allegiance": "(LEGACY) Une déclaration d'allégeance",
+  "description.jack.o.lantern":
+    "(LEGACY) Un objet spécial d'événement d'Halloween",
+  "description.golden.crop": "(LEGACY) Une culture dorée étincelante",
+  "description.red.envelope": "(LEGACY) Wow, vous avez de la chance!",
+  "description.love.letter": "(LEGACY) Transmettez des sentiments d'amour",
   "description.solar.flare.ticket":
-    "Un billet utilisé pendant la saison des Éruptions Solaires",
+    "(LEGACY) Un billet utilisé pendant la saison des Éruptions Solaires",
   "description.dawn.breaker.ticket":
-    "Un billet utilisé pendant la saison de l'Éclaireur de l'Aube",
+    "(LEGACY) Un billet utilisé pendant la saison de l'Éclaireur de l'Aube",
   "description.crow.feather":
-    "Un billet utilisé pendant la saison des Billets de la Veille des Sorcières",
+    "(LEGACY) Un billet utilisé pendant la saison des Billets de la Veille des Sorcières",
   "description.mermaid.scale":
-    "Un billet utilisé pendant la saison de la Chasse au Kraken",
+    "(LEGACY) Un billet utilisé pendant la saison de la Chasse au Kraken",
   "description.sunflower.supporter":
     "La marque d'un véritable supporter du jeu!",
   "description.arcade.coin":
@@ -2825,7 +2870,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
     "Un coupon à échanger contre un ouvrier agricole de votre choix.",
   "description.farmhand": "Un Bumpkin adopté dans votre ferme.",
   "description.tulip.bulb":
-    "Un billet utilisé pendant la Floraison du Printemps.",
+    "(LEGACY) Un billet utilisé pendant la Floraison du Printemps.",
   "description.treasure.key":
     "Visitez la place pour débloquer votre récompense",
   "description.rare.key": "Visitez la plage pour débloquer votre récompense",
@@ -3030,7 +3075,7 @@ const guideTerms: Record<GuideTerms, string> = {
   "deliveries.intro":
     "Voyagez vers différentes îles et livrez des marchandises pour gagner des récompenses.",
   "deliveries.new": "Nouvelle livraison",
-  "chores.intro":
+  "chores.hank.intro":
     "Effectuez des tâches autour de la ferme pour gagner des récompenses des Bumpkins.",
   "scavenger.guide.one":
     "Le fouilleur dans Sunflower Land offre des opportunités passionnantes pour découvrir des trésors cachés et rassembler des ressources précieuses. Le premier aspect de la fouille consiste à chercher des trésors sur Treasure Island, où vous pouvez devenir un chasseur de trésors pirate. En fabriquant une pelle en sable et en vous aventurant sur Treasure Island, vous pouvez creuser dans les zones de sable sombre pour découvrir divers trésors, y compris des butins, des décorations et même d'anciens SFTs avec utilité.",
@@ -3056,6 +3101,9 @@ const guideTerms: Record<GuideTerms, string> = {
   "pete.teaser.six": "Plantez des graines",
   "pete.teaser.seven": "Fabriquez un Épouvantail",
   "pete.teaser.eight": "Cuisinez de la nourriture et montez de niveau",
+  "chores.hank": ENGLISH_TERMS["chores.hank"],
+  "chores.kingdom": ENGLISH_TERMS["chores.kingdom"],
+  "chores.kingdom.intro": ENGLISH_TERMS["chores.kingdom.intro"],
 };
 
 const harvestBeeHive: Record<HarvestBeeHive, string> = {
@@ -3191,7 +3239,7 @@ const interactableModals: Record<InteractableModals, string> = {
   "interactableModals.beachGreenBook.message2":
     "Utilisez des pommes avec de l'appât pour ver rouge, et regardez ces beautés cramoisies sauter presque dans votre filet.",
   "interactableModals.beachBlueBook.message1":
-    "Ne le dites pas à Shelly, mais j'ai essayé d'amener des Saw Sharks à la plage!",
+    "Mais j'ai essayé d'amener des Saw Sharks à la plage!",
   "interactableModals.beachBlueBook.message2":
     "J'ai fait des expériences avec différents appâts ces derniers temps, mais le seul qui semble fonctionner est le vivaneau rouge.",
   "interactableModals.beachBlueBook.message3":
@@ -3771,23 +3819,6 @@ const npc_message: Record<NPC_MESSAGE, string> = {
     "La liberté des poissons, c'est ma mission. Aidez-moi avec des poissons, je vous prie?",
   "npcMessages.corale.msg7":
     "Rejoignez-moi dans la danse de la vie de la mer. Des poissons, pour libérer mes amis!",
-  // Shelly
-  "npcMessages.shelly.msg1":
-    "Les Bumpkins disparaissent, et je crains que le Kraken en soit la cause. Aidez-moi à collecter ses tentacules!",
-  "npcMessages.shelly.msg2":
-    "Les Bumpkins disparaissent, et je soupçonne le Kraken. Pouvez-vous récupérer ses tentacules, s'il vous plaît?",
-  "npcMessages.shelly.msg3":
-    "Le Kraken est une menace, les Bumpkins manquent. Apportez ses tentacules pour les protéger.",
-  "npcMessages.shelly.msg4":
-    "Le Kraken est sinistre, les Bumpkins ont disparu. Apportez ses tentacules pour leur sécurité.",
-  "npcMessages.shelly.msg5":
-    "Garder la plage est difficile avec le Kraken. Aidez-moi à protéger les Bumpkins, obtenez ses tentacules.",
-  "npcMessages.shelly.msg6":
-    "Protéger les Bumpkins est mon devoir, mais le Kraken m'inquiète. Obtenez ses tentacules pour les sauvegarder.",
-  "npcMessages.shelly.msg7":
-    "Le Kraken provoque la panique, les Bumpkins disparaissent. Aidez-moi à rassembler ses tentacules pour leur sécurité.",
-  "npcMessages.shelly.msg8":
-    "La sécurité des Bumpkins est ma priorité absolue, et j'ai bien peur que le Kraken soit impliqué. Les tentacules peuvent faire la différence!",
   "npcMessages.gambit.msg1": ENGLISH_TERMS["npcMessages.gambit.msg1"],
   "npcMessages.gambit.msg2": ENGLISH_TERMS["npcMessages.gambit.msg2"],
   "npcMessages.gambit.msg3": ENGLISH_TERMS["npcMessages.gambit.msg3"],
@@ -4722,6 +4753,8 @@ const restock: Record<Restock, string> = {
   "restock.sure": "Êtes-vous sûr de vouloir recharger ?",
   "restock.tooManySeeds": "Vous avez trop de graines dans votre panier!",
   "seeds.reachingInventoryLimit": ENGLISH_TERMS["seeds.reachingInventoryLimit"],
+  "crops.noCropsToSell": ENGLISH_TERMS["crops.noCropsToSell"],
+  "seeds.plantingSpot.needed": ENGLISH_TERMS["seeds.plantingSpot.needed"],
 };
 
 const retreatTerms: Record<RetreatTerms, string> = {
@@ -4833,39 +4866,6 @@ const share: Record<Share, string> = {
 const sharkBumpkinDialogues: Record<SharkBumpkinDialogues, string> = {
   "sharkBumpkin.dialogue.shhhh": "Chut!",
   "sharkBumpkin.dialogue.scareGoblins": "J'essaie d'effrayer les Gobelins.",
-};
-
-const shelly: Record<Shelly, string> = {
-  "shelly.Dialogue.one": "Salut, Bumpkin ! Bienvenue à la plage!",
-  "shelly.Dialogue.two":
-    "Après une journée de dur labeur dans ta ferme, il n'y a pas de meilleur endroit pour se détendre et profiter des vagues.",
-  "shelly.Dialogue.three":
-    "Mais nous avons un petit problème. Un kraken géant est apparu et a pris le contrôle de notre plage bien-aimée.",
-  "shelly.Dialogue.four":
-    "Nous aurions vraiment besoin de ton aide, cher ami. Attrape ton appât et tes cannes à pêche, et ensemble, nous affronterons ce problème colossal!",
-  "shelly.Dialogue.five":
-    "Pour chaque tentacule que tu attrapes, je te fournirai des précieuses écailles de sirène!",
-  "shelly.Dialogue.letsgo": "Allons-y!",
-};
-
-const shellyDialogue: Record<ShellyDialogue, string> = {
-  "shellyPanelContent.tasksFrozen":
-    "J'attends le début de la nouvelle saison. Reviens me voir à ce moment-là!",
-  "shellyPanelContent.canTrade":
-    "Oh là là, tu as un Tentacule de Kraken ! Je l'échangerai contre des écailles de sirène.",
-  "shellyPanelContent.cannotTrade":
-    "On dirait que tu n'as pas de Tentacules de Kraken à portée de main ! Reviens quand tu en auras.",
-  "shellyPanelContent.swap": "Échanger",
-  "krakenIntro.congrats":
-    "Bien joué ! Le Kraken a cessé de terroriser les Bumpkins.",
-  "krakenIntro.noMoreTentacles":
-    "Tu as collecté tous les tentacules de la semaine. Gardons un œil sur lui, je suis sûr que la faim reviendra.",
-  "krakenIntro.gotIt": "J'ai compris!",
-  "krakenIntro.appetiteChanges": "L'appétit du Kraken change constamment.",
-  "krakenIntro.currentHunger":
-    "En ce moment, il a une faim pour.... Ouf, c'est mieux que les Bumpkins.",
-  "krakenIntro.catchInstruction":
-    "Rends-toi à ton lieu de pêche et essaie d'attraper la bête!",
 };
 
 const shopItems: Record<ShopItems, string> = {
@@ -5454,6 +5454,25 @@ export const leaderboardTerms: Record<Leaderboard, string> = {
   "leaderboard.topTen": ENGLISH_TERMS["leaderboard.topTen"],
   "leaderboard.yourPosition": ENGLISH_TERMS["leaderboard.yourPosition"],
   "leaderboard.factionMembers": ENGLISH_TERMS["leaderboard.factionMembers"],
+  "leaderboard.resultsPending": ENGLISH_TERMS["leaderboard.resultsPending"],
+  "leaderboard.champions": ENGLISH_TERMS["leaderboard.champions"],
+  "leaderboard.congratulations": ENGLISH_TERMS["leaderboard.congratulations"],
+  "leaderboard.position": ENGLISH_TERMS["leaderboard.position"],
+  "leaderboard.weeklyScore": ENGLISH_TERMS["leaderboard.weeklyScore"],
+  "leaderboard.player": ENGLISH_TERMS["leaderboard.player"],
+  "leaderboard.score": ENGLISH_TERMS["leaderboard.score"],
+  "leaderboard.prizes": ENGLISH_TERMS["leaderboard.prizes"],
+  "leaderboard.faction.description":
+    ENGLISH_TERMS["leaderboard.faction.description"],
+  "leaderboard.faction.champion": ENGLISH_TERMS["leaderboard.faction.champion"],
+  "leaderboard.faction.championPrizes":
+    ENGLISH_TERMS["leaderboard.faction.championPrizes"],
+  "leaderboard.faction.bonusMarks":
+    ENGLISH_TERMS["leaderboard.faction.bonusMarks"],
+  "leaderboard.faction.topPlayers":
+    ENGLISH_TERMS["leaderboard.faction.topPlayers"],
+  "leaderboard.faction.topPlayerPrizes":
+    ENGLISH_TERMS["leaderboard.faction.topPlayerPrizes"],
 };
 
 const gameOptions: Record<GameOptions, string> = {
@@ -5695,8 +5714,6 @@ export const FRENCH_TERMS: Record<TranslationKeys, string> = {
   ...seasonTerms,
   ...share,
   ...sharkBumpkinDialogues,
-  ...shelly,
-  ...shellyDialogue,
   ...shopItems,
   ...showingFarm,
   ...snorklerDialogues,
@@ -5728,4 +5745,5 @@ export const FRENCH_TERMS: Record<TranslationKeys, string> = {
   ...restrictionReason,
   ...removeCropMachine,
   ...easterEggTerms,
+  ...guideFactionPet,
 };

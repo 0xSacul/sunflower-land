@@ -130,8 +130,6 @@ import {
   SeasonTerms,
   Share,
   SharkBumpkinDialogues,
-  Shelly,
-  ShellyDialogue,
   ShopItems,
   ShowingFarm,
   SnorklerDialogues,
@@ -177,6 +175,7 @@ import {
   EasterEggKeys,
   ChangeLanguage,
   FactionShopDescription,
+  GuideFactionPet,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -299,6 +298,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   maintenance: "Maintenance",
   "make.wish": "Make a Wish",
   "making.wish": "Making a wish",
+  marks: "Marks",
   max: "Max",
   "max.reached": "Max reached",
   minimum: "Minimum",
@@ -365,10 +365,12 @@ const generalTerms: Record<GeneralTerms, string> = {
   "sell.all": "Sell All",
   "sell.one": "Sell 1",
   "sell.ten": "Sell 10",
+  "sell.inBulk": "Sell in Bulk",
   "session.expired": "Session expired!",
   share: "Share",
   skillPts: "Skill Points:",
   skills: "Skills",
+  skipped: "Skipped",
   skipping: "Skipping",
   "skip.order": "Skip Order",
   "sound.effects": "Sound Effects:",
@@ -392,6 +394,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "unlock.land": "Unlock more land",
   unlocking: "Unlocking",
   unmute: "Unmute",
+  upcoming: "Upcoming",
   "use.craft": "Used to craft items",
   verify: "Verify",
   version: "Version",
@@ -433,6 +436,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   "sfl/coins": "SFL/Coins",
   vipAccess: "VIP Access",
   bought: "Bought",
+  "sell.amount": "Sell {{amount}}",
 };
 
 const timeUnits: Record<TimeUnits, string> = {
@@ -631,7 +635,7 @@ const basicTreasure: Record<BasicTreasure, string> = {
   "basic.treasure.openChest":
     "Would you like to open the chest and claim a reward?",
   "budBox.open": "Open",
-  "budBox.opened": "Opened",
+  "budBox.opened": "Opened today",
   "budBox.title": "Bud box",
   "budBox.description": "Each day, a bud type can unlock farming rewards.",
   "raffle.title": "Goblin Raffle",
@@ -1191,7 +1195,18 @@ const choresStart: Record<ChoresStart, string> = {
   "chores.noChore": "Sorry, I don't have any chores that need doing right now.",
   "chores.newSeason": "A new season approaches, chores will temporarily close.",
   "chores.choresFrozen": "New seasonal chores will be available soon.",
-  "chores.left": "{{chores}} left",
+  "kingdomChores.preparing": "Just a second. I'm preparing some chores.",
+  "kingdomChores.completed":
+    "Looks like you have completed all your chores for now. Come back soon!",
+  "kingdomChores.noChores":
+    "I'm sorry, I don't have any chores available right now. Come back soon!",
+  "kingdomChores.noUpcoming": "No upcoming chores",
+  "kingdomChores.progress": "Progress: {{progress}}",
+  "kingdomChores.nextSkip": "Next Skip: {{skip}}",
+  "kingdomChores.skipWarning": "You can only skip one chore every 24 hours",
+  "kingdomChores.completeActive": "Complete active chores to unlock",
+  "kingdomChores.loading": "Loading new chores",
+  "kingdomChores.reset": "New Chores in: {{reset}}",
 };
 
 const chumDetails: Record<ChumDetails, string> = {
@@ -1233,8 +1248,9 @@ const chumDetails: Record<ChumDetails, string> = {
   "chumDetails.speedChicken": "Fast food dessert for sharp-teeth hunters.",
   "chumDetails.richChicken":
     "Delicacy for the bright-bellied terror of the screen.",
-  "chumDetails.sunfish": "Perfect for a full moon...",
   "chumDetails.horseMackerel": "Only for the biggest appetites",
+  "chumDetails.sunfish": "Perfect for a full moon...",
+  "chumDetails.zebraFish": "Marvelous delicacy for rare appetites.",
 };
 
 const claimAchievement: Record<ClaimAchievement, string> = {
@@ -1269,6 +1285,7 @@ const confirmationTerms: Record<ConfirmationTerms, string> = {
     "Are you sure you want to sell {{cropAmount}} {{cropName}} for {{coinAmount}} Coins?",
   "confirmation.buyCrops":
     "Are you sure you want to spend {{coinAmount}} Coins to buy {{seedNo}} {{seedName}}s?",
+  "confirmation.enterAmount": "Enter Amount to Sell:",
 };
 
 const confirmSkill: Record<ConfirmSkill, string> = {
@@ -2096,6 +2113,20 @@ const factions: Record<Factions, string> = {
     "Pledge a faction to receive faction points!",
   "faction.emblemAirdrop": "Emblem Airdrop",
   "faction.emblemAirdrop.closes": "Ends: {{date}}",
+  "kingdom.noticeboard.one":
+    "Welcome to the Kingdom - It is time to join a faction and compete for Glory!",
+  "kingdom.noticeboard.two":
+    "Play mini-games, complete faction tasks, climb the leaderboard & earn marks.",
+  "kingdom.noticeboard.three": "Each week the top players can claim a prize!",
+  "kingdom.noticeboard.four":
+    "Visit the Kingdom shop to claim rewards & collectibles",
+  "faction.noticeboard.one":
+    "Deliver resources to the kitchen & complete chores to earn marks.",
+  "faction.noticeboard.two": "Feed our grumpy pet to unlock a bonus XP boost!",
+  "faction.noticeboard.three":
+    "The top players each week will receive a bonus prize.",
+  "faction.noticeboard.four":
+    "Trade emblems to climb the ranks and access bonus perks.",
 
   // Kingdom NPCs
   "faction.restrited.area":
@@ -2143,6 +2174,7 @@ const factions: Record<Factions, string> = {
     "Ahhh I love your enthusiasm! However, the kitchen is not open yet. Please come back later.",
   "faction.kitchen.gatherResources":
     "So many new recruits... how will we feed them all! Can you help me gather some resources?",
+  "faction.pet.gatherResources": "Grrrrghhhhhh...",
   "faction.kitchen.preparing":
     "I'm still preparing my orders! Please come back in a few minutes.",
   "faction.kitchen.newRequests": "New requests: {{time}}",
@@ -2163,6 +2195,18 @@ const factions: Record<Factions, string> = {
     "Welcome to the Faction Shop! Use your marks to purchase temporary boosts, stylish wearables, and rare collectibles. Dive in and find your next great addition!",
   "faction.goodLuck": "Good luck this week!",
   "faction.noPrizeFound": "No prize found",
+  "faction.pet.weeklyGoal": "Weekly goal: {{totalXP}}/{{goalXP}} XP",
+  "faction.pet.hungry":
+    "Our beloved pet relies on you to stay alive! Feed it 30% more each week to meet its growing hunger. Maintain a streak to earn your faction incredible XP bonuses and additional marks!",
+  "faction.pet.fed":
+    "Fantastic job! You've unlocked a valuable bonus. The faction's pet is healthier than ever, and all members receive an XP boost. Let's aim for the next streak!",
+  "faction.pet.sleeping":
+    "The pet has gone to sleep for 24 hours due to hunger. Make sure to feed it well when it wakes up to keep our streak alive.",
+  "faction.pet.newRequests": "New requests in {{time}}",
+  "faction.pet.streak": "{{streak}} week streak",
+  "faction.pet.wakes.in": "Wakes in {{time}}",
+  "faction.boostsApplied": "Boosts applied:",
+  "faction.no.boostsApplied": "No boosts applied",
 };
 
 const factionShopDescription: Record<FactionShopDescription, string> = {
@@ -2674,32 +2718,34 @@ const gameDescriptions: Record<GameDescriptions, string> = {
 
   // Coupons
   "description.community.coin":
-    "A valued coin that can be exchanged for rewards",
-  "description.bud.seedling": "A seedling to be exchanged for a free Bud NFT",
+    "(WIP) A valued coin that can be exchanged for rewards",
+  "description.bud.seedling":
+    "(LEGACY) A seedling to be exchanged for a free Bud NFT",
   "description.gold.pass":
-    "An exclusive pass that enables the holder to craft rare NFTs, trade, withdraw and access bonus content.",
-  "description.rapid.growth": "Apply to a crop to grow twice as fast",
+    "(LEGACY) An exclusive pass that enables the holder to craft rare NFTs, trade, withdraw and access bonus content.",
+  "description.rapid.growth": "(LEGACY) Apply to a crop to grow twice as fast",
   "description.bud.ticket":
-    "A guaranteed spot to mint a Bud at the Sunflower Land Buds NFT drop.",
+    "(LEGACY) A guaranteed spot to mint a Bud at the Sunflower Land Buds NFT drop.",
   "description.potion.ticket":
     "A reward from the Potion House. Use this to buy items from Garth.",
-  "description.trading.ticket": "Free Trades! Woohoo!",
+  "description.trading.ticket": "(LEGACY) Free Trades! Woohoo!",
   "description.block.buck": "A valuable token in Sunflower Land!",
-  "description.beta.pass": "Gain early access to features for testing.",
-  "description.war.bond": "A mark of a true warrior",
-  "description.allegiance": "A display of allegiance",
-  "description.jack.o.lantern": "A Halloween special event item",
-  "description.golden.crop": "A shiny golden crop",
-  "description.red.envelope": "Wow, you are lucky!",
-  "description.love.letter": "Convey feelings of love",
+  "description.beta.pass":
+    "(EXCLUSIVE) Gain early access to features for testing.",
+  "description.war.bond": "(LEGACY) A mark of a true warrior",
+  "description.allegiance": "(LEGACY) A display of allegiance",
+  "description.jack.o.lantern": "(LEGACY) A Halloween special event item",
+  "description.golden.crop": "(LEGACY) A shiny golden crop",
+  "description.red.envelope": "(LEGACY) Wow, you are lucky!",
+  "description.love.letter": "(LEGACY) Convey feelings of love",
   "description.solar.flare.ticket":
-    "A ticket used during the Solar Flare Season",
+    "(LEGACY) A ticket used during the Solar Flare Season",
   "description.dawn.breaker.ticket":
-    "A ticket used during the Dawn Breaker Season",
+    "(LEGACY) A ticket used during the Dawn Breaker Season",
   "description.crow.feather":
-    "A ticket used during the Witches' Eve Ticket Season",
+    "(LEGACY) A ticket used during the Witches' Eve Ticket Season",
   "description.mermaid.scale":
-    "A ticket used during the Catch the Kraken Season",
+    "(LEGACY) A ticket used during the Catch the Kraken Season",
   "description.sunflower.supporter":
     "The mark of a true supporter of the game!",
   "description.arcade.coin":
@@ -2707,7 +2753,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
   "description.farmhand.coupon":
     "A coupon to exchange for a farm hand of your choice.",
   "description.farmhand": "An adopted Bumpkin on your farm",
-  "description.tulip.bulb": "A ticket used during the Spring Blossom",
+  "description.tulip.bulb": "(LEGACY) A ticket used during the Spring Blossom",
   "description.treasure.key": "Visit the plaza to unlock your reward",
   "description.rare.key": "Visit the beach to unlock your reward",
   "description.luxury.key":
@@ -2841,6 +2887,19 @@ const guideCompost: Record<GuideCompost, string> = {
     "Are you sure you want to add {{noEggs}} Eggs to reduce compost production time by {{time}}?",
 };
 
+const guideFactionPet: Record<GuideFactionPet, string> = {
+  "guide.factionPet.one":
+    "Each week the pet will request 3 foods. When fed, the XP from the food will go to the total XP tally for the faction.",
+  "guide.factionPet.two":
+    "Your faction will have a goal xp they need to reach each week. If the faction reaches the goal, the next week goal will be 30% harder than the total xp achieved for the week! If the goal isn't reached, the next week goal will be 30% easier than the last weeks total xp.",
+  "guide.factionPet.three":
+    "If the faction doesn't reach the goal then the pet will go to sleep for 1 day.",
+  "guide.factionPet.four":
+    "Once the faction reaches a streak of 3 or more weeks, an XP bonus will be given to each contributing faction member when their bumpkin eats!",
+  "guide.factionPet.five":
+    "You will be awared marks for each food delivered. Every time you deliver the reward will reduce by 2. These rewards will reset daily. Players with an emblem bonus will get an additional bonus based on their faction bonus rank.",
+};
+
 const guideTerms: Record<GuideTerms, string> = {
   "guide.intro":
     "From humble beginnings to expert farming, this guide has got you covered!",
@@ -2897,8 +2956,12 @@ const guideTerms: Record<GuideTerms, string> = {
   "deliveries.intro":
     "Travel to different islands and deliver goods to earn rewards.",
   "deliveries.new": "New delivery",
-  "chores.intro":
+  "chores.hank": "Hank's Chores",
+  "chores.hank.intro":
     "Complete tasks around the farm to earn rewards from Bumpkins.",
+  "chores.kingdom": "Kingdom Chores",
+  "chores.kingdom.intro":
+    "Complete tasks around your farm to earn Marks from your Faction House",
   "scavenger.guide.one":
     "Scavenging in Sunflower Land offers exciting opportunities to uncover hidden treasures and gather valuable resources. The first aspect of scavenging is digging for treasure on Treasure Island, where you can become a pirate treasure hunter. By crafting a sand shovel and venturing to Treasure Island, you can dig in dark sandy areas to uncover a variety of treasures, including bounty, decorations, and even ancient SFTs with utility.",
   "scavenger.guide.two":
@@ -2951,7 +3014,7 @@ const hayseedHankV2: Record<HayseedHankV2, string> = {
     "However, my bones ain't what they used to be. If you can help me with my daily chores, I will reward you with {{seasonalTicket}}.",
   "hayseedHankv2.action": "Let's do it",
   "hayseedHankv2.title": "Hank's Daily Chores",
-  "hayseedHankv2.newChoresAvailable": "New chores:",
+  "hayseedHankv2.newChoresAvailable": "New Chores in:",
   "hayseedHankv2.skipChores": "You can skip chores each new day",
   "hayseedHankv2.greeting":
     "Well, howdy there, young whippersnappers! I'm Hayseed Hank...",
@@ -3049,7 +3112,7 @@ const interactableModals: Record<InteractableModals, string> = {
   "interactableModals.beachGreenBook.message2":
     "Use Apples with Red Wiggler Bait, and watch those crimson beauties practically leap into your net.",
   "interactableModals.beachBlueBook.message1":
-    "Don't tell Shelly, but I've been trying to bring Saw Sharks to the beach!",
+    "I've been trying to bring Saw Sharks to the beach!",
   "interactableModals.beachBlueBook.message2":
     "I've been experimenting with different chums lately, but the only one that seems to work is Red Snapper.",
   "interactableModals.beachBlueBook.message3":
@@ -3611,23 +3674,6 @@ const npc_message: Record<NPC_MESSAGE, string> = {
     "Fishes' freedom, that's my mission. Help me with fish, won't you?",
   "npcMessages.corale.msg7":
     "Join me in the sea's dance of life. Fish, to set my friends free!",
-  //Shelly
-  "npcMessages.shelly.msg1":
-    "Bumpkins are vanishing, and I fear the Kraken is the cause. Help me collect its tentacles!",
-  "npcMessages.shelly.msg2":
-    "Bumpkins are disappearing, and I suspect the Kraken. Can you fetch its tentacles, please?",
-  "npcMessages.shelly.msg3":
-    "Kraken's a threat, Bumpkins missing. Bring its tentacles to keep them safe.",
-  "npcMessages.shelly.msg4":
-    "Kraken's ominous, Bumpkins gone. Bring its tentacles for their safety.",
-  "npcMessages.shelly.msg5":
-    "Guarding the beach is tough with the Kraken. Help me protect Bumpkins, get its tentacles.",
-  "npcMessages.shelly.msg6":
-    "Protecting Bumpkins is my duty, but the Kraken worries me. Get its tentacles to safeguard them.",
-  "npcMessages.shelly.msg7":
-    "Kraken's causing panic, Bumpkins missing. Help me gather its tentacles for their safety.",
-  "npcMessages.shelly.msg8":
-    "Bumpkins' safety's my top priority, and I'm afraid the Kraken's involved. Tentacles can make a difference!",
 
   "npcMessages.gambit.msg1":
     "Feeling lucky today? I've got a wager that might pique your interest!",
@@ -4614,6 +4660,8 @@ const restock: Record<Restock, string> = {
   "restock.sure": "Are you sure you want to Restock?",
   "restock.tooManySeeds": "You have too many seeds in your basket!",
   "seeds.reachingInventoryLimit": "You are reaching your seed basket limit!",
+  "crops.noCropsToSell": "You have no {{cropName}} to Sell!",
+  "seeds.plantingSpot.needed": "{{plantingSpot}} Needed",
 };
 
 const retreatTerms: Record<RetreatTerms, string> = {
@@ -4722,40 +4770,6 @@ const share: Record<Share, string> = {
 const sharkBumpkinDialogues: Record<SharkBumpkinDialogues, string> = {
   "sharkBumpkin.dialogue.shhhh": "Shhhh!",
   "sharkBumpkin.dialogue.scareGoblins": "I'm trying to scare the Goblins.",
-};
-
-const shelly: Record<Shelly, string> = {
-  "shelly.Dialogue.one": "Howdy, Bumpkin! Welcome to the beach!",
-  "shelly.Dialogue.two":
-    "After a hard day's work on your farm, there's no better place to kick back and enjoy the waves.",
-  "shelly.Dialogue.three":
-    "But we've got a bit of a situation. A massive kraken has emerged and taken control of our beloved beach.",
-  "shelly.Dialogue.four":
-    "We could really use your help, dear. Grab your bait and fishing rods, and together, we'll tackle this colossal problem!",
-  "shelly.Dialogue.five":
-    "For each tentacle you catch I will provide you with valuable mermaid scales!",
-  "shelly.Dialogue.letsgo": "Let's do it!",
-};
-
-const shellyDialogue: Record<ShellyDialogue, string> = {
-  "shellyPanelContent.tasksFrozen":
-    "I am waiting for the new season to start. Come back to me then!",
-  "shellyPanelContent.canTrade":
-    "Oh my, you've got a Kraken Tentacle! I'll swap it for some mermaid scales.",
-  "shellyPanelContent.cannotTrade":
-    "Looks like you don't have any Kraken Tentacles at hand! Come back when you do.",
-  "shellyPanelContent.swap": "Swap",
-  "krakenIntro.congrats":
-    "Well done! The Kraken has stopped terrorising Bumpkins.",
-  "krakenIntro.noMoreTentacles":
-    "You have collected all the tentacles for the week. Let's keep a close eye on it, I'm sure the hunger will return.",
-  "krakenIntro.gotIt": "Got it!",
-  "krakenIntro.appetiteChanges":
-    "The Kraken's appetite is constantly changing.",
-  "krakenIntro.currentHunger":
-    "Right now it has a hunger for ....Phew, that's better than Bumpkins.",
-  "krakenIntro.catchInstruction":
-    "Head to your fishing spot and try catch the beast!",
 };
 
 const shopItems: Record<ShopItems, string> = {
@@ -5300,6 +5314,23 @@ export const leaderboardTerms: Record<Leaderboard, string> = {
   "leaderboard.topTen": "Top ten",
   "leaderboard.yourPosition": "Your position",
   "leaderboard.factionMembers": "Faction Members",
+  "leaderboard.champions": "Champions",
+  "leaderboard.congratulations": "Congratulations to the {{faction}}!",
+  "leaderboard.resultsPending": "Results pending...",
+
+  "leaderboard.position": "Position",
+  "leaderboard.weeklyScore": "Weekly score",
+  "leaderboard.player": "Player",
+  "leaderboard.score": "Score",
+  "leaderboard.prizes": "Prizes",
+  "leaderboard.faction.description": "Each week you can win bonus prizes.",
+  "leaderboard.faction.champion": "Champion faction",
+  "leaderboard.faction.championPrizes":
+    "The players in the winning faction will receive:",
+  "leaderboard.faction.bonusMarks": "Bonus +10% Marks",
+  "leaderboard.faction.topPlayers": "Top Player Prizes",
+  "leaderboard.faction.topPlayerPrizes":
+    "The top 50 players in each faction will receive:",
 };
 
 const gameOptions: Record<GameOptions, string> = {
@@ -5469,6 +5500,7 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...goldTooth,
   ...greenhouse,
   ...guideCompost,
+  ...guideFactionPet,
   ...guideTerms,
   ...harvestBeeHive,
   ...harvestflower,
@@ -5539,8 +5571,6 @@ export const ENGLISH_TERMS: Record<TranslationKeys, string> = {
   ...seasonTerms,
   ...share,
   ...sharkBumpkinDialogues,
-  ...shelly,
-  ...shellyDialogue,
   ...shopItems,
   ...showingFarm,
   ...snorklerDialogues,

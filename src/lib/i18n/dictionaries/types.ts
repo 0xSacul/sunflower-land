@@ -119,6 +119,7 @@ export type GeneralTerms =
   | "maintenance"
   | "make.wish"
   | "making.wish"
+  | "marks"
   | "max"
   | "max.reached"
   | "minimum"
@@ -184,12 +185,15 @@ export type GeneralTerms =
   | "sell.all"
   | "sell.one"
   | "sell.ten"
+  | "sell.amount"
+  | "sell.inBulk"
   | "sell"
   | "session.expired"
   | "sfl/coins"
   | "share"
   | "skillPts"
   | "skills"
+  | "skipped"
   | "skipping"
   | "skip.order"
   | "sound.effects"
@@ -213,6 +217,7 @@ export type GeneralTerms =
   | "unlock.land"
   | "unlocking"
   | "unmute"
+  | "upcoming"
   | "use.craft"
   | "verify"
   | "version"
@@ -851,7 +856,16 @@ export type ChoresStart =
   | "chores.noChore"
   | "chores.newSeason"
   | "chores.choresFrozen"
-  | "chores.left";
+  | "kingdomChores.preparing"
+  | "kingdomChores.completed"
+  | "kingdomChores.noChores"
+  | "kingdomChores.noUpcoming"
+  | "kingdomChores.progress"
+  | "kingdomChores.nextSkip"
+  | "kingdomChores.skipWarning"
+  | "kingdomChores.completeActive"
+  | "kingdomChores.loading"
+  | "kingdomChores.reset";
 
 export type ChumDetails =
   | "chumDetails.gold"
@@ -887,7 +901,8 @@ export type ChumDetails =
   | "chumDetails.fatChicken"
   | "chumDetails.speedChicken"
   | "chumDetails.horseMackerel"
-  | "chumDetails.sunfish";
+  | "chumDetails.sunfish"
+  | "chumDetails.zebraFish";
 
 export type Community = "community.toast" | "community.url" | "comunity.Travel";
 
@@ -906,7 +921,8 @@ export type ConfirmSkill = "confirm.skillClaim";
 
 export type ConfirmationTerms =
   | "confirmation.sellCrops"
-  | "confirmation.buyCrops";
+  | "confirmation.buyCrops"
+  | "confirmation.enterAmount";
 
 export type Conversations =
   | "hank-intro.headline"
@@ -1510,6 +1526,14 @@ export type Factions =
   | "faction.emblemAirdrop"
   | "faction.emblemAirdrop.closes"
   // Kingdom
+  | "kingdom.noticeboard.one"
+  | "kingdom.noticeboard.two"
+  | "kingdom.noticeboard.three"
+  | "kingdom.noticeboard.four"
+  | "faction.noticeboard.one"
+  | "faction.noticeboard.two"
+  | "faction.noticeboard.three"
+  | "faction.noticeboard.four"
   | "faction.restrited.area"
   | "faction.not.pledged"
   | "faction.cost"
@@ -1524,6 +1548,7 @@ export type Factions =
   | "faction.kitchen.gatherResources"
   | "faction.kitchen.preparing"
   | "faction.kitchen.newRequests"
+  | "faction.pet.gatherResources"
   // Emblem Airdrop
   | "faction.claimEmblems.alreadyClaimed"
   | "faction.claimEmblems.emblemsEarned"
@@ -1552,7 +1577,18 @@ export type Factions =
   | "faction.shop.onlyFor"
   | "faction.shop.welcome"
   | "faction.noPrizeFound"
-  | "faction.goodLuck";
+  | "faction.goodLuck"
+  | "faction.boostsApplied"
+  | "faction.no.boostsApplied"
+
+  // Faction Pet
+  | "faction.pet.weeklyGoal"
+  | "faction.pet.hungry"
+  | "faction.pet.fed"
+  | "faction.pet.sleeping"
+  | "faction.pet.newRequests"
+  | "faction.pet.streak"
+  | "faction.pet.wakes.in";
 
 export type FactionShopDescription =
   | "description.factionShop.sunflorianThrone"
@@ -2020,6 +2056,13 @@ export type GuideCompost =
   | "guide.compost.useEggs"
   | "guide.compost.addEggs.confirmation";
 
+export type GuideFactionPet =
+  | "guide.factionPet.one"
+  | "guide.factionPet.two"
+  | "guide.factionPet.three"
+  | "guide.factionPet.four"
+  | "guide.factionPet.five";
+
 export type GuideTerms =
   | "guide.intro"
   | "gathering.guide.one"
@@ -2046,7 +2089,10 @@ export type GuideTerms =
   | "deliveries.guide.two"
   | "deliveries.intro"
   | "deliveries.new"
-  | "chores.intro"
+  | "chores.hank"
+  | "chores.hank.intro"
+  | "chores.kingdom"
+  | "chores.kingdom.intro"
   | "scavenger.guide.one"
   | "scavenger.guide.two"
   | "fruit.guide.one"
@@ -2508,15 +2554,6 @@ export type NPC_MESSAGE =
   | "npcMessages.corale.msg5"
   | "npcMessages.corale.msg6"
   | "npcMessages.corale.msg7"
-  //helly
-  | "npcMessages.shelly.msg1"
-  | "npcMessages.shelly.msg2"
-  | "npcMessages.shelly.msg3"
-  | "npcMessages.shelly.msg4"
-  | "npcMessages.shelly.msg5"
-  | "npcMessages.shelly.msg6"
-  | "npcMessages.shelly.msg7"
-  | "npcMessages.shelly.msg8"
   | "npcMessages.gambit.msg1"
   | "npcMessages.gambit.msg2"
   | "npcMessages.gambit.msg3"
@@ -3055,7 +3092,9 @@ export type Restock =
   | "restock.one.buck"
   | "restock.sure"
   | "restock.tooManySeeds"
-  | "seeds.reachingInventoryLimit";
+  | "seeds.reachingInventoryLimit"
+  | "crops.noCropsToSell"
+  | "seeds.plantingSpot.needed";
 
 export type RetreatTerms =
   | "retreatTerms.lookingForRareItems"
@@ -3158,26 +3197,6 @@ export type Share =
 export type SharkBumpkinDialogues =
   | "sharkBumpkin.dialogue.shhhh"
   | "sharkBumpkin.dialogue.scareGoblins";
-
-export type Shelly =
-  | "shelly.Dialogue.one"
-  | "shelly.Dialogue.two"
-  | "shelly.Dialogue.three"
-  | "shelly.Dialogue.four"
-  | "shelly.Dialogue.five"
-  | "shelly.Dialogue.letsgo";
-
-export type ShellyDialogue =
-  | "shellyPanelContent.tasksFrozen"
-  | "shellyPanelContent.canTrade"
-  | "shellyPanelContent.cannotTrade"
-  | "shellyPanelContent.swap"
-  | "krakenIntro.congrats"
-  | "krakenIntro.noMoreTentacles"
-  | "krakenIntro.gotIt"
-  | "krakenIntro.appetiteChanges"
-  | "krakenIntro.currentHunger"
-  | "krakenIntro.catchInstruction";
 
 export type ShopItems =
   | "betty.post.sale.one"
@@ -3581,7 +3600,21 @@ export type Leaderboard =
   | "leaderboard.initialising"
   | "leaderboard.topTen"
   | "leaderboard.yourPosition"
-  | "leaderboard.factionMembers";
+  | "leaderboard.factionMembers"
+  | "leaderboard.resultsPending"
+  | "leaderboard.champions"
+  | "leaderboard.congratulations"
+  | "leaderboard.position"
+  | "leaderboard.weeklyScore"
+  | "leaderboard.player"
+  | "leaderboard.score"
+  | "leaderboard.prizes"
+  | "leaderboard.faction.description"
+  | "leaderboard.faction.champion"
+  | "leaderboard.faction.championPrizes"
+  | "leaderboard.faction.bonusMarks"
+  | "leaderboard.faction.topPlayers"
+  | "leaderboard.faction.topPlayerPrizes";
 
 export type GameOptions =
   | "gameOptions.title"
@@ -3802,8 +3835,6 @@ export type TranslationKeys =
   | SeasonTerms
   | Share
   | SharkBumpkinDialogues
-  | Shelly
-  | ShellyDialogue
   | ShopItems
   | ShowingFarm
   | SnorklerDialogues
@@ -3837,4 +3868,5 @@ export type TranslationKeys =
   | Trading
   | RestrictionReason
   | Leaderboard
-  | EasterEggKeys;
+  | EasterEggKeys
+  | GuideFactionPet;

@@ -1,4 +1,5 @@
 import Decimal from "decimal.js-light";
+import { getFactionRankBoostAmount } from "features/game/lib/factionRanks";
 import {
   START_DATE,
   calculatePoints,
@@ -6,28 +7,64 @@ import {
   getFactionWeek,
   getFactionWeekday,
 } from "features/game/lib/factions";
+import { isWearableActive } from "features/game/lib/wearables";
+import { BoostType, BoostValue } from "features/game/types/boosts";
 import { CONSUMABLES } from "features/game/types/consumables";
 import { FactionPetRequest, GameState } from "features/game/types/game";
 import cloneDeep from "lodash.clonedeep";
 
-enum DifficultyIndex {
+const isPawShieldActive = (game: GameState) =>
+  isWearableActive({ game, name: "Paw Shield" });
+
+export const getKingdomPetBoost = (
+  game: GameState,
+  marks: number,
+): [number, Partial<Record<BoostType, BoostValue>>] => {
+  const [wearablesBoost, wearablesLabels] = getFactionWearableBoostAmount(
+    game,
+    marks,
+  );
+  const [rankBoost, factionLabels] = getFactionRankBoostAmount(game, marks);
+
+  const boosts: Partial<Record<BoostType, BoostValue>> = {
+    ...wearablesLabels,
+    ...factionLabels,
+  };
+
+  let pawShieldBoost = 0;
+  if (isPawShieldActive(game)) {
+    pawShieldBoost = marks * 0.25;
+    boosts["Paw Shield"] = `+${0.25 * 100}%`;
+  }
+
+  return [wearablesBoost + rankBoost + pawShieldBoost, boosts];
+};
+
+export enum DifficultyIndex {
   EASY = 0,
   MEDIUM = 1,
   HARD = 2,
 }
 
-const REWARDS_KEY: Record<DifficultyIndex, number> = {
+export const PET_FED_REWARDS_KEY: Record<DifficultyIndex, number> = {
   [DifficultyIndex.EASY]: 4,
   [DifficultyIndex.MEDIUM]: 8,
   [DifficultyIndex.HARD]: 12,
 };
 
-const getTotalXPForRequest = (request: FactionPetRequest) => {
+export const getTotalXPForRequest = (
+  game: GameState,
+  request: FactionPetRequest,
+) => {
   const { food, quantity } = request;
 
-  const foodXP = CONSUMABLES[food].experience;
+  let foodXP = CONSUMABLES[food].experience;
 
-  return foodXP * quantity.toNumber();
+  if (isPawShieldActive(game)) {
+    foodXP += foodXP * 0.25;
+  }
+
+  return foodXP * quantity;
 };
 
 export type FeedFactionPetAction = {
@@ -77,20 +114,20 @@ export function feedFactionPet({
 
   stateCopy.inventory[request.food] = foodBalance.minus(request.quantity);
 
-  const totalXP = getTotalXPForRequest(request);
+  const totalXP = getTotalXPForRequest(stateCopy, request);
   const leaderboard = stateCopy.faction.history[week] ?? {
     score: 0,
     petXP: 0,
   };
 
   const marksBalance = stateCopy.inventory.Mark ?? new Decimal(0);
-  const fulfilled = request.dailyFulfilled[day] ?? 0;
+  const fulfilled = request.dailyFulfilled?.[day] ?? 0;
 
   const baseReward = calculatePoints(
     fulfilled,
-    REWARDS_KEY[action.requestIndex],
+    PET_FED_REWARDS_KEY[action.requestIndex],
   );
-  const boostAmount = getFactionWearableBoostAmount(stateCopy, baseReward);
+  const boostAmount = getKingdomPetBoost(stateCopy, baseReward)[0];
   const totalAmount = baseReward + boostAmount;
 
   stateCopy.inventory.Mark = marksBalance.add(totalAmount);

@@ -7,7 +7,6 @@ import {
   SpeakingText,
 } from "features/game/components/SpeakingModal";
 import { NPC_WEARABLES } from "lib/npcs";
-import { KrakenIntro } from "./npcs/Shelly";
 import { AuctionHouseModal } from "./AuctionHouseModal";
 import { BoatModal } from "./BoatModal";
 import { PlazaBanner } from "./PlazaBanner";
@@ -33,8 +32,14 @@ import { Label } from "components/ui/Label";
 import { FestivalOfColors } from "./portals/FestivalOfColors";
 import { FactionWeeklyPrize } from "./factions/weeklyPrize/FactionWeeklyPrize";
 import { FactionWelcome, hasReadFactionIntro } from "./factions/FactionWelcome";
+import { Champions } from "./factions/Champions";
+import { KingdomNoticeboard } from "./kingdom/KingdomNoticeboard";
+import { FactionNoticeboard } from "./factions/FactionNoticeboard";
 
 type InteractableName =
+  | "faction_noticeboard"
+  | "kingdom_noticeboard"
+  | "champions"
   | "faction_intro"
   | "vip_chest"
   | "weekly_faction_prize"
@@ -182,6 +187,15 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
       <Modal show={interactable === "faction_intro"} onHide={closeModal}>
         <FactionWelcome onClose={closeModal} />
       </Modal>
+      <Modal show={interactable === "kingdom_noticeboard"} onHide={closeModal}>
+        <KingdomNoticeboard onClose={closeModal} />
+      </Modal>
+      <Modal show={interactable === "faction_noticeboard"} onHide={closeModal}>
+        <FactionNoticeboard onClose={closeModal} />
+      </Modal>
+      <Modal show={interactable === "champions"} onHide={closeModal}>
+        <Champions onClose={closeModal} />
+      </Modal>
       <Modal show={interactable === "donations"} onHide={closeModal}>
         <CloseButtonPanel title={t("enjoying.event")} onClose={closeModal}>
           <CommunityDonations />
@@ -204,9 +218,6 @@ export const InteractableModals: React.FC<Props> = ({ id, scene }) => {
             },
           ]}
         />
-      </Modal>
-      <Modal show={interactable === "kraken"} onHide={closeModal}>
-        <KrakenIntro onClose={closeModal} />
       </Modal>
       <Modal show={interactable === "lazy_bud"} onHide={closeModal}>
         <SpeakingModal

@@ -24,6 +24,8 @@ export const SUNFLORIAN_HOUSE_NPCS: NPCBumpkin[] = [
   },
 ];
 
+export type PetStateSprite = "pet_sleeping" | "pet_hungry" | "pet_happy";
+
 export class SunflorianHouseScene extends FactionHouseScene {
   sceneId: SceneId = "sunflorian_house";
 
@@ -39,14 +41,9 @@ export class SunflorianHouseScene extends FactionHouseScene {
     super.preload();
 
     this.load.image("pet_sleeping", "world/sunflorians_pet_sleeping.webp");
-    this.load.image("pet_satiated", "world/sunflorians_pet_happy.webp");
+    this.load.image("pet_happy", "world/sunflorians_pet_happy.webp");
     this.load.image("pet_hungry", "world/sunflorians_pet_hungry.webp");
-  }
-
-  setUpPet() {
-    // check game state to determine the pet status
-    // render the correct pet
-    this.add.image(243, 220, "pet_hungry");
+    this.makeFetchRequest();
   }
 
   create() {
@@ -56,13 +53,8 @@ export class SunflorianHouseScene extends FactionHouseScene {
     });
 
     this.initialiseNPCs(SUNFLORIAN_HOUSE_NPCS);
-
     this.setupPrize({ x: 240, y: 384 });
-    // this.setUpPet();
-  }
-
-  update() {
-    // check and update the pet image based on the pet status
-    super.update();
+    this.setUpPet();
+    this.setupNotice({ x: 312, y: 226 });
   }
 }

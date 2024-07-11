@@ -15,13 +15,6 @@ const state: GameState = {
     name: "goblins",
     pledgedAt: 0,
     points: 0,
-    donated: {
-      daily: {
-        sfl: {},
-        resources: {},
-      },
-      totalItems: {},
-    },
     history: {},
   },
 };
@@ -73,21 +66,21 @@ describe("feedFactionPet", () => {
           faction: {
             ...state.faction,
             pet: {
-              week: 1,
+              week: "2024/06/24",
               requests: [
                 {
                   food: "Pumpkin Soup",
-                  quantity: new Decimal(2),
+                  quantity: 2,
                   dailyFulfilled: {},
                 },
                 {
                   food: "Sunflower Cake",
-                  quantity: new Decimal(1),
+                  quantity: 1,
                   dailyFulfilled: {},
                 },
                 {
                   food: "Carrot Cake",
-                  quantity: new Decimal(1),
+                  quantity: 1,
                   dailyFulfilled: {},
                 },
               ],
@@ -109,21 +102,21 @@ describe("feedFactionPet", () => {
           faction: {
             ...state.faction,
             pet: {
-              week: 1,
+              week: "2024/06/24",
               requests: [
                 {
                   food: "Pumpkin Soup",
-                  quantity: new Decimal(2),
+                  quantity: 2,
                   dailyFulfilled: {},
                 },
                 {
                   food: "Sunflower Cake",
-                  quantity: new Decimal(1),
+                  quantity: 1,
                   dailyFulfilled: {},
                 },
                 {
                   food: "Carrot Cake",
-                  quantity: new Decimal(1),
+                  quantity: 1,
                   dailyFulfilled: {},
                 },
               ],
@@ -146,21 +139,21 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {},
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -186,21 +179,21 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {},
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -228,21 +221,21 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {},
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -270,23 +263,23 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {
                   [day]: 1,
                 },
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -314,23 +307,23 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {
                   [day]: 2,
                 },
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -356,21 +349,21 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {},
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -395,21 +388,21 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {},
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -441,21 +434,21 @@ describe("feedFactionPet", () => {
         faction: {
           ...state.faction,
           pet: {
-            week: 1,
+            week: "2024/06/24",
             requests: [
               {
                 food: "Pumpkin Soup",
-                quantity: new Decimal(2),
+                quantity: 2,
                 dailyFulfilled: {},
               },
               {
                 food: "Sunflower Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
               {
                 food: "Carrot Cake",
-                quantity: new Decimal(1),
+                quantity: 1,
                 dailyFulfilled: {},
               },
             ],
@@ -470,5 +463,200 @@ describe("feedFactionPet", () => {
     });
 
     expect(result.inventory["Mark"]?.toNumber()).toBe(12.6);
+  });
+
+  it("rewards 400% bonus marks if top rank in faction", () => {
+    const result = feedFactionPet({
+      state: {
+        ...state,
+        inventory: {
+          "Carrot Cake": new Decimal(1),
+          Mark: new Decimal(0),
+          "Goblin Emblem": new Decimal(100_000),
+        },
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+          },
+        },
+        faction: {
+          ...state.faction,
+          pet: {
+            week,
+            requests: [
+              {
+                food: "Pumpkin Soup",
+                quantity: new Decimal(2),
+                dailyFulfilled: {},
+              },
+              {
+                food: "Sunflower Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+              {
+                food: "Carrot Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+            ],
+          },
+          history: {
+            [week]: { petXP: 0, score: 0 },
+          },
+        } as Faction,
+      },
+      createdAt: startTime,
+      action: { type: "factionPet.fed", requestIndex: 2 },
+    });
+
+    expect(result.inventory["Mark"]?.toNumber()).toBe(12 * 5);
+  });
+
+  it("rewards 405% bonus marks if top rank and wearing faction shoes", () => {
+    const result = feedFactionPet({
+      state: {
+        ...state,
+        inventory: {
+          "Carrot Cake": new Decimal(1),
+          Mark: new Decimal(0),
+          "Goblin Emblem": new Decimal(100_000),
+        },
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            shoes: "Goblin Sabatons",
+          },
+        },
+        faction: {
+          ...state.faction,
+          pet: {
+            week,
+            requests: [
+              {
+                food: "Pumpkin Soup",
+                quantity: new Decimal(2),
+                dailyFulfilled: {},
+              },
+              {
+                food: "Sunflower Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+              {
+                food: "Carrot Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+            ],
+          },
+          history: {
+            [week]: { petXP: 0, score: 0 },
+          },
+        } as Faction,
+      },
+      createdAt: startTime,
+      action: { type: "factionPet.fed", requestIndex: 2 },
+    });
+
+    expect(result.inventory["Mark"]?.toNumber()).toBeCloseTo(12 * 5.05);
+  });
+
+  it("adds 25% marks when Paw Shield is active", () => {
+    const result = feedFactionPet({
+      state: {
+        ...state,
+        inventory: { "Carrot Cake": new Decimal(1), Mark: new Decimal(0) },
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            secondaryTool: "Paw Shield",
+          },
+        },
+        faction: {
+          ...state.faction,
+          pet: {
+            week,
+            requests: [
+              {
+                food: "Pumpkin Soup",
+                quantity: new Decimal(2),
+                dailyFulfilled: {},
+              },
+              {
+                food: "Sunflower Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+              {
+                food: "Carrot Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+            ],
+          },
+          history: {
+            [week]: { petXP: 0, score: 0 },
+          },
+        } as Faction,
+      },
+      createdAt: startTime,
+      action: { type: "factionPet.fed", requestIndex: 2 },
+    });
+
+    expect(result.inventory["Mark"]?.toNumber()).toBe(12 * 1.25);
+    expect(result.faction?.history[week]?.score).toBe(12 * 1.25);
+  });
+
+  it("adds 25% XP to pet when Paw Shield is active", () => {
+    const result = feedFactionPet({
+      state: {
+        ...state,
+        inventory: { "Pumpkin Soup": new Decimal(3) },
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            secondaryTool: "Paw Shield",
+          },
+        },
+        faction: {
+          ...state.faction,
+          pet: {
+            week,
+            requests: [
+              {
+                food: "Pumpkin Soup",
+                quantity: new Decimal(2),
+                dailyFulfilled: {},
+              },
+              {
+                food: "Sunflower Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+              {
+                food: "Carrot Cake",
+                quantity: 1,
+                dailyFulfilled: {},
+              },
+            ],
+          },
+          history: {
+            [week]: { petXP: 0, score: 0 },
+          },
+        } as Faction,
+      },
+      action: { type: "factionPet.fed", requestIndex: 0 },
+      createdAt: startTime,
+    });
+
+    const pumpkinSoupXP = CONSUMABLES["Pumpkin Soup"].experience;
+    const totalXPForRequest = pumpkinSoupXP * 2;
+
+    expect(result.faction?.history[week]?.petXP).toBe(totalXPForRequest * 1.25);
   });
 });

@@ -54,6 +54,7 @@ import {
   FishingBait,
   FishingConditions,
   MarineMarvelName,
+  OldFishName,
 } from "./fishing";
 import { Coordinates } from "../expansion/components/MapPlacement";
 import { MinigameName } from "./minigames";
@@ -62,7 +63,7 @@ import { translate } from "lib/i18n/translate";
 import { SpecialEvents } from "./specialEvents";
 import { TradeableName } from "../actions/sellMarketResource";
 import { MinigameCurrency } from "../events/minigames/purchaseMinigameItem";
-import { FactionShopCollectibleName } from "./factionShop";
+import { FactionShopCollectibleName, FactionShopFoodName } from "./factionShop";
 
 export type Reward = {
   coins?: number;
@@ -377,11 +378,13 @@ export type InventoryItemName =
   | CompostName
   | FishName
   | MarineMarvelName
+  | OldFishName
   | FlowerName
   | MegaStoreCollectibleName
   | FactionBanner
   | WorkbenchToolName
-  | FactionShopCollectibleName;
+  | FactionShopCollectibleName
+  | FactionShopFoodName;
 
 export type Inventory = Partial<Record<InventoryItemName, Decimal>>;
 
@@ -645,11 +648,6 @@ export type WitchesEve = {
   maze: MazeAttempts;
 };
 
-export type CatchTheKraken = {
-  weeklyCatches: Partial<Record<SeasonWeek, number>>;
-  hunger: InventoryItemName;
-};
-
 export type FlowerShop = {
   week: number;
   weeklyFlower: FlowerName;
@@ -795,27 +793,25 @@ export type ChoreV2 = {
 };
 
 export type KingdomChores = {
-  chores: Record<number, KingdomChore>;
-  week: number;
+  chores: KingdomChore[];
   choresCompleted: number;
   choresSkipped: number;
-  weeklyChoresCompleted: number;
-  weeklyChoresSkipped: number;
-  weeklyChores: number;
+  skipAvailableAt?: number;
+  resetsAt?: number;
 };
 
 export type KingdomChore = {
   activity: BumpkinActivityName;
   description: string;
-  resource: InventoryItemName;
-  createdAt: number;
-  completedAt?: number;
+  image: InventoryItemName;
   requirement: number;
-  bumpkinId: number;
-  startCount: number;
   marks: number;
-  active?: boolean;
-};
+  completedAt?: number;
+  skippedAt?: number;
+} & (
+  | { startedAt: number; startCount: number }
+  | { startedAt?: never; startCount?: never }
+);
 
 export type SeasonWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
 
@@ -935,7 +931,7 @@ export type ShopItemBase = {
   currency: Currency;
   price: Decimal;
   limit: number | null;
-  type: "wearable" | "collectible";
+  type: "wearable" | "collectible" | "food";
 };
 
 export type WearablesItem = {
@@ -1020,14 +1016,14 @@ export type ResourceRequest = {
 
 export type FactionPetRequest = {
   food: ConsumableName;
-  quantity: Decimal;
+  quantity: number;
   dailyFulfilled: {
     [day: number]: number;
   };
 };
 
-type FactionPet = {
-  week: number;
+export type FactionPet = {
+  week: string;
   requests: FactionPetRequest[];
 };
 
@@ -1036,24 +1032,17 @@ type FactionKitchen = {
   requests: ResourceRequest[];
 };
 
-export type FactionDonated = {
-  daily: {
-    sfl: {
-      day?: number;
-      amount?: number;
-    };
-    resources: {
-      day?: number;
-      amount?: number;
-    };
-  };
-  totalItems: Partial<Record<InventoryItemName | "sfl", number>>;
-};
-
 export type FactionPrize = {
   coins: number;
   sfl: number;
   items: Partial<Record<InventoryItemName, number>>;
+};
+
+export type CollectivePet = {
+  totalXP: number;
+  goalXP: number;
+  goalReached: boolean;
+  streak: number;
 };
 
 export type FactionHistory = {
@@ -1064,14 +1053,15 @@ export type FactionHistory = {
     reward?: FactionPrize;
     claimedAt?: number;
   };
+
+  collectivePet?: CollectivePet;
 };
 
 export type Faction = {
   name: FactionName;
   pledgedAt: number;
   emblemsClaimedAt?: number;
-  points: number;
-  donated: FactionDonated;
+  points?: number;
   kitchen?: FactionKitchen;
   pet?: FactionPet;
   history: Record<string, FactionHistory>;
@@ -1203,9 +1193,8 @@ export interface GameState {
     bid?: Bid;
   };
   chores?: ChoresV2;
-  kingdomChores?: KingdomChores;
+  kingdomChores: KingdomChores;
   mushrooms: Mushrooms;
-  catchTheKraken: CatchTheKraken;
   potionHouse?: PotionHouse;
 
   trades: {

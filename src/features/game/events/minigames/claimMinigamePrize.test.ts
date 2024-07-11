@@ -182,16 +182,6 @@ describe("minigame.prizeClaimed", () => {
           name: "bumpkins",
           pledgedAt: 10002000,
           points: 0,
-          donated: {
-            daily: {
-              resources: {},
-              sfl: {
-                amount: 0,
-                day: 0,
-              },
-            },
-            totalItems: {},
-          },
           history: {},
         },
         minigames: {
@@ -340,5 +330,59 @@ describe("minigame.prizeClaimed", () => {
         date.toISOString().substring(0, 10)
       ].prizeClaimedAt,
     ).toEqual(date.getTime());
+  });
+
+  it("increases weekly kingdom score", () => {
+    const date = new Date("2024-07-05T00:00:00");
+
+    const state = claimMinigamePrize({
+      state: {
+        ...TEST_FARM,
+        inventory: {
+          Mark: new Decimal(10),
+        },
+        faction: {
+          name: "bumpkins",
+          pledgedAt: 10002000,
+          points: 0,
+          history: {},
+        },
+        minigames: {
+          games: {
+            "chicken-rescue": {
+              highscore: 30,
+              history: {
+                [date.toISOString().substring(0, 10)]: {
+                  attempts: 2,
+                  highscore: 30,
+                },
+              },
+            },
+          },
+          prizes: {
+            "chicken-rescue": {
+              coins: 100,
+              startAt: date.getTime() - 100,
+              endAt: date.getTime() + 1000,
+              items: {
+                Mark: 20,
+              },
+              wearables: {},
+              score: 20,
+            },
+          },
+        },
+      },
+      action: {
+        id: "chicken-rescue",
+        type: "minigame.prizeClaimed",
+      },
+      createdAt: date.getTime(),
+    });
+
+    expect(state.faction?.history["2024-07-01"]).toEqual({
+      score: 20,
+      petXP: 0,
+    });
   });
 });

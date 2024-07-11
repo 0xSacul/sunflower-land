@@ -1,10 +1,13 @@
 import Decimal from "decimal.js-light";
+import { getFactionRankBoostAmount } from "features/game/lib/factionRanks";
 import {
   START_DATE,
+  calculatePoints,
   getFactionWearableBoostAmount,
   getFactionWeek,
   getFactionWeekday,
 } from "features/game/lib/factions";
+import { BoostType, BoostValue } from "features/game/types/boosts";
 import { GameState } from "features/game/types/game";
 import cloneDeep from "lodash.clonedeep";
 
@@ -17,6 +20,19 @@ export enum DELIVER_FACTION_KITCHEN_ERRORS {
 }
 
 export const BASE_POINTS = 20;
+
+export const getKingdomKitchenBoost = (
+  game: GameState,
+  marks: number,
+): [number, Partial<Record<BoostType, BoostValue>>] => {
+  const [wearablesBoost, wearablesLabels] = getFactionWearableBoostAmount(
+    game,
+    marks,
+  );
+  const [rankBoost, rankLabels] = getFactionRankBoostAmount(game, marks);
+
+  return [wearablesBoost + rankBoost, { ...wearablesLabels, ...rankLabels }];
+};
 
 export type DeliverFactionKitchenAction = {
   type: "factionKitchen.delivered";
@@ -71,8 +87,8 @@ export function deliverFactionKitchen({
   const marksBalance = inventory["Mark"] ?? new Decimal(0);
   const fulfilledToday = request.dailyFulfilled[day] ?? 0;
 
-  const points = BASE_POINTS - fulfilledToday * 2;
-  const boostPoints = getFactionWearableBoostAmount(stateCopy, points);
+  const points = calculatePoints(fulfilledToday, BASE_POINTS);
+  const boostPoints = getKingdomKitchenBoost(stateCopy, points)[0];
   const totalPoints = points + boostPoints;
 
   const leaderboard = faction.history[week] ?? {
@@ -80,19 +96,11 @@ export function deliverFactionKitchen({
     petXP: 0,
   };
 
-  if (totalPoints < 2) {
-    faction.history[week] = {
-      ...leaderboard,
-      score: leaderboard.score + 1,
-    };
-    inventory["Mark"] = marksBalance.plus(1);
-  } else {
-    faction.history[week] = {
-      ...leaderboard,
-      score: leaderboard.score + totalPoints,
-    };
-    inventory["Mark"] = marksBalance.plus(totalPoints);
-  }
+  faction.history[week] = {
+    ...leaderboard,
+    score: leaderboard.score + totalPoints,
+  };
+  inventory["Mark"] = marksBalance.plus(totalPoints);
 
   request.dailyFulfilled[day] = fulfilledToday + 1;
 

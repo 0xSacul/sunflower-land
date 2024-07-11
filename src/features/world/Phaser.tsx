@@ -52,6 +52,9 @@ import { SunflorianHouseScene } from "./scenes/SunflorianHouseScene";
 import { Loading } from "features/auth/components";
 import { NightshadeHouseScene } from "./scenes/NightshadeHouseScene";
 import { BumpkinHouseScene } from "./scenes/BumpkinHouseScene";
+import { ExampleAnimationScene } from "./scenes/examples/AnimationScene";
+import { ExampleRPGScene } from "./scenes/examples/RPGScene";
+import { EventObject } from "xstate";
 
 const _roomState = (state: MachineState) => state.value;
 const _scene = (state: MachineState) => state.context.sceneId;
@@ -131,6 +134,8 @@ export const PhaserComponent: React.FC<Props> = ({
           BumpkinHouseScene,
         ]
       : []),
+    ExampleAnimationScene,
+    ExampleRPGScene,
   ];
 
   useEffect(() => {
@@ -220,8 +225,9 @@ export const PhaserComponent: React.FC<Props> = ({
     game.current.registry.set("gameService", gameService);
     game.current.registry.set("id", gameService.state.context.farmId);
     game.current.registry.set("initialScene", scene);
+    game.current.registry.set("navigate", navigate);
 
-    gameService.onEvent((e) => {
+    const listener = (e: EventObject) => {
       if (e.type === "bumpkin.equipped") {
         mmoService.state.context.server?.send(0, {
           clothing: (e as EquipBumpkinAction).equipment,
@@ -232,12 +238,15 @@ export const PhaserComponent: React.FC<Props> = ({
           username: (e as UpdateUsernameEvent).username,
         });
       }
-    });
+    };
+
+    gameService.onEvent(listener);
 
     setLoaded(true);
 
     return () => {
       game.current?.destroy(true);
+      gameService.off(listener);
     };
   }, []);
 

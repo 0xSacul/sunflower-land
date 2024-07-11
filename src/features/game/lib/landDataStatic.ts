@@ -451,7 +451,6 @@ export const STATIC_OFFLINE_FARM: GameState = {
     "Mashed Potato": new Decimal(1),
     "Treasure Key": new Decimal(1),
     "Hungry Hare": new Decimal(1),
-    "Farmhand Coupon": new Decimal(1),
     "White Festive Fox": new Decimal(3),
     "Red Pansy": new Decimal(3),
     "White Pansy": new Decimal(3),
@@ -766,10 +765,10 @@ export const STATIC_OFFLINE_FARM: GameState = {
     },
   },
   buildings: {
-    "Town Center": [
+    Manor: [
       {
         coordinates: {
-          x: -2,
+          x: 2,
           y: -2,
         },
         createdAt: 0,
@@ -906,10 +905,6 @@ export const STATIC_OFFLINE_FARM: GameState = {
   },
   milestones: {
     "Advanced Angler": 1,
-  },
-  catchTheKraken: {
-    hunger: "Iron",
-    weeklyCatches: {},
   },
   megastore: {
     available: makeMegaStoreAvailableDates(),
@@ -1338,18 +1333,31 @@ export const STATIC_OFFLINE_FARM: GameState = {
     amount: new Decimal(1000),
   },
   faction: {
-    name: "goblins",
+    name: "sunflorians",
     pledgedAt: 0,
     points: 100,
-    donated: {
-      daily: {
-        sfl: {},
-        resources: {},
-      },
-      totalItems: {},
+    pet: {
+      week: "2024/07/08",
+      requests: [
+        {
+          food: "Pumpkin Soup",
+          quantity: 2,
+          dailyFulfilled: {},
+        },
+        {
+          food: "Sunflower Cake",
+          quantity: 1,
+          dailyFulfilled: {},
+        },
+        {
+          food: "Carrot Cake",
+          quantity: 1,
+          dailyFulfilled: {},
+        },
+      ],
     },
     history: {
-      "2024-06-24": {
+      "2024-07-08": {
         score: 200,
         petXP: 0,
         results: {
@@ -1361,6 +1369,12 @@ export const STATIC_OFFLINE_FARM: GameState = {
               Mark: 100,
             },
           },
+        },
+        collectivePet: {
+          totalXP: 3000,
+          goalReached: true,
+          goalXP: 2000,
+          streak: 0,
         },
       },
     },

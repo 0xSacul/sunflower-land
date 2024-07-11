@@ -517,16 +517,17 @@ export const INITIAL_FARM: GameState = {
   },
   farmActivity: {},
   milestones: {},
-  catchTheKraken: {
-    hunger: "Sunflower",
-    weeklyCatches: {},
-  },
   specialEvents: {
     history: {},
     current: {},
   },
   goblinMarket: {
     resources: {},
+  },
+  kingdomChores: {
+    chores: [],
+    choresCompleted: 0,
+    choresSkipped: 0,
   },
 };
 
@@ -559,6 +560,11 @@ export const TEST_FARM: GameState = {
     games: {},
     prizes: {},
   },
+  kingdomChores: {
+    chores: [],
+    choresCompleted: 0,
+    choresSkipped: 0,
+  },
   stock: INITIAL_STOCK(),
   chickens: {},
   farmActivity: {},
@@ -571,10 +577,6 @@ export const TEST_FARM: GameState = {
     wharf: {},
     beach: {},
     dailyAttempts: {},
-  },
-  catchTheKraken: {
-    hunger: "Sunflower",
-    weeklyCatches: {},
   },
   greenhouse: {
     pots: {},
@@ -841,6 +843,11 @@ export const EMPTY: GameState = {
   farmHands: {
     bumpkins: {},
   },
+  kingdomChores: {
+    chores: [],
+    choresCompleted: 0,
+    choresSkipped: 0,
+  },
   greenhouse: {
     pots: {},
     oil: 0,
@@ -891,10 +898,6 @@ export const EMPTY: GameState = {
   mushrooms: {
     spawnedAt: 0,
     mushrooms: {},
-  },
-  catchTheKraken: {
-    hunger: "Sunflower",
-    weeklyCatches: {},
   },
   megastore: {
     available: makeMegaStoreAvailableDates(),

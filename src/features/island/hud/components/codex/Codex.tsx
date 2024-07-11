@@ -25,13 +25,10 @@ import { useSound } from "lib/utils/hooks/useSound";
 import trophy from "assets/icons/trophy.png";
 import factions from "assets/icons/factions.webp";
 import chores from "assets/icons/chores.webp";
-import factionMark from "assets/icons/faction_mark.webp";
 import { TicketsLeaderboard } from "./pages/TicketsLeaderboard";
 import { Leaderboards } from "features/game/expansion/components/leaderboard/actions/cache";
 import { fetchLeaderboardData } from "features/game/expansion/components/leaderboard/actions/leaderboard";
-import { hasFeatureAccess } from "lib/flags";
-import { FactionsLeaderboard } from "./pages/FactionsLeaderboard";
-import { MarksLeaderboard } from "./pages/MarksLeaderboard";
+import { FactionLeaderboard } from "./pages/FactionLeaderboard";
 
 interface Props {
   show: boolean;
@@ -57,6 +54,7 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
 
   useEffect(() => {
     if (!show) return;
+    gameService.send("SAVE");
 
     const fetchLeaderboards = async () => {
       try {
@@ -104,6 +102,11 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
     (chore) => !chore.completedAt,
   ).length;
 
+  const inCompleteKingdomChores =
+    state.kingdomChores?.chores.filter(
+      (chore) => chore.startedAt && !chore.completedAt && !chore.skippedAt,
+    ).length ?? 0;
+
   const categories: CodexCategory[] = [
     {
       name: "Deliveries",
@@ -113,7 +116,7 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
     {
       name: "Chores",
       icon: chores,
-      count: incompleteChores,
+      count: incompleteChores + inCompleteKingdomChores,
     },
     {
       name: "Fish",
@@ -134,17 +137,8 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
     ...(state.faction
       ? [
           {
-            name: "Factions" as const,
-            icon: factions,
-            count: 0,
-          },
-        ]
-      : []),
-    ...(hasFeatureAccess(state, "MARKS_LEADERBOARD")
-      ? [
-          {
             name: "Marks" as const,
-            icon: factionMark,
+            icon: factions,
             count: 0,
           },
         ]
@@ -233,31 +227,16 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
               >
                 <TicketsLeaderboard
                   id={id}
-                  isLoading={data === undefined}
+                  isLoading={data?.tickets === undefined}
                   data={data?.tickets ?? null}
                 />
               </InnerPanel>
             )}
+
             {currentTab === 5 && state.faction && (
-              <InnerPanel
-                className={classNames(
-                  "flex flex-col h-full overflow-hidden overflow-y-auto scrollable",
-                )}
-              >
-                <FactionsLeaderboard
-                  id={id}
-                  faction={state.faction.name}
-                  isLoading={data === undefined}
-                  data={data?.emblems?.emblems ?? null}
-                  lastUpdated={data?.kingdom.lastUpdated ?? null}
-                />
-              </InnerPanel>
-            )}
-            {currentTab === 6 && state.faction && (
-              <MarksLeaderboard
-                emblemLeaderboard={data?.emblems ?? null}
-                marksLeaderboard={data?.kingdom ?? null}
-                isLoading={data === undefined}
+              <FactionLeaderboard
+                leaderboard={data?.kingdom ?? null}
+                isLoading={data?.kingdom === undefined}
                 playerId={id}
                 faction={state.faction.name}
               />
