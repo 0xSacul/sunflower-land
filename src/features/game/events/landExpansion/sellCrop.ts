@@ -22,18 +22,23 @@ export type SellCropAction = {
 };
 
 export const SELLABLE = {
-  ...CROPS(),
+  ...CROPS,
   ...FRUIT(),
-  ...GREENHOUSE_CROPS(),
+  ...GREENHOUSE_CROPS,
   ...GREENHOUSE_FRUIT(),
 };
 
 type Options = {
   state: GameState;
   action: SellCropAction;
+  createdAt?: number;
 };
 
-export function sellCrop({ state, action }: Options): GameState {
+export function sellCrop({
+  state,
+  action,
+  createdAt = Date.now(),
+}: Options): GameState {
   const game = cloneDeep(state);
 
   const { bumpkin } = game;
@@ -62,6 +67,7 @@ export function sellCrop({ state, action }: Options): GameState {
   const price = getSellPrice({
     item: sellables,
     game,
+    now: new Date(createdAt),
   });
 
   const coinsEarned = price * action.amount;

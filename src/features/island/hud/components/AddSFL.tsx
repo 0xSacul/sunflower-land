@@ -2,12 +2,12 @@ import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import classNames from "classnames";
 import token from "assets/icons/sfl.webp";
 
-import matic from "assets/icons/polygon-token.png";
+import { SUNNYSIDE } from "assets/sunnyside";
 import { Button } from "components/ui/Button";
 import { wallet } from "lib/blockchain/wallet";
 import { fromWei, toBN, toWei } from "web3-utils";
 import Decimal from "decimal.js-light";
-import { setPrecision } from "lib/utils/formatNumber";
+import { formatNumber } from "lib/utils/formatNumber";
 import { Context } from "features/game/GameProvider";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { Loading } from "features/auth/components";
@@ -82,9 +82,9 @@ export const AddSFL: React.FC = () => {
   };
 
   const maticBalString = fromWei(toBN(maticBalance.toString()));
-  const formattedMaticBalance = setPrecision(
-    new Decimal(maticBalString),
-  ).toString();
+  const formattedMaticBalance = formatNumber(new Decimal(maticBalString), {
+    decimalPlaces: 4,
+  });
 
   const amountGreaterThanBalance = toBN(toWei(maticAmount.toString())).gt(
     toBN(maticBalance.toString()),
@@ -123,7 +123,11 @@ export const AddSFL: React.FC = () => {
               </span>
             </div>
             <div className="w-[10%] flex self-center justify-center">
-              <img src={matic} alt="selected item" className="w-6" />
+              <img
+                src={SUNNYSIDE.icons.polygonIcon}
+                alt="selected item"
+                className="w-6"
+              />
             </div>
           </div>
           <div className="relative">
@@ -152,7 +156,7 @@ export const AddSFL: React.FC = () => {
             {!!amountOutMin && (
               <p className="text-xxs">
                 {t("addSFL.minimumReceived")}
-                {setPrecision(new Decimal(amountOutMin)).toNumber()}
+                {formatNumber(amountOutMin, { decimalPlaces: 4 })}
               </p>
             )}
           </div>

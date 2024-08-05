@@ -3,12 +3,13 @@ import { getSellPrice } from "./boosts";
 import { TEST_FARM } from "features/game/lib/constants";
 import { CROPS } from "features/game/types/crops";
 import Decimal from "decimal.js-light";
+import { FRUIT } from "features/game/types/fruits";
 
 describe("boosts", () => {
   it("applies crop shortage price", () => {
     expect(
       getSellPrice({
-        item: CROPS().Sunflower,
+        item: CROPS.Sunflower,
         game: {
           ...TEST_FARM,
           inventory: { "Basic Land": new Decimal(3) },
@@ -16,14 +17,14 @@ describe("boosts", () => {
         },
         now: new Date(),
       }),
-    ).toEqual(CROPS().Sunflower.sellPrice * 2);
+    ).toEqual(CROPS.Sunflower.sellPrice * 2);
   });
 
   it("removes crop shortage price after 2 hours", () => {
     const now = new Date();
     expect(
       getSellPrice({
-        item: CROPS().Sunflower,
+        item: CROPS.Sunflower,
         game: {
           ...TEST_FARM,
           inventory: { "Basic Land": new Decimal(3) },
@@ -32,6 +33,60 @@ describe("boosts", () => {
         },
         now,
       }),
-    ).toEqual(CROPS().Sunflower.sellPrice);
+    ).toEqual(CROPS.Sunflower.sellPrice);
+  });
+
+  it("applies special event pricing", () => {
+    expect(
+      getSellPrice({
+        item: FRUIT().Tomato,
+        game: {
+          ...TEST_FARM,
+          specialEvents: {
+            current: {
+              "La Tomatina": {
+                isEligible: true,
+                text: "La Tomatina",
+                startAt: 0,
+                endAt: Number.MAX_SAFE_INTEGER,
+                requiresWallet: false,
+                tasks: [],
+                bonus: {
+                  Tomato: { saleMultiplier: 1.05 },
+                },
+              },
+            },
+            history: {},
+          },
+        },
+      }),
+    ).toEqual(FRUIT().Tomato.sellPrice * 1.05);
+  });
+
+  it("does not apply special event pricing if ineligible", () => {
+    expect(
+      getSellPrice({
+        item: FRUIT().Tomato,
+        game: {
+          ...TEST_FARM,
+          specialEvents: {
+            current: {
+              "La Tomatina": {
+                isEligible: false,
+                text: "La Tomatina",
+                startAt: 0,
+                endAt: Number.MAX_SAFE_INTEGER,
+                requiresWallet: false,
+                tasks: [],
+                bonus: {
+                  Tomato: { saleMultiplier: 1.05 },
+                },
+              },
+            },
+            history: {},
+          },
+        },
+      }),
+    ).toEqual(FRUIT().Tomato.sellPrice);
   });
 });

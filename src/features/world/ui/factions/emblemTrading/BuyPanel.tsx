@@ -5,13 +5,12 @@ import { Context } from "features/game/GameProvider";
 import { ITEM_DETAILS } from "features/game/types/images";
 
 import { Button } from "components/ui/Button";
+import token from "assets/icons/sfl.webp";
 
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { OuterPanel } from "components/ui/Panel";
 import { Box } from "components/ui/Box";
 import Decimal from "decimal.js-light";
-import token from "assets/icons/sfl.webp";
-import lock from "assets/skills/lock.png";
 import { getKeys } from "features/game/types/craftables";
 import { FactionEmblem } from "features/game/types/game";
 import { SUNNYSIDE } from "assets/sunnyside";
@@ -28,7 +27,7 @@ import { ModalContext } from "features/game/components/modal/ModalProvider";
 import { hasVipAccess } from "features/game/lib/vipAccess";
 import { VIPAccess } from "features/game/components/VipAccess";
 import { getDayOfYear } from "lib/utils/time";
-import { setPrecision } from "lib/utils/formatNumber";
+import { formatNumber } from "lib/utils/formatNumber";
 
 export const TRADE_LIMITS: Record<FactionEmblem, number> = {
   "Goblin Emblem": 200,
@@ -177,7 +176,7 @@ export const BuyPanel: React.FC<{
     if (warning === "hoarding") {
       return (
         <div className="p-1 flex flex-col items-center">
-          <img src={lock} className="w-1/5 mb-2" />
+          <img src={SUNNYSIDE.icons.lock} className="w-1/5 mb-2" />
           <p className="text-sm mb-1 text-center">
             {t("playerTrade.max.item")}
           </p>
@@ -237,9 +236,10 @@ export const BuyPanel: React.FC<{
                         </div>
                         <p className="text-xxs">
                           {t("bumpkinTrade.price/unit", {
-                            price: setPrecision(new Decimal(unitPrice)).toFixed(
-                              4,
-                            ),
+                            price: formatNumber(unitPrice, {
+                              decimalPlaces: 4,
+                              showTrailingZeros: true,
+                            }),
                           })}
                         </p>
                       </div>
@@ -276,6 +276,9 @@ export const BuyPanel: React.FC<{
           <Label type="default" icon={ITEM_DETAILS[emblem].image}>
             {emblem}
           </Label>
+          <Label type="warning" className="ml-auto">
+            {`${t("inventory")}: ${formatNumber(inventory[emblem], { decimalPlaces: 0 })}`}
+          </Label>
         </div>
         <div className="flex-1 pr-2 overflow-y-auto scrollable mt-1">
           {listings.map((listing, index) => {
@@ -304,9 +307,10 @@ export const BuyPanel: React.FC<{
                         </div>
                         <p className="text-xxs">
                           {t("bumpkinTrade.price/unit", {
-                            price: setPrecision(new Decimal(unitPrice)).toFixed(
-                              4,
-                            ),
+                            price: formatNumber(unitPrice, {
+                              decimalPlaces: 4,
+                              showTrailingZeros: true,
+                            }),
                           })}
                         </p>
                       </div>
@@ -349,7 +353,7 @@ export const BuyPanel: React.FC<{
               type={hasPurchasesRemaining ? "success" : "danger"}
               className="-ml-2"
             >
-              {remainingFreePurchases == 0
+              {remainingFreePurchases === 1
                 ? `${t("remaining.free.purchase")}`
                 : `${t("remaining.free.purchases", {
                     purchasesRemaining: hasPurchasesRemaining

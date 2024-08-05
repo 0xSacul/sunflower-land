@@ -32,7 +32,7 @@ import { acknowledgeSeasonPass } from "features/announcements/announcementsStora
 type VIPItem = SeasonalBanner | "Lifetime Farmer Banner";
 
 export const ORIGINAL_SEASONAL_BANNER_PRICE = 90;
-export const LIFETIME_FARMER_BANNER_PRICE = 540;
+export const LIFETIME_FARMER_BANNER_PRICE = 740;
 
 const _farmId = (state: MachineState) => state.context.farmId;
 const _inventory = (state: MachineState) => state.context.state.inventory;
@@ -90,23 +90,17 @@ export const VIPItems: React.FC<Props> = ({ onClose, onSkip }) => {
   const hasLifeTimeBanner = (
     inventory["Lifetime Farmer Banner"] ?? new Decimal(0)
   ).gt(0);
-  const hasGoldPass = (inventory["Gold Pass"] ?? new Decimal(0)).gt(0);
 
   const actualSeasonBannerPrice = getBannerPrice(
     seasonBanner,
     hasPreviousBanner,
     hasLifeTimeBanner,
-    hasGoldPass,
     Date.now(),
     farmId,
   ).toNumber();
 
   const hasDiscount = actualSeasonBannerPrice < ORIGINAL_SEASONAL_BANNER_PRICE;
   const isFree = actualSeasonBannerPrice === 0;
-  const canAffordSeasonBanner = blockBuckBalance.gte(actualSeasonBannerPrice);
-  const canAffordLifetimeBanner = blockBuckBalance.gte(
-    LIFETIME_FARMER_BANNER_PRICE,
-  );
 
   const handlePurchase = () => {
     const state = gameService.send("banner.purchased", {
@@ -154,16 +148,6 @@ export const VIPItems: React.FC<Props> = ({ onClose, onSkip }) => {
     return false;
   };
 
-  const getErrorLabel = () => {
-    if (selected === "Lifetime Farmer Banner" && !canAffordLifetimeBanner) {
-      return <Label type="danger">{t("offer.not.enough.BlockBucks")}</Label>;
-    }
-
-    if (selected === seasonBanner && !canAffordSeasonBanner) {
-      return <Label type="danger">{t("offer.not.enough.BlockBucks")}</Label>;
-    }
-  };
-
   const getSeasonalBannerPriceLabel = () => {
     if (hasSeasonBanner) {
       return (
@@ -200,7 +184,6 @@ export const VIPItems: React.FC<Props> = ({ onClose, onSkip }) => {
         "Lifetime Farmer Banner",
         hasPreviousBanner,
         hasLifeTimeBanner,
-        hasGoldPass,
         Date.now(),
         farmId,
       ).toNumber();
@@ -211,7 +194,6 @@ export const VIPItems: React.FC<Props> = ({ onClose, onSkip }) => {
         seasonBanner,
         hasPreviousBanner,
         hasLifeTimeBanner,
-        hasGoldPass,
         Date.now(),
         farmId,
       ).toNumber();
@@ -220,18 +202,32 @@ export const VIPItems: React.FC<Props> = ({ onClose, onSkip }) => {
     return 0;
   };
 
+  const canAffordSeasonBanner = blockBuckBalance.gte(actualSeasonBannerPrice);
+
+  const canAffordLifetimeBanner = blockBuckBalance.gte(
+    getItemPrice("Lifetime Farmer Banner"),
+  );
+
+  const getErrorLabel = () => {
+    if (selected === "Lifetime Farmer Banner" && !canAffordLifetimeBanner) {
+      return <Label type="danger">{t("offer.not.enough.BlockBucks")}</Label>;
+    }
+
+    if (selected === seasonBanner && !canAffordSeasonBanner) {
+      return <Label type="danger">{t("offer.not.enough.BlockBucks")}</Label>;
+    }
+  };
+
   return (
     <>
       {!selected && (
         <div className="flex flex-col space-y-2 pt-2">
           <div className="flex justify-between px-1">
-            <Label
-              icon={vipIcon}
-              type="default"
-              className="ml-1"
-            >{`Purchase VIP Items`}</Label>
+            <Label icon={vipIcon} type="default" className="ml-1">
+              {t("season.vip.purchase")}
+            </Label>
             <a
-              href="https://docs.sunflower-land.com/player-guides/seasons/season-6-clash-of-factions#season-banners"
+              href="https://docs.sunflower-land.com/player-guides/seasons#seasonal-banners"
               className="text-xxs underline"
               target="_blank"
               rel="noreferrer"
@@ -254,26 +250,30 @@ export const VIPItems: React.FC<Props> = ({ onClose, onSkip }) => {
                 : undefined
             }
           >
-            <Label
-              type="default"
-              className="mb-2"
-              icon={lifeTimeFarmerBannerIcon}
-            >
-              {t("season.lifetime.farmer")}
-            </Label>
+            <div className="flex justify-between mb-2">
+              <Label
+                type="default"
+                className="mb-2"
+                icon={lifeTimeFarmerBannerIcon}
+              >
+                {t("season.lifetime.farmer")}
+              </Label>
+            </div>
             <div className="flex flex-col space-y-1 sm:space-y-2 text-xs sm:text-sm pb-1">
               <div className="flex items-center space-x-2">
                 <SquareIcon icon={giftIcon} width={7} />
                 <span>{t("season.free.season.passes")}</span>
               </div>
               {!hasLifeTimeBanner ? (
-                <Label
-                  type="warning"
-                  icon={blockBucksIcon}
-                  className="absolute right-1 bottom-1"
-                >
-                  {getItemPrice("Lifetime Farmer Banner")}
-                </Label>
+                <>
+                  <Label
+                    type="warning"
+                    icon={blockBucksIcon}
+                    className="absolute right-1 bottom-1"
+                  >
+                    {getItemPrice("Lifetime Farmer Banner")}
+                  </Label>
+                </>
               ) : (
                 <SquareIcon
                   className="absolute right-1 bottom-1"

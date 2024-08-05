@@ -19,9 +19,9 @@ import { getSeasonChangeover } from "lib/utils/getSeasonWeek";
 import { secondsToString } from "lib/utils/time";
 import React, { useContext } from "react";
 
+import lock from "assets/icons/lock.png";
 import mark from "assets/icons/faction_mark.webp";
-import { setPrecision } from "lib/utils/formatNumber";
-import Decimal from "decimal.js-light";
+import { formatNumber } from "lib/utils/formatNumber";
 import { getKingdomChoreBoost } from "features/game/events/landExpansion/completeKingdomChore";
 import { KingdomChoresTimer } from "features/world/ui/factions/chores/KingdomChoresContent";
 
@@ -37,15 +37,17 @@ export const Chores: React.FC<Props> = ({ farmId }) => {
 
   const { t } = useAppTranslation();
 
-  const { ticketTasksAreFrozen } = getSeasonChangeover({
-    id: farmId,
-  });
+  const { ticketTasksAreFrozen, ticketTasksAreClosing, tasksCloseAt } =
+    getSeasonChangeover({
+      id: farmId,
+    });
 
   const kingdomChores = useSelector(gameService, _kingdomChores);
   const handleReset = () => {
     gameService.send("kingdomChores.refreshed");
     gameService.send("SAVE");
   };
+  const joinedFaction = gameService.state.context.state.faction;
 
   return (
     <div className="scrollable overflow-y-auto max-h-[100%] overflow-x-hidden">
@@ -54,14 +56,22 @@ export const Chores: React.FC<Props> = ({ farmId }) => {
           <div className="p-1 text-xs">
             <div className="flex justify-between items-center gap-1">
               <Label type="default">{t("chores.hank")}</Label>
-              <Label type="info" icon={SUNNYSIDE.icons.stopwatch}>
-                {`${t("hayseedHankv2.newChoresAvailable")} ${secondsToString(
-                  secondsTillReset(),
-                  {
+              {ticketTasksAreClosing ? (
+                <Label type="danger" icon={lock} className="mt-1">
+                  {`${secondsToString((tasksCloseAt - Date.now()) / 1000, {
                     length: "medium",
-                  },
-                )}`}
-              </Label>
+                  })} left`}
+                </Label>
+              ) : (
+                <Label type="info" icon={SUNNYSIDE.icons.stopwatch}>
+                  {t("hayseedHankv2.newChoresAvailable", {
+                    timeLeft: secondsToString(secondsTillReset(), {
+                      length: "medium",
+                      removeTrailingZeros: true,
+                    }),
+                  })}
+                </Label>
+              )}
             </div>
             <div className="my-1 space-y-1">
               <span className="w-fit">{t("chores.hank.intro")}</span>
@@ -70,7 +80,7 @@ export const Chores: React.FC<Props> = ({ farmId }) => {
         </InnerPanel>
       )}
       <ChoreV2 isReadOnly isCodex />
-      {kingdomChores && (
+      {!!joinedFaction && kingdomChores && (
         <div className="mt-3">
           <InnerPanel className="mb-1 w-full">
             <div className="p-1 text-xs">
@@ -115,8 +125,6 @@ const KingdomChoreRow: React.FC<KingdomChoreRowProps> = ({
   chore,
   gameService,
 }) => {
-  const { t } = useAppTranslation();
-
   const { faction, bumpkin } = gameService.state.context.state;
 
   const progress =
@@ -126,10 +134,7 @@ const KingdomChoreRow: React.FC<KingdomChoreRowProps> = ({
     gameService.state.context.state,
     chore.marks,
   )[0];
-  const boostedMarks = setPrecision(
-    new Decimal(chore.marks + boost),
-    2,
-  ).toNumber();
+  const boostedMarks = chore.marks + boost;
 
   return (
     <InnerPanel className="flex flex-col w-full">
@@ -151,15 +156,15 @@ const KingdomChoreRow: React.FC<KingdomChoreRowProps> = ({
                 height: 7,
               }}
             />
-            <span className="text-xs ml-2 font-secondary">{`${setPrecision(
-              new Decimal(progress),
-            )}/${chore.requirement}`}</span>
+            <span className="text-xs ml-2 font-secondary">{`${formatNumber(progress)}/${formatNumber(chore.requirement)}`}</span>
           </div>
         </div>
 
         <div className="flex flex-col text-xs space-y-1">
           <div className="flex items-center justify-end space-x-1">
-            <span className="mb-0.5 font-secondary">{boostedMarks}</span>
+            <span className="mb-0.5 font-secondary">
+              {formatNumber(boostedMarks)}
+            </span>
             <SquareIcon icon={mark} width={6} />
           </div>
         </div>

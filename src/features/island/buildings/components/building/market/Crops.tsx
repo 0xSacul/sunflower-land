@@ -12,9 +12,7 @@ import { Fruit, FRUIT, GREENHOUSE_FRUIT } from "features/game/types/fruits";
 import { SplitScreenView } from "components/ui/SplitScreenView";
 import { ShopSellDetails } from "components/ui/layouts/ShopSellDetails";
 import { getBumpkinLevel } from "features/game/lib/level";
-import lock from "assets/skills/lock.png";
 import lightning from "assets/icons/lightning.png";
-import greenhouse from "assets/icons/greenhouse.webp";
 import orange from "assets/resources/orange.png";
 import {
   EXOTIC_CROPS,
@@ -29,6 +27,7 @@ import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { ConfirmationModal } from "components/ui/ConfirmationModal";
 import { NPC_WEARABLES } from "lib/npcs";
 import { BulkSellModal } from "components/ui/BulkSellModal";
+import { SUNNYSIDE } from "assets/sunnyside";
 
 export const isExoticCrop = (
   item: Crop | Fruit | ExoticCrop,
@@ -38,12 +37,11 @@ export const isExoticCrop = (
 
 export const Crops: React.FC = () => {
   const [selected, setSelected] = useState<Crop | Fruit | ExoticCrop>(
-    CROPS().Sunflower,
+    CROPS.Sunflower,
   );
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  const [customInputAmount, setCustomInputAmount] = useState("");
-  const customAmount = Number(customInputAmount);
+  const [customAmount, setCustomAmount] = useState(new Decimal(0));
   const [isCustomSellModalOpen, showCustomSellModal] = useState(false);
 
   const { gameService } = useContext(Context);
@@ -67,7 +65,7 @@ export const Crops: React.FC = () => {
     } else {
       const state = gameService.send("crop.sold", {
         crop: selected.name,
-        amount: setPrecision(amount),
+        amount: setPrecision(amount, 2),
       });
 
       if (state.context.state.bumpkin?.activity?.["Sunflower Sold"] === 1) {
@@ -84,7 +82,7 @@ export const Crops: React.FC = () => {
       : getSellPrice({ item: crop, game: state });
 
   const bumpkinLevel = getBumpkinLevel(state.bumpkin?.experience ?? 0);
-  const cropAmount = setPrecision(new Decimal(inventory[selected.name] || 0));
+  const cropAmount = setPrecision(inventory[selected.name] ?? 0, 2);
   const coinAmount = setPrecision(
     new Decimal(displaySellPrice(selected)).mul(
       state.island.type !== "basic" ? new Decimal(customAmount) : cropAmount,
@@ -95,7 +93,7 @@ export const Crops: React.FC = () => {
   const handleSell = (amount: Decimal) => {
     sell(amount);
     setShowConfirmationModal(false);
-    setCustomInputAmount("");
+    setCustomAmount(new Decimal(0));
   };
 
   const openConfirmationModal = () => {
@@ -104,7 +102,7 @@ export const Crops: React.FC = () => {
   };
   const closeConfirmationModal = () => {
     setShowConfirmationModal(false);
-    setCustomInputAmount("");
+    setCustomAmount(new Decimal(0));
   };
 
   const openBulkSellModal = () => {
@@ -112,7 +110,7 @@ export const Crops: React.FC = () => {
   };
   const closeBulkSellModal = () => {
     showCustomSellModal(false);
-    setCustomInputAmount("");
+    setCustomAmount(new Decimal(0));
   };
 
   const exotics = getKeys(EXOTIC_CROPS)
@@ -130,11 +128,11 @@ export const Crops: React.FC = () => {
     );
 
   const cropsAndFruits = Object.values({
-    ...CROPS(),
+    ...CROPS,
     ...FRUIT(),
     ...exotics,
     ...GREENHOUSE_FRUIT(),
-    ...GREENHOUSE_CROPS(),
+    ...GREENHOUSE_CROPS,
   }) as Crop[];
 
   return (
@@ -219,7 +217,7 @@ export const Crops: React.FC = () => {
             </div>
             <div className="flex flex-wrap mb-2">
               {cropsAndFruits
-                .filter((crop) => !!crop.sellPrice && crop.name in CROPS())
+                .filter((crop) => !!crop.sellPrice && crop.name in CROPS)
                 .map((item) => (
                   <Box
                     isSelected={selected.name === item.name}
@@ -229,7 +227,9 @@ export const Crops: React.FC = () => {
                     count={inventory[item.name]}
                     parentDivRef={divRef}
                     secondaryImage={
-                      bumpkinLevel < item.bumpkinLevel ? lock : undefined
+                      bumpkinLevel < item.bumpkinLevel
+                        ? SUNNYSIDE.icons.lock
+                        : undefined
                     }
                     showOverlay={bumpkinLevel < item.bumpkinLevel}
                   />
@@ -252,7 +252,9 @@ export const Crops: React.FC = () => {
                     count={inventory[item.name]}
                     parentDivRef={divRef}
                     secondaryImage={
-                      bumpkinLevel < item.bumpkinLevel ? lock : undefined
+                      bumpkinLevel < item.bumpkinLevel
+                        ? SUNNYSIDE.icons.lock
+                        : undefined
                     }
                     showOverlay={bumpkinLevel < item.bumpkinLevel}
                   />
@@ -275,7 +277,9 @@ export const Crops: React.FC = () => {
                     count={inventory[item.name]}
                     parentDivRef={divRef}
                     secondaryImage={
-                      bumpkinLevel < item.bumpkinLevel ? lock : undefined
+                      bumpkinLevel < item.bumpkinLevel
+                        ? SUNNYSIDE.icons.lock
+                        : undefined
                     }
                     showOverlay={bumpkinLevel < item.bumpkinLevel}
                   />
@@ -286,7 +290,7 @@ export const Crops: React.FC = () => {
               <div className="flex">
                 <Label
                   className="mr-3 ml-2 mb-1"
-                  icon={greenhouse}
+                  icon={SUNNYSIDE.icons.greenhouseIcon}
                   type="default"
                 >
                   {t("greenhouse")}
@@ -297,7 +301,7 @@ export const Crops: React.FC = () => {
                   .filter(
                     (crop) =>
                       !!crop.sellPrice &&
-                      (crop.name in GREENHOUSE_CROPS() ||
+                      (crop.name in GREENHOUSE_CROPS ||
                         crop.name in GREENHOUSE_FRUIT()),
                   )
                   .map((item) => (
@@ -309,7 +313,9 @@ export const Crops: React.FC = () => {
                       count={inventory[item.name]}
                       parentDivRef={divRef}
                       secondaryImage={
-                        bumpkinLevel < item.bumpkinLevel ? lock : undefined
+                        bumpkinLevel < item.bumpkinLevel
+                          ? SUNNYSIDE.icons.lock
+                          : undefined
                       }
                       showOverlay={bumpkinLevel < item.bumpkinLevel}
                     />
@@ -348,8 +354,8 @@ export const Crops: React.FC = () => {
       <BulkSellModal
         show={isCustomSellModalOpen}
         onHide={closeBulkSellModal}
-        customInputAmount={customInputAmount}
-        setCustomInputAmount={setCustomInputAmount}
+        customAmount={customAmount}
+        setCustomAmount={setCustomAmount}
         cropAmount={cropAmount}
         onCancel={closeBulkSellModal}
         onSell={openConfirmationModal}

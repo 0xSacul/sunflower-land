@@ -21,6 +21,7 @@ import { getKeys } from "features/game/types/decorations";
 import { JoinFactionAction } from "features/game/events/landExpansion/joinFaction";
 import { hasFeatureAccess } from "lib/flags";
 import {
+  getFactionScores,
   getPreviousWeek,
   secondsTillWeekReset,
 } from "features/game/lib/factions";
@@ -28,6 +29,12 @@ import { hasReadKingdomNotice } from "../ui/kingdom/KingdomNoticeboard";
 import { EventObject } from "xstate";
 
 export const KINGDOM_NPCS: NPCBumpkin[] = [
+  {
+    x: 390,
+    y: 725,
+    npc: "cluck e cheese",
+    direction: "left",
+  },
   {
     x: 305,
     y: 500,
@@ -111,6 +118,7 @@ export class KingdomScene extends BaseScene {
     fetchLeaderboardData(this.id);
 
     this.load.image("question_disc", "world/question_disc.png");
+    this.load.image("box_blockade", "world/box_blockade.png");
 
     this.load.spritesheet("portal", "world/portal_well_sheet.png", {
       frameWidth: 20,
@@ -191,13 +199,35 @@ export class KingdomScene extends BaseScene {
         }
       });
 
+    if (hasFeatureAccess(this.gameState, "CROPS_AND_CHICKENS")) {
+      const cropsAndChickensPortal = this.add.sprite(400, 752, "portal");
+      cropsAndChickensPortal.play("portal_anim", true);
+      cropsAndChickensPortal
+        .setInteractive({ cursor: "pointer" })
+        .on("pointerdown", () => {
+          if (this.checkDistanceToSprite(cropsAndChickensPortal, 40)) {
+            interactableModalManager.open("crops_and_chickens");
+          } else {
+            this.currentPlayer?.speak(translate("base.iam.far.away"));
+          }
+        });
+
+      this.physics.world.enable(cropsAndChickensPortal);
+      this.colliders?.add(cropsAndChickensPortal);
+      (cropsAndChickensPortal.body as Phaser.Physics.Arcade.Body)
+        .setSize(32, 32)
+        .setOffset(0, 0)
+        .setImmovable(true)
+        .setCollideWorldBounds(true);
+    }
+
     const board1 = this.add.sprite(328, 620, "sunflorian_board");
 
     board1
       .setDepth(622)
       .setInteractive({ cursor: "pointer" })
       .on("pointerdown", () => {
-        npcModalManager.open("solara");
+        npcModalManager.open("reginald");
       });
 
     const board2 = this.add.sprite(142, 420, "nightshade_board");
@@ -206,7 +236,7 @@ export class KingdomScene extends BaseScene {
       .setDepth(1000000)
       .setInteractive({ cursor: "pointer" })
       .on("pointerdown", () => {
-        npcModalManager.open("dusk");
+        npcModalManager.open("nyx");
       });
 
     const board3 = this.add.sprite(315, 425, "bumpkin_board");
@@ -215,7 +245,7 @@ export class KingdomScene extends BaseScene {
       .setDepth(444)
       .setInteractive({ cursor: "pointer" })
       .on("pointerdown", () => {
-        npcModalManager.open("haymitch");
+        npcModalManager.open("barlow");
       });
 
     const board4 = this.add.sprite(148, 760, "goblin_board");
@@ -224,7 +254,7 @@ export class KingdomScene extends BaseScene {
       .setDepth(763)
       .setInteractive({ cursor: "pointer" })
       .on("pointerdown", () => {
-        npcModalManager.open("glinteye");
+        npcModalManager.open("graxle");
       });
 
     const bud1 = this.add.sprite(285, 857, "castle_bud_1");
@@ -280,7 +310,8 @@ export class KingdomScene extends BaseScene {
       const listener = (e: EventObject) => {
         if (
           e.type === "faction.joined" &&
-          (e as JoinFactionAction).faction === key
+          (e as JoinFactionAction).faction === key &&
+          door.active
         ) {
           door.destroy();
         }
@@ -320,6 +351,19 @@ export class KingdomScene extends BaseScene {
       }
     }
 
+    if (
+      !hasFeatureAccess(this.gameService.state.context.state, "TEST_DIGGING")
+    ) {
+      const desertBlockade = this.add.sprite(0, 656, "box_blockade");
+      this.physics.world.enable(desertBlockade);
+      this.colliders?.add(desertBlockade);
+      (desertBlockade.body as Phaser.Physics.Arcade.Body)
+        .setSize(32, 48)
+        .setOffset(0, 0)
+        .setImmovable(true)
+        .setCollideWorldBounds(true);
+    }
+
     // Shut down the sound when the scene changes
     this.events.once("shutdown", () => {
       this.sound.getAllPlaying().forEach((sound) => {
@@ -331,7 +375,7 @@ export class KingdomScene extends BaseScene {
   public champions: Phaser.GameObjects.Sprite | undefined;
 
   async setChampions() {
-    if (this.champions) {
+    if (this.champions?.active) {
       this.champions.destroy();
       this.showPoof();
       this.champions = undefined;
@@ -360,15 +404,16 @@ export class KingdomScene extends BaseScene {
       return;
     }
 
-    const totals = leaderboard.marks.totalTickets;
-    const winningFaction = getKeys(totals).reduce((winner, name) => {
-      return totals[winner] > totals[name] ? winner : name;
-    }, "bumpkins");
+    const { winner } = getFactionScores({ leaderboard });
 
-    this.champions.destroy();
+    if (!winner) return;
+
+    if (this.champions.active) {
+      this.champions.destroy();
+    }
     this.champions = undefined;
 
-    const throne = THRONES[winningFaction];
+    const throne = THRONES[winner];
 
     if (!this.textures.exists(throne)) {
       return;
@@ -411,7 +456,7 @@ export class KingdomScene extends BaseScene {
 
     // Listen for the animation complete event
     poof.on("animationcomplete", function (animation: { key: string }) {
-      if (animation.key === "poof_anim") {
+      if (animation.key === "poof_anim" && poof.active) {
         // Animation 'poof_anim' has completed, destroy the sprite
         poof.destroy();
       }

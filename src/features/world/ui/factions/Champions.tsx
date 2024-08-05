@@ -10,7 +10,10 @@ import {
   KingdomLeaderboard,
 } from "features/game/expansion/components/leaderboard/actions/leaderboard";
 import {
+  BONUS_FACTION_PRIZES,
   FACTION_PRIZES,
+  getFactionScores,
+  getFactionWeek,
   getPreviousWeek,
   getWeekNumber,
 } from "features/game/lib/factions";
@@ -28,11 +31,11 @@ import {
   FactionPrize,
   InventoryItemName,
 } from "features/game/types/game";
-import { Fireworks } from "./components/ClaimEmblems";
+import { Fireworks } from "./components/Fireworks";
 import { ITEM_DETAILS } from "features/game/types/images";
 import { hasFeatureAccess } from "lib/flags";
-import { setPrecision } from "lib/utils/formatNumber";
-import Decimal from "decimal.js-light";
+import { formatNumber } from "lib/utils/formatNumber";
+import { SEASONS, getSeasonalTicket } from "features/game/types/seasons";
 
 interface Props {
   onClose: () => void;
@@ -108,14 +111,13 @@ export const ChampionsLeaderboard: React.FC<Props> = ({ onClose }) => {
     return <Label type="formula">{t("leaderboard.resultsPending")}</Label>;
   }
 
-  const totals = leaderboard.marks.totalTickets;
+  const { winner } = getFactionScores({ leaderboard });
 
-  // Get faction with highest
-  const winningFaction = getKeys(totals).reduce((winner, name) => {
-    return totals[winner] > totals[name] ? winner : name;
-  }, "bumpkins");
+  if (!winner) {
+    return null;
+  }
 
-  const topRanks = leaderboard.marks.topTens[winningFaction];
+  const topRanks = leaderboard.marks.topTens[winner];
 
   const playerId = gameState.context.state.username ?? gameState.context.farmId;
 
@@ -128,7 +130,7 @@ export const ChampionsLeaderboard: React.FC<Props> = ({ onClose }) => {
         <Label type="formula">{`Week #${getWeekNumber() - 3}`}</Label>
       </div>
       <p className="text-sm mb-2 pl-1">
-        {t("leaderboard.congratulations", { faction: winningFaction })}
+        {t("leaderboard.congratulations", { faction: winner })}
       </p>
       <Label type="default" className="mb-2">
         {t("leaderboard.leaderboard")}
@@ -167,7 +169,7 @@ export const ChampionsLeaderboard: React.FC<Props> = ({ onClose }) => {
               <td style={{ border: "1px solid #b96f50" }} className="p-1.5">
                 <div className="flex items-center space-x-1 justify-end">
                   <>
-                    <span>{setPrecision(new Decimal(count)).toNumber()}</span>
+                    <span>{formatNumber(count)}</span>
                   </>
                 </div>
               </td>
@@ -207,11 +209,18 @@ type PrizeRow = FactionPrize & { from: number; to?: number };
 export const ChampionsPrizes: React.FC = () => {
   const { t } = useAppTranslation();
 
+  const week = getFactionWeek();
+  const ticket = getSeasonalTicket(new Date(week));
+  const isPharaohsTreasure =
+    new Date(week) >= new Date(SEASONS["Pharaoh's Treasure"].startDate);
+
+  const MONTHLY_PRIZES = BONUS_FACTION_PRIZES[week];
+
   // Group together rows that have the same prize
   const prizes: PrizeRow[] = [];
   let previous: PrizeRow | undefined = undefined;
-  getKeys(FACTION_PRIZES).forEach((key, index) => {
-    const prize = FACTION_PRIZES[key];
+  getKeys(FACTION_PRIZES(ticket, isPharaohsTreasure)).forEach((key, index) => {
+    const prize = FACTION_PRIZES(ticket, isPharaohsTreasure)[key];
 
     let isSameAsPrevious = false;
     if (previous) {
@@ -237,10 +246,18 @@ export const ChampionsPrizes: React.FC = () => {
 
   return (
     <>
-      <Label type="default" className="mb-2 ml-1" icon={trophy}>
-        {t("leaderboard.faction.champion")}
-      </Label>
+      <div className="flex justify-between items-center">
+        <Label type="default" className="mb-2 ml-1" icon={trophy}>
+          {t("leaderboard.faction.champion")}
+        </Label>
+        {!!MONTHLY_PRIZES && (
+          <Label type="vibrant" className="mb-2 ml-1" icon={gift}>
+            {t("leaderboard.faction.bonusPrizeWeek")}
+          </Label>
+        )}
+      </div>
       <p className="text-xs mb-2">{t("leaderboard.faction.championPrizes")}</p>
+
       <table className="w-full text-xs table-auto border-collapse mb-2">
         <tbody>
           <tr>
@@ -257,6 +274,7 @@ export const ChampionsPrizes: React.FC = () => {
           </tr>
         </tbody>
       </table>
+
       <Label type="default" className="mb-2 ml-1" icon={gift}>
         {t("leaderboard.faction.topPlayers")}
       </Label>
@@ -265,6 +283,7 @@ export const ChampionsPrizes: React.FC = () => {
         <tbody>
           {prizes.map((prize, index) => {
             const trophy = TROPHIES["goblins"][index + 1];
+            const bonus = MONTHLY_PRIZES?.[prize.from];
 
             return (
               <tr key={index}>
@@ -290,18 +309,20 @@ export const ChampionsPrizes: React.FC = () => {
                         <img src={sfl} className="h-4 ml-0.5" />
                       </div>
                     )}
-                    {getKeys(prize.items).map((item, index) => {
-                      const count = prize.items[item];
-                      return (
-                        <div key={index} className="flex items-center">
-                          <span className="text-xs">{`${count} `}</span>
-                          <img
-                            src={ITEM_DETAILS[item].image}
-                            className="h-4 ml-0.5"
-                          />
-                        </div>
-                      );
-                    })}
+                    {getKeys(prize.items)
+                      .filter((item) => (prize.items[item] ?? 0) > 0)
+                      .map((item, index) => {
+                        const count = prize.items[item];
+                        return (
+                          <div key={index} className="flex items-center">
+                            <span className="text-xs">{`${count} `}</span>
+                            <img
+                              src={ITEM_DETAILS[item].image}
+                              className="h-4 ml-0.5"
+                            />
+                          </div>
+                        );
+                      })}
                     {!!trophy && (
                       <div className="flex items-center">
                         <span className="text-xs">{`Trophy `}</span>
@@ -312,6 +333,30 @@ export const ChampionsPrizes: React.FC = () => {
                       </div>
                     )}
                   </div>
+                  {getKeys(bonus?.items ?? {}).map((item, index) => {
+                    return (
+                      <Label
+                        key={index}
+                        type="vibrant"
+                        icon={ITEM_DETAILS[item].image}
+                        className="m-1"
+                      >
+                        {`${bonus.items?.[item] ?? 0} x ${item} `}
+                      </Label>
+                    );
+                  })}
+                  {getKeys(bonus?.wearables ?? {}).map((item, index) => {
+                    return (
+                      <Label
+                        key={index}
+                        type="vibrant"
+                        icon={gift}
+                        className="mt-1 ml-2 mb-1"
+                      >
+                        {`${bonus.wearables?.[item] ?? 0} x ${item} `}
+                      </Label>
+                    );
+                  })}
                 </td>
               </tr>
             );

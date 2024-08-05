@@ -32,6 +32,7 @@ import {
   Conversations,
   CropBoomMessages,
   CropFruitDescriptions,
+  CropsAndChickensMessages,
   DeliveryItem,
   DefaultDialogue,
   DecorationDescriptions,
@@ -177,6 +178,7 @@ import {
   ChangeLanguage,
   FactionShopDescription,
   GuideFactionPet,
+  DesertKeys,
 } from "./types";
 
 const generalTerms: Record<GeneralTerms, string> = {
@@ -336,6 +338,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   ok: "OK",
   on: "Allumer",
   open: "Ouvrir",
+  opened: ENGLISH_TERMS.opened,
   opensea: "Opensea",
   "open.gift": "Ouvrir un Cadeau",
   optional: ENGLISH_TERMS["optional"],
@@ -372,6 +375,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   reward: "Récompense",
   "reward.discovered": "Récompense découverte",
   "reward.whatsNew": ENGLISH_TERMS["reward.whatsNew"],
+  sale: ENGLISH_TERMS["sale"],
   save: "Sauvegarder",
   saving: "Enregistrement",
   searching: "Recherche",
@@ -438,6 +442,7 @@ const generalTerms: Record<GeneralTerms, string> = {
   bought: ENGLISH_TERMS.bought,
   "time.remaining": ENGLISH_TERMS["time.remaining"],
   expired: ENGLISH_TERMS.expired,
+  inventory: "Inventaire",
 };
 
 const timeUnits: Record<TimeUnits, string> = {
@@ -718,6 +723,7 @@ const boostDescriptions: Record<BoostDescriptions, string> = {
   "description.banana.chicken":
     "Une poule qui booste les bananes. Quel monde nous vivons.",
   "description.knight.chicken": ENGLISH_TERMS["description.knight.chicken"],
+  "description.pharaoh.chicken": ENGLISH_TERMS["description.pharaoh.chicken"],
 
   // Boosts
   "description.lab.grow.pumpkin": "+0,3 de rendement en pumpkins",
@@ -898,9 +904,13 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
   "description.crimson.carp.boost": "+0.05 Crimstone",
   "description.battle.fish.boost":
     ENGLISH_TERMS["description.battle.fish.boost"],
+  "description.lemon.shark.boost":
+    ENGLISH_TERMS["description.lemon.shark.boost"],
   "description.crim.peckster.boost": "+0.1 Crimstone",
   "description.knight.chicken.boost":
     ENGLISH_TERMS["description.knight.chicken.boost"],
+  "description.pharaoh.chicken.boost":
+    ENGLISH_TERMS["description.pharaoh.chicken.boost"],
   "description.queen.bee.boost": "+1 de vitesse de production de Honey",
   "description.beekeeper.hat.boost": "+0.2 de vitesse de production de Honey",
   "description.flower.fox.boost": "-10% Temps de Croissance des Fleurs",
@@ -960,6 +970,21 @@ const boostEffectDescriptions: Record<BoostEffectDescriptions, string> = {
     ENGLISH_TERMS["description.hourglass.expired"],
   "description.hourglass.running":
     ENGLISH_TERMS["description.hourglass.running"],
+  "description.desert.rose.boost":
+    ENGLISH_TERMS["description.desert.rose.boost"],
+  "description.pharaoh.gnome.boost":
+    ENGLISH_TERMS["description.pharaoh.gnome.boost"],
+  "description.lemon.tea.bath.boost":
+    ENGLISH_TERMS["description.lemon.tea.bath.boost"],
+  "description.tomato.clown.boost":
+    ENGLISH_TERMS["description.tomato.clown.boost"],
+  "description.cannonball.boost": ENGLISH_TERMS["description.cannonball.boost"],
+  "description.tomato.bombard.boost":
+    ENGLISH_TERMS["description.tomato.bombard.boost"],
+  "description.camel.boost": ENGLISH_TERMS["description.camel.boost"],
+  "description.reveling.lemon.boost":
+    ENGLISH_TERMS["description.reveling.lemon.boost"],
+  "description.lemon.frog.boost": ENGLISH_TERMS["description.lemon.frog.boost"],
 };
 
 const bountyDescription: Record<BountyDescription, string> = {
@@ -1023,7 +1048,9 @@ const bumpkinDelivery: Record<BumpkinDelivery, string> = {
   "bumpkin.delivery.waiting":
     "J'attendais ça. Merci beaucoup ! Reviens bientôt pour plus de livraisons.",
   "bumpkin.delivery.proveYourself":
-    "Prouve que tu es digne. Agrandis ton île {{missingExpansions}} fois de plus.",
+    "Prouve que tu es digne. Agrandis ton île {{missingLevels}} fois de plus.",
+  "bumpkin.delivery.earnScrolls": ENGLISH_TERMS["bumpkin.delivery.earnScrolls"],
+  "bumpkin.delivery.earnSFL": ENGLISH_TERMS["bumpkin.delivery.earnSFL"],
 };
 
 const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
@@ -1101,6 +1128,19 @@ const bumpkinItemBuff: Record<BumpkinItemBuff, string> = {
     ENGLISH_TERMS["bumpkinItemBuff.bumpkin.pants"],
   "bumpkinItemBuff.bumpkin.sabatons":
     ENGLISH_TERMS["bumpkinItemBuff.bumpkin.sabatons"],
+  "bumpkinItemBuff.crab.trap": ENGLISH_TERMS["bumpkinItemBuff.crab.trap"],
+  "bumpkinItemBuff.bionic.drill": ENGLISH_TERMS["bumpkinItemBuff.bionic.drill"],
+  "bumpkinItemBuff.infernal.drill.boost":
+    ENGLISH_TERMS["bumpkinItemBuff.infernal.drill.boost"],
+  "bumpkinItemBuff.lemon.shield.boost":
+    ENGLISH_TERMS["bumpkinItemBuff.lemon.shield.boost"],
+  "bumpkinItemBuff.dev.wrench.boost":
+    ENGLISH_TERMS["bumpkinItemBuff.dev.wrench.boost"],
+  "bumpkinItemBuff.oil.overalls.boost":
+    ENGLISH_TERMS["bumpkinItemBuff.oil.overalls.boost"],
+  "bumpkinItemBuff.ancient.shovel.boost":
+    ENGLISH_TERMS["bumpkinItemBuff.ancient.shovel.boost"],
+  "bumpkinItemBuff.grape.pants": ENGLISH_TERMS["bumpkinItemBuff.grape.pants"],
 };
 
 const bumpkinPart: Record<BumpkinPart, string> = {
@@ -1120,6 +1160,7 @@ const bumpkinPart: Record<BumpkinPart, string> = {
   "equip.wings": ENGLISH_TERMS["equip.wings"],
   "equip.dress": ENGLISH_TERMS["equip.dress"],
   "equip.beard": ENGLISH_TERMS["equip.beard"],
+  "equip.aura": ENGLISH_TERMS["equip.aura"],
 };
 
 const bumpkinPartRequirements: Record<BumpkinPartRequirements, string> = {
@@ -1182,6 +1223,9 @@ const bumpkinTrade: Record<BumpkinTrade, string> = {
   "bumpkinTrade.cancel": "Annuler",
   "bumpkinTrade.list": "Liste",
   "bumpkinTrade.maxListings": "Nombre maximum d'annonces atteint",
+  "bumpkinTrade.visitBoard": ENGLISH_TERMS["bumpkinTrade.visitBoard"],
+  "bumpkinTrade.unlockMoreTrades":
+    ENGLISH_TERMS["bumpkinTrade.unlockMoreTrades"],
   "bumpkinTrade.max": "Max : {{max}}",
   "bumpkinTrade.min": "Min : {{min}}",
   "bumpkinTrade.minimumFloor": ENGLISH_TERMS["bumpkinTrade.minimumFloor"],
@@ -1358,6 +1402,10 @@ const confirmationTerms: Record<ConfirmationTerms, string> = {
     "Êtes-vous sûr de vouloir vendre {{cropAmount}} {{cropName}} pour {{coinAmount}} pièces ?",
   "confirmation.buyCrops": ENGLISH_TERMS["confirmation.buyCrops"],
   "confirmation.enterAmount": ENGLISH_TERMS["confirmation.enterAmount"],
+  "confirmation.sellSeasonalArtefact":
+    ENGLISH_TERMS["confirmation.sellSeasonalArtefact"],
+  "confirmation.valuableTreasure":
+    ENGLISH_TERMS["confirmation.valuableTreasure"],
 };
 
 const conversations: Record<Conversations, string> = {
@@ -1571,6 +1619,17 @@ const cropMachine: Record<CropMachine, string> = {
   "cropMachine.stopped": ENGLISH_TERMS["cropMachine.stopped"],
   "cropMachine.idle": ENGLISH_TERMS["cropMachine.idle"],
   "cropMachine.name": ENGLISH_TERMS["cropMachine.name"],
+};
+
+const cropsAndChickens: Record<CropsAndChickensMessages, string> = {
+  "crops-and-chickens.portal.title":
+    ENGLISH_TERMS["crops-and-chickens.portal.title"],
+  "crops-and-chickens.portal.description":
+    ENGLISH_TERMS["crops-and-chickens.portal.description"],
+  "crops-and-chickens.portal.missionObjectives":
+    ENGLISH_TERMS["crops-and-chickens.portal.missionObjectives"],
+  "crops-and-chickens.portal.rewardMessage":
+    ENGLISH_TERMS["crops-and-chickens.portal.rewardMessage"],
 };
 
 const decorationDescriptions: Record<DecorationDescriptions, string> = {
@@ -2059,6 +2118,7 @@ const donation: Record<Donation, string> = {
   "donation.matic": ENGLISH_TERMS["donation.matic"],
   "donation.minimum": ENGLISH_TERMS["donation.minimum"],
   "donation.airdrop": ENGLISH_TERMS["donation.airdrop"],
+  "donation.toPortal": ENGLISH_TERMS["donation.toPortal"],
 };
 
 const draftBid: Record<DraftBid, string> = {
@@ -2106,6 +2166,7 @@ const errorTerms: Record<ErrorTerms, string> = {
   "error.toManyRequest.one": "Trop de demandes!",
   "error.toManyRequest.two":
     "On dirait que vous avez été occupé ! Veuillez réessayer plus tard.",
+  "error.tooManyFarms": ENGLISH_TERMS["error.tooManyFarms"],
   "error.Web3NotFound": "Web3 non trouvé",
   "error.wentWrong": "Quelque chose s'est mal passé!",
   "error.clock.not.synced": "Horloge non synchronisée",
@@ -2232,6 +2293,13 @@ const factions: Record<Factions, string> = {
   "faction.greeting.nightshades": ENGLISH_TERMS["faction.greeting.nightshades"],
   "faction.greeting.sunflorians": ENGLISH_TERMS["faction.greeting.sunflorians"],
 
+  "faction.leave": ENGLISH_TERMS["faction.leave"],
+  "faction.leave.hasEmblems": ENGLISH_TERMS["faction.leave.hasEmblems"],
+  "faction.leave.areYouSure": ENGLISH_TERMS["faction.leave.areYouSure"],
+  "faction.leave.marks": ENGLISH_TERMS["faction.leave.marks"],
+  "faction.leave.sellEmblems": ENGLISH_TERMS["faction.leave.sellEmblems"],
+  "faction.leave.isNew": ENGLISH_TERMS["faction.leave.isNew"],
+
   "faction.claimEmblems.alreadyClaimed":
     ENGLISH_TERMS["faction.claimEmblems.alreadyClaimed"],
   "faction.claimEmblems.emblemsEarned":
@@ -2288,6 +2356,8 @@ const factions: Record<Factions, string> = {
   "faction.pet.sleeping": ENGLISH_TERMS["faction.pet.sleeping"],
   "faction.pet.streak": ENGLISH_TERMS["faction.pet.streak"],
   "faction.pet.wakes.in": ENGLISH_TERMS["faction.pet.wakes.in"],
+  "faction.pet.contributingMember":
+    ENGLISH_TERMS["faction.pet.contributingMember"],
 };
 
 const factionShopDescription: Record<FactionShopDescription, string> = {
@@ -2542,6 +2612,13 @@ const guideFactionPet: Record<GuideFactionPet, string> = {
   "guide.factionPet.three": ENGLISH_TERMS["guide.factionPet.three"],
   "guide.factionPet.four": ENGLISH_TERMS["guide.factionPet.four"],
   "guide.factionPet.five": ENGLISH_TERMS["guide.factionPet.five"],
+  "guide.factionPet.six": ENGLISH_TERMS["guide.factionPet.six"],
+  "guide.streak.beyond": ENGLISH_TERMS["guide.streak.beyond"],
+  "guide.streak.one": ENGLISH_TERMS["guide.streak.one"],
+  "guide.streak.two": ENGLISH_TERMS["guide.streak.two"],
+  "guide.streak.three": ENGLISH_TERMS["guide.streak.three"],
+  "guide.streak.four": ENGLISH_TERMS["guide.streak.four"],
+  "guide.streak.furtherInfo": ENGLISH_TERMS["guide.streak.furtherInfo"],
 };
 
 const fishermanModal: Record<FishermanModal, string> = {
@@ -2625,6 +2702,9 @@ const flowerBed: Record<FlowerBed, string> = {
     "Les essaims d'abeilles donnent un bonus de +0,2 aux cultures plantées.",
   "flowerBed.newSpecies.discovered":
     "Parbleu, vous avez découvert une nouvelle espèce de fleur!",
+  "flowerBed.newSpecies.superLucky":
+    ENGLISH_TERMS["flowerBed.newSpecies.superLucky"],
+  "flowerBed.newSpecies.mutant": ENGLISH_TERMS["flowerBed.newSpecies.mutant"],
   "flowerBedContent.select.combination": "Sélectionnez votre combinaison",
   "flowerBedContent.select.seed": "Sélectionnez une graine",
   "flowerBedContent.select.crossbreed": "Sélectionnez un croisement",
@@ -2901,6 +2981,7 @@ const gameDescriptions: Record<GameDescriptions, string> = {
     "Un tableau du propriétaire de cette maison.",
 
   "description.scroll": ENGLISH_TERMS["description.scroll"],
+  "description.amberFossil": ENGLISH_TERMS["description.amberFossil"],
 
   // Emblem
   "description.bumpkin.emblem": ENGLISH_TERMS["description.bumpkin.emblem"],
@@ -2920,7 +3001,7 @@ const gameTerms: Record<GameTerms, string> = {
   "farm.banned": "Cette ferme est interdite",
   gobSwarm: "Nuée de Gobelins!",
   "granting.wish": "Exaucement de votre souhait",
-  "new.delivery.in": "Nouvelles livraisons disponibles dans",
+  "new.delivery.in": ENGLISH_TERMS["new.delivery.in"],
   "new.delivery.levelup": "Montez de niveau pour débloquer plus de livraisons.",
   "no.sfl": "Aucun jeton SFL trouvé",
   opensea: "OpenSea",
@@ -3133,7 +3214,8 @@ const hayseedHankV2: Record<HayseedHankV2, string> = {
   "hayseedHankv2.dialog2": ENGLISH_TERMS["hayseedHankv2.dialog2"],
   "hayseedHankv2.action": "Allons-y",
   "hayseedHankv2.title": "Les corvées quotidiennes de Hank",
-  "hayseedHankv2.newChoresAvailable": "De nouvelles corvées disponibles dans ",
+  "hayseedHankv2.newChoresAvailable":
+    ENGLISH_TERMS["hayseedHankv2.newChoresAvailable"],
   "hayseedHankv2.skipChores":
     "Vous pouvez sauter des corvées chaque nouveau jour.",
   "hayseedHankv2.greeting":
@@ -3855,11 +3937,26 @@ const npc_message: Record<NPC_MESSAGE, string> = {
   "npcMessages.jester.msg7": ENGLISH_TERMS["npcMessages.jester.msg7"],
   "npcMessages.jester.msg8": ENGLISH_TERMS["npcMessages.jester.msg8"],
   "npcMessages.jester.msg9": ENGLISH_TERMS["npcMessages.jester.msg9"],
+  "npcMessages.oldSalty.msg1": ENGLISH_TERMS["npcMessages.oldSalty.msg1"],
+  "npcMessages.oldSalty.msg2": ENGLISH_TERMS["npcMessages.oldSalty.msg2"],
+  "npcMessages.oldSalty.msg3": ENGLISH_TERMS["npcMessages.oldSalty.msg3"],
+  "npcMessages.oldSalty.msg4": ENGLISH_TERMS["npcMessages.oldSalty.msg4"],
+  "npcMessages.oldSalty.msg5": ENGLISH_TERMS["npcMessages.oldSalty.msg5"],
+  "npcMessages.oldSalty.msg6": ENGLISH_TERMS["npcMessages.oldSalty.msg6"],
+  "npcMessages.oldSalty.msg7": ENGLISH_TERMS["npcMessages.oldSalty.msg7"],
+  "npcMessages.pharaoh.msg1": ENGLISH_TERMS["npcMessages.pharaoh.msg1"],
+  "npcMessages.pharaoh.msg2": ENGLISH_TERMS["npcMessages.pharaoh.msg2"],
+  "npcMessages.pharaoh.msg3": ENGLISH_TERMS["npcMessages.pharaoh.msg3"],
+  "npcMessages.pharaoh.msg4": ENGLISH_TERMS["npcMessages.pharaoh.msg4"],
+  "npcMessages.pharaoh.msg5": ENGLISH_TERMS["npcMessages.pharaoh.msg5"],
+  "npcMessages.pharaoh.msg6": ENGLISH_TERMS["npcMessages.pharaoh.msg6"],
+  "npcMessages.pharaoh.msg7": ENGLISH_TERMS["npcMessages.pharaoh.msg7"],
 };
 
 const npc: Record<Npc, string> = {
   "npc.Modal.Hammer":
     "Rassemblez-vous, Bumpkins, une vente aux enchères va bientôt commencer.",
+  "npc.Modal.Petro": ENGLISH_TERMS["npc.Modal.Petro"],
   "npc.Modal.Marcus":
     "Hé ! Vous n'avez pas le droit d'entrer chez moi. Ne touchez surtout pas à mes affaires!",
   "npc.Modal.Billy": "Salut à tous ! Je m'appelle Billy.",
@@ -4360,6 +4457,34 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.pumpkinPete.noOrder2":
     "Oh, pas de commande active pour toi aujourd'hui, mon ami. Mais ne t'inquiète pas ! N'hésite pas à explorer la place, et si tu as besoin d'aide, je suis ton fidèle Bumpkin.",
 
+  "npcDialogues.peggy.intro1": ENGLISH_TERMS["npcDialogues.peggy.intro1"],
+  "npcDialogues.peggy.intro2": ENGLISH_TERMS["npcDialogues.peggy.intro2"],
+  "npcDialogues.peggy.intro3": ENGLISH_TERMS["npcDialogues.peggy.intro3"],
+  "npcDialogues.peggy.intro4": ENGLISH_TERMS["npcDialogues.peggy.intro4"],
+  "npcDialogues.peggy.intro5": ENGLISH_TERMS["npcDialogues.peggy.intro5"],
+  "npcDialogues.peggy.positiveDelivery1":
+    ENGLISH_TERMS["npcDialogues.peggy.positiveDelivery1"],
+  "npcDialogues.peggy.positiveDelivery2":
+    ENGLISH_TERMS["npcDialogues.peggy.positiveDelivery2"],
+  "npcDialogues.peggy.positiveDelivery3":
+    ENGLISH_TERMS["npcDialogues.peggy.positiveDelivery3"],
+  "npcDialogues.peggy.positiveDelivery4":
+    ENGLISH_TERMS["npcDialogues.peggy.positiveDelivery4"],
+  "npcDialogues.peggy.positiveDelivery5":
+    ENGLISH_TERMS["npcDialogues.peggy.positiveDelivery5"],
+  "npcDialogues.peggy.negativeDelivery1":
+    ENGLISH_TERMS["npcDialogues.peggy.negativeDelivery1"],
+  "npcDialogues.peggy.negativeDelivery2":
+    ENGLISH_TERMS["npcDialogues.peggy.negativeDelivery2"],
+  "npcDialogues.peggy.negativeDelivery3":
+    ENGLISH_TERMS["npcDialogues.peggy.negativeDelivery3"],
+  "npcDialogues.peggy.negativeDelivery4":
+    ENGLISH_TERMS["npcDialogues.peggy.negativeDelivery4"],
+  "npcDialogues.peggy.negativeDelivery5":
+    ENGLISH_TERMS["npcDialogues.peggy.negativeDelivery5"],
+  "npcDialogues.peggy.noOrder1": ENGLISH_TERMS["npcDialogues.peggy.noOrder1"],
+  "npcDialogues.peggy.noOrder2": ENGLISH_TERMS["npcDialogues.peggy.noOrder2"],
+
   // NPC gift dialogues
   "npcDialogues.pumpkinPete.reward":
     "Merci beaucoup pour tes livraisons. Voici un petit geste d'appréciation pour toi.",
@@ -4449,6 +4574,15 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.raven.goodFlower":
     "This Purple flower is perfect! Thank you for bringing it to me.",
 
+  "npcDialogues.salty.reward": ENGLISH_TERMS["npcDialogues.salty.reward"],
+  "npcDialogues.salty.flowerIntro":
+    ENGLISH_TERMS["npcDialogues.salty.flowerIntro"],
+  "npcDialogues.salty.averageFlower":
+    ENGLISH_TERMS["npcDialogues.salty.averageFlower"],
+  "npcDialogues.salty.badFlower": ENGLISH_TERMS["npcDialogues.salty.badFlower"],
+  "npcDialogues.salty.goodFlower":
+    ENGLISH_TERMS["npcDialogues.salty.goodFlower"],
+
   "npcDialogues.miranda.reward":
     "Merci pour vos efforts. Voici un petit geste d'appréciation pour vos livraisons.",
   "npcDialogues.miranda.flowerIntro":
@@ -4492,6 +4626,26 @@ const npcDialogues: Record<NpcDialogues, string> = {
   "npcDialogues.default.reward":
     "Wow, merci Bumpkin. Voici un petit cadeau pour ton aide!",
   "npcDialogues.default.locked": "Veuillez revenir demain.",
+
+  "npcDialogues.pharaoh.intro1": ENGLISH_TERMS["npcDialogues.pharaoh.intro1"],
+  "npcDialogues.pharaoh.intro2": ENGLISH_TERMS["npcDialogues.pharaoh.intro2"],
+  "npcDialogues.pharaoh.intro3": ENGLISH_TERMS["npcDialogues.pharaoh.intro3"],
+  "npcDialogues.pharaoh.positiveDelivery1":
+    ENGLISH_TERMS["npcDialogues.pharaoh.positiveDelivery1"],
+  "npcDialogues.pharaoh.positiveDelivery2":
+    ENGLISH_TERMS["npcDialogues.pharaoh.positiveDelivery2"],
+  "npcDialogues.pharaoh.positiveDelivery3":
+    ENGLISH_TERMS["npcDialogues.pharaoh.positiveDelivery3"],
+  "npcDialogues.pharaoh.negativeDelivery1":
+    ENGLISH_TERMS["npcDialogues.pharaoh.negativeDelivery1"],
+  "npcDialogues.pharaoh.negativeDelivery2":
+    ENGLISH_TERMS["npcDialogues.pharaoh.negativeDelivery2"],
+  "npcDialogues.pharaoh.negativeDelivery3":
+    ENGLISH_TERMS["npcDialogues.pharaoh.negativeDelivery3"],
+  "npcDialogues.pharaoh.noOrder1":
+    ENGLISH_TERMS["npcDialogues.pharaoh.noOrder1"],
+  "npcDialogues.pharaoh.noOrder2":
+    ENGLISH_TERMS["npcDialogues.pharaoh.noOrder2"],
 };
 
 const nyeButton: Record<NyeButton, string> = {
@@ -4843,6 +4997,7 @@ const seasonTerms: Record<SeasonTerms, string> = {
   "season.supporter.gift": ENGLISH_TERMS["season.supporter.gift"],
   "season.vip.access": ENGLISH_TERMS["season.vip.access"],
   "season.vip.description": ENGLISH_TERMS["season.vip.description"],
+  "season.vip.purchase": ENGLISH_TERMS["season.vip.purchase"],
   "season.xp.boost": ENGLISH_TERMS["season.xp.boost"],
   "season.lifetime.farmer": ENGLISH_TERMS["season.lifetime.farmer"],
   "season.free.with.lifetime": ENGLISH_TERMS["season.free.with.lifetime"],
@@ -5343,6 +5498,7 @@ const withdraw: Record<Withdraw, string> = {
 };
 
 const world: Record<World, string> = {
+  "world.newArea": ENGLISH_TERMS["world.newArea"],
   "world.intro.one":
     "Salut Bumpkin, bienvenue au Pumpkin Plaza. Ici, des Bumpkins du monde entier se réunissent pour échanger, effectuer des livraisons et jouer à des mini-jeux.",
   "world.intro.two":
@@ -5369,12 +5525,13 @@ const world: Record<World, string> = {
     "Pour interagir avec un Bumpkin ou un objet, approchez-vous et cliquez dessus.",
   "world.intro.seven":
     "Aucun harcèlement, injure ou intimidation. Merci de respecter les autres.",
-  "world.plaza": "Plaza",
-  "world.beach": "Beach",
-  "world.retreat": "Retreat",
+  "world.plaza": ENGLISH_TERMS["world.plaza"],
+  "world.beach": ENGLISH_TERMS["world.beach"],
+  "world.retreat": ENGLISH_TERMS["world.retreat"],
   "world.woodlands": ENGLISH_TERMS["world.woodlands"],
-  "world.home": "Home",
-  "world.kingdom": "Kingdom",
+  "world.home": ENGLISH_TERMS["world.home"],
+  "world.kingdom": ENGLISH_TERMS["world.kingdom"],
+  "world.faction": ENGLISH_TERMS["world.faction"],
   "world.travelTo": ENGLISH_TERMS["world.travelTo"],
 };
 
@@ -5465,6 +5622,8 @@ export const leaderboardTerms: Record<Leaderboard, string> = {
   "leaderboard.faction.description":
     ENGLISH_TERMS["leaderboard.faction.description"],
   "leaderboard.faction.champion": ENGLISH_TERMS["leaderboard.faction.champion"],
+  "leaderboard.faction.bonusPrizeWeek":
+    ENGLISH_TERMS["leaderboard.faction.bonusPrizeWeek"],
   "leaderboard.faction.championPrizes":
     ENGLISH_TERMS["leaderboard.faction.championPrizes"],
   "leaderboard.faction.bonusMarks":
@@ -5567,6 +5726,42 @@ export const easterEggTerms: Record<EasterEggKeys, string> = {
   "easterEgg.kingdomBook3": ENGLISH_TERMS["easterEgg.kingdomBook3"],
   "easterEgg.kingdomBook4": ENGLISH_TERMS["easterEgg.kingdomBook4"],
   "easterEgg.kingdomBook5": ENGLISH_TERMS["easterEgg.kingdomBook5"],
+  "easterEgg.pharaohsDiary": ENGLISH_TERMS["easterEgg.pharaohsDiary"],
+  "easterEgg.digbysDiary": ENGLISH_TERMS["easterEgg.digbysDiary"],
+  "easterEgg.goldtoothsDiary": ENGLISH_TERMS["easterEgg.goldtoothsDiary"],
+  "easterEgg.desertBook1": ENGLISH_TERMS["easterEgg.desertBook1"],
+  "easterEgg.desertBook2": ENGLISH_TERMS["easterEgg.desertBook2"],
+  "easterEgg.desertBook3": ENGLISH_TERMS["easterEgg.desertBook3"],
+  "easterEgg.desertBook4": ENGLISH_TERMS["easterEgg.desertBook4"],
+};
+
+export const desertTerms: Record<DesertKeys, string> = {
+  "digby.puzzle": ENGLISH_TERMS["digby.puzzle"],
+  "digby.today": ENGLISH_TERMS["digby.today"],
+  "digby.patterns": ENGLISH_TERMS["digby.patterns"],
+  "digby.guide.one": ENGLISH_TERMS["digby.guide.one"],
+  "digby.guide.two": ENGLISH_TERMS["digby.guide.two"],
+  "digby.guide.three": ENGLISH_TERMS["digby.guide.three"],
+  "digby.guide.four": ENGLISH_TERMS["digby.guide.four"],
+  "desert.notice.one": ENGLISH_TERMS["desert.notice.one"],
+  "desert.notice.two": ENGLISH_TERMS["desert.notice.two"],
+  "desert.notice.three": ENGLISH_TERMS["desert.notice.three"],
+  "desert.notice.four": ENGLISH_TERMS["desert.notice.four"],
+  "desert.notice.five": ENGLISH_TERMS["desert.notice.five"],
+  "digby.noDigsLeft": ENGLISH_TERMS["digby.noDigsLeft"],
+  "digby.noDrills": ENGLISH_TERMS["digby.noDrills"],
+  "digby.noShovels": ENGLISH_TERMS["digby.noShovels"],
+  "digby.moreDigsIntro": ENGLISH_TERMS["digby.moreDigsIntro"],
+  "digby.buyMoreDigs": ENGLISH_TERMS["digby.buyMoreDigs"],
+  "digby.streak": ENGLISH_TERMS["digby.streak"],
+  "digby.streakReward": ENGLISH_TERMS["digby.streakReward"],
+  "digby.claimPrize": ENGLISH_TERMS["digby.claimPrize"],
+  "desert.hud.digsLeft": ENGLISH_TERMS["desert.hud.digsLeft"],
+  "desert.hud.noDigsLeft": ENGLISH_TERMS["desert.hud.noDigsLeft"],
+  "desert.hud.newSite": ENGLISH_TERMS["desert.hud.newSite"],
+  "desert.extraDigs": ENGLISH_TERMS["desert.extraDigs"],
+  "desert.digs": ENGLISH_TERMS["desert.digs"],
+  "desert.buyDigs.confirmation": ENGLISH_TERMS["desert.buyDigs.confirmation"],
 };
 
 export const FRENCH_TERMS: Record<TranslationKeys, string> = {
@@ -5604,12 +5799,14 @@ export const FRENCH_TERMS: Record<TranslationKeys, string> = {
   ...cropBoomMessages,
   ...cropFruitDescriptions,
   ...cropMachine,
+  ...cropsAndChickens,
   ...decorationDescriptions,
   ...defaultDialogue,
   ...delivery,
   ...deliveryHelp,
   ...deliveryitem,
   ...depositWallet,
+  ...desertTerms,
   ...detail,
   ...discordBonus,
   ...donation,

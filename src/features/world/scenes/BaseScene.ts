@@ -34,10 +34,7 @@ import {
 import { MachineInterpreter } from "features/game/lib/gameMachine";
 import { MachineInterpreter as AuthMachineInterpreter } from "features/auth/lib/authMachine";
 import { capitalize } from "lib/utils/capitalize";
-
-type SceneTransitionData = {
-  previousSceneId: SceneId;
-};
+import { PhaserNavMesh } from "phaser-navmesh";
 
 export type NPCBumpkin = {
   x: number;
@@ -92,11 +89,12 @@ export abstract class BaseScene extends Phaser.Scene {
   eventListener?: (event: EventObject) => void;
 
   public joystick?: VirtualJoystick;
-  private sceneTransitionData?: SceneTransitionData;
   private switchToScene?: SceneId;
   private options: Required<BaseSceneOptions>;
 
   public map: Phaser.Tilemaps.Tilemap = {} as Phaser.Tilemaps.Tilemap;
+
+  npcs: Partial<Record<NPCName, BumpkinContainer>> = {};
 
   currentPlayer: BumpkinContainer | undefined;
   isFacingLeft = false;
@@ -142,6 +140,13 @@ export abstract class BaseScene extends Phaser.Scene {
     string,
     Phaser.Types.Physics.Arcade.ArcadePhysicsCallback
   > = {};
+  otherDiggers: Map<string, { x: number; y: number }> = new Map();
+  /**
+   * navMesh can be used to find paths between two points. The map will need to have
+   * a layer of "walkable rectangles" that the player can walk on.
+   * ref: https://github.com/mikewesthad/navmesh
+   */
+  navMesh: PhaserNavMesh | undefined;
 
   constructor(options: BaseSceneOptions) {
     if (!options.name) {
@@ -174,10 +179,6 @@ export abstract class BaseScene extends Phaser.Scene {
     }
   }
 
-  init(data: SceneTransitionData) {
-    this.sceneTransitionData = data;
-  }
-
   create() {
     const errorLogger = createErrorLogger("phaser_base_scene", Number(this.id));
 
@@ -193,7 +194,7 @@ export abstract class BaseScene extends Phaser.Scene {
         this.initialiseControls();
       }
 
-      const from = this.sceneTransitionData?.previousSceneId as SceneId;
+      const from = this.mmoService?.state.context.previousSceneId as SceneId;
 
       let spawn = this.options.player.spawn;
 
@@ -225,7 +226,20 @@ export abstract class BaseScene extends Phaser.Scene {
     } catch (error) {
       errorLogger(JSON.stringify(error));
     }
+
+    this.setUpNavMesh();
   }
+
+  public setUpNavMesh = () => {
+    const meshLayer = this.map.getObjectLayer("NavMesh");
+    if (!meshLayer) return;
+
+    this.navMesh = this.navMeshPlugin.buildMeshFromTiled(
+      "NavMesh",
+      meshLayer,
+      16,
+    );
+  };
 
   private roof: Phaser.Tilemaps.TilemapLayer | null = null;
 
@@ -418,9 +432,12 @@ export abstract class BaseScene extends Phaser.Scene {
       }
 
       if (this.playerEntities[reaction.sessionId]) {
-        this.playerEntities[reaction.sessionId].react(reaction.reaction);
+        this.playerEntities[reaction.sessionId].react(
+          reaction.reaction,
+          reaction.quantity,
+        );
       } else if (reaction.sessionId === server.sessionId) {
-        this.currentPlayer?.react(reaction.reaction);
+        this.currentPlayer?.react(reaction.reaction, reaction.quantity);
       }
     });
 
@@ -448,7 +465,7 @@ export abstract class BaseScene extends Phaser.Scene {
   public initialiseControls() {
     if (isTouchDevice()) {
       // Initialise joystick
-      const { x, y, centerX, centerY, width, height } = this.cameras.main;
+      const { centerX, centerY, height } = this.cameras.main;
       this.joystick = new VirtualJoystick(this, {
         x: centerX,
         y: centerY - 35 + height / this.zoom / 2,
@@ -511,6 +528,14 @@ export abstract class BaseScene extends Phaser.Scene {
 
   public get username() {
     return this.gameState.username;
+  }
+
+  public get selectedItem() {
+    return this.registry.get("selectedItem");
+  }
+
+  public get shortcutItem() {
+    return this.registry.get("shortcutItem");
   }
 
   createPlayer({
@@ -635,17 +660,8 @@ export abstract class BaseScene extends Phaser.Scene {
 
           // Change scenes
           const warpTo = (obj2 as any).data?.list?.warp;
-          if (warpTo) {
-            this.currentPlayer?.stopSpeaking();
-            this.cameras.main.fadeOut(1000);
-
-            this.cameras.main.on(
-              "camerafadeoutcomplete",
-              () => {
-                this.switchToScene = warpTo;
-              },
-              this,
-            );
+          if (warpTo && this.currentPlayer?.isWalking) {
+            this.changeScene(warpTo);
           }
 
           const interactable = (obj2 as any).data?.list?.open;
@@ -793,7 +809,8 @@ export abstract class BaseScene extends Phaser.Scene {
 
     this.sendPositionToServer();
 
-    const isMoving = this.movementAngle !== undefined;
+    const isMoving =
+      this.movementAngle !== undefined && this.walkingSpeed !== 0;
 
     if (this.soundEffects) {
       this.soundEffects.forEach((audio) =>
@@ -977,6 +994,8 @@ export abstract class BaseScene extends Phaser.Scene {
     server.state.players.forEach((player, sessionId) => {
       if (sessionId === server.sessionId) return;
 
+      if (this.otherDiggers.has(sessionId)) return;
+
       const entity = this.playerEntities[sessionId];
 
       // Skip if the player hasn't been set up yet
@@ -1026,7 +1045,6 @@ export abstract class BaseScene extends Phaser.Scene {
 
       // this.mmoService?.state.context.server?.send(0, { sceneId: warpTo });
       this.mmoService?.send("SWITCH_SCENE", { sceneId: warpTo });
-      this.scene.start(warpTo, { previousSceneId: this.sceneId });
     }
   }
   updateOtherPlayers() {
@@ -1089,6 +1107,7 @@ export abstract class BaseScene extends Phaser.Scene {
       this.physics.world.enable(container);
       this.colliders?.add(container);
       this.triggerColliders?.add(container);
+      this.npcs[bumpkin.npc] = container;
     });
   }
 
@@ -1099,4 +1118,25 @@ export abstract class BaseScene extends Phaser.Scene {
       this.switchToScene = sceneId;
     }
   }
+
+  /**
+   * Changes the scene to the desired scene.
+   * @param {SceneId} scene The desired scene.
+   */
+  protected changeScene = (scene: SceneId) => {
+    const originalWalkingSpeed = this.walkingSpeed;
+    this.walkingSpeed = 0;
+
+    this.currentPlayer?.stopSpeaking();
+    this.cameras.main.fadeOut(1000);
+
+    this.cameras.main.on(
+      "camerafadeoutcomplete",
+      () => {
+        this.switchToScene = scene;
+        this.walkingSpeed = originalWalkingSpeed;
+      },
+      this,
+    );
+  };
 }

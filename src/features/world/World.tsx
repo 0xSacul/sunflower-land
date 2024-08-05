@@ -8,7 +8,7 @@ import { Modal } from "components/ui/Modal";
 import { Panel } from "components/ui/Panel";
 import { useNavigate, useParams } from "react-router-dom";
 import { SceneId } from "./mmoMachine";
-import ocean from "assets/decorations/ocean.webp";
+import { SUNNYSIDE } from "assets/sunnyside";
 import PubSub from "pubsub-js";
 
 import {
@@ -86,6 +86,11 @@ export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
       username: gameState.context.state.username,
     },
   }) as unknown as MMOMachineInterpreter;
+  const [mmoState] = useActor(mmoService);
+
+  useEffect(() => {
+    navigate(`/world/${mmoState.context.sceneId}`);
+  }, [mmoState.context.sceneId]);
 
   // We need to listen to events outside of MMO scope (Settings Panel)
   useEffect(() => {
@@ -208,7 +213,7 @@ export const Explore: React.FC<Props> = ({ isCommunity = false }) => {
     <div
       className="bg-blue-600 w-full bg-repeat h-full flex relative items-center justify-center"
       style={{
-        backgroundImage: `url(${ocean})`,
+        backgroundImage: `url(${SUNNYSIDE.decorations.ocean})`,
         backgroundSize: `${64 * PIXEL_SCALE}px`,
         imageRendering: "pixelated",
       }}

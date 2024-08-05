@@ -260,10 +260,6 @@ import {
   ExchangeSFLtoCoinsAction,
 } from "./landExpansion/exchangeSFLtoCoins";
 import {
-  pledgeFaction,
-  PledgeFactionAction,
-} from "./landExpansion/pledgeFaction";
-import {
   moveOilReserve,
   MoveOilReserveAction,
 } from "./landExpansion/moveOilReserve";
@@ -310,7 +306,6 @@ import {
   HarvestCropMachineAction,
 } from "./landExpansion/harvestCropMachine";
 import { joinFaction, JoinFactionAction } from "./landExpansion/joinFaction";
-import { claimEmblems, ClaimEmblemsAction } from "./landExpansion/claimEmblems";
 import {
   completeKingdomChore,
   CompleteKingdomChoreAction,
@@ -339,6 +334,8 @@ import {
   skipKingdomChore,
   SkipKingdomChoreAction,
 } from "./landExpansion/skipKingdomChore";
+import { leaveFaction, LeaveFactionAction } from "./landExpansion/leaveFaction";
+import { BuyMoreDigsAction, buyMoreDigs } from "./landExpansion/buyMoreDigs";
 
 export type PlayingEvent =
   | OilGreenhouseAction
@@ -428,16 +425,16 @@ export type PlayingEvent =
   | SupplyCropMachineAction
   | HarvestCropMachineAction
   | SupplyCookingOilAction
-  | PledgeFactionAction
   | JoinFactionAction
-  | ClaimEmblemsAction
   | CompleteKingdomChoreAction
   | SkipKingdomChoreAction
   | RefreshKingdomChoresAction
   | DeliverFactionKitchenAction
   | BuyFactionShopItemAction
   | ClaimFactionPrizeAction
-  | FeedFactionPetAction;
+  | FeedFactionPetAction
+  | LeaveFactionAction
+  | BuyMoreDigsAction;
 
 export type PlacementEvent =
   | ConstructBuildingAction
@@ -503,6 +500,7 @@ type Handlers<T> = {
 };
 
 export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
+  "faction.left": leaveFaction,
   "faction.prizeClaimed": claimFactionPrize,
   "greenhouse.oiled": oilGreenhouse,
   "greenhouse.harvested": harvestGreenHouse,
@@ -588,20 +586,18 @@ export const PLAYING_EVENTS: Handlers<PlayingEvent> = {
   "gift.claimed": claimGift,
   "raffle.entered": enterRaffle,
   "sfl.exchanged": exchangeSFLtoCoins,
-  "faction.pledged": pledgeFaction,
-  // To replace pledgeFaction
   "faction.joined": joinFaction,
   "oilReserve.drilled": drillOilReserve,
   "cropMachine.supplied": supplyCropMachine,
   "cropMachine.harvested": harvestCropMachine,
   "cookingOil.supplied": supplyCookingOil,
-  "emblems.claimed": claimEmblems,
   "kingdomChore.completed": completeKingdomChore,
   "kingdomChore.skipped": skipKingdomChore,
   "kingdomChores.refreshed": refreshKingdomChores,
   "factionKitchen.delivered": deliverFactionKitchen,
   "factionShopItem.bought": buyFactionShopItem,
   "factionPet.fed": feedFactionPet,
+  "desert.digsBought": buyMoreDigs,
 };
 
 export const PLACEMENT_EVENTS: Handlers<PlacementEvent> = {

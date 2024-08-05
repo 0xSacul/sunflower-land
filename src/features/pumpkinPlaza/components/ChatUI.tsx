@@ -145,7 +145,7 @@ export const ChatUI: React.FC<Props> = ({
 
       <div
         className={classNames(
-          "absolute top-36 cursor-pointer transition-transform origin-top-left ease-in-out duration-300",
+          "absolute cursor-pointer top-36 transition-transform origin-top-left ease-in-out duration-300",
           {
             "scale-50": showOptions,
             "opacity-50": isMuted,

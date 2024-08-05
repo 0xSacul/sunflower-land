@@ -103,6 +103,34 @@ export const getFruitPatchTime = (
     seconds = seconds * 0.8;
   }
 
+  if (
+    fruitSeedName === "Lemon Seed" &&
+    isCollectibleBuilt({ name: "Lemon Tea Bath", game })
+  ) {
+    seconds = seconds * 0.5;
+  }
+
+  if (
+    fruitSeedName === "Lemon Seed" &&
+    isCollectibleBuilt({ name: "Lemon Frog", game })
+  ) {
+    seconds = seconds * 0.75;
+  }
+
+  if (
+    fruitSeedName === "Tomato Seed" &&
+    isCollectibleBuilt({ name: "Tomato Clown", game })
+  ) {
+    seconds = seconds * 0.5;
+  }
+
+  if (
+    fruitSeedName === "Tomato Seed" &&
+    isCollectibleBuilt({ name: "Cannonball", game })
+  ) {
+    seconds = seconds * 0.75;
+  }
+
   return seconds;
 };
 

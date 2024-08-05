@@ -16,14 +16,12 @@ import {
 import { Button } from "components/ui/Button";
 import { OuterPanel } from "components/ui/Panel";
 import { PIXEL_SCALE } from "features/game/lib/constants";
-import selectBoxTL from "assets/ui/select/selectbox_tl.png";
-import selectBoxTR from "assets/ui/select/selectbox_tr.png";
-import lightning from "assets/icons/lightning.png";
 import { isMobile } from "mobile-device-detect";
 import Decimal from "decimal.js-light";
 import { RequirementLabel } from "components/ui/RequirementsLabel";
 import classNames from "classnames";
 import { secondsToString } from "lib/utils/time";
+import lightning from "assets/icons/lightning.png";
 import { SUNNYSIDE } from "assets/sunnyside";
 import { TypingMessage } from "../TypingMessage";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
@@ -32,7 +30,7 @@ import {
   getFactionWeekEndTime,
   getFactionWeekday,
 } from "features/game/lib/factions";
-import { setPrecision } from "lib/utils/formatNumber";
+import { formatNumber } from "lib/utils/formatNumber";
 import { BoostInfoPanel } from "./BoostInfoPanel";
 
 interface Props {
@@ -103,10 +101,7 @@ export const FactionKitchenPanel: React.FC<Props> = ({ bumpkinParts }) => {
 
   const boost = getKingdomKitchenBoost(game, selectedRequestReward)[0];
 
-  const boostedMarks = setPrecision(
-    new Decimal(selectedRequestReward + boost),
-    2,
-  ).toNumber();
+  const boostedMarks = selectedRequestReward + boost;
 
   return (
     <>
@@ -146,10 +141,7 @@ export const FactionKitchenPanel: React.FC<Props> = ({ bumpkinParts }) => {
                           points,
                         )[0];
 
-                        const boostedMarks = setPrecision(
-                          new Decimal(points + boost),
-                          2,
-                        ).toNumber();
+                        const boostedMarks = points + boost;
 
                         return (
                           <OuterPanel
@@ -180,7 +172,7 @@ export const FactionKitchenPanel: React.FC<Props> = ({ bumpkinParts }) => {
                                 }}
                               >
                                 <span className={boost ? "pl-1.5" : ""}>
-                                  {boostedMarks}
+                                  {formatNumber(boostedMarks)}
                                 </span>
                               </Label>
                             </div>
@@ -188,7 +180,7 @@ export const FactionKitchenPanel: React.FC<Props> = ({ bumpkinParts }) => {
                               <div id="select-box">
                                 <img
                                   className="absolute pointer-events-none"
-                                  src={selectBoxTL}
+                                  src={SUNNYSIDE.ui.selectBoxTL}
                                   style={{
                                     top: `${PIXEL_SCALE * -3}px`,
                                     left: `${PIXEL_SCALE * -3}px`,
@@ -197,7 +189,7 @@ export const FactionKitchenPanel: React.FC<Props> = ({ bumpkinParts }) => {
                                 />
                                 <img
                                   className="absolute pointer-events-none"
-                                  src={selectBoxTR}
+                                  src={SUNNYSIDE.ui.selectBoxTR}
                                   style={{
                                     top: `${PIXEL_SCALE * -3}px`,
                                     right: `${PIXEL_SCALE * -3}px`,
@@ -230,7 +222,7 @@ export const FactionKitchenPanel: React.FC<Props> = ({ bumpkinParts }) => {
                           onClick={() => setShowBoostInfo(!showBoostInfo)}
                         >
                           <span className={boost ? "pl-1.5" : ""}>
-                            {`${boostedMarks} ${t("marks")}`}
+                            {`${formatNumber(boostedMarks)} ${t("marks")}`}
                           </span>
                         </Label>
                       </div>
@@ -272,8 +264,8 @@ export const FactionKitchenPanel: React.FC<Props> = ({ bumpkinParts }) => {
               <div className="space-y-3">
                 <span className="text-xs sm:text-sm">
                   {t("faction.donation.confirm", {
-                    factionPoints: boostedMarks,
-                    reward: boostedMarks > 1 ? "marks" : "mark",
+                    factionPoints: formatNumber(boostedMarks),
+                    reward: `${formatNumber(boostedMarks)} ${t("marks")}`,
                   })}
                 </span>
                 <div className="flex flex-col space-y-1">

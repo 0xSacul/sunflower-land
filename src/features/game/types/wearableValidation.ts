@@ -1,5 +1,4 @@
 import { BumpkinItem } from "./bumpkin";
-import { getDailyFishingCount } from "./fishing";
 import {
   areAnyChickensFed,
   areAnyCrimstonesMined,
@@ -13,6 +12,9 @@ import {
   isProducingHoney,
   isBeehivesFull,
   isCrimstoneHammerActive,
+  areAnyOGFruitsGrowing,
+  hasFishedToday,
+  areBonusTreasureHolesDug,
 } from "./removeables";
 import { GameState } from "./game";
 
@@ -66,13 +68,28 @@ export const canWithdrawBoostedWearable = (
   if (name === "Olive Shield") {
     return !greenhouseCropIsGrowing({ crop: "Olive", game: state })[0];
   }
+  if (name === "Olive Royalty Shirt") {
+    return !greenhouseCropIsGrowing({ crop: "Olive", game: state })[0];
+  }
 
   if (name === "Fruit Picker Apron") {
+    return !areAnyOGFruitsGrowing(state)[0];
+  }
+
+  if (name === "Camel Onesie") {
     return !areAnyFruitsGrowing(state)[0];
   }
 
   if (name === "Banana Amulet" || name === "Banana Onesie") {
     return !areFruitsGrowing(state, "Banana")[0];
+  }
+
+  if (name === "Grape Pants") {
+    return !greenhouseCropIsGrowing({ crop: "Grape", game: state })[0];
+  }
+
+  if (name === "Lemon Shield") {
+    return !areFruitsGrowing(state, "Lemon")[0];
   }
 
   if (name === "Cattlegrim") {
@@ -93,7 +110,7 @@ export const canWithdrawBoostedWearable = (
   }
 
   if (name === "Ancient Rod") {
-    return getDailyFishingCount(state) == 0;
+    return !hasFishedToday(state)[0];
   }
 
   if (name === "Flower Crown") {
@@ -116,12 +133,21 @@ export const canWithdrawBoostedWearable = (
     return !isCrimstoneHammerActive(state)[0];
   }
 
-  if (name === "Oil Can") {
+  if (
+    name === "Oil Can" ||
+    name === "Infernal Drill" ||
+    name === "Dev Wrench" ||
+    name === "Oil Overalls"
+  ) {
     return !areAnyOilReservesDrilled(state)[0];
   }
 
   if (name === "Hornet Mask") {
     return isBeehivesFull(state)[0];
+  }
+
+  if (name === "Ancient Shovel") {
+    return areBonusTreasureHolesDug(state)[0];
   }
 
   // Safety check

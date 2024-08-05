@@ -51,7 +51,8 @@ export type MarineMarvelName =
   | "Phantom Barracuda"
   | "Gilded Swordfish"
   | "Crimson Carp"
-  | "Battle Fish";
+  | "Battle Fish"
+  | "Lemon Shark";
 
 export type OldFishName = "Kraken Tentacle";
 
@@ -374,6 +375,11 @@ export const FISH: Record<FishName | MarineMarvelName, Fish> = {
   },
   "Battle Fish": {
     baits: ["Earthworm", "Grub", "Fishing Lure"],
+    type: "marine marvel",
+    locations: ["wharf", "beach"],
+  },
+  "Lemon Shark": {
+    baits: ["Grub", "Fishing Lure"],
     type: "marine marvel",
     locations: ["wharf", "beach"],
   },

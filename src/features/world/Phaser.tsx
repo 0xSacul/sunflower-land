@@ -3,6 +3,7 @@ import { Game, AUTO } from "phaser";
 import { useActor, useSelector } from "@xstate/react";
 import NinePatchPlugin from "phaser3-rex-plugins/plugins/ninepatch-plugin.js";
 import VirtualJoystickPlugin from "phaser3-rex-plugins/plugins/virtualjoystick-plugin.js";
+import { PhaserNavMeshPlugin } from "phaser-navmesh";
 
 import * as AuthProvider from "features/auth/lib/Provider";
 import { ChatUI, Message } from "features/pumpkinPlaza/components/ChatUI";
@@ -18,7 +19,12 @@ import { PlazaScene } from "./scenes/PlazaScene";
 
 import { InteractableModals } from "./ui/InteractableModals";
 import { NPCModals } from "./ui/NPCModals";
-import { MachineInterpreter, MachineState, mmoBus } from "./mmoMachine";
+import {
+  MachineInterpreter,
+  MachineState,
+  mmoBus,
+  SceneId,
+} from "./mmoMachine";
 import { Context } from "features/game/GameProvider";
 import { Modal } from "components/ui/Modal";
 import { InnerPanel, Panel } from "components/ui/Panel";
@@ -29,7 +35,6 @@ import { EquipBumpkinAction } from "features/game/events/landExpansion/equip";
 import { Label } from "components/ui/Label";
 import { CommunityModals } from "./ui/CommunityModalManager";
 import { CommunityToasts } from "./ui/CommunityToastManager";
-import { SceneId } from "./mmoMachine";
 import { useNavigate } from "react-router-dom";
 import { PlayerModals } from "./ui/PlayerModals";
 import { prepareAPI } from "features/community/lib/CommunitySDK";
@@ -55,6 +60,7 @@ import { BumpkinHouseScene } from "./scenes/BumpkinHouseScene";
 import { ExampleAnimationScene } from "./scenes/examples/AnimationScene";
 import { ExampleRPGScene } from "./scenes/examples/RPGScene";
 import { EventObject } from "xstate";
+import { ToastContext } from "features/game/toast/ToastProvider";
 
 const _roomState = (state: MachineState) => state.value;
 const _scene = (state: MachineState) => state.context.sceneId;
@@ -94,8 +100,10 @@ export const PhaserComponent: React.FC<Props> = ({
   const { t } = useAppTranslation();
 
   const { authService } = useContext(AuthProvider.Context);
-  const { gameService } = useContext(Context);
+  const { gameService, selectedItem, shortcutItem } = useContext(Context);
   const [authState] = useActor(authService);
+
+  const { toastsList } = useContext(ToastContext);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -197,6 +205,14 @@ export const PhaserComponent: React.FC<Props> = ({
             start: true,
           },
         ],
+        scene: [
+          {
+            key: "PhaserNavMeshPlugin",
+            plugin: PhaserNavMeshPlugin,
+            mapping: "navMeshPlugin",
+            start: true,
+          },
+        ],
       },
       width: window.innerWidth,
       height: window.innerHeight,
@@ -226,6 +242,8 @@ export const PhaserComponent: React.FC<Props> = ({
     game.current.registry.set("id", gameService.state.context.farmId);
     game.current.registry.set("initialScene", scene);
     game.current.registry.set("navigate", navigate);
+    game.current.registry.set("selectedItem", selectedItem);
+    game.current.registry.set("shortcutItem", shortcutItem);
 
     const listener = (e: EventObject) => {
       if (e.type === "bumpkin.equipped") {
@@ -250,6 +268,11 @@ export const PhaserComponent: React.FC<Props> = ({
     };
   }, []);
 
+  // When selected item changes in context, update game registry
+  useEffect(() => {
+    game.current?.registry.set("selectedItem", selectedItem);
+  }, [selectedItem]);
+
   // When route changes, switch scene
   useEffect(() => {
     if (!loaded) return;
@@ -262,6 +285,10 @@ export const PhaserComponent: React.FC<Props> = ({
     if (activeScene) {
       activeScene.scene.start(route);
       mmoService.send("SWITCH_SCENE", { sceneId: route });
+      mmoService.send("UPDATE_PREVIOUS_SCENE", {
+        previousSceneId:
+          game.current?.scene.getScenes(true)[0]?.scene.key ?? scene,
+      });
     }
   }, [route]);
 
@@ -375,6 +402,16 @@ export const PhaserComponent: React.FC<Props> = ({
     }
   }, [isMuted]);
 
+  useEffect(() => {
+    const item = toastsList.filter((toast) => !toast.hidden)[0];
+
+    if (item && item.difference.gt(0)) {
+      mmoService.state.context.server?.send(0, {
+        reaction: { reaction: item.item, quantity: item.difference.toNumber() },
+      });
+    }
+  }, [toastsList]);
+
   // Listen to state change from trading -> playing
   const updateMessages = () => {
     // Load active scene in Phaser, otherwise fallback to route
@@ -444,7 +481,7 @@ export const PhaserComponent: React.FC<Props> = ({
           isMuted={isMuted ? true : false}
           onReact={(reaction) => {
             mmoService.state.context.server?.send(0, {
-              reaction,
+              reaction: { reaction },
             });
           }}
           onBudPlace={(tokenId) => {

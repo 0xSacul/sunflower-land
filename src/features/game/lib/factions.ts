@@ -1,6 +1,16 @@
+import { KingdomLeaderboard } from "../expansion/components/leaderboard/actions/leaderboard";
 import { BoostType, BoostValue } from "../types/boosts";
 import { BumpkinItem } from "../types/bumpkin";
-import { FactionName, FactionPrize, GameState } from "../types/game";
+import { getKeys } from "../types/decorations";
+import {
+  FactionBanner,
+  FactionName,
+  FactionPrize,
+  GameState,
+  InventoryItemName,
+  Wardrobe,
+} from "../types/game";
+import { SeasonalTicket } from "../types/seasons";
 import { isWearableActive } from "./wearables";
 
 export const START_DATE = new Date("2024-06-24T00:00:00Z");
@@ -79,10 +89,7 @@ export function secondsTillWeekReset(): number {
   const timeUntilNextFactionWeek = weekEnd.getTime() - currentTime;
 
   // Convert milliseconds to seconds
-  const secondsUntilNextFactionWeek = Math.floor(
-    timeUntilNextFactionWeek / 1000,
-  );
-
+  const secondsUntilNextFactionWeek = timeUntilNextFactionWeek / 1000;
   return secondsUntilNextFactionWeek;
 }
 
@@ -159,62 +166,31 @@ export function getFactionWearableBoostAmount(
   game: GameState,
   baseAmount: number,
 ): [number, Partial<Record<BoostType, BoostValue>>] {
-  const factionName = game.faction?.name as FactionName;
-
   let boost = 0;
   const boostLabels: Partial<Record<BoostType, BoostValue>> = {};
 
-  if (
-    isWearableActive({
-      game,
-      name: FACTION_OUTFITS[factionName].pants,
-    })
-  ) {
-    boost += baseAmount * 0.05;
-    boostLabels[FACTION_OUTFITS[factionName].pants] = `+${0.05 * 100}%`;
-  }
+  const factionName = game.faction?.name;
+  if (!factionName) return [boost, boostLabels];
 
-  if (
-    isWearableActive({
-      game,
-      name: FACTION_OUTFITS[factionName].shoes,
-    })
-  ) {
-    boost += baseAmount * 0.05;
-    boostLabels[FACTION_OUTFITS[factionName].shoes] = `+${0.05 * 100}%`;
-  }
+  // Assign the boost amount with each part
+  const boosts: Record<OutfitPart, number> = {
+    pants: 0.05,
+    shoes: 0.05,
+    tool: 0.1,
+    hat: 0.1,
+    shirt: 0.2,
+  };
 
-  if (
-    isWearableActive({
-      game,
-      name: FACTION_OUTFITS[factionName].tool,
-    })
-  ) {
-    boost += baseAmount * 0.1;
-    boostLabels[FACTION_OUTFITS[factionName].tool] = `+${0.1 * 100}%`;
-  }
+  // Dynamically sets the boost based on the boost set for each wearable
+  (Object.keys(boosts) as (keyof typeof boosts)[]).forEach((wearable) => {
+    const wearableName = FACTION_OUTFITS[factionName][wearable];
+    if (isWearableActive({ game, name: wearableName })) {
+      boost += baseAmount * boosts[wearable];
+      boostLabels[wearableName] = `+${boosts[wearable] * 100}%`;
+    }
+  });
 
-  if (
-    isWearableActive({
-      game,
-      name: FACTION_OUTFITS[factionName].hat,
-    })
-  ) {
-    boost += baseAmount * 0.1;
-    boostLabels[FACTION_OUTFITS[factionName].hat] = `+${0.1 * 100}%`;
-  }
-
-  if (
-    isWearableActive({
-      game,
-      name: FACTION_OUTFITS[factionName].shirt,
-    })
-  ) {
-    boost += baseAmount * 0.2;
-    boostLabels[FACTION_OUTFITS[factionName].shirt] = `+${0.2 * 100}%`;
-  }
-
-  return [boost, boostLabels] as const;
+  return [boost, boostLabels];
 }
 
 /**
@@ -232,13 +208,83 @@ export function calculatePoints(
   return Math.max(basePoints - fulfilledCount * 2, 1);
 }
 
-export const FACTION_PRIZES: Record<number, FactionPrize> = {
+// Rewarded items from treasury
+type MonthlyFactionPrize = {
+  wearables?: Wardrobe;
+  items?: Partial<Record<InventoryItemName, number>>;
+};
+
+export const BONUS_FACTION_PRIZES: Record<
+  string,
+  Record<number, MonthlyFactionPrize>
+> = {
+  "2024-07-22": {
+    1: {
+      wearables: {
+        "Crimstone Hammer": 1,
+      },
+    },
+    2: {
+      items: {
+        "Turbo Sprout": 1,
+      },
+    },
+    3: {
+      wearables: {
+        "Oil Can": 1,
+      },
+    },
+    4: {
+      items: {
+        Soybliss: 1,
+      },
+    },
+    5: {
+      wearables: {
+        "Olive Shield": 1,
+      },
+    },
+    // 6th - 10th
+    ...new Array(5)
+      .fill({
+        items: {
+          "Luxury Key": 2,
+        },
+      })
+      .reduce(
+        (acc, item, i) => ({
+          ...acc,
+          [i + 6]: item,
+        }),
+        {},
+      ),
+    // 11th - 50th
+    ...new Array(40)
+      .fill({
+        items: {
+          "Rare Key": 2,
+        },
+      })
+      .reduce(
+        (acc, item, i) => ({
+          ...acc,
+          [i + 11]: item,
+        }),
+        {},
+      ),
+  },
+};
+
+export const FACTION_PRIZES: (
+  ticket: SeasonalTicket,
+  ticketsEnabled: boolean,
+) => Record<number, FactionPrize> = (ticket, ticketsEnabled) => ({
   1: {
     coins: 64000,
     sfl: 200,
     items: {
       Mark: 10000,
-      // [getSeasonalTicket()]: 10,
+      [ticket]: ticketsEnabled ? 10 : 0,
     },
   },
   2: {
@@ -246,7 +292,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 175,
     items: {
       Mark: 8000,
-      // [getSeasonalTicket()]: 10,
+      [ticket]: ticketsEnabled ? 10 : 0,
     },
   },
   3: {
@@ -254,7 +300,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 150,
     items: {
       Mark: 7000,
-      // [getSeasonalTicket()]: 10,
+      [ticket]: ticketsEnabled ? 10 : 0,
     },
   },
   4: {
@@ -262,7 +308,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 150,
     items: {
       Mark: 6000,
-      // [getSeasonalTicket()]: 8,
+      [ticket]: ticketsEnabled ? 8 : 0,
     },
   },
   5: {
@@ -270,7 +316,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 125,
     items: {
       Mark: 5000,
-      // [getSeasonalTicket()]: 8,
+      [ticket]: ticketsEnabled ? 8 : 0,
     },
   },
   6: {
@@ -278,7 +324,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 100,
     items: {
       Mark: 5000,
-      // [getSeasonalTicket()]: 8,
+      [ticket]: ticketsEnabled ? 8 : 0,
     },
   },
   7: {
@@ -286,7 +332,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 100,
     items: {
       Mark: 5000,
-      // [getSeasonalTicket()]: 6,
+      [ticket]: ticketsEnabled ? 6 : 0,
     },
   },
   8: {
@@ -294,7 +340,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 100,
     items: {
       Mark: 5000,
-      // [getSeasonalTicket()]: 6,
+      [ticket]: ticketsEnabled ? 6 : 0,
     },
   },
   9: {
@@ -302,7 +348,7 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 100,
     items: {
       Mark: 5000,
-      // [getSeasonalTicket()]: 6,
+      [ticket]: ticketsEnabled ? 6 : 0,
     },
   },
   10: {
@@ -310,16 +356,17 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
     sfl: 100,
     items: {
       Mark: 5000,
-      // [getSeasonalTicket()]: 6,
+      [ticket]: ticketsEnabled ? 6 : 0,
     },
   },
-  // 11th - 50th all get 5 seasonal tickets
-  ...new Array(40)
+  // 11th - 25th all get marks + 5 seasonal tickets
+  ...new Array(15)
     .fill({
       coins: 500,
       sfl: 50,
       items: {
-        // [getSeasonalTicket()]: 5,
+        Mark: 2500,
+        [ticket]: ticketsEnabled ? 5 : 0,
       },
     })
     .reduce(
@@ -329,4 +376,99 @@ export const FACTION_PRIZES: Record<number, FactionPrize> = {
       }),
       {},
     ),
+  // 26th - 50th all get 5 seasonal tickets
+  ...new Array(25)
+    .fill({
+      coins: 500,
+      sfl: 50,
+      items: {
+        Mark: 1500,
+        [ticket]: ticketsEnabled ? 5 : 0,
+      },
+    })
+    .reduce(
+      (acc, item, index) => ({
+        ...acc,
+        [index + 26]: item,
+      }),
+      {},
+    ),
+});
+
+export const FACTION_BANNERS: Record<FactionName, FactionBanner> = {
+  bumpkins: "Bumpkin Faction Banner",
+  sunflorians: "Sunflorian Faction Banner",
+  goblins: "Goblin Faction Banner",
+  nightshades: "Nightshade Faction Banner",
 };
+
+export const FACTIONS: FactionName[] = [
+  "bumpkins",
+  "sunflorians",
+  "goblins",
+  "nightshades",
+];
+
+// Example:
+// Week 2 streak achieved = 10% XP during week 3
+// Week 4 streak achieved = 20% XP during week 5
+// Week 6 streak achieved = 30% XP during week 7
+// Week 8 streak achieved = 50% XP during week 9
+export function getFactionPetBoostMultiplier(game: GameState) {
+  const { faction } = game;
+
+  if (!faction) return 1;
+
+  const week = getFactionWeek({ date: new Date() });
+  const lastWeek = getFactionWeek({
+    date: new Date(new Date(week).getTime() - 7 * 24 * 60 * 60 * 1000),
+  });
+
+  const lastWeekStreak =
+    game.faction?.history[lastWeek]?.collectivePet?.streak ?? 0;
+
+  if (lastWeekStreak < 2) return 1;
+
+  const qualifiesForBoost = game.faction?.pet?.qualifiesForBoost ?? false;
+
+  if (!qualifiesForBoost) return 1;
+
+  if (lastWeekStreak >= 2 && lastWeekStreak < 4) return 1.1;
+  if (lastWeekStreak >= 4 && lastWeekStreak < 6) return 1.2;
+  if (lastWeekStreak >= 6 && lastWeekStreak < 8) return 1.3;
+
+  return 1.5;
+}
+
+export function getFactionScores({
+  leaderboard,
+}: {
+  leaderboard: KingdomLeaderboard;
+}) {
+  let scores = {
+    bumpkins: 0,
+    goblins: 0,
+    nightshades: 0,
+    sunflorians: 0,
+  };
+
+  if (!leaderboard.marks) {
+    return { scores };
+  }
+
+  scores = leaderboard.marks.score;
+
+  // In the past, faction score was calculated by total marks from faction
+  if (new Date(leaderboard.week).getTime() < new Date("2024-08-05").getTime()) {
+    scores = leaderboard.marks.totalTickets;
+  }
+
+  const winner = getKeys(scores).reduce((winner, name) => {
+    return scores[winner] > scores[name] ? winner : name;
+  }, "bumpkins");
+
+  return {
+    scores,
+    winner,
+  };
+}

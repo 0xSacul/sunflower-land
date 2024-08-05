@@ -14,6 +14,8 @@ import {
   InventoryItemName,
 } from "features/game/types/game";
 import { ITEM_DETAILS } from "features/game/types/images";
+import powerup from "assets/icons/level_up.png";
+
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import React, { useContext, useEffect, useState } from "react";
 import { TypingMessage } from "../TypingMessage";
@@ -26,8 +28,6 @@ import {
 import { OuterPanel } from "components/ui/Panel";
 import classNames from "classnames";
 import { isMobile } from "mobile-device-detect";
-import selectBoxTL from "assets/ui/select/selectbox_tl.png";
-import selectBoxTR from "assets/ui/select/selectbox_tr.png";
 import {
   DifficultyIndex,
   PET_FED_REWARDS_KEY,
@@ -42,15 +42,23 @@ import { SUNNYSIDE } from "assets/sunnyside";
 import { secondsToString } from "lib/utils/time";
 import { getFactionPetUpdate } from "./actions/getFactionPetUpdate";
 
-import powerup from "assets/icons/level_up.png";
-import lightning from "assets/icons/lightning.png";
-import xpIcon from "assets/icons/xp.png";
-
-import { setPrecision } from "lib/utils/formatNumber";
-import { FACTION_EMBLEM_ICONS } from "./components/ClaimEmblems";
+import { formatNumber } from "lib/utils/formatNumber";
 import { BoostInfoPanel } from "./BoostInfoPanel";
+import { getKeys } from "features/game/types/decorations";
 
-export const PET_SLEEP_DURATION = 24 * 60 * 60 * 1000;
+import goblinEmblem from "assets/icons/goblin_emblem.webp";
+import bumpkinEmblem from "assets/icons/bumpkin_emblem.webp";
+import sunflorianEmblem from "assets/icons/sunflorian_emblem.webp";
+import nightshadeEmblem from "assets/icons/nightshade_emblem.webp";
+
+const FACTION_EMBLEM_ICONS: Record<FactionName, string> = {
+  goblins: goblinEmblem,
+  bumpkins: bumpkinEmblem,
+  sunflorians: sunflorianEmblem,
+  nightshades: nightshadeEmblem,
+};
+
+export const PET_SLEEP_DURATION = 7 * 24 * 60 * 60 * 1000;
 
 const PetSleeping = ({ onWake }: { onWake: () => void }) => {
   const { t } = useAppTranslation();
@@ -121,18 +129,7 @@ const _faction = (state: MachineState) =>
 const _inventory = (state: MachineState) => state.context.state.inventory;
 
 const getPetState = (collectivePet: CollectivePet): PetState => {
-  const week = getFactionWeek({ date: new Date() });
-  const beginningOfWeek = new Date(week).getTime();
-  const firstWeek = "2024-07-08";
-
-  if (week === firstWeek) return "hungry";
-
-  if (
-    collectivePet.streak === 0 &&
-    Date.now() < beginningOfWeek + PET_SLEEP_DURATION
-  ) {
-    return "sleeping";
-  }
+  if (collectivePet.sleeping) return "sleeping";
 
   if (collectivePet.goalReached) return "happy";
 
@@ -243,10 +240,17 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
     selectedRequestReward,
   )[0];
 
-  const boostedMarks = setPrecision(
-    new Decimal(selectedRequestReward + boost),
-    2,
-  ).toNumber();
+  const boostedMarks = selectedRequestReward + boost;
+
+  const isContributingMemberForThisWeek = pet.requests.every(
+    (request) => getKeys(request.dailyFulfilled).length > 0,
+  );
+
+  const lastWeek = getFactionWeek({
+    date: new Date(new Date(week).getTime() - 7 * 24 * 60 * 60 * 1000),
+  });
+  const isStreakWeek =
+    (faction?.history[lastWeek]?.collectivePet?.streak ?? 0) >= 2;
 
   return (
     <>
@@ -280,6 +284,10 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
             icon: SUNNYSIDE.icons.expression_confused,
             name: t("guide"),
           },
+          {
+            icon: SUNNYSIDE.icons.lightning,
+            name: "Streaks",
+          },
         ]}
       >
         {tab === 0 && (
@@ -291,12 +299,20 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                   pulse: refreshing || autosaving,
                 })}
               >
-                {t("faction.pet.weeklyGoal", { goalXP, totalXP: fedXP })}
+                {t("faction.pet.weeklyGoal", {
+                  goalXP: goalXP.toLocaleString(),
+                  totalXP: fedXP.toLocaleString(),
+                })}
               </Label>
               {streak > 0 && (
                 <Label
-                  type={streak >= 3 ? "success" : "default"}
-                  icon={streak >= 3 ? powerup : ""}
+                  type={streak >= 2 ? "success" : "default"}
+                  icon={isStreakWeek ? powerup : ""}
+                  secondaryIcon={
+                    isStreakWeek && pet.qualifiesForBoost
+                      ? SUNNYSIDE.icons.confirm
+                      : ""
+                  }
                 >
                   {t("faction.pet.streak", { streak })}
                 </Label>
@@ -327,10 +343,7 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                             points,
                           )[0];
 
-                          const boostedMarks = setPrecision(
-                            new Decimal(points + boost),
-                            2,
-                          ).toNumber();
+                          const boostedMarks = points + boost;
 
                           return (
                             <OuterPanel
@@ -354,7 +367,11 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                                 />
                                 <Label
                                   icon={ITEM_DETAILS["Mark"].image}
-                                  secondaryIcon={boost ? lightning : undefined}
+                                  secondaryIcon={
+                                    boost
+                                      ? SUNNYSIDE.icons.lightning
+                                      : undefined
+                                  }
                                   type="warning"
                                   className="absolute h-6"
                                   iconWidth={10}
@@ -365,7 +382,7 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                                   }}
                                 >
                                   <span className={boost ? "pl-1.5" : ""}>
-                                    {boostedMarks}
+                                    {formatNumber(boostedMarks)}
                                   </span>
                                 </Label>
                               </div>
@@ -373,7 +390,7 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                                 <div id="select-box">
                                   <img
                                     className="absolute pointer-events-none"
-                                    src={selectBoxTL}
+                                    src={SUNNYSIDE.ui.selectBoxTL}
                                     style={{
                                       top: `${PIXEL_SCALE * -3}px`,
                                       left: `${PIXEL_SCALE * -3}px`,
@@ -382,7 +399,7 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                                   />
                                   <img
                                     className="absolute pointer-events-none"
-                                    src={selectBoxTR}
+                                    src={SUNNYSIDE.ui.selectBoxTR}
                                     style={{
                                       top: `${PIXEL_SCALE * -3}px`,
                                       right: `${PIXEL_SCALE * -3}px`,
@@ -395,6 +412,19 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                           );
                         })}
                       </div>
+                      {collectivePet.streak > 0 && (
+                        <div className="flex items-center space-x-1">
+                          <p className="text-xs pb-1">{`${t("faction.pet.contributingMember")}: `}</p>
+                          <img
+                            className="w-3"
+                            src={
+                              isContributingMemberForThisWeek
+                                ? SUNNYSIDE.icons.confirm
+                                : SUNNYSIDE.icons.close
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   }
                   panel={
@@ -410,12 +440,14 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                           <Label
                             onClick={() => setShowBoostInfo(!showBoostInfo)}
                             icon={ITEM_DETAILS["Mark"].image}
-                            secondaryIcon={boost ? lightning : undefined}
+                            secondaryIcon={
+                              boost ? SUNNYSIDE.icons.lightning : undefined
+                            }
                             type="warning"
                             className="m-1 cursor-pointer"
                           >
                             <span className={boost ? "pl-1.5" : ""}>
-                              {`${boostedMarks} ${t("marks")}`}
+                              {`${formatNumber(boostedMarks)} ${t("marks")}`}
                             </span>
                           </Label>
                         </div>
@@ -461,8 +493,8 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                 <div className="space-y-3">
                   <span className="text-xs sm:text-sm">
                     {t("faction.donation.confirm", {
-                      factionPoints: boostedMarks,
-                      reward: boostedMarks > 1 ? "marks" : "mark",
+                      factionPoints: formatNumber(boostedMarks),
+                      reward: t("marks"),
                     })}
                   </span>
                   <div className="flex flex-col space-y-1">
@@ -505,7 +537,10 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
               </div>
               <div className="flex mb-2">
                 <div className="w-12 flex justify-center">
-                  <img src={xpIcon} className="h-6 mr-2 object-contain" />
+                  <img
+                    src={SUNNYSIDE.icons.xpIcon}
+                    className="h-6 mr-2 object-contain"
+                  />
                 </div>
                 <p className="text-xs flex-1">{t("guide.factionPet.two")}</p>
               </div>
@@ -520,9 +555,21 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
               </div>
               <div className="flex mb-2">
                 <div className="w-12 flex justify-center">
-                  <img src={lightning} className="h-6 mr-2 object-contain" />
+                  <img
+                    src={SUNNYSIDE.icons.lightning}
+                    className="h-6 mr-2 object-contain"
+                  />
                 </div>
                 <p className="text-xs flex-1">{t("guide.factionPet.four")}</p>
+              </div>
+              <div className="flex mb-2">
+                <div className="w-12 flex justify-center">
+                  <img
+                    src={SUNNYSIDE.icons.expression_confused}
+                    className="h-6 mr-2 object-contain"
+                  />
+                </div>
+                <p className="text-xs flex-1">{t("guide.factionPet.five")}</p>
               </div>
               <div className="flex mb-2">
                 <div className="w-12 flex justify-center">
@@ -531,7 +578,52 @@ export const FactionPetPanel: React.FC<Props> = ({ onClose }) => {
                     className="h-6 mr-2 object-contain"
                   />
                 </div>
-                <p className="text-xs flex-1">{t("guide.factionPet.five")}</p>
+                <p className="text-xs flex-1">{t("guide.factionPet.six")}</p>
+              </div>
+            </div>
+            <Button
+              className="text-xxs sm:text-sm mt-1 whitespace-nowrap"
+              onClick={() => {
+                setTab(0);
+              }}
+            >
+              {t("ok")}
+            </Button>
+          </>
+        )}
+        {tab === 2 && (
+          <>
+            <div className="p-2">
+              <div className="flex items-center mb-2">
+                <div className="w-12 flex justify-center">
+                  <img
+                    src={SUNNYSIDE.icons.xpIcon}
+                    className="h-4 mr-2 object-contain"
+                  />
+                </div>
+                <p className="text-sm flex-1">{`Streaks Explained`}</p>
+              </div>
+              <ul className="flex mr-2 list-inside flex-col mb-2 space-y-2">
+                <li className="text-xs flex-1 flex">
+                  <div className="mx-2">{`-`}</div>
+                  <p>{t("guide.streak.one")}</p>
+                </li>
+                <li className="text-xs flex-1 flex">
+                  <div className="mx-2">{`-`}</div>
+                  <p>{t("guide.streak.two")}</p>
+                </li>
+                <li className="text-xs flex-1 flex">
+                  <div className="mx-2">{`-`}</div>
+                  <p>{t("guide.streak.three")}</p>
+                </li>
+                <li className="text-xs flex-1 flex">
+                  <div className="mx-2">{`-`}</div>
+                  <p>{t("guide.streak.four")}</p>
+                </li>
+              </ul>
+              <div className="space-y-1 mt-1">
+                <p className="my-1 text-xs">{t("guide.streak.beyond")}</p>
+                <p className="my-1 text-xs">{t("guide.streak.furtherInfo")}</p>
               </div>
             </div>
             <Button

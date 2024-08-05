@@ -21,7 +21,6 @@ import blossomHourglassDone from "assets/factions/boosts/flower_boost_done.webp"
 import fisherHourglassFull from "assets/factions/boosts/fish_boost_full.webp";
 import fisherHourglassHalf from "assets/factions/boosts/fish_boost_half.webp";
 import fisherHourglassDone from "assets/factions/boosts/fish_boost_done.webp";
-
 import shadow from "assets/npcs/shadow.png";
 
 import { PIXEL_SCALE } from "features/game/lib/constants";
@@ -39,7 +38,7 @@ import { secondsToString } from "lib/utils/time";
 import { COLLECTIBLE_BUFF_LABELS } from "features/game/types/collectibleItemBuffs";
 import { InventoryItemName } from "features/game/types/game";
 
-type HourglassType =
+export type HourglassType =
   | "Gourmet Hourglass"
   | "Harvest Hourglass"
   | "Timber Hourglass"

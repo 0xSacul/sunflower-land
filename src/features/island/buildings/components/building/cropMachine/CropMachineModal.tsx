@@ -39,7 +39,7 @@ import lightning from "assets/icons/lightning.png";
 import { PackGrowthProgressBar } from "./components/PackGrowthProgressBar";
 import { TimeRemainingLabel } from "./components/TimeRemainingLabel";
 import { OilTank } from "./components/OilTank";
-import { setPrecision } from "lib/utils/formatNumber";
+import { formatNumber } from "lib/utils/formatNumber";
 import { isMobile } from "mobile-device-detect";
 
 interface Props {
@@ -54,7 +54,7 @@ interface Props {
   onAddOil: (oil: number) => void;
 }
 
-const ALLOWED_SEEDS: CropSeedName[] = getKeys(CROP_SEEDS()).filter((seed) => {
+const ALLOWED_SEEDS: CropSeedName[] = getKeys(CROP_SEEDS).filter((seed) => {
   const crop = seed.split(" ")[0] as CropName;
 
   return isBasicCrop(crop);
@@ -298,7 +298,7 @@ export const CropMachineModal: React.FC<Props> = ({
                     <span className="text-xs">
                       {t("cropMachine.totalCrops", {
                         cropName: selectedPack.crop.toLocaleLowerCase(),
-                        total: setPrecision(new Decimal(selectedPack.amount)),
+                        total: formatNumber(selectedPack.amount),
                       })}
                     </span>
                   </div>
@@ -571,8 +571,8 @@ export const CropMachineModal: React.FC<Props> = ({
                   className="mx-1.5 mt-2"
                 >
                   {t("cropMachine.availableInventory", {
-                    amount: setPrecision(
-                      new Decimal((inventory.Oil?.toNumber() ?? 0) - totalOil),
+                    amount: formatNumber(
+                      (inventory.Oil?.toNumber() ?? 0) - totalOil,
                     ),
                   })}
                 </Label>

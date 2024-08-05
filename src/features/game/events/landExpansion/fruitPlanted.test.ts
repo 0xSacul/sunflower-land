@@ -413,6 +413,282 @@ describe("fruitPlanted", () => {
     ).toEqual(dateNow - (FRUIT_SEEDS()["Orange Seed"].plantSeconds * 1000) / 2);
   });
 
+  it("gives a 50% growth time reduction when Lemon Tea Bath is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Lemon Seed": seedAmount,
+          "Lemon Tea Bath": new Decimal(1),
+        },
+        collectibles: {
+          "Lemon Tea Bath": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+        seed: "Lemon Seed",
+      },
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
+    ).toEqual(1);
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.plantedAt,
+    ).toEqual(dateNow - (FRUIT_SEEDS()["Lemon Seed"].plantSeconds * 1000) / 2);
+  });
+
+  it("gives a 25% growth time reduction when Lemon Frog is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Lemon Seed": seedAmount,
+          "Lemon Frog": new Decimal(1),
+        },
+        collectibles: {
+          "Lemon Frog": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+        seed: "Lemon Seed",
+      },
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
+    ).toEqual(1);
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.plantedAt,
+    ).toEqual(dateNow - FRUIT_SEEDS()["Lemon Seed"].plantSeconds * 1000 * 0.25);
+  });
+
+  it("gives a 62.5% growth time reduction on lemons when Lemon Frog and Lemon Tea Bath are placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Lemon Seed": seedAmount,
+          "Lemon Tea Bath": new Decimal(1),
+          "Lemon Frog": new Decimal(1),
+        },
+        collectibles: {
+          "Lemon Tea Bath": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+          "Lemon Frog": [
+            {
+              coordinates: { x: 1, y: 1 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+        seed: "Lemon Seed",
+      },
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
+    ).toEqual(1);
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.plantedAt,
+    ).toEqual(
+      dateNow - FRUIT_SEEDS()["Lemon Seed"].plantSeconds * 1000 * 0.625,
+    );
+  });
+
+  it("gives a 50% growth time reduction on tomatoes when Tomato Clown is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Tomato Seed": seedAmount,
+          "Tomato Clown": new Decimal(1),
+        },
+        collectibles: {
+          "Tomato Clown": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+        seed: "Tomato Seed",
+      },
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
+    ).toEqual(1);
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.plantedAt,
+    ).toEqual(dateNow - (FRUIT_SEEDS()["Tomato Seed"].plantSeconds * 1000) / 2);
+  });
+
+  it("gives a 25% growth time reduction on tomatoes when Cannonball is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Tomato Seed": seedAmount,
+          Cannonball: new Decimal(1),
+        },
+        collectibles: {
+          Cannonball: [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+        seed: "Tomato Seed",
+      },
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
+    ).toEqual(1);
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.plantedAt,
+    ).toEqual(
+      dateNow - FRUIT_SEEDS()["Tomato Seed"].plantSeconds * 1000 * 0.25,
+    );
+  });
+
+  it("gives a 62.5% growth time reduction on tomatoes when Cannonball and Tomato Clown are placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Tomato Seed": seedAmount,
+          "Tomato Clown": new Decimal(1),
+          Cannonball: new Decimal(1),
+        },
+        collectibles: {
+          "Tomato Clown": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+          Cannonball: [
+            {
+              coordinates: { x: 1, y: 1 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+        seed: "Tomato Seed",
+      },
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
+    ).toEqual(1);
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.plantedAt,
+    ).toEqual(
+      dateNow - FRUIT_SEEDS()["Tomato Seed"].plantSeconds * 1000 * 0.625,
+    );
+  });
+
   it("includes Black Bearry bonus on Blueberries", () => {
     const seedAmount = new Decimal(5);
 
@@ -534,6 +810,40 @@ describe("fruitPlanted", () => {
     ).toEqual(1.2);
   });
 
+  it("includes Camel Onesie +0.1 bonus on all Fruits growing from Fruit patches", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            onesie: "Camel Onesie",
+            ...INITIAL_BUMPKIN.equipped,
+          },
+        },
+        inventory: {
+          "Lemon Seed": seedAmount,
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+        seed: "Lemon Seed",
+      },
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect(
+      (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
+    ).toEqual(1.1);
+  });
+
   it("includes Banana Amulet +0.5 bonus on Bananas", () => {
     const seedAmount = new Decimal(5);
 
@@ -595,6 +905,255 @@ describe("fruitPlanted", () => {
       (fruitPatches as Record<number, FruitPatch>)[patchIndex].fruit?.amount,
     ).toEqual(1);
   });
+
+  it("includes +0.2 Lemons when Lemon Shark is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Lemon Seed": seedAmount,
+        },
+        collectibles: {
+          "Lemon Shark": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 10,
+              id: "123",
+              readyAt: 10,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+
+        seed: "Lemon Seed",
+      },
+      harvestsLeft: () => 3,
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect((fruitPatches as Record<number, FruitPatch>)[patchIndex]).toEqual(
+      expect.objectContaining({
+        fruit: expect.objectContaining({
+          name: "Lemon",
+          plantedAt: expect.any(Number),
+          amount: 1.2,
+          harvestedAt: 0,
+          harvestsLeft: 3,
+        }),
+      }),
+    );
+  });
+
+  it("includes +0.25 Lemons when Reveling Lemon is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: INITIAL_BUMPKIN,
+        inventory: {
+          "Lemon Seed": seedAmount,
+        },
+        collectibles: {
+          "Reveling Lemon": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 10,
+              id: "123",
+              readyAt: 10,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+
+        seed: "Lemon Seed",
+      },
+      harvestsLeft: () => 3,
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect((fruitPatches as Record<number, FruitPatch>)[patchIndex]).toEqual(
+      expect.objectContaining({
+        fruit: expect.objectContaining({
+          name: "Lemon",
+          plantedAt: expect.any(Number),
+          amount: 1.25,
+          harvestedAt: 0,
+          harvestsLeft: 3,
+        }),
+      }),
+    );
+  });
+
+  it("includes +1 Lemons when Lemon Shield is equipped", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            secondaryTool: "Lemon Shield",
+          },
+        },
+        inventory: {
+          "Lemon Seed": seedAmount,
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+
+        seed: "Lemon Seed",
+      },
+      harvestsLeft: () => 3,
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect((fruitPatches as Record<number, FruitPatch>)[patchIndex]).toEqual(
+      expect.objectContaining({
+        fruit: expect.objectContaining({
+          name: "Lemon",
+          plantedAt: expect.any(Number),
+          amount: 2,
+          harvestedAt: 0,
+          harvestsLeft: 3,
+        }),
+      }),
+    );
+  });
+
+  it("includes +1.45 Lemons when Lemon Shield is equipped and Lemon Shark & Reveling Lemon is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          equipped: {
+            ...INITIAL_BUMPKIN.equipped,
+            secondaryTool: "Lemon Shield",
+          },
+        },
+        inventory: {
+          "Lemon Seed": seedAmount,
+        },
+        collectibles: {
+          "Lemon Shark": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 10,
+              id: "123",
+              readyAt: 10,
+            },
+          ],
+          "Reveling Lemon": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 10,
+              id: "123",
+              readyAt: 10,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+
+        seed: "Lemon Seed",
+      },
+      harvestsLeft: () => 3,
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect((fruitPatches as Record<number, FruitPatch>)[patchIndex]).toEqual(
+      expect.objectContaining({
+        fruit: expect.objectContaining({
+          name: "Lemon",
+          plantedAt: expect.any(Number),
+          amount: 2.45,
+          harvestedAt: 0,
+          harvestsLeft: 3,
+        }),
+      }),
+    );
+  });
+
+  it("includes +1 Tomato when Tomato Bombard is placed", () => {
+    const seedAmount = new Decimal(5);
+
+    const patchIndex = "1";
+
+    const state = plantFruit({
+      state: {
+        ...GAME_STATE,
+        inventory: {
+          "Tomato Seed": seedAmount,
+        },
+        collectibles: {
+          "Tomato Bombard": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      createdAt: dateNow,
+      action: {
+        type: "fruit.planted",
+        index: patchIndex,
+
+        seed: "Tomato Seed",
+      },
+      harvestsLeft: () => 3,
+    });
+
+    const fruitPatches = state.fruitPatches;
+
+    expect((fruitPatches as Record<number, FruitPatch>)[patchIndex]).toEqual(
+      expect.objectContaining({
+        fruit: expect.objectContaining({
+          name: "Tomato",
+          plantedAt: expect.any(Number),
+          amount: 2,
+          harvestedAt: 0,
+          harvestsLeft: 3,
+        }),
+      }),
+    );
+  });
 });
 
 describe("getFruitTime", () => {
@@ -641,6 +1200,52 @@ describe("getFruitTime", () => {
       INITIAL_BUMPKIN.equipped,
     );
     expect(time).toEqual(applePlantSeconds);
+  });
+
+  it("applies a 50% time reduction for Lemons when Lemon Tea Bath is placed", () => {
+    const seed = "Lemon Seed";
+    const lemonPlantSeconds = FRUIT_SEEDS()[seed].plantSeconds;
+    const time = getFruitPatchTime(
+      seed,
+      {
+        ...TEST_FARM,
+        collectibles: {
+          "Lemon Tea Bath": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      INITIAL_BUMPKIN.equipped,
+    );
+    expect(time).toEqual(lemonPlantSeconds * 0.5);
+  });
+
+  it("gives a 50% growth time reduction for tomatoes when Tomato Clown is placed", () => {
+    const seed = "Tomato Seed";
+    const tomatoPlantSeconds = FRUIT_SEEDS()[seed].plantSeconds;
+    const time = getFruitPatchTime(
+      seed,
+      {
+        ...TEST_FARM,
+        collectibles: {
+          "Tomato Clown": [
+            {
+              coordinates: { x: 0, y: 0 },
+              createdAt: 0,
+              id: "123",
+              readyAt: 0,
+            },
+          ],
+        },
+      },
+      INITIAL_BUMPKIN.equipped,
+    );
+    expect(time).toEqual(tomatoPlantSeconds * 0.5);
   });
 
   it("applies a 10% speed boost with Nana placed for Banana plant", () => {

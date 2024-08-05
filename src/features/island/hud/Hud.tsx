@@ -22,7 +22,7 @@ import Decimal from "decimal.js-light";
 import { BuyCurrenciesModal } from "./components/BuyCurrenciesModal";
 import { MachineState } from "features/game/lib/gameMachine";
 import { useSound } from "lib/utils/hooks/useSound";
-import { EmblemAirdropCountdown } from "./EmblemAirdropCountdown";
+import { SpecialEventCountdown } from "./SpecialEventCountdown";
 
 const _farmAddress = (state: MachineState) => state.context.farmAddress;
 const _xp = (state: MachineState) =>
@@ -164,7 +164,7 @@ const HudComponent: React.FC<{
           }}
         >
           <AuctionCountdown />
-          <EmblemAirdropCountdown />
+          <SpecialEventCountdown />
         </div>
 
         <div
