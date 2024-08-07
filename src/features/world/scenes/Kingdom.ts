@@ -10,10 +10,7 @@ import {
 import { interactableModalManager } from "../ui/InteractableModals";
 import { translate } from "lib/i18n/translate";
 import { SOUNDS } from "assets/sound-effects/soundEffects";
-import {
-  AudioLocalStorageKeys,
-  getCachedAudioSetting,
-} from "features/game/lib/audio";
+
 import { npcModalManager } from "../ui/NPCModals";
 import { FactionName } from "features/game/types/game";
 import { Coordinates } from "features/game/expansion/components/MapPlacement";
@@ -27,14 +24,9 @@ import {
 } from "features/game/lib/factions";
 import { hasReadKingdomNotice } from "../ui/kingdom/KingdomNoticeboard";
 import { EventObject } from "xstate";
+import { hasReadCropsAndChickensNotice } from "../ui/portals/CropsAndChickens";
 
 export const KINGDOM_NPCS: NPCBumpkin[] = [
-  {
-    x: 390,
-    y: 725,
-    npc: "cluck e cheese",
-    direction: "left",
-  },
   {
     x: 305,
     y: 500,
@@ -200,6 +192,21 @@ export class KingdomScene extends BaseScene {
       });
 
     if (hasFeatureAccess(this.gameState, "CROPS_AND_CHICKENS")) {
+      if (!hasReadCropsAndChickensNotice()) {
+        const cropsAndChickensPortalNotice = this.add
+          .image(400, 732, "question_disc")
+          .setDepth(1000000);
+        cropsAndChickensPortalNotice
+          .setInteractive({ cursor: "pointer" })
+          .on("pointerdown", () => {
+            if (this.checkDistanceToSprite(cropsAndChickensPortalNotice, 40)) {
+              interactableModalManager.open("crops_and_chickens");
+            } else {
+              this.currentPlayer?.speak(translate("base.iam.far.away"));
+            }
+          });
+      }
+
       const cropsAndChickensPortal = this.add.sprite(400, 752, "portal");
       cropsAndChickensPortal.play("portal_anim", true);
       cropsAndChickensPortal
@@ -338,30 +345,10 @@ export class KingdomScene extends BaseScene {
       this.add.image(280, 720, "question_disc").setDepth(1000000);
     }
 
-    const audioMuted = getCachedAudioSetting<boolean>(
-      AudioLocalStorageKeys.audioMuted,
-      false,
-    );
-
-    if (!audioMuted) {
-      // Ambience SFX
-      if (!this.sound.get("royal_farms")) {
-        const nature1 = this.sound.add("royal_farms");
-        nature1.play({ loop: true, volume: 0.3 });
-      }
-    }
-
-    if (
-      !hasFeatureAccess(this.gameService.state.context.state, "TEST_DIGGING")
-    ) {
-      const desertBlockade = this.add.sprite(0, 656, "box_blockade");
-      this.physics.world.enable(desertBlockade);
-      this.colliders?.add(desertBlockade);
-      (desertBlockade.body as Phaser.Physics.Arcade.Body)
-        .setSize(32, 48)
-        .setOffset(0, 0)
-        .setImmovable(true)
-        .setCollideWorldBounds(true);
+    // Ambience SFX
+    if (!this.sound.get("royal_farms")) {
+      const nature1 = this.sound.add("royal_farms");
+      nature1.play({ loop: true, volume: 0.3 });
     }
 
     // Shut down the sound when the scene changes
