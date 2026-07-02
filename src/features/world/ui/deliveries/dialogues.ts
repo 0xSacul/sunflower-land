@@ -1,4 +1,4 @@
-import { NPCName } from "lib/npcs";
+import type { NPCName } from "lib/npcs";
 import { translate } from "lib/i18n/translate";
 
 interface DeliveryNPCDialogue {
@@ -76,10 +76,10 @@ export const npcDialogues: Partial<Record<NPCName, DeliveryNPCDialogue>> = {
       translate("npcDialogues.grimbly.positiveDelivery4"),
     ],
     negativeDelivery: [
-      translate("npcDialogues.grimbly.positiveDelivery1"),
-      translate("npcDialogues.grimbly.positiveDelivery2"),
-      translate("npcDialogues.grimbly.positiveDelivery3"),
-      translate("npcDialogues.grimbly.positiveDelivery4"),
+      translate("npcDialogues.grimbly.negativeDelivery1"),
+      translate("npcDialogues.grimbly.negativeDelivery2"),
+      translate("npcDialogues.grimbly.negativeDelivery3"),
+      translate("npcDialogues.grimbly.negativeDelivery4"),
     ],
     noOrder: [
       translate("npcDialogues.grimbly.noOrder1"),
@@ -115,7 +115,6 @@ export const npcDialogues: Partial<Record<NPCName, DeliveryNPCDialogue>> = {
     intro: [
       translate("npcDialogues.oldSalty.intro1"),
       translate("npcDialogues.oldSalty.intro2"),
-      translate("npcDialogues.oldSalty.intro3"),
     ],
     positiveDelivery: [
       translate("npcDialogues.oldSalty.positiveDelivery1"),

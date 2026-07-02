@@ -1,23 +1,37 @@
 import React, { useContext } from "react";
 
-import { SUNNYSIDE } from "assets/sunnyside";
 import { PIXEL_SCALE } from "features/game/lib/constants";
-import { BuildingProps } from "../Building";
+import type { BuildingProps } from "../Building";
 import { Context } from "features/game/GameProvider";
 import { useSelector } from "@xstate/react";
 import { BuildingImageWrapper } from "../BuildingImageWrapper";
-import { useNavigate } from "react-router-dom";
-import { MachineState } from "features/game/lib/gameMachine";
-import { getKeys } from "features/game/types/craftables";
-import { getReadyAt } from "features/game/events/landExpansion/harvestGreenHouse";
-import { GreenHouseCropName } from "features/game/types/crops";
-import { GreenHouseFruitName } from "features/game/types/fruits";
+import { useNavigate } from "react-router";
+import type { MachineState } from "features/game/lib/gameMachine";
+import { getKeys } from "lib/object";
+import { isGreenhouseReady } from "features/game/events/landExpansion/greenhouseReadiness";
+import type { GreenHouseCropName } from "features/game/types/crops";
+import type { GreenHouseFruitName } from "features/game/types/fruits";
 import { ITEM_DETAILS } from "features/game/types/images";
+import { GREENHOUSE_VARIANTS } from "features/island/lib/alternateArt";
+import { SUNNYSIDE } from "assets/sunnyside";
+import { saveIslandScrollPosition } from "features/game/expansion/lib/islandScroll";
+import { useNow } from "lib/utils/hooks/useNow";
 
-const selectReadyPlants = (state: MachineState) => {
-  const pots = state.context.state.greenhouse.pots;
+const _gameState = (state: MachineState) => state.context.state;
 
-  return getKeys(pots).reduce(
+export const Greenhouse: React.FC<BuildingProps> = ({ isBuilt, season }) => {
+  const { gameService, showAnimations } = useContext(Context);
+
+  const gameState = useSelector(gameService, _gameState);
+
+  const { pots } = gameState.greenhouse;
+  const hasActivePlants = Object.values(pots).some((pot) => !!pot.plant);
+
+  // Readiness is derived in-render (windowed plants become ready earlier than
+  // their stored plantedAt implies) off a live clock, so the ready indicators
+  // appear on time; the clock stops when nothing is growing.
+  const now = useNow({ live: hasActivePlants });
+  const readyPlants = getKeys(pots).reduce(
     (plants, id) => {
       const pot = pots[id];
 
@@ -25,15 +39,7 @@ const selectReadyPlants = (state: MachineState) => {
         return plants;
       }
 
-      const isReady =
-        Date.now() >
-        getReadyAt({
-          game: state.context.state,
-          plant: pot.plant.name,
-          createdAt: pot.plant.plantedAt,
-        });
-
-      if (!isReady) {
+      if (!isGreenhouseReady(now, pot, gameState)) {
         return plants;
       }
 
@@ -41,22 +47,12 @@ const selectReadyPlants = (state: MachineState) => {
     },
     [] as (GreenHouseCropName | GreenHouseFruitName)[],
   );
-};
-
-export const Greenhouse: React.FC<BuildingProps> = ({ isBuilt, onRemove }) => {
-  const { gameService } = useContext(Context);
-
-  const readyPlants = useSelector(gameService, selectReadyPlants);
 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (onRemove) {
-      onRemove();
-      return;
-    }
-
     if (isBuilt) {
+      saveIslandScrollPosition();
       navigate("/greenhouse");
 
       // Add future on click actions here
@@ -67,8 +63,19 @@ export const Greenhouse: React.FC<BuildingProps> = ({ isBuilt, onRemove }) => {
   return (
     <div className="absolute h-full w-full">
       <BuildingImageWrapper name="Greenhouse" onClick={handleClick}>
+        {hasActivePlants && (
+          <img
+            src={SUNNYSIDE.building.smoke}
+            className="absolute pointer-events-none"
+            style={{
+              width: `${PIXEL_SCALE * 20}px`,
+              left: `calc(${PIXEL_SCALE * 26}px - 50px)`,
+              bottom: `calc(${PIXEL_SCALE * 46}px + 30px)`,
+            }}
+          />
+        )}
         <img
-          src={SUNNYSIDE.building.greenhouse}
+          src={GREENHOUSE_VARIANTS[season]}
           className="absolute pointer-events-none"
           style={{
             width: `${PIXEL_SCALE * 78}px`,
@@ -87,7 +94,9 @@ export const Greenhouse: React.FC<BuildingProps> = ({ isBuilt, onRemove }) => {
               <img
                 key={index}
                 src={ITEM_DETAILS[plant].image}
-                className="img-highlight-heavy w-8 ready"
+                className={
+                  "img-highlight-heavy w-8" + (showAnimations ? " ready" : "")
+                }
               />
             ))}
           </div>

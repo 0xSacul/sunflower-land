@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { Button } from "components/ui/Button";
-import { Message, Player } from "../ModerationTools";
+import type { Message, Player } from "../ModerationTools";
 import { isModerator } from "../tabs/PlayerList";
 import { DynamicNFT } from "features/bumpkins/components/DynamicNFT";
 import { isMobile } from "mobile-device-detect";
 
 import {
-  getBumpkinLevel,
-  getExperienceToNextLevel,
-  isMaxLevel,
+  getAscensionDisplayText,
+  getAscensionLevel,
 } from "features/game/lib/level";
-import { t } from "i18next";
 import { ResizableBar } from "components/ui/ProgressBar";
 import { Label } from "components/ui/Label";
 import { SUNNYSIDE } from "assets/sunnyside";
@@ -56,14 +54,20 @@ export const PlayerModal: React.FC<Props> = ({
     );
 
   const experience = player.experience ?? 0;
-  const level = getBumpkinLevel(experience);
-  const maxLevel = isMaxLevel(experience);
-  const { currentExperienceProgress, experienceToNextLevel } =
-    getExperienceToNextLevel(experience);
+  const {
+    ascension,
+    level,
+    isReadyToAscend,
+    currentExperienceProgress,
+    experienceToNextLevel,
+  } = getAscensionLevel({
+    experience,
+    ascensionLevel: player.ascensionLevel ?? 0,
+  });
 
   const getProgressPercentage = () => {
     let progressRatio = 1;
-    if (!maxLevel) {
+    if (!isReadyToAscend) {
       progressRatio = Math.min(
         1,
         currentExperienceProgress / experienceToNextLevel,
@@ -75,7 +79,7 @@ export const PlayerModal: React.FC<Props> = ({
 
   const getModerationEvents = () => {
     const events: Event[] = [];
-    player.moderation?.kicked.forEach((kicked) => {
+    /* player.moderation?.kicked.forEach((kicked) => {
       events.push({
         type: "kick",
         at: kicked.kickedAt,
@@ -94,13 +98,16 @@ export const PlayerModal: React.FC<Props> = ({
 
     return events.sort((a, b) => {
       return new Date(b.at).getTime() - new Date(a.at).getTime();
-    });
+    }); */
+    return events;
   };
 
-  const latestMute = player.moderation?.muted.sort(
+  /* const latestMute = player.moderation?.muted.sort(
     (a, b) => b.mutedUntil - a.mutedUntil,
   )[0];
-  const isMuted = latestMute && latestMute.mutedUntil > Date.now();
+  const isMuted = latestMute && latestMute.mutedUntil > Date.now(); */
+  const latestMute = { mutedUntil: 0 };
+  const isMuted = false;
 
   return (
     <>
@@ -142,8 +149,9 @@ export const PlayerModal: React.FC<Props> = ({
               </div>
               <div className="flex flex-col items-end justify-center gap-2">
                 <p className="text-base">
-                  {t("lvl")} {level}
-                  {maxLevel ? " (Max)" : ""}
+                  {`${getAscensionDisplayText({ ascension: { ascension, level }, length: "medium" })}${
+                    isReadyToAscend ? " (Max)" : ""
+                  }`}
                 </p>
                 <div className="flex items-center mt-1">
                   <p className="text-xxs mr-2">

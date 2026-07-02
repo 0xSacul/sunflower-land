@@ -1,6 +1,6 @@
 import Decimal from "decimal.js-light";
 import { TEST_FARM } from "features/game/lib/constants";
-import { GameState } from "features/game/types/game";
+import type { GameState } from "features/game/types/game";
 import { MOVE_BEEHIVE_ERRORS, moveBeehive } from "./moveBeehive";
 
 const GAME_STATE: GameState = {
@@ -34,8 +34,6 @@ describe("moveBeehive", () => {
         beehives: {
           "1234": {
             swarm: false,
-            height: 1,
-            width: 1,
             honey: {
               updatedAt: 0,
               produced: 0,

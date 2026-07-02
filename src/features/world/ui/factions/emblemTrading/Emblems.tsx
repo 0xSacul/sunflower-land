@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { Label } from "components/ui/Label";
 import { Context } from "features/game/GameProvider";
 
-import { FactionEmblem, FactionName } from "features/game/types/game";
+import type { FactionEmblem, FactionName } from "features/game/types/game";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import React, { useContext, useEffect, useState } from "react";
 
@@ -16,15 +16,15 @@ import powerup from "assets/icons/level_up.png";
 import { RANKS, getFactionRanking } from "features/game/lib/factionRanks";
 
 import {
-  EmblemsLeaderboard,
+  type EmblemsLeaderboard,
   getLeaderboard,
-  RankData,
+  type RankData,
 } from "features/game/expansion/components/leaderboard/actions/leaderboard";
-import { getRelativeTime } from "lib/utils/time";
 import { ITEM_DETAILS } from "features/game/types/images";
 import { Button } from "components/ui/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { LeaveFaction } from "../LeaveFaction";
+import { LastUpdatedAt } from "components/LastUpdatedAt";
 
 interface Props {
   emblem: FactionEmblem;
@@ -54,7 +54,7 @@ export const Emblems: React.FC<Props> = ({ emblem, factionName }) => {
   const leave = () => {
     gameService.send("faction.left");
     gameService.send("SAVE");
-    navigate("/");
+    navigate("/world/kingdom");
   };
 
   if (showLeaveFaction) {
@@ -71,7 +71,7 @@ export const Emblems: React.FC<Props> = ({ emblem, factionName }) => {
   const playerRank = getFactionRanking(factionName, emblems.toNumber());
 
   const id =
-    gameService.state?.context?.state?.username ??
+    gameService.getSnapshot()?.context?.state?.username ??
     String(gameService?.state?.context?.farmId);
 
   return (
@@ -163,7 +163,6 @@ const Leaderboard: React.FC<{
   emblem: FactionEmblem;
 }> = ({ leaderboard, faction, playerId, emblem }) => {
   const { t } = useAppTranslation();
-
   const topTen = leaderboard.emblems.topTens[faction];
 
   // Where is the player ranked?
@@ -192,9 +191,7 @@ const Leaderboard: React.FC<{
           {topTen.slice(0, 7).map(({ id, rank, count }, index) => (
             <tr
               key={index}
-              className={classNames({
-                "bg-[#ead4aa]": id === playerId,
-              })}
+              className={classNames({ "bg-[#ead4aa]": id === playerId })}
             >
               <td style={{ border: "1px solid #b96f50" }} className="p-1.5">
                 {rank ?? index + 1}
@@ -225,9 +222,7 @@ const Leaderboard: React.FC<{
           {ranks.slice(0, 3).map(({ id, rank, count }, index) => (
             <tr
               key={index}
-              className={classNames({
-                "bg-[#ead4aa]": id === playerId,
-              })}
+              className={classNames({ "bg-[#ead4aa]": id === playerId })}
             >
               <td style={{ border: "1px solid #b96f50" }} className="p-1.5">
                 {rank ?? index + 1}
@@ -261,9 +256,7 @@ const Leaderboard: React.FC<{
       </table>
 
       <div className="flex justify-between font-secondary text-xs pt-1">
-        <span>
-          {t("last.updated")} {getRelativeTime(leaderboard.lastUpdated)}
-        </span>
+        <LastUpdatedAt lastUpdated={leaderboard.lastUpdated} />
       </div>
     </>
   );

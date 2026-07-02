@@ -1,20 +1,14 @@
-import cloneDeep from "lodash.clonedeep";
-
-import { GameState } from "features/game/types/game";
-import {
-  ResourceName,
-  RESOURCE_DIMENSIONS,
-} from "features/game/types/resources";
+import type { FiniteResource, GameState } from "features/game/types/game";
+import type { ResourceName } from "features/game/types/resources";
 import Decimal from "decimal.js-light";
+import { produce } from "immer";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
 
 export type PlaceSunstoneAction = {
   type: "sunstone.placed";
   name: ResourceName;
   id: string;
-  coordinates: {
-    x: number;
-    y: number;
-  };
+  coordinates: Coordinates;
 };
 
 type Options = {
@@ -28,30 +22,56 @@ export function placeSunstone({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const game = cloneDeep(state) as GameState;
+  return produce(state, (game) => {
+    const available = (game.inventory["Sunstone Rock"] || new Decimal(0)).minus(
+      Object.values(game.sunstones).filter(
+        (sunstone) => sunstone.x !== undefined && sunstone.y !== undefined,
+      ).length,
+    );
 
-  const available = (game.inventory["Sunstone Rock"] || new Decimal(0)).minus(
-    Object.keys(game.sunstones).length,
-  );
+    if (available.lt(1)) {
+      throw new Error("No sunstone available");
+    }
 
-  if (available.lt(1)) {
-    throw new Error("No sunstone available");
-  }
+    const existingSunstone = Object.entries(game.sunstones).find(
+      ([_, sunstone]) => sunstone.x === undefined && sunstone.y === undefined,
+    );
 
-  game.sunstones = {
-    ...game.sunstones,
-    [action.id as unknown as number]: {
-      createdAt: createdAt,
+    if (existingSunstone) {
+      const [id, sunstone] = existingSunstone;
+      const updatedSunstone = {
+        ...sunstone,
+        x: action.coordinates.x,
+        y: action.coordinates.y,
+      };
+
+      if (updatedSunstone.stone && updatedSunstone.removedAt) {
+        const existingProgress =
+          updatedSunstone.removedAt - updatedSunstone.stone.minedAt;
+        updatedSunstone.stone.minedAt = createdAt - existingProgress;
+      }
+      delete updatedSunstone.removedAt;
+
+      game.sunstones[id] = updatedSunstone;
+
+      return game;
+    }
+
+    const newSunstone: FiniteResource = {
+      createdAt,
       x: action.coordinates.x,
       y: action.coordinates.y,
-      ...RESOURCE_DIMENSIONS["Sunstone Rock"],
       stone: {
-        amount: 0,
         minedAt: 0,
       },
       minesLeft: 10,
-    },
-  };
+    };
 
-  return game;
+    game.sunstones = {
+      ...game.sunstones,
+      [action.id]: newSunstone,
+    };
+
+    return game;
+  });
 }

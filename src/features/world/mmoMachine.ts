@@ -1,14 +1,21 @@
-import { Room, Client } from "colyseus.js";
+import { type Room, Client } from "colyseus.js";
 
-import { assign, createMachine, Interpreter, State } from "xstate";
-import { PlazaRoomState } from "./types/Room";
+import { assign, createMachine, type Interpreter, type State } from "xstate";
+import type { PlazaRoomState } from "./types/Room";
 
 import { CONFIG } from "lib/config";
-import { Bumpkin, FactionName } from "features/game/types/game";
+import type {
+  Bumpkin,
+  FactionName,
+  IslandType,
+} from "features/game/types/game";
+import type { Pets } from "features/game/types/pets";
 import { INITIAL_BUMPKIN } from "features/game/lib/constants";
 import { SPAWNS } from "./lib/spawn";
-import { Moderation } from "features/game/lib/gameMachine";
+import type { Moderation } from "features/game/lib/gameMachine";
 import { MAX_PLAYERS } from "./lib/availableRooms";
+import type { NPCName } from "lib/npcs";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
 
 export type Scenes = {
   plaza: Room<PlazaRoomState> | undefined;
@@ -28,15 +35,18 @@ export type Scenes = {
   nightshade_house: Room<PlazaRoomState> | undefined;
   bumpkin_house: Room<PlazaRoomState> | undefined;
   portal_example: Room<PlazaRoomState> | undefined;
+  infernos: Room<PlazaRoomState> | undefined;
+  stream: Room<PlazaRoomState> | undefined;
+  love_island: Room<PlazaRoomState> | undefined;
 };
 
 export type SceneId = keyof Scenes;
 
-function getDefaultServer(): ServerId | undefined {
+export function getDefaultServer(): ServerId | undefined {
   return localStorage.getItem("mmo_server") as ServerId | undefined;
 }
 
-function saveDefaultServer(serverId: ServerId) {
+export function saveDefaultServer(serverId: ServerId) {
   localStorage.setItem("mmo_server", serverId);
 }
 
@@ -65,16 +75,21 @@ export type ServerId =
   | "sunflorea_dream"
   | "sunflorea_oasis"
   | "sunflorea_brazil"
-  | "sunflorea_magic";
+  | "sunflorea_magic"
+  | "sunflorea_kale"
+  | "sunflorea_flower"
+  | "sunflorea_stream";
 
-type ServerName =
+export type ServerName =
   | "Bliss"
   | "Dream"
   | "Oasis"
   | "Brazil"
   | "Magic"
+  | "Kale"
+  | "Flower"
   | "Bumpkin Bazaar";
-type ServerPurpose = "Chill & Chat" | "Trading";
+export type ServerPurpose = "Chill & Chat" | "Trading";
 
 export type Server = {
   name: ServerName;
@@ -107,7 +122,24 @@ const SERVERS: Server[] = [
     population: 0,
     purpose: "Chill & Chat",
   },
-  // { name: "Magic", id: "sunflorea_magic", population: 0 },
+  {
+    name: "Magic",
+    id: "sunflorea_magic",
+    population: 0,
+    purpose: "Chill & Chat",
+  },
+  {
+    name: "Kale",
+    id: "sunflorea_kale",
+    population: 0,
+    purpose: "Chill & Chat",
+  },
+  {
+    name: "Flower",
+    id: "sunflorea_flower",
+    population: 0,
+    purpose: "Chill & Chat",
+  },
 ];
 
 export interface MMOContext {
@@ -115,6 +147,7 @@ export interface MMOContext {
   jwt: string;
   farmId: number;
   bumpkin: Bumpkin;
+  pets?: Pets;
   client?: Client;
   faction?: FactionName;
   availableServers: Server[];
@@ -124,7 +157,14 @@ export interface MMOContext {
   previousSceneId: SceneId | null;
   experience: number;
   isCommunity?: boolean;
+  firstDeliveryNpc?: NPCName;
   moderation: Moderation;
+  totalDeliveries: number;
+  dailyStreak: number;
+  isVip: boolean;
+  createdAt: number;
+  islandType: IslandType;
+  playerCoordinates?: Coordinates;
 }
 
 export type MMOState = {
@@ -154,22 +194,21 @@ export type ConnectEvent = {
 export type SwitchScene = {
   type: "SWITCH_SCENE";
   sceneId: SceneId;
-};
-
-export type UpdatePreviousScene = {
-  type: "UPDATE_PREVIOUS_SCENE";
-  previousSceneId: SceneId;
+  previousSceneId?: SceneId;
+  playerCoordinates: {
+    x: number;
+    y: number;
+  };
 };
 
 export type MMOEvent =
   | PickServer
-  | { type: "CONTINUE" }
+  | { type: "CONTINUE"; username?: string }
   | { type: "DISCONNECTED" }
   | { type: "RETRY" }
-  | { type: "CHANGE_SERVER" }
+  | { type: "CHANGE_SERVER"; serverId: ServerId }
   | ConnectEvent
-  | SwitchScene
-  | UpdatePreviousScene;
+  | SwitchScene;
 
 export type MachineState = State<MMOContext, MMOEvent, MMOState>;
 
@@ -187,18 +226,24 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
     jwt: "",
     farmId: 0,
     bumpkin: INITIAL_BUMPKIN,
+    username: "",
     availableServers: SERVERS,
     serverId: "sunflorea_bliss",
     sceneId: "plaza",
     previousSceneId: null,
     experience: 0,
     isCommunity: false,
+    totalDeliveries: 0,
+    dailyStreak: 0,
+    isVip: false,
+    createdAt: 0,
+    islandType: "basic",
     moderation: {
       kicked: [],
       muted: [],
     },
+    playerCoordinates: undefined,
   },
-  exit: (context) => context.server?.leave(),
   states: {
     initialising: {
       always: [
@@ -216,7 +261,6 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
         CONNECT: "exploring",
       },
     },
-
     connecting: {
       invoke: {
         id: "connecting",
@@ -226,8 +270,11 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
             return { roomId: undefined };
           }
 
-          // Server connection is too fast
-          await new Promise((res) => setTimeout(res, 1000));
+          // In case it's a server switch - leave the current server and wipe context data for the new one
+          if (context.server) {
+            context.server.leave();
+            context.server = undefined;
+          }
 
           const client = new Client(url);
 
@@ -241,6 +288,12 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
             const population = colyseusRoom?.clients ?? 0;
             return { ...server, population };
           });
+
+          // If in stream scene, join stream server
+          if (context.sceneId === "stream") {
+            const client = new Client(url);
+            return { client, serverId: "sunflorea_stream", servers };
+          }
 
           const server = pickServer(servers);
 
@@ -296,6 +349,11 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
             moderation: context.moderation,
             username: context.username,
             faction: context.faction,
+            totalDeliveries: context.totalDeliveries,
+            dailyStreak: context.dailyStreak,
+            isVip: context.isVip,
+            createdAt: context.createdAt,
+            islandType: context.islandType,
           });
 
           return { server, client, serverId };
@@ -332,15 +390,14 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
     joining: {
       invoke: {
         id: "joining",
-        src: (context, event) => async () => {
-          await new Promise((r) => setTimeout(r, 1000));
-
+        src: (context, event) => async (send) => {
           // Join server based on what was selected
           const server = await context.client?.joinOrCreate<PlazaRoomState>(
             context.serverId,
             {
               jwt: context.jwt,
               bumpkin: context.bumpkin,
+              pets: context.pets,
               farmId: context.farmId,
               username: context.username,
               faction: context.faction,
@@ -349,8 +406,17 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
               sceneId: context.sceneId,
               experience: context.experience,
               moderation: context.moderation,
+              totalDeliveries: context.totalDeliveries,
+              dailyStreak: context.dailyStreak,
+              isVip: context.isVip,
+              createdAt: context.createdAt,
+              islandType: context.islandType,
             },
           );
+
+          server?.onLeave((client) => {
+            send("DISCONNECTED");
+          });
 
           return { server };
         },
@@ -367,17 +433,21 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
         },
       },
     },
-
     joined: {
       always: [
-        {
-          target: "introduction",
-          cond: () => !localStorage.getItem("mmo_introduction.read"),
-        },
+        { target: "introduction", cond: (context) => !context.username },
       ],
       on: {
         CHANGE_SERVER: {
-          target: "connected",
+          target: "connecting",
+          actions: [
+            assign({
+              serverId: (_, event) => event.serverId,
+            }),
+          ],
+        },
+        DISCONNECTED: {
+          target: "error",
         },
       },
     },
@@ -385,17 +455,28 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
       on: {
         CONTINUE: {
           target: "joined",
-          actions: () =>
-            localStorage.setItem(
-              "mmo_introduction.read",
-              Date.now().toString(),
-            ),
+          actions: [
+            () => {
+              localStorage.setItem(
+                "mmo_introduction.read",
+                Date.now().toString(),
+              );
+            },
+            assign({
+              username: (_, event) => event.username,
+            }),
+          ],
         },
       },
     },
-
     kicked: {},
-    reconnecting: {},
+    reconnecting: {
+      always: [
+        {
+          target: "connecting",
+        },
+      ],
+    },
     error: {
       on: {
         RETRY: {
@@ -405,21 +486,68 @@ export const mmoMachine = createMachine<MMOContext, MMOEvent, MMOState>({
     },
   },
   on: {
-    SWITCH_SCENE: {
-      actions: [
-        assign({
-          sceneId: (_, event) => event.sceneId,
-        }),
-        (context, event) => context.server?.send(0, { sceneId: event.sceneId }),
-      ],
-    },
-    UPDATE_PREVIOUS_SCENE: {
-      actions: assign({
-        previousSceneId: (_, event) => event.previousSceneId,
-      }),
-    },
+    SWITCH_SCENE: [
+      {
+        // If coming or going from stream scene, we need to reload the server
+        cond: (context, event) => {
+          return context.sceneId === "stream" || event.sceneId === "stream";
+        },
+        actions: [
+          assign({
+            sceneId: (_, event) => event.sceneId,
+            previousSceneId: (context, event) =>
+              event.previousSceneId ?? context.previousSceneId,
+            playerCoordinates: (_, event) => event.playerCoordinates,
+          }),
+          (context, event) =>
+            context.server?.send(0, {
+              sceneId: event.sceneId,
+              x: event.playerCoordinates.x,
+              y: event.playerCoordinates.y,
+            }),
+        ],
+        // If going into or leaving stream scene, we need to reload the server
+        target: "connecting",
+      },
+      {
+        actions: [
+          assign({
+            sceneId: (_, event) => event.sceneId,
+            previousSceneId: (context, event) =>
+              event.previousSceneId ?? context.previousSceneId,
+            playerCoordinates: (_, event) => event.playerCoordinates,
+          }),
+          (context, event) =>
+            context.server?.send(0, {
+              sceneId: event.sceneId,
+              x: event.playerCoordinates.x,
+              y: event.playerCoordinates.y,
+            }),
+        ],
+        // TODO: If going into or leaving stream scene, we need to reload the server
+        target: "joined",
+      },
+    ],
   },
 });
+
+/**
+ * Fetch available Plaza servers
+ * @returns {Promise<Server[]>} Available servers
+ * @export fetchAvailableServers
+ * @async
+ */
+export async function fetchAvailableServers(): Promise<Server[]> {
+  const client = new Client(CONFIG.ROOM_URL);
+  const available = await client.getAvailableRooms();
+
+  // Iterate through the available rooms and update the server population
+  return SERVERS.map((server) => {
+    const colyseusRoom = available.find((room) => room.name === server.id);
+    const population = colyseusRoom?.clients ?? 0;
+    return { ...server, population };
+  });
+}
 
 /**
  * Simple bus to send MMO events from game

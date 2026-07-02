@@ -3,10 +3,16 @@ import {
   getFishByType,
 } from "features/island/hud/components/codex/lib/utils";
 import { KNOWN_IDS } from ".";
-import { BumpkinItem } from "./bumpkin";
-import { getKeys } from "./craftables";
-import { FishType, FishName, FISH, MarineMarvelName } from "./fishing";
-import { InventoryItemName, GameState } from "./game";
+import type { BumpkinItem } from "./bumpkin";
+import { getKeys } from "lib/object";
+import {
+  type FishType,
+  type FishName,
+  FISH,
+  type MarineMarvelName,
+  CHAPTER_FISH,
+} from "./fishing";
+import type { InventoryItemName, GameState } from "./game";
 import { FLOWERS } from "./flowers";
 import { translate } from "lib/i18n/translate";
 
@@ -17,7 +23,8 @@ type FishMilestoneName =
   | "Fish Encyclopedia"
   | "Master Angler"
   | "Marine Marvel Master"
-  | "Deep Sea Diver";
+  | "Deep Sea Diver"
+  | "Marine Biologist";
 
 type FlowerMilestoneName =
   | "Sunpetal Savant"
@@ -51,10 +58,9 @@ export const FISH_MILESTONES: Record<FishMilestoneName, Milestone> = {
         (name) => (farmActivity[`${name} Caught`] ?? 0) >= 1,
       );
 
-      return Math.min(
-        (caughtFish.length / FISH_BY_TYPE.basic.length) * 100,
-        100,
-      );
+      const required = FISH_BY_TYPE.basic.length;
+
+      return Math.min((caughtFish.length / required) * 100, 100);
     },
     reward: {
       "Sunflower Rod": 1,
@@ -67,10 +73,9 @@ export const FISH_MILESTONES: Record<FishMilestoneName, Milestone> = {
         (name) => (farmActivity[`${name} Caught`] ?? 0) >= 1,
       );
 
-      return Math.min(
-        (caughtFish.length / FISH_BY_TYPE.advanced.length) * 100,
-        100,
-      );
+      const required = FISH_BY_TYPE.advanced.length;
+
+      return Math.min((caughtFish.length / required) * 100, 100);
     },
     reward: {
       "Fishing Hat": 1,
@@ -93,10 +98,10 @@ export const FISH_MILESTONES: Record<FishMilestoneName, Milestone> = {
     },
   },
   "Fish Encyclopedia": {
-    task: translate("quest.all.fish"),
+    task: translate("quest.30.species"),
     percentageComplete: (farmActivity: GameState["farmActivity"]) => {
       const encyclopediaFish = getEncyclopediaFish();
-      const totalFishRequired = encyclopediaFish.length;
+      const totalFishRequired = 30;
 
       const totalFishCaught = encyclopediaFish.reduce(
         (total, name) =>
@@ -129,9 +134,13 @@ export const FISH_MILESTONES: Record<FishMilestoneName, Milestone> = {
   "Marine Marvel Master": {
     task: translate("quest.marine.marvel"),
     percentageComplete: (farmActivity: GameState["farmActivity"]) => {
-      const totalFishRequired = FISH_BY_TYPE["marine marvel"].length;
+      const nonSeasonalMarvels = FISH_BY_TYPE["marine marvel"].filter(
+        (marvel) => !Object.keys(CHAPTER_FISH).includes(marvel),
+      );
 
-      const totalFishCaught = FISH_BY_TYPE["marine marvel"].reduce(
+      const totalFishRequired = nonSeasonalMarvels.length;
+
+      const totalFishCaught = nonSeasonalMarvels.reduce(
         (total, name) =>
           total + Math.min(farmActivity[`${name} Caught`] ?? 0, 1),
         0,
@@ -157,6 +166,24 @@ export const FISH_MILESTONES: Record<FishMilestoneName, Milestone> = {
     },
     reward: {
       "Deep Sea Helm": 1,
+    },
+  },
+  "Marine Biologist": {
+    task: translate("quest.all.fish"),
+    percentageComplete: (farmActivity: GameState["farmActivity"]) => {
+      const encyclopediaFish = getEncyclopediaFish();
+      const totalFishRequired = encyclopediaFish.length;
+
+      const totalFishCaught = encyclopediaFish.reduce(
+        (total, name) =>
+          total + Math.min(farmActivity[`${name} Caught`] ?? 0, 1),
+        0,
+      );
+
+      return Math.min((totalFishCaught / totalFishRequired) * 100, 100);
+    },
+    reward: {
+      "Radiant Dumbo": 1,
     },
   },
 };
@@ -256,4 +283,5 @@ export const MILESTONE_MESSAGES: Record<MilestoneName, string> = {
   "Sunpetal Savant": translate("milestone.sunpetalSavant"),
   "Bloom Big Shot": translate("milestone.bloomBigShot"),
   "Lily Luminary": translate("milestone.lilyLuminary"),
+  "Marine Biologist": translate("milestone.marineBiologist"),
 };

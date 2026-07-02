@@ -1,9 +1,10 @@
-import mapJSON from "assets/map/kingdom.json";
+import seasonal_kingdom from "assets/map/seasonal_kingdom.json";
+import seasonal_tileset from "assets/map/seasonal_tileset.json";
 
-import { SceneId } from "../mmoMachine";
-import { BaseScene, NPCBumpkin } from "./BaseScene";
+import type { SceneId } from "../mmoMachine";
+import { BaseScene, type NPCBumpkin } from "./BaseScene";
 import {
-  KingdomLeaderboard,
+  type KingdomLeaderboard,
   fetchLeaderboardData,
   getChampionsLeaderboard,
 } from "features/game/expansion/components/leaderboard/actions/leaderboard";
@@ -12,66 +13,39 @@ import { translate } from "lib/i18n/translate";
 import { SOUNDS } from "assets/sound-effects/soundEffects";
 
 import { npcModalManager } from "../ui/NPCModals";
-import { FactionName } from "features/game/types/game";
-import { Coordinates } from "features/game/expansion/components/MapPlacement";
-import { getKeys } from "features/game/types/decorations";
-import { JoinFactionAction } from "features/game/events/landExpansion/joinFaction";
-import { hasFeatureAccess } from "lib/flags";
+import type {
+  FactionName,
+  TemperateSeasonName,
+} from "features/game/types/game";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
+import { getKeys } from "lib/object";
+import type { JoinFactionAction } from "features/game/events/landExpansion/joinFaction";
 import {
   getFactionScores,
   getPreviousWeek,
   secondsTillWeekReset,
 } from "features/game/lib/factions";
 import { hasReadKingdomNotice } from "../ui/kingdom/KingdomNoticeboard";
-import { EventObject } from "xstate";
-import { hasReadCropsAndChickensNotice } from "../ui/portals/CropsAndChickens";
+import type { EventObject } from "xstate";
+import { capitalize } from "lib/utils/capitalize";
+
+const GUARDIAN_MAP: Record<TemperateSeasonName, string> = {
+  autumn: "autumn_guardian",
+  spring: "spring_guardian",
+  summer: "summer_guardian",
+  winter: "winter_guardian",
+};
 
 export const KINGDOM_NPCS: NPCBumpkin[] = [
-  {
-    x: 305,
-    y: 500,
-    npc: "billy",
-    direction: "left",
-  },
-  {
-    x: 112,
-    y: 181,
-    npc: "jester",
-  },
-  {
-    x: 263,
-    y: 105,
-    npc: "victoria",
-    direction: "left",
-  },
-  {
-    x: 353,
-    y: 737,
-    npc: "gambit",
-    direction: "left",
-  },
-  {
-    x: 110,
-    y: 800,
-    npc: "graxle",
-  },
-  {
-    x: 400,
-    y: 452,
-    npc: "barlow",
-    direction: "left",
-  },
-  {
-    x: 370,
-    y: 630,
-    npc: "reginald",
-    direction: "left",
-  },
-  {
-    x: 100,
-    y: 440,
-    npc: "nyx",
-  },
+  { x: 0, y: 0, npc: "murmur", direction: "right" },
+  { x: 305, y: 500, npc: "billy", direction: "left" },
+  { x: 112, y: 181, npc: "jester" },
+  { x: 263, y: 105, npc: "victoria", direction: "left" },
+  { x: 353, y: 737, npc: "gambit", direction: "left" },
+  { x: 110, y: 800, npc: "graxle" },
+  { x: 400, y: 452, npc: "barlow", direction: "left" },
+  { x: 370, y: 630, npc: "reginald", direction: "left" },
+  { x: 100, y: 440, npc: "nyx" },
   { npc: "eldric", x: 129, y: 562 },
 ];
 
@@ -86,7 +60,7 @@ const THRONES: Record<FactionName, string> = {
   goblins: "goblin_champions",
   sunflorians: "sunflorian_champions",
   nightshades: "nightshade_champions",
-  bumpkins: "sunflorian_champions",
+  bumpkins: "bumpkin_champions",
 };
 
 export class KingdomScene extends BaseScene {
@@ -95,7 +69,11 @@ export class KingdomScene extends BaseScene {
   constructor() {
     super({
       name: "kingdom",
-      map: { json: mapJSON },
+      map: {
+        json: seasonal_kingdom,
+        imageKey: "seasonal-tileset",
+        defaultTilesetConfig: seasonal_tileset,
+      },
       audio: { fx: { walk_key: "dirt_footstep" } },
     });
   }
@@ -116,6 +94,20 @@ export class KingdomScene extends BaseScene {
       frameWidth: 20,
       frameHeight: 25,
     });
+
+    this.load.spritesheet(
+      "portal_crops_and_chickens",
+      "world/portal_well_crops_and_chickens_sheet.png",
+      { frameWidth: 20, frameHeight: 25 },
+    );
+
+    this.load.spritesheet("portal_halloween", "world/portal_halloween.png", {
+      frameWidth: 23,
+      frameHeight: 32,
+    });
+
+    const guardian = GUARDIAN_MAP[this.gameState.season.season];
+    this.load.image("guardian", `world/${guardian}.webp`);
 
     this.load.spritesheet("castle_bud_1", "world/castle_bud_1.webp", {
       frameWidth: 32,
@@ -158,80 +150,90 @@ export class KingdomScene extends BaseScene {
   }
 
   create() {
+    this.map = this.make.tilemap({ key: "kingdom" });
+
     super.create();
-    this.map = this.make.tilemap({
-      key: "kingdom",
-    });
 
     this.initialiseNPCs(KINGDOM_NPCS);
     this.addShopDisplayItems();
 
-    this.onCollision["faction_door"] = async (obj1, obj2) => {
-      interactableModalManager.open("faction_launch");
-    };
+    const season = this.gameState.season.season;
 
-    const chickenRescuePortal = this.add.sprite(285, 515, "portal");
+    // List of all seasonal elements
+    const seasonElements = [
+      "Water",
+      "Ground",
+      "Flowers & Grass",
+      "Paths",
+      "Paths Layer 2",
+      "Decoration Base",
+      "Decoration Base 2",
+      "Decoration Base 3",
+      "Decorations Layer 2",
+      "Decorations Layer 3",
+      "Building Base",
+      "Building Base 2",
+      "Building Base Decorations",
+      "Building Layer 2",
+      "Building Layer 3",
+      "Building Layer 4",
+      "Building Decorations Layer 2",
+      "Building Decorations Layer 3",
+    ];
+    const seasons = ["Spring", "Summer", "Autumn", "Winter"];
+
+    const topElements = [
+      "Decorations Layer 2",
+      "Decorations Layer 3",
+      "Building Layer 2",
+      "Building Layer 3",
+      "Building Layer 4",
+      "Building Decorations Layer 2",
+      "Building Decorations Layer 3",
+    ];
+
+    const topElementsSet = new Set(topElements);
+
+    // Filter all seasonal layers that are not used for the active season
+    seasons
+      .filter((seasonName) => seasonName !== capitalize(season)) // Skip the active season
+      .forEach((seasonName) => {
+        seasonElements.forEach((element) => {
+          const layerName = `${element}/${seasonName} ${element}`;
+          const layer = this.layers[layerName];
+
+          if (!layer) return; // Skip undefined layers
+
+          layer.setVisible(false); // Hide inactive season layer
+
+          // Set depth for elements that should be drawn on top
+          if (topElementsSet.has(element)) {
+            const activeLayerName = `${element}/${capitalize(season)} ${element}`;
+            this.layers[activeLayerName]?.setDepth(1000000);
+          }
+        });
+      });
+
+    const portal = this.add.sprite(285, 515, "portal");
     this.anims.create({
       key: "portal_anim",
-      frames: this.anims.generateFrameNumbers("portal", {
-        start: 0,
-        end: 8,
-      }),
+      frames: this.anims.generateFrameNumbers("portal", { start: 0, end: 8 }),
       repeat: -1,
       frameRate: 10,
     });
-    chickenRescuePortal.play("portal_anim", true);
-    chickenRescuePortal
-      .setInteractive({ cursor: "pointer" })
-      .on("pointerdown", () => {
-        if (this.checkDistanceToSprite(chickenRescuePortal, 40)) {
-          interactableModalManager.open("chicken_rescue");
-        } else {
-          this.currentPlayer?.speak(translate("base.iam.far.away"));
-        }
-      });
-
-    if (hasFeatureAccess(this.gameState, "CROPS_AND_CHICKENS")) {
-      if (!hasReadCropsAndChickensNotice()) {
-        const cropsAndChickensPortalNotice = this.add
-          .image(400, 732, "question_disc")
-          .setDepth(1000000);
-        cropsAndChickensPortalNotice
-          .setInteractive({ cursor: "pointer" })
-          .on("pointerdown", () => {
-            if (this.checkDistanceToSprite(cropsAndChickensPortalNotice, 40)) {
-              interactableModalManager.open("crops_and_chickens");
-            } else {
-              this.currentPlayer?.speak(translate("base.iam.far.away"));
-            }
-          });
+    portal.play("portal_anim", true);
+    portal.setInteractive({ cursor: "pointer" }).on("pointerdown", () => {
+      if (this.checkDistanceToSprite(portal, 40)) {
+        interactableModalManager.open("portal_chooser");
+      } else {
+        this.currentPlayer?.speak(translate("base.iam.far.away"));
       }
-
-      const cropsAndChickensPortal = this.add.sprite(400, 752, "portal");
-      cropsAndChickensPortal.play("portal_anim", true);
-      cropsAndChickensPortal
-        .setInteractive({ cursor: "pointer" })
-        .on("pointerdown", () => {
-          if (this.checkDistanceToSprite(cropsAndChickensPortal, 40)) {
-            interactableModalManager.open("crops_and_chickens");
-          } else {
-            this.currentPlayer?.speak(translate("base.iam.far.away"));
-          }
-        });
-
-      this.physics.world.enable(cropsAndChickensPortal);
-      this.colliders?.add(cropsAndChickensPortal);
-      (cropsAndChickensPortal.body as Phaser.Physics.Arcade.Body)
-        .setSize(32, 32)
-        .setOffset(0, 0)
-        .setImmovable(true)
-        .setCollideWorldBounds(true);
-    }
+    });
 
     const board1 = this.add.sprite(328, 620, "sunflorian_board");
 
     board1
-      .setDepth(622)
+      .setDepth(1000000)
       .setInteractive({ cursor: "pointer" })
       .on("pointerdown", () => {
         npcModalManager.open("reginald");
@@ -249,7 +251,7 @@ export class KingdomScene extends BaseScene {
     const board3 = this.add.sprite(315, 425, "bumpkin_board");
 
     board3
-      .setDepth(444)
+      .setDepth(1000000)
       .setInteractive({ cursor: "pointer" })
       .on("pointerdown", () => {
         npcModalManager.open("barlow");
@@ -258,7 +260,7 @@ export class KingdomScene extends BaseScene {
     const board4 = this.add.sprite(148, 760, "goblin_board");
 
     board4
-      .setDepth(763)
+      .setDepth(1000000)
       .setInteractive({ cursor: "pointer" })
       .on("pointerdown", () => {
         npcModalManager.open("graxle");
@@ -300,10 +302,9 @@ export class KingdomScene extends BaseScene {
     });
     bud3.setScale(-1, 1).play("castle_bud_3_anim", true);
 
-    const faction = this.gameService.state.context.state.faction?.name;
+    const faction = this.gameService.getSnapshot().context.state.faction?.name;
     getKeys(DOORS).forEach((key) => {
-      if (faction === key && hasFeatureAccess(this.gameState, "FACTION_HOUSE"))
-        return;
+      if (faction === key) return;
 
       const door = this.add.image(DOORS[key].x, DOORS[key].y, DOORS[key].door);
       this.physics.add.existing(door);
@@ -331,15 +332,13 @@ export class KingdomScene extends BaseScene {
       });
     });
 
-    if (hasFeatureAccess(this.gameState, "CHAMPIONS")) {
-      this.setChampions();
+    this.setChampions();
 
-      // After 30 seconds of new week, show the new throne!
-      const secondsTillReset = secondsTillWeekReset() + 30;
-      setTimeout(() => {
-        this.setChampions();
-      }, secondsTillReset * 1000);
-    }
+    // After 30 seconds of new week, show the new throne!
+    const secondsTillReset = secondsTillWeekReset() + 30;
+    setTimeout(() => {
+      this.setChampions();
+    }, secondsTillReset * 1000);
 
     if (!hasReadKingdomNotice()) {
       this.add.image(280, 720, "question_disc").setDepth(1000000);
@@ -350,6 +349,9 @@ export class KingdomScene extends BaseScene {
       const nature1 = this.sound.add("royal_farms");
       nature1.play({ loop: true, volume: 0.3 });
     }
+
+    // Decorative seasonal guardian sprite (no interaction).
+    this.add.sprite(192, 324, "guardian");
 
     // Shut down the sound when the scene changes
     this.events.once("shutdown", () => {
@@ -383,7 +385,7 @@ export class KingdomScene extends BaseScene {
       });
 
     const leaderboard = await getChampionsLeaderboard<KingdomLeaderboard>({
-      farmId: Number(this.gameService.state.context.farmId),
+      farmId: Number(this.gameService.getSnapshot().context.farmId),
       date: getPreviousWeek(),
     });
 

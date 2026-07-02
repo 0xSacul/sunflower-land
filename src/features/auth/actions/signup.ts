@@ -1,5 +1,7 @@
 import { CONFIG } from "lib/config";
 import { ERRORS } from "lib/errors";
+import { getMetaBrowserIdentifiers } from "lib/analytics/meta";
+import type { BumpkinParts } from "lib/utils/tokenUriBuilder";
 
 export type UTM = {
   source?: string;
@@ -7,28 +9,44 @@ export type UTM = {
   campaign?: string;
   term?: string;
   content?: string;
+
+  // Facebook Ad tracking
+  fbp?: string;
+  fbc?: string;
 };
 
 type Request = {
   token: string;
   transactionId: string;
   referrerId: string | null;
-  promoCode: string | null;
   utm?: UTM;
+  equipment?: BumpkinParts;
 };
 
-export async function signUp(request: Request) {
+export async function signUp({
+  token,
+  transactionId,
+  referrerId,
+  utm = {},
+  equipment,
+}: Request) {
+  const { fbp, fbc } = getMetaBrowserIdentifiers();
+
   const response = await window.fetch(`${CONFIG.API_URL}/signup`, {
     method: "POST",
     headers: {
       "content-type": "application/json;charset=UTF-8",
-      Authorization: `Bearer ${request.token}`,
-      "X-Transaction-ID": request.transactionId,
+      Authorization: `Bearer ${token}`,
+      "X-Transaction-ID": transactionId,
     },
     body: JSON.stringify({
-      promoCode: request.promoCode ?? undefined,
-      referrerId: request.referrerId ?? undefined,
-      utm: request.utm ?? undefined,
+      referrerId: referrerId ?? undefined,
+      utm: {
+        ...utm,
+        fbp: fbp,
+        fbc: fbc,
+      },
+      equipped: equipment ?? undefined,
     }),
   });
 

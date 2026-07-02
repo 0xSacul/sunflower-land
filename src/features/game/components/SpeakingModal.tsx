@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, type JSX } from "react";
 
 import { Panel } from "../../../components/ui/Panel";
-import { Equipped } from "features/game/types/bumpkin";
+import type { Equipped } from "features/game/types/bumpkin";
 import classNames from "classnames";
 import { TypingMessage } from "features/world/ui/TypingMessage";
 import { Button } from "components/ui/Button";
@@ -58,7 +58,7 @@ export const SpeakingModal: React.FC<Props> = ({
 
     setCurrentMessage(0);
     onClose();
-  }, [currentTextEnded, currentMessage, message.length]);
+  }, [currentTextEnded, currentMessage, message, onClose]);
 
   useEffect(() => {
     const handleKeyPressed = (e: KeyboardEvent) => {
@@ -176,7 +176,7 @@ export const SpeakingText: React.FC<Pick<Props, "message" | "onClose">> = ({
     setCurrentMessage(0);
     onClose();
     return;
-  }, [currentTextEnded, currentMessage, message.length]);
+  }, [currentTextEnded, currentMessage, message, onClose]);
 
   useEffect(() => {
     const handleKeyPressed = (e: KeyboardEvent) => {

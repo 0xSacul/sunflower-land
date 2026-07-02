@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import Spritesheet, {
-  SpriteSheetInstance,
+  type SpriteSheetInstance,
 } from "components/animation/SpriteAnimator";
 
 import strikeSheet from "assets/resources/crimstone/crimstone_rock_spark.png";
@@ -11,7 +11,6 @@ import { PIXEL_SCALE } from "features/game/lib/constants";
 import { Bar } from "components/ui/ProgressBar";
 import { InnerPanel } from "components/ui/Panel";
 import classNames from "classnames";
-import { loadAudio, miningAudio } from "lib/utils/sfx";
 import crimstone_1 from "assets/resources/crimstone/crimstone_rock_1.webp";
 import crimstone_2 from "assets/resources/crimstone/crimstone_rock_2.webp";
 import crimstone_3 from "assets/resources/crimstone/crimstone_rock_3.webp";
@@ -19,43 +18,39 @@ import crimstone_4 from "assets/resources/crimstone/crimstone_rock_4.webp";
 import crimstone_5 from "assets/resources/crimstone/crimstone_rock_5.webp";
 import { ZoomContext } from "components/ZoomProvider";
 
-import { MachineState } from "features/game/lib/gameMachine";
-import { getBumpkinLevel } from "features/game/lib/level";
-import { getCrimstoneStage } from "../Crimstone";
+import { getCrimstoneStage } from "../getCrimstoneStage";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { useSound } from "lib/utils/hooks/useSound";
 
 const tool = "Gold Pickaxe";
 
 const STRIKE_SHEET_FRAME_WIDTH = 48;
 const STRIKE_SHEET_FRAME_HEIGHT = 48;
 
-const _bumpkinLevel = (state: MachineState) =>
-  getBumpkinLevel(state.context.state.bumpkin?.experience ?? 0);
-
 interface Props {
   hasTool: boolean;
   touchCount: number;
   minesLeft: number;
-  minedAt: number;
+  now: number;
+  readyAt: number;
 }
 
 const RecoveredCrimstoneComponent: React.FC<Props> = ({
   hasTool,
   touchCount,
   minesLeft,
-  minedAt,
+  now,
+  readyAt,
 }) => {
   const { scale } = useContext(ZoomContext);
-  const [showSpritesheet, setShowSpritesheet] = useState(false);
   const [showEquipTool, setShowEquipTool] = useState(false);
 
-  const strikeGif = useRef<SpriteSheetInstance>();
+  const strikeGif = useRef<SpriteSheetInstance>(undefined);
 
   const { t } = useAppTranslation();
 
+  const { play: miningAudio } = useSound("mining");
   useEffect(() => {
-    loadAudio([miningAudio]);
-
     // prevent performing react state update on an unmounted component
     return () => {
       strikeGif.current = undefined;
@@ -68,15 +63,14 @@ const RecoveredCrimstoneComponent: React.FC<Props> = ({
     crimstone_3,
     crimstone_4,
     crimstone_5,
-  ][getCrimstoneStage(minesLeft, minedAt) - 1];
+  ][getCrimstoneStage(minesLeft, now, readyAt) - 1];
 
   useEffect(() => {
     if (touchCount > 0) {
-      setShowSpritesheet(true);
-      miningAudio.play();
+      miningAudio();
       strikeGif.current?.goToAndPlay(0);
     }
-  }, [touchCount]);
+  }, [touchCount, miningAudio]);
 
   const handleHover = () => {
     if (!hasTool) {
@@ -102,7 +96,7 @@ const RecoveredCrimstoneComponent: React.FC<Props> = ({
         })}
       >
         {/* static resource node image */}
-        {!showSpritesheet && (
+        {touchCount === 0 && (
           <img
             src={crimstoneImage}
             className={"absolute pointer-events-none"}
@@ -115,7 +109,7 @@ const RecoveredCrimstoneComponent: React.FC<Props> = ({
         )}
 
         {/* spritesheet */}
-        {showSpritesheet && (
+        {touchCount > 0 && (
           <>
             <img
               src={crimstoneImage}
@@ -154,9 +148,6 @@ const RecoveredCrimstoneComponent: React.FC<Props> = ({
               loop={true}
               onLoopComplete={(spritesheet) => {
                 spritesheet.pause();
-                if (touchCount == 0 && !!strikeGif.current) {
-                  setShowSpritesheet(false);
-                }
               }}
             />
           </>

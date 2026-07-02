@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 import { useActor } from "@xstate/react";
 import { Button } from "components/ui/Button";
-import { Bid, GameState } from "features/game/types/game";
-import {
+import type { Bid, GameState } from "features/game/types/game";
+import type {
   AuctionResults,
   MachineInterpreter,
   Auction as IAuction,
@@ -49,7 +49,7 @@ export const AuctioneerContent: React.FC<Props> = ({
           <p className="text-sm mb-2">{t("statements.auctioneer.one")}</p>
           <p className="text-sm mb-2">{t("statements.auctioneer.two")}</p>
           <a
-            href="https://docs.sunflower-land.com/player-guides/auctions"
+            href="https://docs.sunflower-land.com/getting-started/crypto-and-digital-collectibles"
             className="mx-auto text-xxs underline  pb-2 pt-2"
             target="_blank"
             rel="noreferrer"
@@ -75,7 +75,7 @@ export const AuctioneerContent: React.FC<Props> = ({
 
   if (auctioneerState.matches("noAccess")) {
     return (
-      <GameWallet action="purchase">
+      <GameWallet action="auction">
         <div className="p-2">
           <Button onClick={() => auctionService.send("REFRESH")}>
             {t("continue")}
@@ -105,6 +105,10 @@ export const AuctioneerContent: React.FC<Props> = ({
 
   if (auctioneerState.matches("bidding")) {
     return <Loading text={t("placing.bid")} />;
+  }
+
+  if (auctioneerState.matches("cancelling")) {
+    return <Loading text={t("cancelling.bid")} />;
   }
 
   if (auctioneerState.matches("refunded")) {
@@ -148,10 +152,6 @@ export const AuctioneerContent: React.FC<Props> = ({
   }
 
   if (auctioneerState.matches("winner")) {
-    const auction = auctioneerState.context.auctions.find(
-      (auction) => auction.auctionId === auctioneerState.context.bid?.auctionId,
-    ) as IAuction;
-
     return (
       <Winner
         onMint={onMint}
@@ -178,7 +178,7 @@ export const AuctioneerContent: React.FC<Props> = ({
 
     return (
       <AuctionDetails
-        item={auction}
+        auction={auction}
         game={gameState}
         onDraftBid={() => {
           auctionService.send("DRAFT_BID");
@@ -193,6 +193,7 @@ export const AuctioneerContent: React.FC<Props> = ({
     <Auctions
       auctionService={auctionService}
       onSelect={(id) => setSelectedAuctionId(id)}
+      game={gameState}
     />
   );
 };

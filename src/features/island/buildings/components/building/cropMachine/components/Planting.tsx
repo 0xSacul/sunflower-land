@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Spritesheet, {
-  SpriteSheetInstance,
+  type SpriteSheetInstance,
 } from "components/animation/SpriteAnimator";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 
@@ -14,7 +14,7 @@ interface Props {
 
 export const Planting = ({ paused }: Props) => {
   const { scale } = useContext(ZoomContext);
-  const spritesheetRef = useRef<SpriteSheetInstance>();
+  const spritesheetRef = useRef<SpriteSheetInstance>(undefined);
   const [fps] = useState<number[]>(calculateFPS(new Array(16).fill(80), 1.28));
 
   useEffect(() => {

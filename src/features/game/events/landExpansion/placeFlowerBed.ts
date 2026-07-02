@@ -1,17 +1,17 @@
-import cloneDeep from "lodash.clonedeep";
-
 import Decimal from "decimal.js-light";
-import { GameState } from "features/game/types/game";
-import { RESOURCE_DIMENSIONS } from "features/game/types/resources";
-import { detectCollision } from "features/game/expansion/placeable/lib/collisionDetection";
+import { updateBeehives } from "features/game/lib/updateBeehives";
+import type { FlowerBed, GameState } from "features/game/types/game";
+import { produce } from "immer";
+import {
+  getFlowerBoostWindows,
+  pauseWindowedTimer,
+} from "features/game/lib/boostWindows";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
 
 export type PlaceFlowerBedAction = {
   type: "flowerBed.placed";
   id: string;
-  coordinates: {
-    x: number;
-    y: number;
-  };
+  coordinates: Coordinates;
 };
 
 type Options = {
@@ -25,46 +25,69 @@ export function placeFlowerBed({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const game = cloneDeep(state) as GameState;
+  return produce(state, (game) => {
+    const available = (game.inventory["Flower Bed"] || new Decimal(0)).minus(
+      Object.values(game.flowers.flowerBeds).filter(
+        (flowerBed) => flowerBed.x !== undefined && flowerBed.y !== undefined,
+      ).length,
+    );
 
-  const available = (game.inventory["Flower Bed"] || new Decimal(0)).minus(
-    Object.keys(game.flowers.flowerBeds).length,
-  );
+    if (available.lt(1)) {
+      throw new Error("No flower beds available");
+    }
 
-  if (available.lt(1)) {
-    throw new Error("No flower beds available");
-  }
+    if (game.flowers.flowerBeds[action.id]) {
+      throw new Error("ID exists");
+    }
 
-  const dimensions = RESOURCE_DIMENSIONS["Flower Bed"];
-  const collides = detectCollision({
-    state,
-    name: "Flower Bed",
-    location: "farm",
-    position: {
-      x: action.coordinates.x,
-      y: action.coordinates.y,
-      height: dimensions.height,
-      width: dimensions.width,
-    },
-  });
+    const existingFlowerBed = Object.entries(game.flowers.flowerBeds).find(
+      ([_, flowerBed]) =>
+        flowerBed.x === undefined && flowerBed.y === undefined,
+    );
 
-  if (collides) {
-    throw new Error("Flower Bed collides");
-  }
+    if (existingFlowerBed) {
+      const [id, flowerBed] = existingFlowerBed;
+      const updatedFlowerBed = {
+        ...flowerBed,
+        x: action.coordinates.x,
+        y: action.coordinates.y,
+      };
 
-  if (game.flowers.flowerBeds[action.id]) {
-    throw new Error("ID exists");
-  }
+      if (updatedFlowerBed.flower && updatedFlowerBed.removedAt) {
+        // Pause growth across the lift (windowed banking or legacy back-date).
+        // Runs before updateBeehives below so hive pollination sees the
+        // corrected timing.
+        updatedFlowerBed.flower.plantedAt = pauseWindowedTimer({
+          timer: updatedFlowerBed.flower,
+          startedAt: updatedFlowerBed.flower.plantedAt,
+          removedAt: updatedFlowerBed.removedAt,
+          createdAt,
+          windows: getFlowerBoostWindows(game),
+          trackProgress: true,
+        });
+      }
+      delete updatedFlowerBed.removedAt;
 
-  game.flowers.flowerBeds = {
-    ...game.flowers.flowerBeds,
-    [action.id]: {
+      game.flowers.flowerBeds[id] = updatedFlowerBed;
+
+      const updatedBeehives = updateBeehives({ game, createdAt });
+
+      game.beehives = updatedBeehives;
+
+      return game;
+    }
+
+    const flowerBed: FlowerBed = {
       createdAt,
       x: action.coordinates.x,
       y: action.coordinates.y,
-      ...RESOURCE_DIMENSIONS["Flower Bed"],
-    },
-  };
+    };
 
-  return game;
+    game.flowers.flowerBeds = {
+      ...game.flowers.flowerBeds,
+      [action.id]: flowerBed,
+    };
+
+    return game;
+  });
 }

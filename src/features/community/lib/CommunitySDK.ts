@@ -1,8 +1,8 @@
-import { CommunityIsland, Wardrobe } from "features/game/types/game";
+import type { CommunityIsland, Wardrobe } from "features/game/types/game";
 import { loadIsland } from "../actions/loadIsland";
 import { resetIsland, updateIsland } from "../actions/updateIsland";
-import { InventoryItemName } from "../types/community";
-import { MachineInterpreter } from "features/game/lib/gameMachine";
+import type { InventoryItemName } from "../types/community";
+import type { MachineInterpreter } from "features/game/lib/gameMachine";
 import { CONFIG } from "lib/config";
 
 /**
@@ -28,21 +28,15 @@ export function prepareAPI({
     }
 
     public get game() {
-      return gameService.state.context.state;
+      return gameService.getSnapshot().context.state;
     }
 
     public get user() {
-      return {
-        farmId,
-        promoCode: gameService.state.context.promoCode,
-      };
+      return { farmId };
     }
 
     public async loadIsland(): Promise<CommunityIsland | null> {
-      const response = await loadIsland({
-        farmId,
-        islandId: this.islandId,
-      });
+      const response = await loadIsland({ farmId, islandId: this.islandId });
 
       if (!response) {
         return null;

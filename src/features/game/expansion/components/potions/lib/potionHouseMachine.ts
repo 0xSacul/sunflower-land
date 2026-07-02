@@ -1,11 +1,11 @@
-import { Interpreter, State, assign, createMachine } from "xstate";
+import { type Interpreter, type State, assign, createMachine } from "xstate";
 import {
   acknowledgePotionHouseIntro,
   getPotionHouseIntroRead,
 } from "./introStorage";
 import { POTIONS } from "./potions";
-import { PotionName } from "features/game/types/game";
-import { DesiredAnimation } from "../MixingPotion";
+import type { PotionName } from "features/game/types/game";
+import type { DesiredAnimation } from "../MixingPotion";
 import { getFeedbackText } from "./helpers";
 import { translate } from "lib/i18n/translate";
 
@@ -24,6 +24,7 @@ export interface PotionHouseContext {
   animationQueue: DesiredAnimation[];
   score: number | null;
   feedbackText: string | null;
+  multiplier: number;
 }
 
 type PotionHouseEvent =
@@ -34,7 +35,7 @@ type PotionHouseEvent =
   | { type: "SELECT_GUESS_SPOT"; guessSpot: number }
   | { type: "MIX_POTION" }
   | { type: "NEXT_ANIMATION"; score: number | null }
-  | { type: "NEW_GAME" }
+  | { type: "NEW_GAME"; multiplier?: number }
   | { type: "BOMB" }
   | { type: "SUCCESS" };
 
@@ -107,6 +108,7 @@ export const potionHouseMachine = createMachine<
     animationQueue: [],
     score: null,
     feedbackText: translate("rules.potion.feedback"),
+    multiplier: 1,
   },
   states: {
     introduction: {
@@ -296,12 +298,13 @@ export const potionHouseMachine = createMachine<
               currentGuess: [null, null, null, null],
               animationQueue: [...context.animationQueue, "startMixing"],
               isNewGame: false,
+              multiplier: context.multiplier,
             };
           }),
         },
         NEW_GAME: {
           target: "playing",
-          actions: assign((_) => ({
+          actions: assign((context, event) => ({
             guessSpot: 0,
             selectedPotion: Object.values(POTIONS)[0],
             currentGuess: [null, null, null, null],
@@ -309,6 +312,7 @@ export const potionHouseMachine = createMachine<
             score: null,
             feedbackText: translate("rules.potion.feedback"),
             animationQueue: [],
+            multiplier: event.multiplier ?? context.multiplier ?? 1,
           })),
         },
         BOMB: {

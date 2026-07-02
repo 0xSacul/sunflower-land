@@ -1,14 +1,14 @@
 import { INITIAL_BUMPKIN, TEST_FARM } from "features/game/lib/constants";
 import { mixPotion } from "./mixPotion";
 import Decimal from "decimal.js-light";
-import { GameState } from "features/game/types/game";
+import type { GameState } from "features/game/types/game";
 
 describe("mixPotion", () => {
   const now = Date.now();
   const GAME_STATE: GameState = {
     ...TEST_FARM,
     potionHouse: {
-      game: { status: "in_progress", attempts: [] },
+      game: { status: "in_progress", attempts: [], multiplier: 1 },
       history: [],
     },
     bumpkin: INITIAL_BUMPKIN,

@@ -1,12 +1,18 @@
 import Decimal from "decimal.js-light";
-import { CropSeedName } from "./crops";
-import { FactionBanner, InventoryItemName, LanternName } from "./game";
+import type { CropSeedName } from "./crops";
+import type {
+  BedName,
+  FactionBanner,
+  InventoryItemName,
+  LanternName,
+  MutantAnimal,
+} from "./game";
 import { Section } from "lib/utils/hooks/useScrollIntoView";
-import { Flag, FLAGS } from "./flags";
+import { type Flag, FLAGS } from "./flags";
 import { LimitedItemType } from ".";
-import { DecorationName, DECORATION_DIMENSIONS } from "./decorations";
-import { BeanName, MutantCropName } from "./beans";
-import {
+import { type DecorationName, DECORATION_DIMENSIONS } from "./decorations";
+import type { BeanName, MutantCropName } from "./beans";
+import type {
   GoblinBlacksmithItemName,
   GoblinPirateItemName,
   HeliosBlacksmithItem,
@@ -15,12 +21,21 @@ import {
   SoldOutCollectibleName,
   TreasureCollectibleItem,
 } from "./collectibles";
-import { BoostTreasure } from "./treasure";
-import { MarineMarvelName, OldFishName } from "./fishing";
-import { SeasonalBanner } from "./seasons";
-import { EpicFlowerName, MutantFlowerName } from "./flowers";
+import type { BoostTreasure } from "./treasure";
+import type { MarineMarvelName, OldFishName } from "./fishing";
+import type { ChapterBanner } from "./chapters";
+import type {
+  EpicFlowerName,
+  MutantFlowerName,
+  PlaceableFlowerName,
+} from "./flowers";
 import { translate } from "lib/i18n/translate";
-import { FactionShopCollectibleName } from "./factionShop";
+import type { FactionShopCollectibleName } from "./factionShop";
+import { BED_FARMHAND_COUNT } from "./beds";
+import type { ChapterCollectibleName } from "./megastore";
+import type { MonumentName } from "./monuments";
+import type { PetName, PetShrineName } from "./pets";
+import { getKeys } from "lib/object";
 
 export { FLAGS };
 
@@ -87,17 +102,6 @@ export interface CraftableItem {
    */
   mintReleaseDate?: number;
 }
-
-export type MutantChicken =
-  | "Speed Chicken"
-  | "Rich Chicken"
-  | "Fat Chicken"
-  | "Ayam Cemani"
-  | "El Pollo Veloz"
-  | "Banana Chicken"
-  | "Crim Peckster"
-  | "Knight Chicken"
-  | "Pharaoh Chicken";
 
 export interface LimitedItem extends CraftableItem {
   maxSupply?: number;
@@ -183,7 +187,6 @@ export type LimitedItemName =
   | Flag
   | MOMEventItem
   | QuestItem
-  | MutantChicken
   | WarTentItem;
 
 export type CollectibleName =
@@ -192,7 +195,7 @@ export type CollectibleName =
   | MarketItem
   | Flag
   | TravelingSalesmanItem
-  | MutantChicken
+  | MutantAnimal
   | MutantCropName
   | DecorationName
   | BeanName
@@ -200,7 +203,7 @@ export type CollectibleName =
   | GoblinBlacksmithItemName
   | SoldOutCollectibleName
   | GoblinPirateItemName
-  | SeasonalBanner
+  | ChapterBanner
   | BoostTreasure
   | WarBanner
   | LanternName
@@ -213,11 +216,19 @@ export type CollectibleName =
   | OldFishName
   | MegaStoreCollectibleName
   | EpicFlowerName
+  | PlaceableFlowerName
   | FactionBanner
   | "Lifetime Farmer Banner"
+  | "Creator Banner"
   | FactionShopCollectibleName
   | TreasureCollectibleItem
-  | MutantFlowerName;
+  | MutantFlowerName
+  | BedName
+  | ChapterCollectibleName
+  | MonumentName
+  | PetName
+  | PetShrineName
+  | "Obsidian Shrine";
 
 export type ToolName =
   | "Axe"
@@ -227,7 +238,9 @@ export type ToolName =
   | "Gold Pickaxe"
   | "Hammer"
   | "Rod"
-  | "Oil Drill";
+  | "Oil Drill"
+  | "Crab Pot"
+  | "Mariner Pot";
 
 export type Shovel = "Rusty Shovel" | "Shovel";
 
@@ -606,6 +619,36 @@ export const TOOLS: Record<ToolName, CraftableItem> = {
     ],
     disabled: true,
   },
+  "Crab Pot": {
+    name: "Crab Pot",
+    description: translate("description.crab.pot"),
+    price: 250,
+    ingredients: [
+      {
+        item: "Feather",
+        amount: new Decimal(5),
+      },
+      {
+        item: "Wool",
+        amount: new Decimal(3),
+      },
+    ],
+  },
+  "Mariner Pot": {
+    name: "Mariner Pot",
+    description: translate("description.mariner.pot"),
+    price: 500,
+    ingredients: [
+      {
+        item: "Feather",
+        amount: new Decimal(10),
+      },
+      {
+        item: "Merino Wool",
+        amount: new Decimal(10),
+      },
+    ],
+  },
 };
 
 export const SHOVELS: Record<Shovel, CraftableItem> = {
@@ -762,54 +805,6 @@ export const MOM_EVENT_ITEMS: Record<MOMEventItem, LimitedItem> = {
     description: translate("description.observatory"),
     section: Section.Observatory,
     type: LimitedItemType.MOMEventItem,
-  },
-};
-
-export const MUTANT_CHICKENS: Record<MutantChicken, LimitedItem> = {
-  "Speed Chicken": {
-    name: "Speed Chicken",
-    description: translate("description.speed.chicken.two"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "Fat Chicken": {
-    name: "Fat Chicken",
-    description: translate("description.fat.chicken.two"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "Rich Chicken": {
-    name: "Rich Chicken",
-    description: translate("description.rich.chicken.two"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "Ayam Cemani": {
-    name: "Ayam Cemani",
-    description: translate("description.ayam.cemani"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "El Pollo Veloz": {
-    name: "El Pollo Veloz",
-    description: translate("description.el.pollo.veloz.two"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "Banana Chicken": {
-    name: "Banana Chicken",
-    description: translate("description.banana.chicken"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "Crim Peckster": {
-    name: "Crim Peckster",
-    description: translate("description.crim.peckster"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "Knight Chicken": {
-    name: "Knight Chicken",
-    description: translate("description.knight.chicken"),
-    type: LimitedItemType.MutantChicken,
-  },
-  "Pharaoh Chicken": {
-    name: "Pharaoh Chicken",
-    description: translate("description.pharaoh.chicken"),
-    type: LimitedItemType.MutantChicken,
   },
 };
 
@@ -1056,21 +1051,6 @@ export const ANIMALS: Record<Animal, CraftableItem> = {
   },
 };
 
-/**
- * getKeys is a ref to Object.keys, but the return is typed literally.
- */
-export const getKeys = Object.keys as <T extends object>(
-  obj: T,
-) => Array<keyof T>;
-
-/**
- * getEntries is a ref to Object.entries, but the return is typed literally.
- */
-type Entries<T> = { [K in keyof T]: [K, T[K]] }[keyof T];
-export const getEntries = Object.entries as <T extends object>(
-  obj: T,
-) => Entries<T>[];
-
 export type Dimensions = { width: number; height: number };
 
 const flagsDimension = getKeys(FLAGS).reduce(
@@ -1084,13 +1064,48 @@ const flagsDimension = getKeys(FLAGS).reduce(
   {} as Record<Flag, Dimensions>,
 );
 
+const bedsDimension = getKeys(BED_FARMHAND_COUNT)
+  .filter((bedName) => bedName !== "Double Bed" && bedName !== "Pearl Bed")
+  .reduce(
+    (previous, bedName) => ({
+      ...previous,
+      [bedName]: { width: 1, height: 1 },
+    }),
+    {} as Record<Exclude<BedName, "Double Bed" | "Pearl Bed">, Dimensions>,
+  );
+
 export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   // Salesman Items
   "Wicker Man": { width: 1, height: 1 },
   "Golden Bonsai": { width: 1, height: 1 },
 
+  // Pets
+  Barkley: { width: 1, height: 1 },
+  Meowchi: { width: 1, height: 1 },
+  Twizzle: { width: 1, height: 1 },
+  Burro: { width: 1, height: 1 },
+  Mudhorn: { width: 1, height: 1 },
+  Nibbles: { width: 1, height: 1 },
+  Waddles: { width: 1, height: 1 },
+  Ramsey: { width: 2, height: 2 },
+  Biscuit: { width: 1, height: 1 },
+  Cloudy: { width: 1, height: 1 },
+  Butters: { width: 1, height: 1 },
+  Smokey: { width: 1, height: 1 },
+  Flicker: { width: 1, height: 1 },
+  Pippin: { width: 1, height: 1 },
+  Pinto: { width: 1, height: 1 },
+  Roan: { width: 1, height: 1 },
+  Stallion: { width: 1, height: 1 },
+  Bison: { width: 1, height: 1 },
+  Oxen: { width: 1, height: 1 },
+  Peanuts: { width: 1, height: 1 },
+  Pip: { width: 1, height: 1 },
+  Skipper: { width: 1, height: 1 },
+
   // Flags
   ...flagsDimension,
+  ...bedsDimension,
 
   ...DECORATION_DIMENSIONS,
 
@@ -1114,7 +1129,7 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Tunnel Mole": { width: 1, height: 1 },
   "Rocky the Mole": { width: 1, height: 1 },
   Nugget: { width: 1, height: 1 },
-  "Immortal Pear": { width: 2, height: 2 },
+  "Immortal Pear": { width: 2, height: 1 },
 
   // Market Items
   Scarecrow: { width: 2, height: 1 },
@@ -1136,7 +1151,7 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Speed Chicken": { width: 1, height: 1 },
   "Ayam Cemani": { width: 1, height: 1 },
   "El Pollo Veloz": { width: 1, height: 1 },
-  "Banana Chicken": { width: 1, height: 2 },
+  "Banana Chicken": { width: 1, height: 1 },
   "Crim Peckster": { width: 1, height: 1 },
   "Knight Chicken": { width: 1, height: 1 },
   "Pharaoh Chicken": { width: 1, height: 1 },
@@ -1164,15 +1179,9 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Lady Bug": { width: 1, height: 1 },
   "Squirrel Monkey": { width: 2, height: 2 },
   "Black Bearry": { width: 1, height: 1 },
-  "Iron Idol": { height: 2, width: 2 },
-  "Parasaur Skull": {
-    height: 2,
-    width: 2,
-  },
-  "Golden Bear Head": {
-    height: 2,
-    width: 2,
-  },
+  "Iron Idol": { height: 1, width: 2 },
+  "Parasaur Skull": { height: 1, width: 2 },
+  "Golden Bear Head": { height: 1, width: 2 },
 
   "Maneki Neko": { width: 1, height: 1 },
   "Collectible Bear": { width: 2, height: 2 },
@@ -1204,6 +1213,7 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Witches' Eve Banner": { width: 1, height: 2 },
   "Dawn Breaker Banner": { width: 1, height: 2 },
   "Solar Flare Banner": { width: 1, height: 2 },
+  "Bull Run Banner": { width: 1, height: 2 },
   "Human War Banner": { width: 1, height: 2 },
   "Goblin War Banner": { width: 1, height: 2 },
   "Catch the Kraken Banner": { width: 1, height: 2 },
@@ -1215,6 +1225,10 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Clash of Factions Banner": { width: 1, height: 2 },
   "Pharaoh's Treasure Banner": { width: 1, height: 2 },
   "Lifetime Farmer Banner": { width: 1, height: 2 },
+  "Creator Banner": { width: 1, height: 2 },
+  "Better Together Banner": { width: 1, height: 2 },
+  "Paw Prints Banner": { width: 1, height: 2 },
+  "Crabs and Traps Banner": { width: 1, height: 2 },
 
   // Dawn Breaker SFTs
   "Mushroom House": { height: 3, width: 2 },
@@ -1259,10 +1273,15 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Radiant Ray": { width: 2, height: 1 },
   "Phantom Barracuda": { width: 2, height: 1 },
   "Gilded Swordfish": { width: 2, height: 1 },
+  "Super Star": { width: 2, height: 1 },
+  "Giant Isopod": { width: 2, height: 1 },
+  Nautilus: { width: 2, height: 1 },
+  Dollocaris: { width: 2, height: 1 },
   "Crimson Carp": { width: 2, height: 1 },
   "Battle Fish": { width: 2, height: 1 },
   "Lemon Shark": { width: 2, height: 1 },
-
+  "Longhorn Cowfish": { width: 2, height: 1 },
+  Poseidon: { width: 2, height: 1 },
   "Kraken Tentacle": { width: 1, height: 1 },
 
   // Catch the Kraken SFTs
@@ -1275,6 +1294,27 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Skill Shrimpy": { width: 1, height: 1 },
   Nana: { width: 1, height: 1 },
   "Soil Krabby": { width: 1, height: 1 },
+  "Speckled Kissing Fish": { width: 2, height: 1 },
+  "Dark Eyed Kissing Fish": { width: 2, height: 1 },
+  "Fisherman's Boat": { width: 2, height: 1 },
+  "Sea Arch": { width: 3, height: 2 },
+  "Crabs and Fish Rug": { width: 3, height: 2 },
+  "Fish Flags": { width: 2, height: 1 },
+  "Fish Drying Rack": { width: 2, height: 1 },
+  "Yellow Submarine Trophy": { width: 2, height: 2 },
+  Oaken: { width: 1, height: 1 },
+  Meerkat: { width: 1, height: 1 },
+  "Pearl Bed": { width: 2, height: 1 },
+  "Crimstone Clam": { width: 2, height: 2 },
+  "Poseidon's Throne": { width: 3, height: 3 },
+  "Fish Kite": { width: 1, height: 1 },
+
+  // Salt Awakening
+  "Crystal Altar": { width: 3, height: 2 },
+  "Dino Egg Trophy": { width: 2, height: 1 },
+  "Salt Lamp": { width: 1, height: 1 },
+  "World Map Rug": { width: 3, height: 2 },
+  "Ripped Salt Bag": { width: 1, height: 1 },
 
   // Spring Blossom SFTs
   "Flower Cart": { width: 2, height: 2 },
@@ -1291,10 +1331,62 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Tea Rug": { width: 3, height: 3 },
   "Green Field Rug": { width: 3, height: 3 },
 
-  // Flowers
+  // Flowers (epic)
   "Prism Petal": { width: 1, height: 1 },
   "Celestial Frostbloom": { width: 1, height: 1 },
   "Primula Enigma": { width: 1, height: 1 },
+
+  // Placeable flowers
+  "Red Pansy": { width: 1, height: 1 },
+  "Yellow Pansy": { width: 1, height: 1 },
+  "Purple Pansy": { width: 1, height: 1 },
+  "White Pansy": { width: 1, height: 1 },
+  "Blue Pansy": { width: 1, height: 1 },
+  "Red Cosmos": { width: 1, height: 1 },
+  "Yellow Cosmos": { width: 1, height: 1 },
+  "Purple Cosmos": { width: 1, height: 1 },
+  "White Cosmos": { width: 1, height: 1 },
+  "Blue Cosmos": { width: 1, height: 1 },
+  "Red Balloon Flower": { width: 1, height: 1 },
+  "Yellow Balloon Flower": { width: 1, height: 1 },
+  "Purple Balloon Flower": { width: 1, height: 1 },
+  "White Balloon Flower": { width: 1, height: 1 },
+  "Blue Balloon Flower": { width: 1, height: 1 },
+  "Red Daffodil": { width: 1, height: 1 },
+  "Yellow Daffodil": { width: 1, height: 1 },
+  "Purple Daffodil": { width: 1, height: 1 },
+  "White Daffodil": { width: 1, height: 1 },
+  "Blue Daffodil": { width: 1, height: 1 },
+  "Red Carnation": { width: 1, height: 1 },
+  "Yellow Carnation": { width: 1, height: 1 },
+  "Purple Carnation": { width: 1, height: 1 },
+  "White Carnation": { width: 1, height: 1 },
+  "Blue Carnation": { width: 1, height: 1 },
+  "Red Lotus": { width: 1, height: 1 },
+  "Yellow Lotus": { width: 1, height: 1 },
+  "Purple Lotus": { width: 1, height: 1 },
+  "White Lotus": { width: 1, height: 1 },
+  "Blue Lotus": { width: 1, height: 1 },
+  "Red Edelweiss": { width: 1, height: 1 },
+  "Yellow Edelweiss": { width: 1, height: 1 },
+  "Purple Edelweiss": { width: 1, height: 1 },
+  "White Edelweiss": { width: 1, height: 1 },
+  "Blue Edelweiss": { width: 1, height: 1 },
+  "Red Gladiolus": { width: 1, height: 1 },
+  "Yellow Gladiolus": { width: 1, height: 1 },
+  "Purple Gladiolus": { width: 1, height: 1 },
+  "White Gladiolus": { width: 1, height: 1 },
+  "Blue Gladiolus": { width: 1, height: 1 },
+  "Red Lavender": { width: 1, height: 1 },
+  "Yellow Lavender": { width: 1, height: 1 },
+  "Purple Lavender": { width: 1, height: 1 },
+  "White Lavender": { width: 1, height: 1 },
+  "Blue Lavender": { width: 1, height: 1 },
+  "Red Clover": { width: 1, height: 1 },
+  "Yellow Clover": { width: 1, height: 1 },
+  "Purple Clover": { width: 1, height: 1 },
+  "White Clover": { width: 1, height: 1 },
+  "Blue Clover": { width: 1, height: 1 },
 
   // Clash of Factions
   "Turbo Sprout": { width: 2, height: 2 },
@@ -1359,7 +1451,8 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Goblin Faction Rug": { width: 3, height: 2 },
   "Bumpkin Faction Rug": { width: 3, height: 2 },
   "Desert Rose": { width: 1, height: 1 },
-
+  Chicory: { width: 1, height: 1 },
+  Chamomile: { width: 1, height: 1 },
   "Hapy Jar": { width: 1, height: 2 },
   "Duamutef Jar": { width: 1, height: 2 },
   "Qebehsenuef Jar": { width: 1, height: 2 },
@@ -1372,15 +1465,15 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   // To update dimensions
   Sarcophagus: { width: 1, height: 2 },
   Cannonball: { width: 1, height: 1 },
-  "Clay Tablet": { width: 1, height: 1 },
+  "Clay Tablet": { width: 2, height: 1 },
   "Snake in Jar": { width: 1, height: 1 },
-  "Reveling Lemon": { width: 1, height: 1 },
+  "Reveling Lemon": { width: 2, height: 2 },
   "Anubis Jackal": { width: 2, height: 2 },
-  Sundial: { width: 1, height: 1 },
-  "Sand Golem": { width: 1, height: 1 },
-  "Cactus King": { width: 1, height: 1 },
+  Sundial: { width: 2, height: 2 },
+  "Sand Golem": { width: 2, height: 1 },
+  "Cactus King": { width: 1, height: 2 },
   "Lemon Frog": { width: 1, height: 1 },
-  "Scarab Beetle": { width: 1, height: 1 },
+  "Scarab Beetle": { width: 2, height: 1 },
   "Lemon Tea Bath": { width: 3, height: 2 },
   "Tomato Clown": { width: 1, height: 1 },
   Pyramid: { width: 2, height: 2 },
@@ -1388,11 +1481,175 @@ export const COLLECTIBLES_DIMENSIONS: Record<CollectibleName, Dimensions> = {
   "Baobab Tree": { width: 3, height: 3 },
   Camel: { width: 2, height: 1 },
   "Tomato Bombard": { width: 2, height: 2 },
+  "Stone Beetle": { width: 1, height: 2 },
+  "Iron Beetle": { width: 1, height: 2 },
+  "Gold Beetle": { width: 1, height: 2 },
+  "Fairy Circle": { width: 2, height: 2 },
+  Squirrel: { width: 2, height: 1 },
+  Macaw: { width: 1, height: 1 },
+  Butterfly: { width: 1, height: 1 },
+  "Salt Sculpture": { width: 3, height: 3 },
+
+  Pufferfish: { width: 1, height: 1 },
+  "Fat Crab": { width: 1, height: 1 },
+  "Navigation Table": { width: 2, height: 1 },
+  "Royal Crab Pot": { width: 2, height: 2 },
+  "Crab House": { width: 3, height: 2 },
+  "Speed Trap": { width: 1, height: 1 },
+
+  "Flamingo Chicken": { width: 1, height: 1 },
+  "Salt Crystal Flower": { width: 1, height: 1 },
+  "Spa Cow": { width: 2, height: 1 },
+  "Spa Sheep": { width: 2, height: 1 },
+  "Deep Sea Pig": { width: 2, height: 2 },
+  "Deep Sea Slug": { width: 2, height: 2 },
+  "Crystal Shrimp": { width: 2, height: 2 },
+  "Salt Awakening Banner": { width: 1, height: 2 },
+
+  "Fox Shrine": { width: 1, height: 1 },
+  "Boar Shrine": { width: 1, height: 1 },
+  "Hound Shrine": { width: 1, height: 1 },
+  "Stag Shrine": { width: 1, height: 1 },
+  "Legendary Shrine": { width: 2, height: 2 },
+  "Obsidian Shrine": { width: 1, height: 1 },
+  "Mole Shrine": { width: 1, height: 1 },
+  "Bear Shrine": { width: 1, height: 1 },
+  "Tortoise Shrine": { width: 1, height: 1 },
+  "Moth Shrine": { width: 1, height: 1 },
+  "Sparrow Shrine": { width: 1, height: 1 },
+  "Toucan Shrine": { width: 1, height: 1 },
+  "Collie Shrine": { width: 1, height: 1 },
+  "Badger Shrine": { width: 1, height: 1 },
+  "Bantam Shrine": { width: 1, height: 1 },
+  "Trading Shrine": { width: 1, height: 1 },
+
+  // Animal Season
+  "Cow Scratcher": { width: 1, height: 2 },
+  "Spinning Wheel": { width: 2, height: 2 },
+  "Sleepy Rug": { width: 3, height: 2 },
+  Meteorite: { width: 2, height: 2 },
+  "Sheaf of Plenty": { width: 1, height: 2 },
+  "Mechanical Bull": { width: 2, height: 2 },
+  "Crop Circle": { width: 2, height: 2 },
+  "Moo-ver": { width: 2, height: 2 },
+  "Swiss Whiskers": { width: 1, height: 1 },
+  Cluckulator: { width: 1, height: 2 },
+  UFO: { width: 2, height: 2 },
+  Wagon: { width: 2, height: 2 },
+  "Black Sheep": { width: 2, height: 1 },
+  "Alien Chicken": { width: 1, height: 1 },
+  "Toxic Tuft": { width: 2, height: 1 },
+  Mootant: { width: 2, height: 1 },
+  "Halloween Scarecrow": { width: 1, height: 1 },
+  "Vampire Bear": { width: 1, height: 1 },
+  "Super Totem": { width: 1, height: 1 },
+  "Christmas Stocking": { width: 1, height: 1 },
+  "Golden Christmas Stocking": { width: 1, height: 1 },
+  "Cozy Fireplace": { width: 2, height: 1 },
+  "Christmas Rug": { width: 3, height: 2 },
+  "Christmas Candle": { width: 1, height: 1 },
+  "Santa Penguin": { width: 1, height: 1 },
+  "Penguin Pool": { width: 2, height: 2 },
+  Snowman: { width: 1, height: 1 },
+  "Festive Toy Train": { width: 2, height: 2 },
+  "Golden Cow": { width: 2, height: 2 },
+  Kite: { width: 2, height: 1 },
+  "Acorn House": { width: 2, height: 2 },
+  "Spring Duckling": { width: 1, height: 1 },
+  Igloo: { width: 2, height: 2 },
+  "Ugly Duckling": { width: 1, height: 1 },
+  "Lake Rug": { width: 3, height: 3 },
+  Hammock: { width: 3, height: 1 },
+  Mammoth: { width: 3, height: 2 },
+  "Cup of Chocolate": { width: 2, height: 2 },
+  "Golden Sheep": { width: 2, height: 2 },
+  "Barn Blueprint": { width: 2, height: 1 },
+  "Mama Duck": { width: 1, height: 1 },
+  "Summer Duckling": { width: 1, height: 1 },
+  "Autumn Duckling": { width: 1, height: 1 },
+  "Winter Duckling": { width: 1, height: 1 },
+  "Winds of Change Banner": { width: 1, height: 2 },
+  "Great Bloom Banner": { width: 1, height: 2 },
+  "Frozen Cow": { width: 2, height: 1 },
+  "Frozen Sheep": { width: 2, height: 1 },
+  "Summer Chicken": { width: 1, height: 1 },
+  Jellyfish: { width: 2, height: 1 },
+  Quarry: { width: 2, height: 2 },
+  "Obsidian Turtle": { width: 1, height: 1 },
+  "Winter Guardian": { width: 2, height: 2 },
+  "Summer Guardian": { width: 2, height: 2 },
+  "Spring Guardian": { width: 2, height: 2 },
+  "Autumn Guardian": { width: 2, height: 2 },
+  "Sky Pillar": { width: 2, height: 2 },
+  "Flower-Scribed Statue": { width: 2, height: 1 },
+  "Balloon Rug": { width: 2, height: 2 },
+  "Giant Yam": { width: 1, height: 2 },
+  "Heart Air Balloon": { width: 3, height: 5 },
+  "Giant Zucchini": { width: 1, height: 2 },
+  "Mini Floating Island": { width: 2, height: 1 },
+  "Love Chicken": { width: 1, height: 2 },
+  "Dr Cow": { width: 2, height: 1 },
+  "Nurse Sheep": { width: 2, height: 1 },
+  Lunalist: { width: 1, height: 1 },
+  "Pink Dolphin": { width: 2, height: 1 },
+  "Giant Kale": { width: 2, height: 2 },
+
+  "Big Apple": { width: 2, height: 2 },
+  "Big Orange": { width: 2, height: 2 },
+  "Big Banana": { width: 2, height: 2 },
+  "Farmer's Monument": { width: 3, height: 3 },
+  "Miner's Monument": { width: 3, height: 3 },
+  "Woodcutter's Monument": { width: 3, height: 3 },
+  "Teamwork Monument": { width: 3, height: 3 },
+  "Basic Cooking Pot": { width: 2, height: 2 },
+  "Expert Cooking Pot": { width: 2, height: 2 },
+  "Advanced Cooking Pot": { width: 2, height: 2 },
+
+  "Floor Mirror": { width: 1, height: 1 },
+  "Long Rug": { width: 4, height: 2 },
+  "Garbage Bin": { width: 1, height: 1 },
+  Wheelbarrow: { width: 2, height: 1 },
+  "Snail King": { width: 1, height: 1 },
+  "Reelmaster's Chair": { width: 1, height: 1 },
+  "Rat King": { width: 1, height: 1 },
+  "Fruit Tune Box": { width: 1, height: 1 },
+  "Double Bed": { width: 2, height: 1 },
+  "Giant Artichoke": { width: 2, height: 2 },
+  "Rocket Statue": { width: 1, height: 1 },
+  "Ant Queen": { width: 1, height: 1 },
+  "Jurassic Droplet": { width: 2, height: 1 },
+  "Giant Onion": { width: 1, height: 2 },
+  "Giant Turnip": { width: 2, height: 2 },
+  "Groovy Gramophone": { width: 1, height: 1 },
+  "Paw Prints Rug": { width: 3, height: 3 },
+  "Pet Bowls": { width: 2, height: 1 },
+  "Pet Bed": { width: 2, height: 1 },
+  "Giant Acorn": { width: 2, height: 1 },
+  "Moon Fox Statue": { width: 2, height: 3 },
+  "Baby Cow": { width: 1, height: 1 },
+  "Baby Sheep": { width: 1, height: 1 },
+  "Janitor Chicken": { width: 1, height: 1 },
+  "Venus Bumpkin Trap": { width: 1, height: 1 },
+  "Black Hole Flower": { width: 1, height: 1 },
+  "Sleepy Chicken": { width: 1, height: 2 },
+  "Astronaut Cow": { width: 1, height: 1 },
+  "Astronaut Sheep": { width: 1, height: 1 },
+  "Mermaid Cow": { width: 2, height: 1 },
+  "Mermaid Sheep": { width: 1, height: 1 },
+  "Squid Chicken": { width: 1, height: 2 },
+  "Anemone Flower": { width: 1, height: 1 },
+  "Petnip Plant": { width: 2, height: 1 },
+  "Pet Kennel": { width: 2, height: 2 },
+  "Pet Toys": { width: 1, height: 1 },
+  "Pet Playground": { width: 2, height: 2 },
+  "Fish Bowl": { width: 2, height: 1 },
+  "Giant Gold Bone": { width: 2, height: 1 },
+  "Lunar Temple": { width: 3, height: 3 },
+  "Magma Stone": { width: 1, height: 2 },
+  Cornucopia: { width: 3, height: 2 },
+  "Messy Bed": { width: 1, height: 1 },
 };
 
 export const ANIMAL_DIMENSIONS: Record<"Chicken", Dimensions> = {
-  Chicken: {
-    width: 1,
-    height: 1,
-  },
+  Chicken: { width: 1, height: 1 },
 };

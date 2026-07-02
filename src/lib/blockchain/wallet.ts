@@ -1,302 +1,76 @@
-import { pingHealthCheck } from "web3-health-check";
 import { ERRORS } from "lib/errors";
-import Web3 from "web3";
 
-import { fromWei, toBN, toHex, toWei } from "web3-utils";
 import { CONFIG } from "lib/config";
-import { estimateGasPrice, parseMetamaskError } from "./utils";
-import { createAlchemyWeb3 } from "@alch/alchemy-web3";
+import { parseMetamaskError } from "./utils";
 import Decimal from "decimal.js-light";
-import { Web3SupportedProviders } from "lib/web3SupportedProviders";
+import {
+  getBalance,
+  getChainId,
+  getConnection,
+  readContract,
+  sendTransaction,
+  switchChain,
+} from "@wagmi/core";
+import { config } from "features/wallet/WalletProvider";
+import { formatEther, parseEther } from "viem";
+import { base, baseSepolia, polygon, polygonAmoy } from "viem/chains";
+
+type ChainParameter =
+  | {
+      nativeCurrency?:
+        | {
+            name: string;
+            symbol: string;
+            decimals: number;
+          }
+        | undefined
+        | undefined;
+      rpcUrls?: readonly string[] | undefined;
+      chainName?: string | undefined;
+      blockExplorerUrls?: string[] | undefined | undefined;
+      iconUrls?: string[] | undefined | undefined;
+    }
+  | undefined;
 
 const UNISWAP_ROUTER = CONFIG.QUICKSWAP_ROUTER_CONTRACT;
 const WMATIC_ADDRESS = CONFIG.WMATIC_CONTRACT;
 const SFL_TOKEN_ADDRESS = CONFIG.TOKEN_CONTRACT;
 
 /**
- * A wrapper of Web3 which handles retries and other common errors.
+ * A wrapper of Viem which handles retries and other common errors.
  */
 export class Wallet {
-  private web3: Web3 = new Web3(
-    CONFIG.NETWORK === "mainnet"
-      ? "https://rpc-mainnet.maticvigil.com"
-      : "https://rpc-amoy.polygon.technology",
-  );
+  public getConnection(): `0x${string}` | undefined {
+    const { address } = getConnection(config);
 
-  private account: string | null = null;
-
-  private type: Web3SupportedProviders | null = null;
-  private rawProvider: any | null = null;
-
-  private async initialiseContracts() {
-    try {
-      // TODO - initialise a test contract???
-      // const isHealthy = await this.healthCheck();
-      // Maintainers of package typed incorrectly
-      // if (!isHealthy) {
-      //   throw new Error("Unable to reach Polygon");
-      // }
-    } catch (e: any) {
-      // Timeout, retry
-      if (e.code === "-32005") {
-        // eslint-disable-next-line no-console
-        console.error("Retrying...");
-        await new Promise((res) => window.setTimeout(res, 3000));
-      } else {
-        // eslint-disable-next-line no-console
-        console.error(e);
-        throw e;
-      }
-    }
+    return address;
   }
 
-  public async healthCheck() {
-    if (window.location.hostname == "localhost") {
-      return true;
-    }
-
-    const statusCode = await pingHealthCheck(
-      this.web3 as Web3,
-      this.account as string,
-    );
-
-    const isHealthy = (statusCode as any) !== 500;
-
-    return isHealthy;
-  }
-
-  private async getAccount() {
-    if (!this.web3) {
+  public async getMaticBalance(): Promise<number> {
+    const account = this.getConnection();
+    if (!account) {
       throw new Error(ERRORS.NO_WEB3);
     }
 
-    const maticAccounts = await this.web3.eth.getAccounts();
-    return maticAccounts[0];
-  }
-
-  private async loadAccount() {
-    this.account = await this.getAccount();
-  }
-
-  public async getMaticBalance() {
-    if (!this.web3) {
-      throw new Error(ERRORS.NO_WEB3);
-    }
-
-    const balance = await this.web3?.eth.getBalance(this.account as string);
-
-    return new Decimal(balance);
-  }
-
-  public async initialise(
-    provider: any,
-    type: Web3SupportedProviders,
-    retryCount = 0,
-  ): Promise<void> {
-    this.type = type;
-    try {
-      // Smooth out the loading state
-      await new Promise((res) => setTimeout(res, 1000));
-      this.web3 = new Web3(provider);
-      this.rawProvider = provider;
-      await this.loadAccount();
-
-      const chainId = await this.web3?.eth.getChainId();
-
-      if (!(chainId === CONFIG.POLYGON_CHAIN_ID)) {
-        await this.initialiseNetwork(provider);
-      }
-
-      await this.initialiseContracts();
-    } catch (e: any) {
-      // If it is a user error, we don't want to retry
-      if (e.message === ERRORS.WRONG_CHAIN || e.message === ERRORS.NO_WEB3) {
-        throw e;
-      }
-
-      // If it is not a known error, keep trying
-      if (retryCount < 3) {
-        await new Promise((res) => setTimeout(res, 2000));
-
-        return this.initialise(provider, type, retryCount + 1);
-      }
-
-      throw e;
-    }
-  }
-
-  public isAlchemy = false;
-  public async overrideProvider() {
-    this.isAlchemy = true;
-
-    if (CONFIG.ALCHEMY_RPC) {
-      // eslint-disable-next-line no-console
-      console.log("Provider overridden");
-
-      let web3;
-
-      if (this.type === Web3SupportedProviders.METAMASK) {
-        web3 = createAlchemyWeb3(CONFIG.ALCHEMY_RPC);
-      } else {
-        web3 = createAlchemyWeb3(CONFIG.ALCHEMY_RPC, {
-          writeProvider: this.rawProvider,
-        });
-      }
-
-      this.web3 = new Web3(web3 as any);
-
-      await this.initialiseContracts();
-    }
-  }
-
-  public async signTransaction(nonce: number, account = this.account) {
-    if (!this.web3) {
-      throw new Error(ERRORS.NO_WEB3);
-    }
-
-    const message = this.generateSignatureMessage({
-      address: account as string,
-      nonce,
+    const response = await getBalance(config, {
+      address: account,
     });
-
-    try {
-      const signature = await this.web3.eth.personal.sign(
-        message,
-        account as string,
-        // Empty password, handled by Metamask
-        "",
-      );
-
-      return {
-        signature,
-      };
-    } catch (error: any) {
-      const parsed = parseMetamaskError(error);
-      throw parsed;
-    }
+    return Number(response.value);
   }
 
-  private generateSignatureMessage({
-    address,
-    nonce,
-  }: {
-    address: string;
-    nonce: number;
-  }) {
-    const MESSAGE = `🌻 Welcome to Sunflower Land! 🌻\n\nClick to sign in and accept the Sunflower Land\n📜 Terms of Service:\nhttps://docs.sunflower-land.com/support/terms-of-service\n\nThis request will not trigger a blockchain\ntransaction or cost any gas fees.\n\nYour authentication status will reset after\neach session.\n\n👛 Wallet address:\n${address.substring(
-      0,
-      19,
-    )}...${address.substring(24)}\n\n🔑 Nonce: ${nonce}`;
-    return MESSAGE;
-  }
-
-  private getDefaultChainParam() {
-    if (CONFIG.POLYGON_CHAIN_ID === 137) {
-      return {
-        chainId: `0x${Number(CONFIG.POLYGON_CHAIN_ID).toString(16)}`,
-        chainName: "Polygon Mainnet",
-        nativeCurrency: {
-          name: "MATIC",
-          symbol: "MATIC",
-          decimals: 18,
-        },
-        rpcUrls: ["https://polygon-rpc.com/"],
-        blockExplorerUrls: ["https://polygonscan.com/"],
-      };
-    } else {
-      return {
-        chainId: `0x${Number(CONFIG.POLYGON_CHAIN_ID).toString(16)}`,
-        chainName: "Polygon Testnet Amoy",
-        nativeCurrency: {
-          name: "MATIC",
-          symbol: "MATIC",
-          decimals: 18,
-        },
-        rpcUrls: ["https://rpc-amoy.polygon.technology"],
-        blockExplorerUrls: ["https://amoy.polygonscan.com/"],
-      };
-    }
-  }
-
-  public async checkDefaultNetwork() {
-    const chainId = await this.web3?.eth.getChainId();
+  public async isPolygon(): Promise<boolean> {
+    const chainId = getChainId(config);
     return chainId === CONFIG.POLYGON_CHAIN_ID;
-  }
-
-  public async switchNetwork(provider: any) {
-    await provider.request({
-      method: "wallet_switchEthereumChain",
-      params: [
-        { chainId: `0x${Number(CONFIG.POLYGON_CHAIN_ID).toString(16)}` },
-      ],
-    });
-  }
-
-  public async addNetwork(provider: any) {
-    try {
-      const defaultChainParam = this.getDefaultChainParam();
-      await provider.request({
-        method: "wallet_addEthereumChain",
-        params: [
-          {
-            ...defaultChainParam,
-          },
-        ],
-      });
-    } catch (addError) {
-      throw new Error(ERRORS.WRONG_CHAIN);
-    }
-  }
-
-  public async initialiseNetwork(provider: any) {
-    try {
-      await this.switchNetwork(provider);
-    } catch (e: any) {
-      if (e.code === 4902) {
-        await this.addNetwork(provider);
-      }
-      throw e;
-    }
   }
 
   public async donate(
     donation: number,
-    to = CONFIG.DONATION_ADDRESS as string,
+    to = CONFIG.DONATION_ADDRESS as `0x${string}`,
   ) {
-    const gasPrice = await estimateGasPrice(this.web3 as Web3);
-
-    try {
-      await this.web3?.eth.sendTransaction({
-        from: wallet.myAccount as string,
-        to,
-        value: toHex(toWei(donation.toString(), "ether")),
-        gasPrice,
-      });
-    } catch (error: any) {
-      const parsed = parseMetamaskError(error);
-
-      throw parsed;
-    }
-  }
-
-  public get myAccount() {
-    return this.account;
-  }
-
-  public async getBlockNumber() {
-    try {
-      const number = await this.web3?.eth.getBlockNumber();
-
-      if (!number) {
-        throw new Error(ERRORS.NETWORK_CONGESTED);
-      }
-
-      return number;
-    } catch (error: any) {
-      const parsed = parseMetamaskError(error);
-
-      throw parsed;
-    }
+    await sendTransaction(config, {
+      to,
+      value: parseEther(donation.toString()),
+    });
   }
 
   public async addTokenToMetamask() {
@@ -324,69 +98,137 @@ export class Wallet {
     }
   }
 
-  public get web3Provider() {
-    return this.web3;
+  public async getSFLForMatic(matic: string): Promise<Decimal> {
+    const maticMinusFee = (BigInt(matic) * BigInt(950)) / BigInt(1000);
+
+    const result = await readContract(config, {
+      chainId: CONFIG.NETWORK === "mainnet" ? polygon.id : polygonAmoy.id,
+      abi: [
+        {
+          inputs: [
+            { internalType: "uint256", name: "amountIn", type: "uint256" },
+            { internalType: "address[]", name: "path", type: "address[]" },
+          ],
+          name: "getAmountsOut",
+          outputs: [{ internalType: "uint256[]", name: "", type: "uint256[]" }],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      address: UNISWAP_ROUTER as `0x${string}`,
+      functionName: "getAmountsOut",
+      args: [maticMinusFee, [WMATIC_ADDRESS, SFL_TOKEN_ADDRESS]],
+    });
+
+    // decodedResult[0] is the amount of Matic needed to buy SFL
+    // decodedResult[1] is the amount of SFL to be bought
+    return new Decimal(formatEther(result[1]));
   }
 
-  public async getSFLForMatic(matic: string) {
-    if (!this.web3) {
-      throw new Error(ERRORS.NO_WEB3);
-    }
+  public async getMaticForSFL(sfl: string): Promise<Decimal> {
+    const result = await readContract(config, {
+      chainId: CONFIG.NETWORK === "mainnet" ? polygon.id : polygonAmoy.id,
+      abi: [
+        {
+          inputs: [
+            { internalType: "uint256", name: "amountOut", type: "uint256" },
+            { internalType: "address[]", name: "path", type: "address[]" },
+          ],
+          name: "getAmountsIn",
+          outputs: [{ internalType: "uint256[]", name: "", type: "uint256[]" }],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      address: UNISWAP_ROUTER as `0x${string}`,
+      functionName: "getAmountsIn",
+      args: [BigInt(sfl), [WMATIC_ADDRESS, SFL_TOKEN_ADDRESS]],
+    });
 
-    const encodedFunctionSignature = this.web3.eth.abi.encodeFunctionSignature(
-      "getAmountsOut(uint256,address[])",
-    );
-
-    const maticMinusFee = toBN(matic).mul(toBN(950)).div(toBN(1000));
-
-    const encodedParameters = this.web3.eth.abi
-      .encodeParameters(
-        ["uint256", "address[]"],
-        [maticMinusFee, [WMATIC_ADDRESS, SFL_TOKEN_ADDRESS]],
-      )
-      .substring(2);
-
-    const data = encodedFunctionSignature + encodedParameters;
-
-    const result = await this.web3.eth.call({ to: UNISWAP_ROUTER, data });
-    const decodedResult = this.web3.eth.abi.decodeParameter(
-      "uint256[]",
-      result,
-    );
-
-    return Number(fromWei(toBN(decodedResult[1])));
-  }
-
-  public async getMaticForSFL(sfl: string) {
-    if (!this.web3) {
-      throw new Error(ERRORS.NO_WEB3);
-    }
-
-    const encodedFunctionSignature = this.web3.eth.abi.encodeFunctionSignature(
-      "getAmountsIn(uint256,address[])",
-    );
-
-    const encodedParameters = this.web3.eth.abi
-      .encodeParameters(
-        ["uint256", "address[]"],
-        [toBN(sfl), [SFL_TOKEN_ADDRESS, WMATIC_ADDRESS]],
-      )
-      .substring(2);
-
-    const data = encodedFunctionSignature + encodedParameters;
-
-    const result = await this.web3.eth.call({ to: UNISWAP_ROUTER, data });
-    const decodedResult = this.web3.eth.abi.decodeParameter(
-      "uint256[]",
-      result,
-    );
-
-    const maticWithFee = Number(
-      fromWei(toBN(decodedResult[1]).mul(toBN(1050)).div(toBN(1000))),
+    // decodedResult[0] is the amount of Matic needed to buy SFL
+    // decodedResult[1] is the amount of SFL to be bought
+    const maticWithFee = new Decimal(
+      formatEther((result[0] / BigInt(950)) * BigInt(1000)),
     );
 
     return maticWithFee;
   }
+
+  public async switchNetwork(chainId: number) {
+    let chainParameter: ChainParameter;
+
+    switch (chainId) {
+      case polygon.id:
+        chainParameter = {
+          chainName: "Polygon Mainnet",
+          nativeCurrency: {
+            name: "MATIC",
+            symbol: "MATIC",
+            decimals: 18,
+          },
+          rpcUrls: ["https://polygon-rpc.com/"],
+          blockExplorerUrls: ["https://polygonscan.com/"],
+        };
+        break;
+      case polygonAmoy.id:
+        chainParameter = {
+          chainName: "Polygon Testnet Amoy",
+          nativeCurrency: {
+            name: "MATIC",
+            symbol: "MATIC",
+            decimals: 18,
+          },
+          rpcUrls: ["https://rpc-amoy.polygon.technology"],
+          blockExplorerUrls: ["https://amoy.polygonscan.com/"],
+        };
+        break;
+      case base.id:
+        chainParameter = {
+          chainName: "Base Mainnet",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+            decimals: 18,
+          },
+          rpcUrls: ["https://mainnet.base.org"],
+          blockExplorerUrls: ["https://basescan.org/"],
+        };
+        break;
+      case baseSepolia.id:
+        chainParameter = {
+          chainName: "Base Sepolia",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+            decimals: 18,
+          },
+          rpcUrls: ["https://sepolia.base.org"],
+          blockExplorerUrls: ["https://sepolia.basescan.org/"],
+        };
+        break;
+      default:
+        throw new Error(`Unsupported chainId: ${chainId}`);
+    }
+
+    await switchChain(config, {
+      chainId,
+      addEthereumChainParameter: chainParameter,
+    });
+  }
 }
 
 export const wallet = new Wallet();
+
+export function generateSignatureMessage({
+  address,
+  nonce,
+}: {
+  address: string;
+  nonce: number;
+}) {
+  const MESSAGE = `🌻 Welcome to Sunflower Land! 🌻\n\nClick to sign in and accept the Sunflower Land\n📜 Terms of Service:\nhttps://docs.sunflower-land.com/support/terms-of-service\n\nThis request will not trigger a blockchain\ntransaction or cost any gas fees.\n\nYour authentication status will reset after\neach session.\n\n👛 Wallet address:\n${address.substring(
+    0,
+    19,
+  )}...${address.substring(24)}\n\n🔑 Nonce: ${nonce}`;
+  return MESSAGE;
+}

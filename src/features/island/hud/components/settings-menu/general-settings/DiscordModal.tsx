@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 
-import { redirectOAuth } from "features/auth/actions/oauth";
+import { discordOAuth } from "features/auth/actions/oauth";
 import * as Auth from "features/auth/lib/Provider";
 import budIcon from "assets/icons/bud.png";
 
@@ -12,12 +12,16 @@ import nightshadeBanner from "assets/decorations/banners/factions/nightshades_ba
 
 import { useActor } from "@xstate/react";
 import { Button } from "components/ui/Button";
-import { FactionName, InventoryItemName } from "features/game/types/game";
-import { addDiscordRole, DiscordRole } from "features/game/actions/discordRole";
+import type { FactionName, InventoryItemName } from "features/game/types/game";
+import {
+  addDiscordRole,
+  type DiscordRole,
+} from "features/game/actions/discordRole";
 import { ITEM_DETAILS } from "features/game/types/images";
 import { Context } from "features/game/GameProvider";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
-import { CONFIG } from "lib/config";
+import { Label } from "components/ui/Label";
+import { ButtonPanel } from "components/ui/Panel";
 
 const GROUPS: {
   channel: string;
@@ -33,6 +37,7 @@ const GROUPS: {
       "Nugget",
       "Golden Cauliflower",
       "Gold Egg",
+      "Christmas Tree",
     ],
   },
 ];
@@ -59,20 +64,25 @@ export const Discord: React.FC = () => {
   const { gameService } = useContext(Context);
   const [gameState] = useActor(gameService);
 
+  // `state.discord.connected` reflects the live OAuth link; `discordId`
+  // can persist after a disconnect. See LinkedAccounts.tsx for the same
+  // distinction.
+  const isDiscordConnected = !!gameState.context.state.discord?.connected;
+
   const [state, setState] = useState<
     "idle" | "noDiscord" | "joining" | "joined" | "error"
-  >(authState.context.user.token?.discordId ? "idle" : "noDiscord");
+  >(isDiscordConnected ? "idle" : "noDiscord");
 
   const inventory = gameState.context.state.inventory;
   const faction = gameState.context.state.faction?.name;
 
   const buds = gameState.context.state.buds;
   const oauth = () => {
-    redirectOAuth();
+    discordOAuth({ nonce: gameState.context.oauthNonce });
   };
 
   const addRole = async (role: DiscordRole) => {
-    if (!authState.context.user.token?.discordId) {
+    if (!isDiscordConnected) {
       setState("noDiscord");
       return;
     }
@@ -81,7 +91,7 @@ export const Discord: React.FC = () => {
 
     try {
       await addDiscordRole({
-        farmId: gameService.state.context.farmId,
+        farmId: gameService.getSnapshot().context.farmId,
         token: authState.context.user.rawToken as string,
         role: role,
       });
@@ -91,9 +101,9 @@ export const Discord: React.FC = () => {
     }
   };
 
-  if (CONFIG.NETWORK === "amoy") {
-    return null;
-  }
+  // if (CONFIG.NETWORK === "amoy") {
+  //   return null;
+  // }
 
   if (state === "error") {
     return <span className="">{t("getContent.error")}</span>;
@@ -116,76 +126,78 @@ export const Discord: React.FC = () => {
 
   if (state === "noDiscord") {
     return (
-      <>
-        <span className=" my-2 block text-sm p-2">
-          {t("getContent.connectToDiscord")}
-        </span>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm p-2">{t("getContent.connectToDiscord")}</p>
         <Button onClick={oauth}>{t("getContent.connect")}</Button>
-      </>
+      </div>
     );
   }
 
   return (
-    <span className=" my-2 block text-sm">
-      {t("getContent.getAccess")}
+    <div className="flex flex-col gap-1">
+      <p className="text-xs mx-1 mb-1">{t("getContent.getAccess")}</p>
+
       {GROUPS.map((group) => (
-        <div key={group.channel} className="flex justify-between w-full mt-4">
-          <div>
-            <span className="flex-1">{group.channel}</span>
-            <div className="flex items-center flex-wrap">
-              <span className="text-xs mr-2">{t("getContent.requires")} </span>
-              {group.items.map((name) => (
-                <img
-                  key={name}
-                  src={ITEM_DETAILS[name].image}
-                  className="h-6 mr-2"
-                />
-              ))}
-            </div>
-          </div>
-          <Button
-            className="text-xs h-8 w-20"
-            onClick={() => addRole(group.role)}
-            disabled={!group.items.some((name) => inventory[name])}
-          >
-            {t("getContent.join")}
-          </Button>
-        </div>
+        <DiscordRoleCard
+          key={group.channel}
+          channel={group.channel}
+          onJoin={() => addRole(group.role)}
+          disabled={!group.items.some((name) => inventory[name])}
+        >
+          <span className="text-xs mr-1">{t("getContent.requires")}</span>
+          {group.items.map((name) => (
+            <img
+              key={name}
+              src={ITEM_DETAILS[name].image}
+              className="h-6 mr-1"
+            />
+          ))}
+        </DiscordRoleCard>
       ))}
-      <div key="buds" className="flex justify-between w-full mt-4">
-        <div>
-          <span className="flex-1">{"#bud-clubhouse"}</span>
-          <div className="flex items-center flex-wrap">
-            <span className="text-xs mr-2">{t("getContent.requires")}</span>
-            <img src={budIcon} className="h-6 mr-2" />
-          </div>
-        </div>
+
+      <DiscordRoleCard
+        channel="#bud-clubhouse"
+        onJoin={() => addRole("bud-clubhouse")}
+        disabled={Object.keys(buds ?? {}).length === 0}
+      >
+        <span className="text-xs mr-1">{t("getContent.requires")}</span>
+        <img src={budIcon} className="h-6 mr-1" />
+      </DiscordRoleCard>
+
+      {faction && (
+        <DiscordRoleCard
+          channel={`#${faction}`}
+          onJoin={() => addRole(faction)}
+          disabled={false}
+        >
+          <img src={getFactionImage(faction)} className="h-6 mr-1" />
+        </DiscordRoleCard>
+      )}
+    </div>
+  );
+};
+
+const DiscordRoleCard: React.FC<{
+  channel: string;
+  onJoin: () => void;
+  disabled: boolean;
+  children: React.ReactNode;
+}> = ({ channel, onJoin, disabled, children }) => {
+  const { t } = useAppTranslation();
+
+  return (
+    <ButtonPanel variant="card">
+      <div className="flex items-center justify-between gap-2">
+        <Label type="default">{channel}</Label>
         <Button
-          className="text-xs h-8 w-20"
-          onClick={() => addRole("bud-clubhouse")}
-          disabled={Object.keys(buds ?? {}).length === 0}
+          className="text-xs h-8 max-w-45 min-w-20"
+          onClick={onJoin}
+          disabled={disabled}
         >
           {t("getContent.join")}
         </Button>
       </div>
-
-      {faction && (
-        <div key="faction" className="flex justify-between w-full mt-4">
-          <div>
-            <span className="flex-1">{`#${faction}`}</span>
-            <div className="flex items-center flex-wrap">
-              <img src={getFactionImage(faction)} className="h-6 mr-2" />
-            </div>
-          </div>
-          <Button
-            className="text-xs h-8 w-20"
-            onClick={() => addRole(faction)}
-            disabled={faction === undefined}
-          >
-            {t("getContent.join")}
-          </Button>
-        </div>
-      )}
-    </span>
+      <div className="flex items-center flex-wrap mt-2 ml-1">{children}</div>
+    </ButtonPanel>
   );
 };

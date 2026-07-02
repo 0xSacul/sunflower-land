@@ -11,43 +11,24 @@ import {
 
 import React from "react";
 import { Button } from "components/ui/Button";
-import { Equipped } from "features/game/types/bumpkin";
+import type { Equipped } from "features/game/types/bumpkin";
 import { onboardingAnalytics } from "lib/onboardingAnalytics";
 import { SUNNYSIDE } from "assets/sunnyside";
 import { Label } from "components/ui/Label";
-import { getKeys } from "features/game/types/craftables";
+import { getKeys } from "lib/object";
 import { LEVEL_EXPERIENCE } from "features/game/lib/level";
-import { CROPS } from "features/game/types/crops";
 import { BUILDINGS } from "features/game/types/buildings";
 import { ITEM_DETAILS } from "features/game/types/images";
-import worldIcon from "assets/icons/world_small.png";
-import { CROP_LIFECYCLE } from "features/island/plots/lib/plant";
 import { translate } from "lib/i18n/translate";
-import {
-  EXPANSION_REQUIREMENTS,
-  Land,
-} from "features/game/expansion/lib/expansionRequirements";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { SEEDS } from "features/game/types/seeds";
+import { getBuildingBumpkinLevelRequired } from "features/game/expansion/lib/buildingRequirements";
 
 const BONUS_UNLOCKS: Record<number, { text: string; icon: string }[]> = {
-  2: [
-    {
-      text: "Crops",
-      icon: SUNNYSIDE.tools.shovel,
-    },
-    {
-      text: "Sunflower",
-      icon: CROP_LIFECYCLE.Sunflower.crop,
-    },
-    {
-      text: "Potato",
-      icon: CROP_LIFECYCLE.Potato.crop,
-    },
-  ],
   3: [
     {
       text: "Travel",
-      icon: worldIcon,
+      icon: SUNNYSIDE.icons.worldIcon,
     },
   ],
   5: [
@@ -69,22 +50,30 @@ function generateUnlockLabels(): Record<
   { text: string; icon: string }[]
 > {
   const levels = getKeys(LEVEL_EXPERIENCE);
+  const seeds = SEEDS;
 
   const unlocks = levels.reduce(
     (acc, id) => {
       const level = Number(id);
-      const crops = getKeys(CROPS)
-        .filter((name) => CROPS[name].bumpkinLevel === level)
-        .map((name) => ({ text: name, icon: ITEM_DETAILS[name].image }));
+      const crops = getKeys(seeds)
+        .filter((seedName) => {
+          // Legacy unlock table (LEVEL_EXPERIENCE), so requirements are pre-ascension.
+          const req = seeds[seedName].bumpkinLevel;
+          return req.ascension === 0 && req.level === level;
+        })
+        .map((seedName) => {
+          const name = seeds[seedName].yield ?? seedName;
+          return {
+            text: name,
+            icon: ITEM_DETAILS[name].image,
+          };
+        });
 
       const buildings = getKeys(BUILDINGS)
-        .filter((name) =>
-          BUILDINGS[name].find(
-            (b) =>
-              EXPANSION_REQUIREMENTS[b.unlocksAtLevel as Land]?.bumpkinLevel ===
-              level,
-          ),
-        )
+        .filter((name) => {
+          const req = getBuildingBumpkinLevelRequired(name);
+          return req.ascension === 0 && req.level === level;
+        })
         .map((name) => ({ text: name, icon: ITEM_DETAILS[name].image }));
 
       const bonus = BONUS_UNLOCKS[level] ?? [];
@@ -101,7 +90,6 @@ function generateUnlockLabels(): Record<
 }
 
 const LEVEL_UP_UNLOCKS = generateUnlockLabels();
-
 const LEVEL_UP_MESSAGES: Record<number, string> = {
   2: translate("levelUp.2"),
   3: translate("levelUp.3"),
@@ -168,10 +156,19 @@ interface Props {
   level: number;
   onClose: () => void;
   wearables: Equipped;
+  // When set, this is a within-ascension level-up (level is 1..50 of this ascension).
+  ascension?: number;
 }
-export const LevelUp: React.FC<Props> = ({ level, onClose, wearables }) => {
+export const LevelUp: React.FC<Props> = ({
+  level,
+  onClose,
+  wearables,
+  ascension,
+}) => {
   const { t } = useAppTranslation();
-  const shareMessage = `Just reached level ${level} in Sunflower Land! So proud of my progress in this game. 🌻🚀 \n\n https://www.sunflower-land.com \n\n #SunflowerLand #LevelUp`;
+  const shareMessage = ascension
+    ? `Just reached level ${level} of Ascension ${ascension} in Sunflower Land! So proud of my progress in this game. 🌻🚀 \n\n https://www.sunflower-land.com \n\n #SunflowerLand #LevelUp`
+    : `Just reached level ${level} in Sunflower Land! So proud of my progress in this game. 🌻🚀 \n\n https://www.sunflower-land.com \n\n #SunflowerLand #LevelUp`;
 
   const clicked = (method: "Reddit" | "Twitter" | "Telegram" | "Facebook") => {
     // https://developers.google.com/analytics/devguides/collection/ga4/reference/events?sjid=18434190870996612736-AP&client_type=gtag#share
@@ -182,12 +179,15 @@ export const LevelUp: React.FC<Props> = ({ level, onClose, wearables }) => {
     });
   };
 
-  const unlocks = LEVEL_UP_UNLOCKS[level] ?? [];
+  // Crop/building unlocks are keyed by legacy levels; ascension within-levels grant none.
+  const unlocks = ascension ? [] : (LEVEL_UP_UNLOCKS[level] ?? []);
 
   return (
     <div className="flex flex-col items-center">
       <p className="text-sm my-1 text-center">
-        {LEVEL_UP_MESSAGES[level] ?? "Wow, I am lost for words!"}
+        {ascension
+          ? t("levelUp.ascension", { ascension, level })
+          : (LEVEL_UP_MESSAGES[level] ?? "Wow, I am lost for words!")}
       </p>
       {unlocks.length > 0 && (
         <div className="mt-2">

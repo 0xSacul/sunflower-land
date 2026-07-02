@@ -1,10 +1,50 @@
 import Decimal from "decimal.js-light";
-import cloneDeep from "lodash.clonedeep";
 import {
   FRUIT_COMPOST,
-  FruitCompostName,
+  type FruitCompostName,
 } from "features/game/types/composters";
-import { GameState, PlantedFruit } from "features/game/types/game";
+import type {
+  BoostName,
+  GameState,
+  PlantedFruit,
+} from "features/game/types/game";
+import { PATCH_FRUIT, PATCH_FRUIT_SEEDS } from "features/game/types/fruits";
+import { produce } from "immer";
+import { isFruitReadyToHarvest } from "./fruitPatchReadiness";
+
+/**
+ * LEGACY-model only: shifts plantedAt/harvestedAt so the remaining grow time is
+ * multiplied by 0.8 (−20%), matching getFruitPatchTime. Under the speed-rate
+ * model Turbofruit Mix is instead a live 1.25× speed window from `fertilisedAt`
+ * (see getTurbofruitMixWindows), so no fruit mutation is needed on apply.
+ */
+function applyTurbofruitMixToRemainingGrowTime(
+  fruit: PlantedFruit,
+  now: number,
+  plantSeconds: number,
+): PlantedFruit {
+  const cycleMs = plantSeconds * 1000;
+
+  if (now - fruit.plantedAt < cycleMs) {
+    const cycleEnd = fruit.plantedAt + cycleMs;
+    const timeReduction = (cycleEnd - now) * 0.2;
+    return {
+      ...fruit,
+      plantedAt: fruit.plantedAt - timeReduction,
+    };
+  }
+
+  if (now - fruit.harvestedAt < cycleMs) {
+    const cycleEnd = fruit.harvestedAt + cycleMs;
+    const timeReduction = (cycleEnd - now) * 0.2;
+    return {
+      ...fruit,
+      harvestedAt: fruit.harvestedAt - timeReduction,
+    };
+  }
+
+  return fruit;
+}
 
 export enum FERTILISE_FRUIT_ERRORS {
   EMPTY_PATCH = "Fruit Patch does not exist!",
@@ -27,12 +67,18 @@ type Options = {
   createdAt?: number;
 };
 
-const getYield = (fruitDetails: PlantedFruit, fertiliser: FruitCompostName) => {
-  if (fertiliser === "Fruitful Blend") {
-    return fruitDetails.amount + 0.25;
+export const getFruitfulBlendBuff = (
+  state: GameState,
+): { amount: number; boostsUsed: { name: BoostName; value: string }[] } => {
+  let fruitfulBlendBuff = 0.1;
+  const boostsUsed: { name: BoostName; value: string }[] = [];
+  boostsUsed.push({ name: "Fruitful Blend", value: "+0.1" });
+  if (state.bumpkin?.skills["Fruitful Bounty"]) {
+    fruitfulBlendBuff *= 2;
+    boostsUsed.push({ name: "Fruitful Bounty", value: "+0.1" });
   }
 
-  return fruitDetails.amount;
+  return { amount: fruitfulBlendBuff, boostsUsed };
 };
 
 export function fertiliseFruitPatch({
@@ -40,48 +86,78 @@ export function fertiliseFruitPatch({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const stateCopy = cloneDeep(state);
-  const { fruitPatches, inventory } = stateCopy;
+  return produce(state, (stateCopy) => {
+    const { fruitPatches, inventory } = stateCopy;
 
-  const fruitPatch = fruitPatches[action.patchID];
+    const fruitPatch = fruitPatches[action.patchID];
 
-  if (!fruitPatch) {
-    throw new Error(FERTILISE_FRUIT_ERRORS.EMPTY_PATCH);
-  }
+    if (!fruitPatch) {
+      throw new Error(FERTILISE_FRUIT_ERRORS.EMPTY_PATCH);
+    }
 
-  if (fruitPatch.fertiliser) {
-    throw new Error(FERTILISE_FRUIT_ERRORS.FRUIT_ALREADY_FERTILISED);
-  }
+    if (fruitPatch.fertiliser) {
+      throw new Error(FERTILISE_FRUIT_ERRORS.FRUIT_ALREADY_FERTILISED);
+    }
 
-  if (!action.fertiliser) {
-    throw new Error(FERTILISE_FRUIT_ERRORS.NO_FERTILISER_SELECTED);
-  }
+    if (!action.fertiliser) {
+      throw new Error(FERTILISE_FRUIT_ERRORS.NO_FERTILISER_SELECTED);
+    }
 
-  if (!(action.fertiliser in FRUIT_COMPOST)) {
-    throw new Error(FERTILISE_FRUIT_ERRORS.NOT_A_FERTILISER);
-  }
+    if (!(action.fertiliser in FRUIT_COMPOST)) {
+      throw new Error(FERTILISE_FRUIT_ERRORS.NOT_A_FERTILISER);
+    }
 
-  const fertiliserAmount = inventory[action.fertiliser] || new Decimal(0);
+    const fertiliserAmount = inventory[action.fertiliser] || new Decimal(0);
 
-  if (fertiliserAmount.lessThan(1)) {
-    throw new Error(FERTILISE_FRUIT_ERRORS.NOT_ENOUGH_FERTILISER);
-  }
+    if (fertiliserAmount.lessThan(1)) {
+      throw new Error(FERTILISE_FRUIT_ERRORS.NOT_ENOUGH_FERTILISER);
+    }
 
-  // Apply fertiliser
-  fruitPatches[action.patchID] = {
-    ...fruitPatch,
-    fertiliser: {
-      name: action.fertiliser,
-      fertilisedAt: createdAt,
-    },
-  };
+    const fruit = fruitPatch.fruit;
+    let nextFruit: PlantedFruit | undefined = fruit;
 
-  // Apply boost to already planted
-  if (fruitPatch.fruit) {
-    fruitPatch.fruit.amount += 0.1;
-  }
+    if (nextFruit) {
+      const { seed } = PATCH_FRUIT[nextFruit.name];
+      const { plantSeconds } = PATCH_FRUIT_SEEDS[seed];
 
-  inventory[action.fertiliser] = fertiliserAmount.minus(1);
+      // The patch has no fertiliser yet (guarded above), so readiness uses the
+      // existing (non-Turbofruit) windows — correct, we haven't applied it yet.
+      if (
+        isFruitReadyToHarvest(
+          createdAt,
+          nextFruit,
+          stateCopy,
+          fruitPatch.fertiliser,
+        )
+      ) {
+        throw new Error(FERTILISE_FRUIT_ERRORS.READY_TO_HARVEST);
+      }
 
-  return stateCopy;
+      // Speed-rate model: Turbofruit Mix is a live 1.25× window from fertilisedAt
+      // (set below), so it needs no fruit mutation. Only legacy fruit back-date.
+      if (
+        action.fertiliser === "Turbofruit Mix" &&
+        nextFruit.baseDurationMs === undefined
+      ) {
+        nextFruit = applyTurbofruitMixToRemainingGrowTime(
+          nextFruit,
+          createdAt,
+          plantSeconds,
+        );
+      }
+    }
+
+    fruitPatches[action.patchID] = {
+      ...fruitPatch,
+      ...(nextFruit ? { fruit: nextFruit } : {}),
+      fertiliser: {
+        name: action.fertiliser,
+        fertilisedAt: createdAt,
+      },
+    };
+
+    inventory[action.fertiliser] = fertiliserAmount.minus(1);
+
+    return stateCopy;
+  });
 }

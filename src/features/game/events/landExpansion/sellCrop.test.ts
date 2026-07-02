@@ -1,10 +1,9 @@
-import "lib/__mocks__/configMock";
 import Decimal from "decimal.js-light";
-import { GameState } from "../../types/game";
-import { CropName, CROPS } from "../../types/crops";
+import type { GameState } from "../../types/game";
+import { type CropName, CROPS } from "../../types/crops";
 import { sellCrop } from "./sellCrop";
 import { INITIAL_BUMPKIN, TEST_FARM } from "../../lib/constants";
-import { FRUIT } from "features/game/types/fruits";
+import { PATCH_FRUIT } from "features/game/types/fruits";
 
 const GAME_STATE: GameState = {
   ...TEST_FARM,
@@ -153,7 +152,7 @@ describe("sell", () => {
       },
     });
 
-    expect(state.bumpkin?.activity?.["Coins Earned"]).toEqual(
+    expect(state.farmActivity["Coins Earned"]).toEqual(
       CROPS.Cauliflower.sellPrice,
     );
   });
@@ -173,7 +172,7 @@ describe("sell", () => {
       },
     });
 
-    expect(state.coins).toEqual(FRUIT().Apple.sellPrice);
+    expect(state.coins).toEqual(PATCH_FRUIT.Apple.sellPrice);
   });
 
   it("increments the crop sold activity ", () => {
@@ -191,7 +190,7 @@ describe("sell", () => {
         amount,
       },
     });
-    expect(state.bumpkin?.activity?.["Apple Sold"]).toEqual(amount);
+    expect(state.farmActivity["Apple Sold"]).toEqual(amount);
   });
 
   it("sells tomato for two times the normal price during La Tomatina", () => {
@@ -232,6 +231,82 @@ describe("sell", () => {
       },
     });
 
-    expect(state.coins).toEqual(coins + FRUIT().Tomato.sellPrice * 2);
+    expect(state.coins).toEqual(coins + PATCH_FRUIT.Tomato.sellPrice * 2);
+  });
+
+  it("add 10% more profit on crops sell if the player has Coin Swindler skill", () => {
+    const coins = 1;
+    const state = sellCrop({
+      state: {
+        ...GAME_STATE,
+        coins,
+        inventory: {
+          Sunflower: new Decimal(1),
+        },
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          skills: {
+            "Coin Swindler": 1,
+          },
+        },
+      },
+      action: {
+        type: "crop.sold",
+        crop: "Sunflower",
+        amount: 1,
+      },
+    });
+
+    expect(state.coins).toEqual(coins + CROPS.Sunflower.sellPrice * 1.1);
+  });
+
+  it("does not add 10% more profit if it is not a crop", () => {
+    const coins = 1;
+    const state = sellCrop({
+      state: {
+        ...GAME_STATE,
+        coins,
+        inventory: {
+          Tomato: new Decimal(1),
+        },
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          skills: {
+            "Coin Swindler": 1,
+          },
+        },
+      },
+      action: {
+        type: "crop.sold",
+        crop: "Tomato",
+        amount: 1,
+      },
+    });
+
+    expect(state.coins).toEqual(coins + PATCH_FRUIT.Tomato.sellPrice);
+  });
+
+  it("does not add 10% more profit if the player does not have Coin Swindler skill", () => {
+    const coins = 1;
+    const state = sellCrop({
+      state: {
+        ...GAME_STATE,
+        coins,
+        inventory: {
+          Sunflower: new Decimal(1),
+        },
+        bumpkin: {
+          ...INITIAL_BUMPKIN,
+          skills: {},
+        },
+      },
+      action: {
+        type: "crop.sold",
+        crop: "Sunflower",
+        amount: 1,
+      },
+    });
+
+    expect(state.coins).toEqual(coins + CROPS.Sunflower.sellPrice);
   });
 });

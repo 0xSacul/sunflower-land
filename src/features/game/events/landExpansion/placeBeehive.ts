@@ -1,15 +1,16 @@
 import Decimal from "decimal.js-light";
-import { updateBeehives } from "features/game/lib/updateBeehives";
-import { Beehive, GameState } from "features/game/types/game";
-import cloneDeep from "lodash.clonedeep";
+import {
+  getActiveBeehives,
+  updateBeehives,
+} from "features/game/lib/updateBeehives";
+import type { Beehive, GameState } from "features/game/types/game";
+import { produce } from "immer";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
 
 export type PlaceBeehiveAction = {
   type: "beehive.placed";
   id: string;
-  coordinates: {
-    x: number;
-    y: number;
-  };
+  coordinates: Coordinates;
 };
 
 type Options = {
@@ -23,37 +24,61 @@ export function placeBeehive({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const copy: GameState = cloneDeep(state);
+  return produce(state, (copy) => {
+    const activeBeehives = getActiveBeehives(copy.beehives);
+    const available = (copy.inventory.Beehive || new Decimal(0)).minus(
+      Object.keys(activeBeehives).length,
+    );
 
-  const available = (copy.inventory.Beehive || new Decimal(0)).minus(
-    Object.keys(copy.beehives ?? {}).length,
-  );
+    if (available.lte(0)) {
+      throw new Error("You do not have any available beehives");
+    }
 
-  if (available.lte(0)) {
-    throw new Error("You do not have any available beehives");
-  }
+    const existingBeehive = Object.entries(copy.beehives).find(
+      ([_, hive]) => hive.x === undefined && hive.y === undefined,
+    );
 
-  const beehive: Beehive = {
-    x: action.coordinates.x,
-    y: action.coordinates.y,
-    swarm: false,
-    height: 1,
-    width: 1,
-    honey: {
-      updatedAt: createdAt,
-      produced: 0,
-    },
-    flowers: [],
-  };
+    if (existingBeehive) {
+      const [id, hive] = existingBeehive;
+      const updatedHive = {
+        ...hive,
+        x: action.coordinates.x,
+        y: action.coordinates.y,
+      };
 
-  copy.beehives = { ...copy.beehives, [action.id]: beehive };
+      copy.beehives[id] = updatedHive;
 
-  const updatedBeehives = updateBeehives({
-    game: copy,
-    createdAt,
+      const updatedBeehives = updateBeehives({
+        game: copy,
+        createdAt,
+      });
+      delete updatedHive.removedAt;
+
+      copy.beehives = updatedBeehives;
+
+      return copy;
+    }
+
+    const beehive: Beehive = {
+      x: action.coordinates.x,
+      y: action.coordinates.y,
+      swarm: false,
+      honey: {
+        updatedAt: createdAt,
+        produced: 0,
+      },
+      flowers: [],
+    };
+
+    copy.beehives = { ...copy.beehives, [action.id]: beehive };
+
+    const updatedBeehives = updateBeehives({
+      game: copy,
+      createdAt,
+    });
+
+    copy.beehives = updatedBeehives;
+
+    return copy;
   });
-
-  copy.beehives = updatedBeehives;
-
-  return copy;
 }

@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useState } from "react";
 import Spritesheet, {
-  SpriteSheetInstance,
+  type SpriteSheetInstance,
 } from "components/animation/SpriteAnimator";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import gold from "assets/resources/gold_ore.png";
@@ -17,7 +17,7 @@ interface Props {
 const DepletingGoldComponent: React.FC<Props> = ({ resourceAmount }) => {
   const { scale } = useContext(ZoomContext);
   const [playing, setPlaying] = useState(false);
-  const sparkGif = useRef<SpriteSheetInstance>();
+  const sparkGif = useRef<SpriteSheetInstance>(undefined);
 
   return (
     <div className="absolute w-full h-full pointer-events-none">

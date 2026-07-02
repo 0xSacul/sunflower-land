@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { CloseButtonPanel } from "features/game/components/CloseablePanel";
 import { ITEM_IDS } from "features/game/types/bumpkin";
 import { BUMPKIN_ITEM_BUFF_LABELS } from "features/game/types/bumpkinItemBuffs";
@@ -6,7 +6,7 @@ import { ITEM_DETAILS } from "features/game/types/images";
 import { NPC_WEARABLES } from "lib/npcs";
 
 import { COLLECTIBLE_BUFF_LABELS } from "features/game/types/collectibleItemBuffs";
-import { BuffLabel } from "features/game/types";
+import type { BuffLabel } from "features/game/types";
 import { ItemDetail } from "./components/ItemDetail";
 
 import shopIcon from "assets/icons/shop.png";
@@ -17,12 +17,17 @@ import { getImageUrl } from "lib/utils/getImageURLS";
 import { ModalOverlay } from "components/ui/ModalOverlay";
 import {
   FACTION_SHOP_ITEMS,
-  FactionShopCollectible,
-  FactionShopFood,
-  FactionShopWearable,
+  type FactionShopFood,
+  type FactionShopWearable,
+  type FactionShopItem,
+  type FactionShopKeys,
+  FACTION_SHOP_KEYS,
 } from "features/game/types/factionShop";
 import { ItemsList } from "./components/ItemList";
 import { CONSUMABLES, FACTION_FOOD } from "features/game/types/consumables";
+import { Context } from "features/game/GameProvider";
+import { useActor } from "@xstate/react";
+import type { GameState } from "features/game/types/game";
 
 interface Props {
   onClose: () => void;
@@ -30,21 +35,26 @@ interface Props {
 
 // type guard for WearablesItem | CollectiblesItem
 export const isWearablesItem = (
-  item: FactionShopWearable | FactionShopCollectible | FactionShopFood | null,
+  item: FactionShopItem | null,
 ): item is FactionShopWearable => {
   return (item as FactionShopWearable).name in ITEM_IDS;
 };
 
 // type guard for FoodItem
 export const isFoodItem = (
-  item: FactionShopWearable | FactionShopCollectible | FactionShopFood | null,
+  item: FactionShopItem | null,
 ): item is FactionShopFood => {
   return (item as FactionShopFood).name in FACTION_FOOD;
 };
 
-export const getItemImage = (
-  item: FactionShopWearable | FactionShopCollectible | FactionShopFood | null,
-): string => {
+// type guard for Keys
+export const isKeys = (
+  item: FactionShopItem | null,
+): item is FactionShopKeys => {
+  return (item as FactionShopKeys).name in FACTION_SHOP_KEYS;
+};
+
+export const getItemImage = (item: FactionShopItem | null): string => {
   if (!item) return "";
 
   if (isFoodItem(item)) {
@@ -59,39 +69,41 @@ export const getItemImage = (
 };
 
 export const getItemBuffLabel = (
-  item: FactionShopWearable | FactionShopCollectible | FactionShopFood | null,
-): BuffLabel | undefined => {
+  item: FactionShopItem | null,
+  state: GameState,
+): BuffLabel[] | undefined => {
   if (!item) return;
 
   if (isFoodItem(item)) {
-    return {
-      labelType: "info",
-      shortDescription: `${CONSUMABLES[item.name]?.experience} XP`,
-      boostTypeIcon: levelUp,
-    };
+    return [
+      {
+        labelType: "info",
+        shortDescription: `${CONSUMABLES[item.name]?.experience} XP`,
+        boostTypeIcon: levelUp,
+      },
+    ];
   }
   if (isWearablesItem(item)) {
     return BUMPKIN_ITEM_BUFF_LABELS[item.name];
   }
 
-  return COLLECTIBLE_BUFF_LABELS[item.name];
+  return COLLECTIBLE_BUFF_LABELS[item.name]?.(state);
 };
 
 export const FactionShop: React.FC<Props> = ({ onClose }) => {
-  const [selectedItem, setSelectedItem] = useState<
-    FactionShopWearable | FactionShopCollectible | FactionShopFood | null
-  >(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const { gameService } = useContext(Context);
+  const [
+    {
+      context: { state },
+    },
+  ] = useActor(gameService);
+  const { t } = useAppTranslation();
 
-  useEffect(() => {
-    if (selectedItem && !isVisible) {
-      setIsVisible(true);
-    }
-  }, [selectedItem, isVisible]);
+  const [selectedItem, setSelectedItem] = useState<FactionShopItem | null>(
+    null,
+  );
 
-  const handleClickItem = (
-    item: FactionShopWearable | FactionShopCollectible | FactionShopFood,
-  ) => {
+  const handleClickItem = (item: FactionShopItem) => {
     setSelectedItem(item);
   };
 
@@ -106,15 +118,19 @@ export const FactionShop: React.FC<Props> = ({ onClose }) => {
   const food = Object.values(FACTION_SHOP_ITEMS).filter(
     (item) => item.type === "food",
   );
-  const { t } = useAppTranslation();
+
+  const keys = Object.values(FACTION_SHOP_ITEMS).filter(
+    (item) => item.type === "keys",
+  );
+
   return (
     <CloseButtonPanel
       bumpkinParts={NPC_WEARABLES["eldric"]}
-      tabs={[{ icon: shopIcon, name: "Faction Shop" }]}
+      tabs={[{ icon: shopIcon, name: t("faction.shop.title"), id: "shop" }]}
       onClose={onClose}
     >
-      <div className="relative h-full w-full">
-        <div className="flex flex-col p-2 pt-1 space-y-3 overflow-y-auto scrollable max-h-[300px]">
+      <div className="relative h-[450px] w-full">
+        <div className="flex flex-col p-2 pt-1 space-y-3 overflow-y-auto scrollable max-h-[450px]">
           <span className="text-xs">{t("faction.shop.welcome")}</span>
           {/* Wearables */}
           <ItemsList
@@ -137,6 +153,13 @@ export const FactionShop: React.FC<Props> = ({ onClose }) => {
             items={food}
             onItemClick={handleClickItem}
           />
+          {/* Keys */}
+          <ItemsList
+            itemsLabel="Keys"
+            type="keys"
+            items={keys}
+            onItemClick={handleClickItem}
+          />
         </div>
 
         <ModalOverlay
@@ -144,10 +167,10 @@ export const FactionShop: React.FC<Props> = ({ onClose }) => {
           onBackdropClick={() => setSelectedItem(null)}
         >
           <ItemDetail
-            isVisible={isVisible}
+            isVisible={!!selectedItem}
             item={selectedItem}
             image={getItemImage(selectedItem)}
-            buff={getItemBuffLabel(selectedItem)}
+            buff={getItemBuffLabel(selectedItem, state)}
             isWearable={selectedItem ? isWearablesItem(selectedItem) : false}
             onClose={() => setSelectedItem(null)}
           />

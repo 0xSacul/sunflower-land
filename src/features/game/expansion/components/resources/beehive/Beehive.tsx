@@ -12,17 +12,15 @@ import lightning from "assets/icons/lightning.png";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import classNames from "classnames";
 import { Context } from "features/game/GameProvider";
-import { MachineState } from "features/game/lib/gameMachine";
-import { useActor, useInterpret, useSelector } from "@xstate/react";
+import type { MachineState } from "features/game/lib/gameMachine";
+import { useInterpret, useSelector } from "@xstate/react";
 import { Bar } from "components/ui/ProgressBar";
-import { Beehive as IBeehive } from "features/game/types/game";
+import type { Beehive as IBeehive } from "features/game/types/game";
 import {
-  BeehiveContext,
-  BeehiveMachineState,
-  MachineInterpreter,
+  type BeehiveContext,
+  type BeehiveMachineState,
+  type MachineInterpreter,
   beehiveMachine,
-  getCurrentHoneyProduced,
-  getCurrentSpeed,
 } from "./beehiveMachine";
 import { Bee } from "./Bee";
 import { Modal } from "components/ui/Modal";
@@ -38,12 +36,19 @@ import { Label } from "components/ui/Label";
 import { SpeakingText } from "features/game/components/SpeakingModal";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { DEFAULT_HONEY_PRODUCTION_TIME } from "features/game/lib/updateBeehives";
-import { translate } from "lib/i18n/translate";
 import Decimal from "decimal.js-light";
 import { secondsToString } from "lib/utils/time";
 import { formatNumber } from "lib/utils/formatNumber";
 import { SUNNYSIDE } from "assets/sunnyside";
-import { getHoneyMultiplier } from "features/game/events/landExpansion/harvestBeehive";
+import {
+  calculateSwarmBoost,
+  getHoneyMultiplier,
+} from "features/game/events/landExpansion/harvestBeehive";
+import { useNow } from "lib/utils/hooks/useNow";
+import {
+  getCurrentHoneyProduced,
+  getCurrentSpeed,
+} from "features/game/lib/beehiveProduction";
 
 interface Props {
   id: string;
@@ -68,11 +73,11 @@ const _currentFlowerId = (state: BeehiveMachineState) =>
   state.context.attachedFlower?.id;
 const _showBeeAnimation = (state: BeehiveMachineState) =>
   state.matches("showBeeAnimation");
+const _state = (state: MachineState) => state.context.state;
 
 export const Beehive: React.FC<Props> = ({ id }) => {
   const { t } = useAppTranslation();
   const { showTimers, gameService } = useContext(Context);
-  const [gameState] = useActor(gameService);
   const isInitialMount = useRef(true);
   const [showProducingBee, setShowProducingBee] = useState<boolean>();
   const [showHoneyLevelModal, setShowHoneyLevelModal] = useState(false);
@@ -83,12 +88,14 @@ export const Beehive: React.FC<Props> = ({ id }) => {
 
   const landscaping = useSelector(gameService, _landscaping);
   const hive = useSelector(gameService, getBeehiveById(id), compareHive);
+  const gameState = useSelector(gameService, _state);
+  const now = useNow({ live: true });
 
   const beehiveContext: BeehiveContext = {
-    gameState: gameState.context.state,
+    gameState,
     hive,
-    honeyProduced: getCurrentHoneyProduced(hive),
-    currentSpeed: getCurrentSpeed(hive),
+    honeyProduced: getCurrentHoneyProduced(hive, now),
+    currentSpeed: getCurrentSpeed(hive, now),
   };
 
   const beehiveService = useInterpret(beehiveMachine, {
@@ -102,7 +109,7 @@ export const Beehive: React.FC<Props> = ({ id }) => {
   const currentFlowerId = useSelector(beehiveService, _currentFlowerId);
   const showBeeAnimation = useSelector(beehiveService, _showBeeAnimation);
 
-  const honeyMultiplier = getHoneyMultiplier(gameState.context.state);
+  const { multiplier: honeyMultiplier } = getHoneyMultiplier(gameState);
 
   const handleBeeAnimationEnd = useCallback(() => {
     beehiveService.send("BEE_ANIMATION_DONE");
@@ -110,21 +117,27 @@ export const Beehive: React.FC<Props> = ({ id }) => {
   }, [honeyReady, beehiveService]);
 
   const handleHarvestHoney = () => {
-    if (hive.swarm && honeyReady) {
+    setShowHoneyLevelModal(false);
+
+    const hadSwarm = hive.swarm;
+    const state = gameService.send("beehive.harvested", { id });
+    const updatedHive = state.context.state.beehives[id];
+
+    if (hadSwarm && updatedHive?.swarm === false) {
       setShowSwarmModal(true);
     }
 
-    setShowHoneyLevelModal(false);
-
-    const state = gameService.send("beehive.harvested", { id });
     beehiveService.send("HARVEST_HONEY", {
-      updatedHive: state.context.state.beehives[id],
+      updatedHive,
     });
   };
 
   const handleHiveClick = () => {
     if (!honeyProduced) return;
-
+    if (honeyReady) {
+      handleHarvestHoney();
+      return;
+    }
     setShowHoneyLevelModal(true);
   };
 
@@ -202,6 +215,8 @@ export const Beehive: React.FC<Props> = ({ id }) => {
           (DEFAULT_HONEY_PRODUCTION_TIME - honeyProduced) / currentSpeed / 1000,
         );
 
+  if (hive.x === undefined || hive.y === undefined) return null;
+
   return (
     <>
       <div
@@ -268,6 +283,7 @@ export const Beehive: React.FC<Props> = ({ id }) => {
           <Bee
             hiveX={hive.x}
             hiveY={hive.y}
+            gameService={gameService}
             flowerId={currentFlowerId as string}
             onAnimationEnd={handleBeeAnimationEnd}
           />
@@ -315,107 +331,100 @@ export const Beehive: React.FC<Props> = ({ id }) => {
         onHide={() => setShowHoneyLevelModal(false)}
       >
         <Panel bumpkinParts={NPC_WEARABLES.stevie}>
-          <>
-            <div className="flex relative items-center justify-center py-1">
+          <div className="flex relative items-center justify-center py-1 overflow-hidden">
+            <div className="flex w-full" style={{ ...progressBarBorderStyle }}>
+              {/* Progress bar (Quantity of honey) */}
               <div
-                className="flex w-full"
-                style={{ ...progressBarBorderStyle }}
+                className="h-6 w-1/2 text-center transition-transform honey-production-gradient flex items-center justify-center"
+                style={{
+                  transform: `scaleX(${Math.min(percentage / 100, 1)})`,
+                  transformOrigin: "top left",
+                  width: "100%",
+                }}
+              />
+              {/* Honey jar and amount text */}
+              <div
+                className={classNames(
+                  "absolute top-1/2 -left-2 transition-transform w-full z-50 flex items-center",
+                )}
+                style={{
+                  transform: `translate(calc(min(${
+                    percentage > 2 ? percentage : 2
+                  }%, 93%)), -50%)`,
+                }}
               >
-                {/* Progress bar (Quantity of honey) */}
-                <div
-                  className="h-6 w-1/2 text-center transition-transform honey-production-gradient flex items-center justify-center"
+                <img
+                  src={ITEM_DETAILS.Honey.image}
+                  className="z-10"
                   style={{
-                    transform: `scaleX(${Math.min(percentage / 100, 1)})`,
-                    transformOrigin: "top left",
-                    width: "100%",
+                    width: PIXEL_SCALE * 10,
+                    height: PIXEL_SCALE * 12,
                   }}
+                  alt="Honey Jar"
                 />
-                {/* Honey jar and amount text */}
-                <div
+                <p
                   className={classNames(
-                    "absolute top-1/2 -left-2 transition-transform w-full z-50 flex items-center",
+                    "text-xxs mb-1 ml-1 transition-transform duration-300",
+                    {
+                      "-translate-x-[80px]":
+                        percentage > 70 && percentage < 100,
+                      "-translate-x-16": percentage >= 100,
+                    },
                   )}
-                  style={{
-                    transform: `translate(calc(min(${
-                      percentage > 2 ? percentage : 2
-                    }%, 93%)), -50%)`,
-                  }}
                 >
-                  <img
-                    src={ITEM_DETAILS.Honey.image}
-                    className="z-10"
-                    style={{
-                      width: PIXEL_SCALE * 10,
-                      height: PIXEL_SCALE * 12,
-                    }}
-                    alt="Honey Jar"
-                  />
-                  <p
-                    className={classNames(
-                      "text-xxs mb-1 ml-1 transition-transform duration-300",
-                      {
-                        "-translate-x-[80px]":
-                          percentage > 70 && percentage < 100,
-                        "-translate-x-16": percentage >= 100,
-                      },
-                    )}
-                  >
-                    {Number(honeyAmount) < 1
-                      ? honeyPercentageDisplay
-                      : t("full")}
-                  </p>
-                </div>
+                  {Number(honeyAmount) < 1 ? honeyPercentageDisplay : t("full")}
+                </p>
               </div>
             </div>
-            {currentSpeed > 0 && !!secondsLeftUntilFull && (
-              <>
-                <div className="flex px-2 py-1 items-center gap-x-2 gap-y-1 flex-wrap">
-                  <Label type="default" icon={honeyDrop}>
-                    {t("beehive.yield")}
-                  </Label>
-                  <div className="text-xs mb-0.5">
-                    {t("beehive.honeyPerFullHive", {
-                      multiplier: formatNumber(honeyMultiplier),
-                    })}
-                  </div>
-                </div>
-                <div className="flex px-2 py-1 items-center gap-x-2 gap-y-1 flex-wrap">
-                  <Label type="default" icon={lightning}>
-                    {t("beehive.speed")}
-                  </Label>
-                  <div className="text-xs mb-0.5">
-                    {t("beehive.fullHivePerDay", {
-                      speed: formatNumber(currentSpeed),
-                      hive:
-                        new Decimal(currentSpeed).toNumber() > 1
-                          ? t("beehive.hives.plural")
-                          : t("beehive.hive.singular"),
-                    })}
-                  </div>
-                </div>
-              </>
-            )}
-            {currentSpeed === 0 && (
-              <Label type="warning" className="m-1 mb-2">
-                {t("beehive.honeyProductionPaused")}
-              </Label>
-            )}
-            {!!secondsLeftUntilFull && (
+          </div>
+          {currentSpeed > 0 && !!secondsLeftUntilFull && (
+            <>
               <div className="flex px-2 py-1 items-center gap-x-2 gap-y-1 flex-wrap">
-                <Label type="default" icon={SUNNYSIDE.icons.stopwatch}>
-                  {t("beehive.estimatedFull")}
+                <Label type="default" icon={honeyDrop}>
+                  {t("beehive.yield")}
                 </Label>
                 <div className="text-xs mb-0.5">
-                  {secondsToString(secondsLeftUntilFull, {
-                    length: "medium",
+                  {t("beehive.honeyPerFullHive", {
+                    multiplier: formatNumber(honeyMultiplier),
                   })}
                 </div>
               </div>
-            )}
-            <Button className="mt-1" onClick={handleHarvestHoney}>
-              {t("beehive.harvestHoney")}
-            </Button>
-          </>
+              <div className="flex px-2 py-1 items-center gap-x-2 gap-y-1 flex-wrap">
+                <Label type="default" icon={lightning}>
+                  {t("beehive.speed")}
+                </Label>
+                <div className="text-xs mb-0.5">
+                  {t("beehive.fullHivePerDay", {
+                    speed: formatNumber(currentSpeed),
+                    hive:
+                      new Decimal(currentSpeed).toNumber() > 1
+                        ? t("beehive.hives.plural")
+                        : t("beehive.hive.singular"),
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+          {currentSpeed === 0 && (
+            <Label type="warning" className="m-1 mb-2">
+              {t("beehive.honeyProductionPaused")}
+            </Label>
+          )}
+          {!!secondsLeftUntilFull && (
+            <div className="flex px-2 py-1 items-center gap-x-2 gap-y-1 flex-wrap">
+              <Label type="default" icon={SUNNYSIDE.icons.stopwatch}>
+                {t("beehive.estimatedFull")}
+              </Label>
+              <div className="text-xs mb-0.5">
+                {secondsToString(secondsLeftUntilFull, {
+                  length: "medium",
+                })}
+              </div>
+            </div>
+          )}
+          <Button className="mt-1" onClick={handleHarvestHoney}>
+            {t("beehive.harvestHoney")}
+          </Button>
         </Panel>
       </Modal>
       {/* Bee swarm modal */}
@@ -430,7 +439,9 @@ export const Beehive: React.FC<Props> = ({ id }) => {
           <SpeakingText
             message={[
               {
-                text: translate("beehive.pollinationCelebration"),
+                text: t("beehive.pollinationCelebration", {
+                  amount: formatNumber(calculateSwarmBoost(0, gameState)),
+                }),
               },
             ]}
             onClose={() => setShowSwarmModal(false)}

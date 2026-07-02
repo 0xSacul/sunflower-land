@@ -1,20 +1,26 @@
-import cloneDeep from "lodash.clonedeep";
-
-import { GameState } from "features/game/types/game";
+import type { GameState, Tree } from "features/game/types/game";
 import {
-  ResourceName,
-  RESOURCE_DIMENSIONS,
+  ADVANCED_RESOURCES,
+  RESOURCE_MULTIPLIER,
+  type TreeName,
+  type UpgradedResourceName,
 } from "features/game/types/resources";
-import Decimal from "decimal.js-light";
+import { produce } from "immer";
+import {
+  findExistingUnplacedNode,
+  getAvailableNodes,
+} from "features/game/lib/resourceNodes";
+import {
+  getTreeBoostWindows,
+  pauseWindowedTimer,
+} from "features/game/lib/boostWindows";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
 
 export type PlaceTreeAction = {
   type: "tree.placed";
-  name: ResourceName;
+  name: TreeName;
   id: string;
-  coordinates: {
-    x: number;
-    y: number;
-  };
+  coordinates: Coordinates;
 };
 
 type Options = {
@@ -28,28 +34,60 @@ export function placeTree({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const game = cloneDeep(state) as GameState;
-  const available = (game.inventory.Tree || new Decimal(0)).minus(
-    Object.keys(game.trees).length,
-  );
+  return produce(state, (game) => {
+    const available = getAvailableNodes(game, "trees");
 
-  if (available.lt(1)) {
-    throw new Error("No trees available");
-  }
+    if (available.lt(1)) {
+      throw new Error("No trees available");
+    }
 
-  game.trees = {
-    ...game.trees,
-    [action.id as unknown as number]: {
-      createdAt: createdAt,
+    const nodeStateAccessor = game.trees;
+
+    const existingTree = findExistingUnplacedNode({
+      nodeStateAccessor,
+      nodeToFind: action.name,
+    });
+
+    if (existingTree) {
+      const [id, tree] = existingTree;
+      const updatedTree = {
+        ...tree,
+        x: action.coordinates.x,
+        y: action.coordinates.y,
+      };
+
+      if (updatedTree.wood && updatedTree.removedAt) {
+        // Pause recovery across the lift (windowed banking or legacy back-date).
+        updatedTree.wood.choppedAt = pauseWindowedTimer({
+          timer: updatedTree.wood,
+          startedAt: updatedTree.wood.choppedAt,
+          removedAt: updatedTree.removedAt,
+          createdAt,
+          windows: getTreeBoostWindows(game),
+        });
+      }
+      delete updatedTree.removedAt;
+
+      game.trees[id] = updatedTree;
+
+      return game;
+    }
+
+    const tree: Tree = {
+      createdAt,
       x: action.coordinates.x,
       y: action.coordinates.y,
-      ...RESOURCE_DIMENSIONS["Tree"],
-      wood: {
-        amount: 1,
-        choppedAt: 0,
-      },
-    },
-  };
+      wood: { choppedAt: 0 },
+      name: action.name,
+      multiplier: RESOURCE_MULTIPLIER[action.name],
+      tier: ADVANCED_RESOURCES[action.name as UpgradedResourceName]?.tier ?? 1,
+    };
 
-  return game;
+    game.trees = {
+      ...game.trees,
+      [action.id]: tree,
+    };
+
+    return game;
+  });
 }

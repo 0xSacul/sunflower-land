@@ -1,16 +1,12 @@
-import cloneDeep from "lodash.clonedeep";
-
-import { GameState } from "features/game/types/game";
-import { RESOURCE_DIMENSIONS } from "features/game/types/resources";
+import type { GameState, OilReserve } from "features/game/types/game";
 import Decimal from "decimal.js-light";
+import { produce } from "immer";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
 
 export type PlaceOilReserveAction = {
   type: "oilReserve.placed";
   id: string;
-  coordinates: {
-    x: number;
-    y: number;
-  };
+  coordinates: Coordinates;
 };
 
 type Options = {
@@ -24,27 +20,58 @@ export function placeOilReserve({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const game = cloneDeep(state) as GameState;
+  return produce(state, (game) => {
+    const available = (game.inventory["Oil Reserve"] || new Decimal(0)).minus(
+      Object.values(game.oilReserves).filter(
+        (oilReserve) =>
+          oilReserve.x !== undefined && oilReserve.y !== undefined,
+      ).length,
+    );
 
-  const available = (game.inventory["Oil Reserve"] || new Decimal(0)).minus(
-    Object.keys(game.oilReserves).length,
-  );
+    if (available.lt(1)) {
+      throw new Error("No oil reserve available");
+    }
 
-  if (available.lt(1)) {
-    throw new Error("No oil reserve available");
-  }
+    const existingOilReserve = Object.entries(game.oilReserves).find(
+      ([_, oilReserve]) =>
+        oilReserve.x === undefined && oilReserve.y === undefined,
+    );
 
-  game.oilReserves[action.id as unknown as number] = {
-    createdAt: createdAt,
-    x: action.coordinates.x,
-    y: action.coordinates.y,
-    ...RESOURCE_DIMENSIONS["Oil Reserve"],
-    oil: {
-      amount: 0,
-      drilledAt: 0,
-    },
-    drilled: 5,
-  };
+    if (existingOilReserve) {
+      const [id, oilReserve] = existingOilReserve;
+      const updatedOilReserve = {
+        ...oilReserve,
+        x: action.coordinates.x,
+        y: action.coordinates.y,
+      };
 
-  return game;
+      if (updatedOilReserve.oil && updatedOilReserve.removedAt) {
+        const existingProgress =
+          updatedOilReserve.removedAt - updatedOilReserve.oil.drilledAt;
+        updatedOilReserve.oil.drilledAt = createdAt - existingProgress;
+      }
+      delete updatedOilReserve.removedAt;
+
+      game.oilReserves[id] = updatedOilReserve;
+
+      return game;
+    }
+
+    const newOilReserve: OilReserve = {
+      createdAt,
+      x: action.coordinates.x,
+      y: action.coordinates.y,
+      oil: {
+        drilledAt: 0,
+      },
+      drilled: 0,
+    };
+
+    game.oilReserves = {
+      ...game.oilReserves,
+      [action.id]: newOilReserve,
+    };
+
+    return game;
+  });
 }

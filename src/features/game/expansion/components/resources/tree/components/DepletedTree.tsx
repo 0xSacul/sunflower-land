@@ -1,25 +1,37 @@
 import React, { useState } from "react";
-import { SUNNYSIDE } from "assets/sunnyside";
-import cactiStump from "assets/resources/tree/cacti_stump.webp";
 import { GRID_WIDTH_PX, PIXEL_SCALE } from "features/game/lib/constants";
 import { TimeLeftPanel } from "components/ui/TimeLeftPanel";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
-import { IslandType } from "features/game/types/game";
-
-const STUMP_IMAGE: Record<IslandType, string> = {
-  basic: SUNNYSIDE.resource.tree_stump,
-  spring: SUNNYSIDE.resource.tree_stump,
-  desert: cactiStump,
-};
+import type { GameState, TemperateSeasonName } from "features/game/types/game";
+import { STUMP_VARIANTS } from "features/island/lib/alternateArt";
+import {
+  getCurrentBiome,
+  type LandBiomeName,
+} from "features/island/biomes/biomes";
+import { SUNNYSIDE } from "assets/sunnyside";
 
 interface Props {
   timeLeft: number;
-  island: IslandType;
+  island: GameState["island"];
+  season: TemperateSeasonName;
+  /**
+   * Current effective recovery speed from windowed boosts (e.g. Timber
+   * Hourglass). > 1 shows a lightning marker + the multiplier in the popover.
+   */
+  speed?: number;
 }
 
-const DepletedTreeComponent: React.FC<Props> = ({ timeLeft, island }) => {
+const DepletedTreeComponent: React.FC<Props> = ({
+  timeLeft,
+  island,
+  season,
+  speed,
+}) => {
   const [showTimeLeft, setShowTimeLeft] = useState(false);
   const { t } = useAppTranslation();
+
+  const biome: LandBiomeName = getCurrentBiome(island);
+  const boosted = speed !== undefined && speed > 1;
 
   return (
     <div
@@ -29,14 +41,27 @@ const DepletedTreeComponent: React.FC<Props> = ({ timeLeft, island }) => {
     >
       <div className="absolute w-full h-full pointer-events-none">
         <img
-          src={STUMP_IMAGE[island]}
+          src={STUMP_VARIANTS[biome][season]}
           className="absolute opacity-50"
           style={{
             width: `${GRID_WIDTH_PX}px`,
-            bottom: `${PIXEL_SCALE * (island === "desert" ? 2 : 5)}px`,
+            bottom: `${PIXEL_SCALE * 5}px`,
             left: `${PIXEL_SCALE * 8}px`,
           }}
         />
+        {boosted && (
+          <img
+            src={SUNNYSIDE.icons.lightning}
+            alt=""
+            aria-hidden
+            className="absolute animate-pulse"
+            style={{
+              width: `${PIXEL_SCALE * 7}px`,
+              top: `${PIXEL_SCALE * 2}px`,
+              right: `${PIXEL_SCALE * 2}px`,
+            }}
+          />
+        )}
         <div
           className="flex justify-center absolute w-full"
           style={{
@@ -47,6 +72,7 @@ const DepletedTreeComponent: React.FC<Props> = ({ timeLeft, island }) => {
             text={t("resources.recoversIn")}
             timeLeft={timeLeft}
             showTimeLeft={showTimeLeft}
+            speed={speed}
           />
         </div>
       </div>

@@ -1,8 +1,9 @@
-import { Equipped } from "features/game/types/bumpkin";
-import { getKeys } from "features/game/types/craftables";
-import { Bumpkin, GameState, Wardrobe } from "features/game/types/game";
-import { BumpkinParts } from "lib/utils/tokenUriBuilder";
-import cloneDeep from "lodash.clonedeep";
+import type { Equipped } from "features/game/types/bumpkin";
+import { getKeys } from "lib/object";
+import type { Bumpkin, GameState, Wardrobe } from "features/game/types/game";
+import { produce } from "immer";
+import type { BumpkinParts } from "lib/utils/tokenUriBuilder";
+import { populateSaltFarm } from "features/game/types/salt";
 
 export type EquipBumpkinAction = {
   type: "bumpkin.equipped";
@@ -20,18 +21,21 @@ export function equip({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const game = cloneDeep(state);
-  const { bumpkin } = game;
+  return produce(state, (game) => {
+    const { bumpkin } = game;
 
-  if (bumpkin === undefined) {
-    throw new Error("You do not have a Bumpkin!");
-  }
+    if (bumpkin === undefined) {
+      throw new Error("You do not have a Bumpkin!");
+    }
 
-  assertEquipment({ game, equipment: action.equipment, bumpkin });
+    assertEquipment({ game, equipment: action.equipment, bumpkin });
 
-  bumpkin.equipped = action.equipment;
+    bumpkin.equipped = action.equipment;
 
-  return game;
+    populateSaltFarm({ gameBefore: state, gameAfter: game, now: createdAt });
+
+    return game;
+  });
 }
 
 export function assertEquipment({
@@ -49,22 +53,6 @@ export function assertEquipment({
 
   if (equipment.dress && equipment.pants) {
     throw new Error("Cannot equip pants while wearing dress");
-  }
-
-  if (!equipment.body) {
-    throw new Error("Body is required");
-  }
-
-  if (!equipment.shoes) {
-    throw new Error("Shoes are required");
-  }
-
-  if (!equipment.hair) {
-    throw new Error("Hair is required");
-  }
-
-  if (!equipment.dress && !(equipment.shirt && equipment.pants)) {
-    throw new Error("Bumpkin is naked!");
   }
 
   const available = availableWardrobe(game);
@@ -106,10 +94,6 @@ export function availableWardrobe(game: GameState): Wardrobe {
 
     if (inUse[name]) {
       amount -= inUse[name] ?? 0;
-    }
-
-    if (amount === 0) {
-      return acc;
     }
 
     return {

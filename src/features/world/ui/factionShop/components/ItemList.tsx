@@ -8,33 +8,28 @@ import { shortenCount } from "lib/utils/formatNumber";
 import lightning from "assets/icons/lightning.png";
 
 import { ITEM_DETAILS } from "features/game/types/images";
-import { FactionName, InventoryItemName } from "features/game/types/game";
+import type { FactionName, InventoryItemName } from "features/game/types/game";
 import { Context } from "features/game/GameProvider";
-import { MachineState } from "features/game/lib/gameMachine";
+import type { MachineState } from "features/game/lib/gameMachine";
 import { useSelector } from "@xstate/react";
-import { BumpkinItem } from "features/game/types/bumpkin";
+import type { BumpkinItem } from "features/game/types/bumpkin";
 import Decimal from "decimal.js-light";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { getItemBuffLabel, getItemImage } from "../FactionShop";
-import {
-  FactionShopWearable,
-  FactionShopCollectible,
-  FactionShopFood,
-} from "features/game/types/factionShop";
+
 import { capitalize } from "lib/utils/capitalize";
+import type { FactionShopItem } from "features/game/types/factionShop";
 
 interface Props {
   itemsLabel: string;
-  type: "wearables" | "collectibles" | "food";
-  items: (FactionShopWearable | FactionShopCollectible | FactionShopFood)[];
-  onItemClick: (
-    item: FactionShopWearable | FactionShopCollectible | FactionShopFood,
-  ) => void;
+  type: "wearables" | "collectibles" | "food" | "keys";
+  items: FactionShopItem[];
+  onItemClick: (item: FactionShopItem) => void;
 }
 
 const _inventory = (state: MachineState) => state.context.state.inventory;
 const _wardrobe = (state: MachineState) => state.context.state.wardrobe;
-
+const _state = (state: MachineState) => state.context.state;
 export const ItemsList: React.FC<Props> = ({
   items,
   type,
@@ -42,13 +37,12 @@ export const ItemsList: React.FC<Props> = ({
   onItemClick,
 }) => {
   const { gameService } = useContext(Context);
+  const state = useSelector(gameService, _state);
 
   const inventory = useSelector(gameService, _inventory);
   const wardrobe = useSelector(gameService, _wardrobe);
 
-  const getBalanceOfItem = (
-    item: FactionShopWearable | FactionShopCollectible | FactionShopFood,
-  ): number => {
+  const getBalanceOfItem = (item: FactionShopItem): number => {
     if (type === "wearables") {
       return wardrobe[item.name as BumpkinItem] ?? 0;
     }
@@ -64,7 +58,16 @@ export const ItemsList: React.FC<Props> = ({
     return ITEM_DETAILS[`${singular} Emblem` as InventoryItemName].image;
   };
 
-  const sortedItems = items.sort((a, b) => Number(a.price.sub(b.price)));
+  const sortedItems = items.slice().sort((a, b) => {
+    const factionA = a.faction || "";
+    const factionB = b.faction || "";
+
+    if (factionA === factionB) {
+      return Number(a.price) - Number(b.price);
+    }
+    return factionA.localeCompare(factionB);
+  });
+
   const { t } = useAppTranslation();
 
   return (
@@ -79,7 +82,7 @@ export const ItemsList: React.FC<Props> = ({
           )}.`}</span>
         ) : (
           sortedItems.map((item) => {
-            const buff = getItemBuffLabel(item);
+            const buff = getItemBuffLabel(item, state);
             const balanceOfItem = getBalanceOfItem(item);
 
             return (

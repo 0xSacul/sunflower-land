@@ -2,10 +2,10 @@ import { SUNNYSIDE } from "assets/sunnyside";
 import { Box } from "components/ui/Box";
 import { Button } from "components/ui/Button";
 import { Label } from "components/ui/Label";
-import { getKeys } from "features/game/types/craftables";
-import { Inventory } from "features/game/types/game";
+import { getKeys } from "lib/object";
+import type { Inventory } from "features/game/types/game";
 import { ITEM_DETAILS } from "features/game/types/images";
-import { SEEDS, SeedName } from "features/game/types/seeds";
+import { SEEDS, type SeedName } from "features/game/types/seeds";
 import React, { useState } from "react";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { CROP_SEEDS } from "features/game/types/crops";
@@ -23,7 +23,7 @@ export const SeedSelection: React.FC<Props> = ({ onPlant, inventory }) => {
     inventory[name]?.gte(1),
   );
 
-  const yields = seed && SEEDS()[seed].yield;
+  const yields = seed && SEEDS[seed].yield;
 
   return (
     <>

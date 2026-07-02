@@ -5,16 +5,17 @@ import { CloseButtonPanel } from "features/game/components/CloseablePanel";
 import { Panel } from "components/ui/Panel";
 import i18n from "lib/i18n";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
-import { changeFont } from "lib/utils/fonts";
 import {
-  LanguageCode,
-  languageDetails,
-} from "lib/i18n/dictionaries/dictionary";
+  type LanguageCode,
+  LANGUAGE_DETAILS,
+} from "lib/i18n/dictionaries/language";
 import { ConfirmationModal } from "components/ui/ConfirmationModal";
+import { getKeys } from "lib/object";
 
 export const LanguageSwitcher: React.FC = () => {
   const { t } = useAppTranslation();
   const initialLanguage = localStorage.getItem("language") || "en";
+  const fontType = localStorage.getItem("settings.font") || "Default";
   const [language, setLanguage] = useState(initialLanguage);
   const [selected, setSelected] = useState<LanguageCode>("en");
   const [isConfirmModalOpen, setConfirmModal] = useState(false);
@@ -25,40 +26,62 @@ export const LanguageSwitcher: React.FC = () => {
     i18n.changeLanguage(languageCode);
     setLanguage(languageCode);
     location.reload();
+  };
 
-    if (languageCode === "zh-CN") {
-      changeFont("Sans Serif");
-    } else {
-      changeFont("Default");
+  const getFontNameClass = (languageCode: LanguageCode): string => {
+    const formatedFontType = fontType.replace(/[^a-zA-Z]/g, "");
+
+    switch (languageCode) {
+      case "ru":
+        return `font-${languageCode}${formatedFontType}`;
+      default:
+        return "";
     }
   };
 
-  const languageArray = Object.keys(languageDetails) as LanguageCode[];
+  const getFontSizeClass = (languageCode: LanguageCode): string => {
+    switch (languageCode) {
+      case "zh-CN":
+        return "!text-[20px]";
+      case "ru":
+        return fontType === "Bold" ? "!text-[26px]" : "";
+      default:
+        return "";
+    }
+  };
 
+  const languageArray = getKeys(LANGUAGE_DETAILS);
   return (
     <>
-      <div className="p-1 space-y-2">
-        {languageArray.map((languageCode) => (
-          <Button
-            key={languageCode}
-            onClick={() => {
-              setSelected(languageCode);
-              setConfirmModal(true);
-            }}
-            disabled={language === languageCode}
-          >
-            {languageDetails[languageCode].languageImage.map((img, index) => (
-              <img
-                key={index}
-                style={{ display: "inline-block", marginRight: "5px" }}
-                src={img}
-                alt={languageDetails[languageCode].imageAlt[index]}
-              />
-            ))}
-            {languageDetails[languageCode].languageName}{" "}
-            {language === languageCode && t("changeLanguage.currentLanguage")}
-          </Button>
-        ))}
+      <div className="p-1 space-y-2 max-h-[400px] overflow-y-auto scrollable">
+        <div className="grid grid-cols-2 gap-1">
+          {languageArray.map((languageCode) => (
+            <Button
+              key={languageCode}
+              onClick={() => {
+                setSelected(languageCode);
+                setConfirmModal(true);
+              }}
+              disabled={language === languageCode}
+            >
+              {LANGUAGE_DETAILS[languageCode].languageImage.map(
+                (img, index) => (
+                  <img
+                    key={index}
+                    style={{ display: "inline-block", marginRight: "5px" }}
+                    src={img}
+                    alt={LANGUAGE_DETAILS[languageCode].imageAlt[index]}
+                  />
+                ),
+              )}
+              <span
+                className={`${getFontNameClass(languageCode)} ${getFontSizeClass(languageCode)}`}
+              >
+                {LANGUAGE_DETAILS[languageCode].languageName}
+              </span>
+            </Button>
+          ))}
+        </div>
         <span>
           <a
             target="_blank"

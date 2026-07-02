@@ -1,38 +1,37 @@
 import React, { useContext, useEffect } from "react";
 import { Modal } from "components/ui/Modal";
-import { useSelector } from "@xstate/react";
+import { useActor, useSelector } from "@xstate/react";
 
 import { useInterval } from "lib/utils/hooks/useInterval";
 import * as AuthProvider from "features/auth/lib/Provider";
 
 import { Loading } from "features/auth/components";
-import { ErrorCode } from "lib/errors";
+import type { ErrorCode } from "lib/errors";
 import { ErrorMessage } from "features/auth/ErrorMessage";
 import { Refreshing } from "features/auth/components/Refreshing";
 import { AddingSFL } from "features/auth/components/AddingSFL";
 import { Context } from "../GameProvider";
-import { INITIAL_SESSION, MachineState, StateValues } from "../lib/gameMachine";
+import {
+  type BlockchainState,
+  INITIAL_SESSION,
+  type MachineState,
+  type StateValues,
+} from "../lib/gameMachine";
 import { ToastProvider } from "../toast/ToastProvider";
 import { ToastPanel } from "../toast/ToastPanel";
 import { Panel } from "components/ui/Panel";
-import { Success } from "../components/Success";
-import { Syncing } from "../components/Syncing";
 
-import { Hoarding } from "../components/Hoarding";
 import { Swarming } from "../components/Swarming";
 import { Cooldown } from "../components/Cooldown";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router";
 import { Land } from "./Land";
-import { Helios } from "features/helios/Helios";
 import { VisitingHud } from "features/island/hud/VisitingHud";
 import { VisitLandExpansionForm } from "./components/VisitLandExpansionForm";
 
 import { IslandNotFound } from "./components/IslandNotFound";
-import { Rules } from "../components/Rules";
 import { Introduction } from "./components/Introduction";
+import { Welcome } from "./components/Welcome";
 import { Purchasing } from "../components/Purchasing";
-import { Transacting } from "../components/Transacting";
-import { Minting } from "../components/Minting";
 import { ClaimAuction } from "../components/auctionResults/ClaimAuction";
 import { RefundAuction } from "../components/auctionResults/RefundAuction";
 import { Promo } from "./components/Promo";
@@ -41,7 +40,8 @@ import { Sniped } from "../components/Sniped";
 import { NewMail } from "./components/NewMail";
 import { Blacklisted } from "../components/Blacklisted";
 import { AirdropPopup } from "./components/Airdrop";
-import { PIXEL_SCALE, TEST_FARM } from "../lib/constants";
+import { MarketplaceSalesPopup } from "./components/MarketplaceSalesPopup";
+import { isBuildingReady, PIXEL_SCALE, TEST_FARM } from "../lib/constants";
 import classNames from "classnames";
 import { Label } from "components/ui/Label";
 import { CONFIG } from "lib/config";
@@ -49,38 +49,163 @@ import { Home } from "features/home/Home";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { Listed } from "../components/Listed";
 import { ListingDeleted } from "../components/listingDeleted";
-import { AuthMachineState } from "features/auth/lib/authMachine";
+import type { AuthMachineState } from "features/auth/lib/authMachine";
 import { usePWAInstall } from "features/pwa/PWAInstallProvider";
 import { fixInstallPromptTextStyles } from "features/pwa/lib/fixInstallPromptStyles";
-import { Withdrawing } from "../components/Withdrawing";
-import { Withdrawn } from "../components/Withdrawn";
-import { PersonhoodContent } from "features/retreat/components/personhood/PersonhoodContent";
 import { hasFeatureAccess } from "lib/flags";
 import { SUNNYSIDE } from "assets/sunnyside";
 import { PriceChange } from "../components/PriceChange";
 import { VIPOffer } from "../components/modal/components/VIPItems";
+import { StarterOfferModal } from "../components/modal/components/StarterOfferModal";
+import { RoninWaypointLoginModal } from "features/roninMigration/RoninWaypointLoginModal";
 import { GreenhouseInside } from "features/greenhouse/GreenhouseInside";
 import { useSound } from "lib/utils/hooks/useSound";
 import { SomethingArrived } from "./components/SomethingArrived";
+import { TradeAlreadyFulfilled } from "../components/TradeAlreadyFulfilled";
+import { NPC_WEARABLES } from "lib/npcs";
+import { Transaction } from "features/island/hud/Transaction";
+import { Gems } from "./components/Gems";
+import { HenHouseInside } from "features/henHouse/HenHouseInside";
+import { BarnInside } from "features/barn/BarnInside";
+import { PetHouseInside } from "features/petHouse/PetHouseInside";
+import {
+  STATE_MACHINE_EFFECTS,
+  STATE_MACHINE_VISIT_EFFECTS,
+} from "../actions/effect";
+import type { TranslationKeys } from "lib/i18n/dictionaries/types";
+import type { GameState } from "../types/game";
+import { Ocean } from "features/world/ui/Ocean";
+import { OffersAcceptedPopup } from "./components/OffersAcceptedPopup";
+import { Marketplace } from "features/marketplace/Marketplace";
+import { CompetitionModal } from "features/competition/CompetitionBoard";
+import { SeasonChanged } from "./components/temperateSeason/SeasonChanged";
+import { CalendarEvent } from "./components/temperateSeason/CalendarEvent";
+import { DailyReset } from "../components/DailyReset";
+import { RoninJinClaim } from "./components/RoninJinClaim";
+import {
+  EFFECT_SUCCESS_COMPONENTS,
+  EffectSuccess,
+} from "./components/effects/EffectSuccess";
+import { LoveCharm } from "./components/LoveCharm";
+import { ClaimReferralRewards } from "./components/ClaimReferralRewards";
+import { ReferralsAnnouncement } from "./components/ReferralsAnnouncement";
+import { SoftBan } from "features/retreat/components/personhood/SoftBan";
+import { RewardBox } from "features/rewardBoxes/RewardBox";
+import { SystemMessageWidget } from "features/announcements/SystemMessageWidget";
+import { TradesCleared } from "./components/TradesCleared";
+import { RevealPet } from "features/island/pets/RevealPet";
+import { OnChainRaffleRewardModal } from "./components/OnChainRaffleRewardModal";
+import { LeagueResults } from "./components/LeagueResults";
+import { MigrateToLinkedWallet } from "./components/MigrateToLinkedWallet";
+import { DailyRewardClaim } from "../components/DailyReward";
+
+function camelToDotCase(str: string): string {
+  return str.replace(/([a-z])([A-Z])/g, "$1.$2").toLowerCase() as string;
+}
 
 const land = SUNNYSIDE.land.island;
 
-export const AUTO_SAVE_INTERVAL = 1000 * 30; // autosave every 30 seconds
+const getModalStatesForEffects = () =>
+  Object.values({
+    ...STATE_MACHINE_EFFECTS,
+  }).reduce(
+    (states, stateName) => ({
+      ...states,
+      [stateName]: true,
+      [`${stateName}Failed`]: true,
+      [`${stateName}Success`]: true,
+    }),
+    {} as Record<BlockchainState["value"], boolean>,
+  );
+
+const getModalStatesForVisitingEffects = () =>
+  Object.values({
+    ...STATE_MACHINE_VISIT_EFFECTS,
+  }).reduce(
+    (states, stateName) => ({
+      ...states,
+      [stateName]: true,
+      [`${stateName}Failed`]: true,
+      [`${stateName}Success`]: true,
+    }),
+    {} as Record<BlockchainState["value"], boolean>,
+  );
+
+const checkForActiveEffectState = (
+  state: MachineState,
+  type?: "Success" | "Failed",
+) => {
+  const visitEffectActive = Object.values(STATE_MACHINE_VISIT_EFFECTS).some(
+    (stateName) => state.matches(`${stateName}${type ?? ""}`),
+  );
+  const effectEffectActive = Object.values(STATE_MACHINE_EFFECTS).some(
+    (stateName) => state.matches(`${stateName}${type ?? ""}`),
+  );
+
+  return visitEffectActive || effectEffectActive;
+};
+
+export const AUTO_SAVE_INTERVAL = 1000 * 60; // autosave every 60 seconds
 const SHOW_MODAL: Record<StateValues, boolean> = {
+  ...getModalStatesForEffects(),
+  ...getModalStatesForVisitingEffects(),
+  // Hide these modals
+  depositingFlower: false,
+  depositingFlowerSuccess: false,
+  depositingFlowerFailed: false,
+  depositingSFL: false,
+  depositingSFLSuccess: false,
+  depositingSFLFailed: false,
+  changingUsername: false,
+  changingUsernameSuccess: false,
+  changingUsernameFailed: false,
+  assigningUsername: false,
+  assigningUsernameSuccess: false,
+  assigningUsernameFailed: false,
+  claimingStreamReward: false,
+  claimingStreamRewardSuccess: false,
+  claimingStreamRewardFailed: false,
+  exchangingEconomy: false,
+  exchangingEconomySuccess: false,
+  exchangingEconomyFailed: false,
+  airdroppingRewardFailed: false,
+  completingProject: false,
+  completingProjectSuccess: false,
+  unlockingFarmhand: false,
+  unlockingFarmhandSuccess: false,
+  resettingPetRequests: false,
+  resettingPetRequestsSuccess: false,
+  linkingSocial: false,
+  linkingSocialSuccess: false,
+  linkingSocialFailed: false,
+  togglingSocialLogin: false,
+  togglingSocialLoginSuccess: false,
+  togglingSocialLoginFailed: false,
+  linkingWallet: false,
+  linkingWalletSuccess: false,
+  linkingWalletFailed: false,
+  // Showcasing / removing a tweet is handled inline in the mailbox Community tab.
+  showcasingTwitter: false,
+  showcasingTwitterSuccess: false,
+  showcasingTwitterFailed: false,
+  removingShowcase: false,
+  removingShowcaseSuccess: false,
+  removingShowcaseFailed: false,
+
+  // Every new state should be added below here
+  gems: true,
+  communityCoin: true,
+  referralRewards: true,
+  referrals: false,
   loading: true,
   playing: false,
   autosaving: false,
-  syncing: true,
-  synced: true,
   error: true,
-  purchasing: true,
   buyingBlockBucks: true,
   refreshing: true,
-  hoarding: true,
   landscaping: false,
   swarming: true,
   coolingDown: true,
-  gameRules: true,
   randomising: false,
   visiting: false,
   loadLandToVisit: true,
@@ -92,34 +217,36 @@ const SHOW_MODAL: Record<StateValues, boolean> = {
   buyingSFL: true,
   depositing: true,
   introduction: false,
-  specialOffer: true,
+  welcome: true,
+  vip: true,
   transacting: true,
-  minting: true,
   auctionResults: false,
   claimAuction: false,
   refundAuction: false,
+  onChainRaffleAcknowledgment: false,
   promo: true,
-  trading: true,
-  listing: true,
-  deleteTradeListing: true,
-  tradeListingDeleted: true,
-  fulfillTradeListing: false,
-  listed: true,
-  sniped: true,
   priceChanged: true,
   buds: false,
   mailbox: false,
   blacklisted: true,
   airdrop: true,
+  offers: true,
+  marketplaceSale: true,
+  tradesCleared: true,
   portalling: true,
-  provingPersonhood: false,
-  withdrawing: true,
-  withdrawn: true,
   sellMarketResource: false,
   somethingArrived: true,
+  seasonChanged: false,
+  jinAirdrop: true,
+  investigating: true,
+  leagueResults: false,
+  linkWallet: true,
+  dailyReward: true,
+  starterOffer: true,
 };
 
 // State change selectors
+const isWelcome = (state: MachineState) => state.matches("welcome");
 const isLoading = (state: MachineState) =>
   state.matches("loading") || state.matches("portalling");
 const isPortalling = (state: MachineState) => state.matches("portalling");
@@ -131,26 +258,27 @@ const isDeletingListing = (state: MachineState) =>
   state.matches("deleteTradeListing");
 const isListingDeleted = (state: MachineState) =>
   state.matches("tradeListingDeleted");
-const isFulfillingTradeListing = (state: MachineState) =>
-  state.matches("fulfillTradeListing");
 const isSniped = (state: MachineState) => state.matches("sniped");
+const isTradeAlreadyFulfilled = (state: MachineState) =>
+  state.matches("tradeAlreadyFulfilled");
 const hasMarketPriceChanged = (state: MachineState) =>
   state.matches("priceChanged");
 const isRefreshing = (state: MachineState) => state.matches("refreshing");
 const isBuyingSFL = (state: MachineState) => state.matches("buyingSFL");
 const isError = (state: MachineState) => state.matches("error");
-const isSynced = (state: MachineState) => state.matches("synced");
-const isSyncing = (state: MachineState) => state.matches("syncing");
-const isHoarding = (state: MachineState) => state.matches("hoarding");
-const isVisiting = (state: MachineState) => state.matches("visiting");
 const isSwarming = (state: MachineState) => state.matches("swarming");
 const isPurchasing = (state: MachineState) =>
   state.matches("purchasing") || state.matches("buyingBlockBucks");
 
+const showGems = (state: MachineState) => state.matches("gems");
+const showCommunityCoin = (state: MachineState) =>
+  state.matches("communityCoin");
+const _showReferralRewards = (state: MachineState) =>
+  state.matches("referralRewards");
+const isReferralsAnnouncement = (state: MachineState) =>
+  state.matches("referrals");
 const isCoolingDown = (state: MachineState) => state.matches("coolingDown");
-const isGameRules = (state: MachineState) => state.matches("gameRules");
 const isDepositing = (state: MachineState) => state.matches("depositing");
-const isMinting = (state: MachineState) => state.matches("minting");
 const isLoadingLandToVisit = (state: MachineState) =>
   state.matches("loadLandToVisit");
 const isLoadingSession = (state: MachineState) =>
@@ -161,30 +289,79 @@ const currentState = (state: MachineState) => state.value;
 const getErrorCode = (state: MachineState) => state.context.errorCode;
 const getActions = (state: MachineState) => state.context.actions;
 
-const isWithdrawing = (state: MachineState) => state.matches("withdrawing");
-const isWithdrawn = (state: MachineState) => state.matches("withdrawn");
 const isTransacting = (state: MachineState) => state.matches("transacting");
 const isClaimAuction = (state: MachineState) => state.matches("claimAuction");
 const isRefundingAuction = (state: MachineState) =>
   state.matches("refundAuction");
 const isPromoing = (state: MachineState) => state.matches("promo");
 const isBlacklisted = (state: MachineState) => state.matches("blacklisted");
+const getBanReason = (state: MachineState) => state.context.banReason;
 const hasAirdrop = (state: MachineState) => state.matches("airdrop");
-const hasSpecialOffer = (state: MachineState) => state.matches("specialOffer");
+const isOnChainRaffleAcknowledgment = (state: MachineState) =>
+  state.matches("onChainRaffleAcknowledgment");
+const isInvestigating = (state: MachineState) => state.matches("investigating");
+const hasFulfilledOffers = (state: MachineState) => state.matches("offers");
+const hasVipNotification = (state: MachineState) => state.matches("vip");
 const isPlaying = (state: MachineState) => state.matches("playing");
+const isDailyReward = (state: MachineState) => state.matches("dailyReward");
 const somethingArrived = (state: MachineState) =>
   state.matches("somethingArrived");
-const isProvingPersonhood = (state: MachineState) =>
-  state.matches("provingPersonhood");
 
-const GameContent = () => {
+const isEffectPending = (state: MachineState) =>
+  checkForActiveEffectState(state);
+
+const isEffectSuccess = (state: MachineState) =>
+  checkForActiveEffectState(state, "Success");
+
+const isEffectFailed = (state: MachineState) =>
+  checkForActiveEffectState(state, "Failed");
+
+const hasMarketplaceSales = (state: MachineState) =>
+  state.matches("marketplaceSale");
+const isTradesCleared = (state: MachineState) => state.matches("tradesCleared");
+const isCompetition = (state: MachineState) => state.matches("competition");
+const isSeasonChanged = (state: MachineState) => state.matches("seasonChanged");
+const isCalendarEvent = (state: MachineState) => state.matches("calendarEvent");
+
+const isJinAirdrop = (state: MachineState) => state.matches("jinAirdrop");
+const isLinkWallet = (state: MachineState) => state.matches("linkWallet");
+const isStarterOffer = (state: MachineState) => state.matches("starterOffer");
+const isRoninMigration = (state: MachineState) =>
+  state.matches("roninMigration");
+const _isVisiting = (state: MachineState) =>
+  state.context.visitorId !== undefined;
+const isLeagueResultsReleased = (state: MachineState) =>
+  state.matches("leagueResults");
+
+const GameContent: React.FC = () => {
   const { gameService } = useContext(Context);
-
   useSound("desert", true);
 
-  const visiting = useSelector(gameService, isVisiting);
+  const isVisiting = useSelector(gameService, _isVisiting);
+
   const landToVisitNotFound = useSelector(gameService, isLandToVisitNotFound);
   const { t } = useAppTranslation();
+  const [gameState] = useActor(gameService);
+
+  const PATH_ACCESS: Partial<Record<string, (game: GameState) => boolean>> = {
+    GreenHouse: (game) =>
+      !!game.buildings.Greenhouse && isBuildingReady(game.buildings.Greenhouse),
+    Barn: (game) =>
+      !!game.buildings.Barn && isBuildingReady(game.buildings.Barn),
+    HenHouse: (game) =>
+      !!game.buildings["Hen House"] &&
+      isBuildingReady(game.buildings["Hen House"]),
+    PetHouse: (game) =>
+      !!game.buildings["Pet House"] &&
+      isBuildingReady(game.buildings["Pet House"]),
+  };
+
+  const hasAccess = (pathName: string) => {
+    return (
+      PATH_ACCESS[pathName] && PATH_ACCESS[pathName](gameState.context.state)
+    );
+  };
+
   if (landToVisitNotFound) {
     return (
       <>
@@ -218,12 +395,16 @@ const GameContent = () => {
     );
   }
 
-  if (visiting) {
+  if (isVisiting) {
     return (
       <>
         <div className="absolute z-10 w-full h-full">
           <Routes>
             <Route path="/:id" element={<Land />} />
+            <Route path="/:id/home" element={<Home />} />
+            {hasAccess("PetHouse") && (
+              <Route path="/:id/pet-house" element={<PetHouseInside />} />
+            )}
           </Routes>
         </div>
       </>
@@ -234,13 +415,30 @@ const GameContent = () => {
     <>
       <div className="absolute w-full h-full z-10">
         <Routes>
-          <Route path="/" element={<Land />} />
+          <Route path="/" element={<Land />}>
+            <Route path="marketplace/*" element={<Marketplace />} />
+          </Route>
           {/* Legacy route */}
           <Route path="/farm" element={<Land />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/greenhouse" element={<GreenhouseInside />} />
-          <Route path="/helios" element={<Helios key="helios" />} />
-          <Route path="*" element={<IslandNotFound />} />
+          {hasAccess("GreenHouse") && (
+            <Route path="/greenhouse" element={<GreenhouseInside />} />
+          )}
+          {hasAccess("Barn") && <Route path="/barn" element={<BarnInside />} />}
+          {hasAccess("HenHouse") && (
+            <Route path="/hen-house" element={<HenHouseInside />} />
+          )}
+          {hasAccess("PetHouse") && (
+            <Route path="/pet-house" element={<PetHouseInside />} />
+          )}
+          <Route
+            path="*"
+            element={
+              <Ocean>
+                <IslandNotFound />
+              </Ocean>
+            }
+          />
         </Routes>
       </div>
     </>
@@ -258,15 +456,15 @@ export const Game: React.FC = () => {
 const _showPWAInstallPrompt = (state: AuthMachineState) =>
   state.context.showPWAInstallPrompt;
 
-export const GameWrapper: React.FC = ({ children }) => {
+export const GameWrapper: React.FC<React.PropsWithChildren> = ({
+  children,
+}) => {
   const { authService } = useContext(AuthProvider.Context);
   const { gameService } = useContext(Context);
   const pwaInstallRef = usePWAInstall();
 
   const loading = useSelector(gameService, isLoading);
-  const provingPersonhood = useSelector(gameService, isProvingPersonhood);
-  const withdrawing = useSelector(gameService, isWithdrawing);
-  const withdrawn = useSelector(gameService, isWithdrawn);
+  const welcome = useSelector(gameService, isWelcome);
   const portalling = useSelector(gameService, isPortalling);
   const trading = useSelector(gameService, isTrading);
   const traded = useSelector(gameService, isTraded);
@@ -275,17 +473,17 @@ export const GameWrapper: React.FC = ({ children }) => {
   const deletingListing = useSelector(gameService, isDeletingListing);
   const listingDeleted = useSelector(gameService, isListingDeleted);
   const sniped = useSelector(gameService, isSniped);
+  const tradeAlreadyFulfilled = useSelector(
+    gameService,
+    isTradeAlreadyFulfilled,
+  );
   const marketPriceChanged = useSelector(gameService, hasMarketPriceChanged);
   const refreshing = useSelector(gameService, isRefreshing);
   const buyingSFL = useSelector(gameService, isBuyingSFL);
   const error = useSelector(gameService, isError);
-  const synced = useSelector(gameService, isSynced);
-  const syncing = useSelector(gameService, isSyncing);
   const purchasing = useSelector(gameService, isPurchasing);
-  const hoarding = useSelector(gameService, isHoarding);
   const swarming = useSelector(gameService, isSwarming);
   const coolingDown = useSelector(gameService, isCoolingDown);
-  const gameRules = useSelector(gameService, isGameRules);
   const depositing = useSelector(gameService, isDepositing);
   const loadingLandToVisit = useSelector(gameService, isLoadingLandToVisit);
   const loadingSession = useSelector(gameService, isLoadingSession);
@@ -293,19 +491,49 @@ export const GameWrapper: React.FC = ({ children }) => {
   const errorCode = useSelector(gameService, getErrorCode);
   const actions = useSelector(gameService, getActions);
   const transacting = useSelector(gameService, isTransacting);
-  const minting = useSelector(gameService, isMinting);
   const claimingAuction = useSelector(gameService, isClaimAuction);
   const refundAuction = useSelector(gameService, isRefundingAuction);
   const promo = useSelector(gameService, isPromoing);
   const blacklisted = useSelector(gameService, isBlacklisted);
+  const banReason = useSelector(gameService, getBanReason);
   const airdrop = useSelector(gameService, hasAirdrop);
-  const specialOffer = useSelector(gameService, hasSpecialOffer);
+  const onChainRaffleAcknowledgment = useSelector(
+    gameService,
+    isOnChainRaffleAcknowledgment,
+  );
+  const showOffers = useSelector(gameService, hasFulfilledOffers);
+  const vip = useSelector(gameService, hasVipNotification);
   const playing = useSelector(gameService, isPlaying);
   const hasSomethingArrived = useSelector(gameService, somethingArrived);
-
+  const hasBBs = useSelector(gameService, showGems);
+  const hasCommunityCoin = useSelector(gameService, showCommunityCoin);
+  const showReferralRewards = useSelector(gameService, _showReferralRewards);
+  const referralsAnnouncement = useSelector(
+    gameService,
+    isReferralsAnnouncement,
+  );
+  const effectPending = useSelector(gameService, isEffectPending);
+  const effectSuccess = useSelector(gameService, isEffectSuccess);
+  const effectFailed = useSelector(gameService, isEffectFailed);
+  const showSales = useSelector(gameService, hasMarketplaceSales);
+  const competition = useSelector(gameService, isCompetition);
+  const seasonChanged = useSelector(gameService, isSeasonChanged);
+  const calendarEvent = useSelector(gameService, isCalendarEvent);
+  const jinAirdrop = useSelector(gameService, isJinAirdrop);
   const showPWAInstallPrompt = useSelector(authService, _showPWAInstallPrompt);
-
+  const investigating = useSelector(gameService, isInvestigating);
+  const linkWallet = useSelector(gameService, isLinkWallet);
+  const tradesCleared = useSelector(gameService, isTradesCleared);
+  const isVisiting = useSelector(gameService, _isVisiting);
+  const leagueResultsReleased = useSelector(
+    gameService,
+    isLeagueResultsReleased,
+  );
+  const dailyReward = useSelector(gameService, isDailyReward);
+  const starterOffer = useSelector(gameService, isStarterOffer);
+  const roninMigration = useSelector(gameService, isRoninMigration);
   const { t } = useAppTranslation();
+
   useInterval(() => {
     gameService.send("SAVE");
   }, AUTO_SAVE_INTERVAL);
@@ -355,16 +583,7 @@ export const GameWrapper: React.FC = ({ children }) => {
   if (loadingSession || loadingLandToVisit || portalling) {
     return (
       <>
-        <div
-          className="h-screen w-full fixed top-0"
-          style={{
-            zIndex: 49,
-
-            backgroundImage: `url(${SUNNYSIDE.decorations.ocean})`,
-            backgroundSize: `${64 * PIXEL_SCALE}px`,
-            imageRendering: "pixelated",
-          }}
-        >
+        <Ocean>
           <Modal show backdrop={false}>
             <div
               className={classNames(
@@ -415,31 +634,54 @@ export const GameWrapper: React.FC = ({ children }) => {
             <Panel>
               <Loading />
             </Panel>
+            <SystemMessageWidget />
           </Modal>
-        </div>
+        </Ocean>
       </>
     );
   }
 
   if (blacklisted) {
     return (
-      <div className="h-screen w-full fixed top-0" style={{ zIndex: 49 }}>
+      <Ocean>
         <Modal show backdrop={false}>
           <Panel>
-            <Blacklisted />
+            <Blacklisted banReason={banReason} />
           </Panel>
         </Modal>
-      </div>
+      </Ocean>
     );
   }
 
-  const stateValue = typeof state === "object" ? Object.keys(state)[0] : state;
+  const stateValue =
+    typeof state === "object"
+      ? (Object.keys(state)[0] as StateValues)
+      : (state as StateValues);
 
-  const onHide = () => {
-    listed || listingDeleted || traded || sniped || marketPriceChanged
-      ? gameService.send("CONTINUE")
-      : undefined;
+  const onHide = (): (() => void) | undefined => {
+    if (
+      listed ||
+      listingDeleted ||
+      traded ||
+      sniped ||
+      marketPriceChanged ||
+      tradeAlreadyFulfilled
+    ) {
+      gameService.send("CONTINUE");
+    } else {
+      return undefined;
+    }
   };
+
+  const effectTranslationKey = camelToDotCase(
+    stateValue as string,
+  ) as TranslationKeys;
+
+  let effectText = t(effectTranslationKey);
+
+  if (effectText === effectTranslationKey) {
+    effectText = t("loading");
+  }
 
   return (
     <>
@@ -447,58 +689,90 @@ export const GameWrapper: React.FC = ({ children }) => {
         <ToastPanel />
 
         <Modal show={SHOW_MODAL[stateValue as StateValues]} onHide={onHide}>
-          <Panel>
+          <Panel
+            bumpkinParts={error ? NPC_WEARABLES["worried pete"] : undefined}
+          >
+            {/* Effects */}
+            {effectPending && <Loading text={effectText} />}
+            {effectSuccess &&
+              (EFFECT_SUCCESS_COMPONENTS[stateValue as StateValues] ?? (
+                <EffectSuccess state={stateValue} />
+              ))}
+            {effectFailed && (
+              <ErrorMessage errorCode={errorCode as ErrorCode} />
+            )}
+
             {loading && <Loading />}
             {refreshing && <Refreshing />}
             {buyingSFL && <AddingSFL />}
             {error && <ErrorMessage errorCode={errorCode as ErrorCode} />}
-            {synced && <Success />}
-            {syncing && <Syncing />}
             {purchasing && <Purchasing />}
-            {hoarding && <Hoarding />}
             {swarming && <Swarming />}
-
             {coolingDown && <Cooldown />}
-            {gameRules && <Rules />}
-            {transacting && <Transacting />}
-            {depositing && <Loading text="Depositing" />}
-            {trading && <Loading text="Trading" />}
+            {dailyReward && <DailyRewardClaim showClose />}
+            {transacting && <Transaction />}
+            {welcome && <Welcome />}
+            {depositing && <Loading text={t("depositing")} />}
+            {trading && <Loading text={t("trading")} />}
             {traded && <Traded />}
-            {listing && <Loading text="Listing" />}
+            {listing && <Loading text={t("listing")} />}
             {listed && <Listed />}
-            {deletingListing && <Loading text="Deleting listing" />}
+            {deletingListing && <Loading text={t("deleting.listing")} />}
             {listingDeleted && <ListingDeleted />}
             {sniped && <Sniped />}
+            {tradeAlreadyFulfilled && <TradeAlreadyFulfilled />}
             {marketPriceChanged && <PriceChange />}
-            {minting && <Minting />}
             {promo && <Promo />}
             {airdrop && <AirdropPopup />}
-            {specialOffer && <VIPOffer />}
-            {withdrawing && <Withdrawing />}
-            {withdrawn && <Withdrawn />}
+            {showOffers && <OffersAcceptedPopup />}
+            {showSales && <MarketplaceSalesPopup />}
+            {tradesCleared && <TradesCleared />}
+            {vip && <VIPOffer />}
+            {starterOffer && <StarterOfferModal />}
             {hasSomethingArrived && <SomethingArrived />}
+            {hasBBs && <Gems />}
+            {hasCommunityCoin && <LoveCharm />}
+            {jinAirdrop && <RoninJinClaim />}
+            {showReferralRewards && <ClaimReferralRewards />}
+            {investigating && <SoftBan />}
+            {linkWallet && <MigrateToLinkedWallet />}
           </Panel>
         </Modal>
 
         {claimingAuction && <ClaimAuction />}
         {refundAuction && <RefundAuction />}
-
-        <Introduction />
-        <NewMail />
-
-        {provingPersonhood && (
-          <Modal
-            show={true}
-            onHide={() => gameService.send("PERSONHOOD_CANCELLED")}
-          >
-            <Panel className="text-shadow">
-              <PersonhoodContent />
+        {onChainRaffleAcknowledgment && <OnChainRaffleRewardModal />}
+        {seasonChanged && <SeasonChanged />}
+        {roninMigration && <RoninWaypointLoginModal />}
+        {calendarEvent && <CalendarEvent />}
+        {referralsAnnouncement && <ReferralsAnnouncement />}
+        {competition && (
+          <Modal show onHide={() => gameService.send("ACKNOWLEDGE")}>
+            <CompetitionModal
+              competitionName="BUILDING_FRIENDSHIPS"
+              onClose={() => gameService.send("ACKNOWLEDGE")}
+            />
+          </Modal>
+        )}
+        {leagueResultsReleased && !isVisiting && (
+          <Modal show>
+            <Panel
+              bumpkinParts={error ? NPC_WEARABLES["worried pete"] : undefined}
+            >
+              <LeagueResults />
             </Panel>
           </Modal>
         )}
+        <Introduction />
+        <NewMail />
+
+        <RewardBox />
+        <RevealPet />
 
         {children}
       </ToastProvider>
+      {/* Handles daily reset */}
+      <DailyReset />
     </>
   );
 };

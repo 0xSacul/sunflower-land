@@ -1,9 +1,18 @@
 import Decimal from "decimal.js-light";
-import { GameState, Inventory } from "./game";
+import type { Inventory, Keys } from "./game";
+import type { LevelRequirement } from "features/game/lib/level";
 import { translate } from "lib/i18n/translate";
-import { SEASONS } from "./seasons";
+import { CHAPTERS } from "./chapters";
+import type { ExoticCropName } from "./beans";
 
-export type CollectibleLocation = "farm" | "home";
+export const PLACEABLE_LOCATIONS = [
+  "farm",
+  "home",
+  "petHouse",
+  "interior",
+  "level_one",
+] as const;
+export type PlaceableLocation = (typeof PLACEABLE_LOCATIONS)[number];
 
 export type SeasonPassName =
   | "Dawn Breaker Banner"
@@ -20,20 +29,21 @@ export type PurchasableItems =
   | "Spring Blossom Banner"
   | "Clash of Factions Banner"
   | "Lifetime Farmer Banner"
-  | "Pharaoh's Treasure Banner";
-
+  | "Pharaoh's Treasure Banner"
+  | "Bull Run Banner";
 export type HeliosBlacksmithItem =
   | "Immortal Pear"
   | "Basic Scarecrow"
   | "Bale"
   | "Scary Mike"
   | "Laurie the Chuckle Crow"
-  | "Poppy"
-  | "Kernaldo"
-  | "Grain Grinder"
-  | "Skill Shrimpy"
-  | "Soil Krabby"
-  | "Nana";
+  | "Iron Beetle"
+  | "Gold Beetle"
+  | "Fairy Circle"
+  | "Squirrel"
+  | "Macaw"
+  | "Butterfly"
+  | "Salt Sculpture";
 
 export type TreasureCollectibleItem =
   | "Treasure Map"
@@ -85,11 +95,65 @@ export type SoldOutCollectibleName =
   | "Royal Throne"
   | "Lily Egg"
   | "Goblet"
+  | "Stone Beetle"
   | "Pharaoh Gnome"
   | "Lemon Tea Bath"
   | "Tomato Clown"
   | "Pyramid"
-  | "Oasis";
+  | "Oasis"
+  | "Moo-ver"
+  | "Swiss Whiskers"
+  | "Cluckulator"
+  | "UFO"
+  | "Black Sheep"
+  | "Golden Sheep"
+  | "Barn Blueprint"
+  | "Quarry"
+  | "Obsidian Turtle"
+  | "Winter Guardian"
+  | "Summer Guardian"
+  | "Spring Guardian"
+  | "Autumn Guardian"
+  | "Sky Pillar"
+  | "Rocket Statue"
+  | "Ant Queen"
+  | "Jurassic Droplet"
+  | "Giant Onion"
+  | "Giant Turnip"
+  | "Groovy Gramophone"
+  | "Poppy"
+  | "Kernaldo"
+  | "Grain Grinder"
+  | "Skill Shrimpy"
+  | "Soil Krabby"
+  | "Nana"
+  // Crabs and Traps
+  | "Speckled Kissing Fish"
+  | "Dark Eyed Kissing Fish"
+  | "Fisherman's Boat"
+  | "Sea Arch"
+  | "Crabs and Fish Rug"
+  | "Fish Flags"
+  | "Fish Drying Rack"
+  | "Yellow Submarine Trophy"
+  | "Oaken"
+  | "Meerkat"
+  | "Pearl Bed"
+  | "Crimstone Clam"
+  | "Poseidon's Throne"
+  | "Fish Kite"
+  | "Pufferfish"
+  | "Fat Crab"
+  | "Navigation Table"
+  | "Royal Crab Pot"
+  | "Crab House"
+  | "Speed Trap"
+  // Salt Awakening
+  | "Crystal Altar"
+  | "Dino Egg Trophy"
+  | "Salt Lamp"
+  | "World Map Rug"
+  | "Ripped Salt Bag";
 
 export type MegaStoreCollectibleName =
   | "Flower Cart"
@@ -161,15 +225,16 @@ export type CraftableCollectible = {
   coins?: number;
   from?: Date;
   to?: Date;
+  level?: LevelRequirement;
+  limit?: number;
+  inventoryLimit?: number;
+  disabled?: boolean;
 };
 
-export const HELIOS_BLACKSMITH_ITEMS: (
-  game?: GameState,
-  date?: Date,
-) => Partial<Record<HeliosBlacksmithItem, CraftableCollectible>> = (
-  state,
-  date = new Date(),
-) => ({
+export const HELIOS_BLACKSMITH_ITEMS: Record<
+  HeliosBlacksmithItem,
+  CraftableCollectible & { inventoryLimit: 1 }
+> = {
   "Basic Scarecrow": {
     description: translate("description.basic.scarecrow"),
     boost: translate("description.basic.scarecrow.boost"),
@@ -177,6 +242,7 @@ export const HELIOS_BLACKSMITH_ITEMS: (
     ingredients: {
       Wood: new Decimal(2),
     },
+    inventoryLimit: 1,
   },
   "Scary Mike": {
     description: translate("description.scary.mike"),
@@ -188,6 +254,7 @@ export const HELIOS_BLACKSMITH_ITEMS: (
       Wheat: new Decimal(10),
       Parsnip: new Decimal(10),
     },
+    inventoryLimit: 1,
   },
   "Laurie the Chuckle Crow": {
     description: translate("description.laurie.chuckle.crow"),
@@ -199,10 +266,11 @@ export const HELIOS_BLACKSMITH_ITEMS: (
       Kale: new Decimal(40),
       Wheat: new Decimal(20),
     },
+    inventoryLimit: 1,
   },
   Bale: {
     description: translate("description.bale"),
-    boost: translate("description.bale.boost"),
+    boost: translate("description.bale.eggBoost"),
     coins: 1600,
     ingredients: {
       Egg: new Decimal(200),
@@ -210,6 +278,7 @@ export const HELIOS_BLACKSMITH_ITEMS: (
       Wood: new Decimal(100),
       Stone: new Decimal(30),
     },
+    inventoryLimit: 1,
   },
   "Immortal Pear": {
     description: translate("description.immortal.pear"),
@@ -220,11 +289,102 @@ export const HELIOS_BLACKSMITH_ITEMS: (
       Blueberry: new Decimal(10),
       Orange: new Decimal(10),
     },
+    inventoryLimit: 1,
   },
-});
+  Squirrel: {
+    description: translate("description.squirrel"),
+    boost: translate("description.squirrel.boost"),
+    coins: 1000,
+    ingredients: {
+      Wood: new Decimal(100),
+    },
+    inventoryLimit: 1,
+  },
+  "Iron Beetle": {
+    description: translate("description.iron.beetle"),
+    boost: translate("description.iron.beetle.boost"),
+    coins: 2000,
+    ingredients: {
+      Iron: new Decimal(20),
+    },
+    inventoryLimit: 1,
+  },
+  "Gold Beetle": {
+    description: translate("description.gold.beetle"),
+    boost: translate("description.gold.beetle.boost"),
+    coins: 10000,
+    ingredients: {
+      Gold: new Decimal(20),
+    },
+    inventoryLimit: 1,
+  },
+  "Fairy Circle": {
+    description: translate("description.fairy.circle"),
+    boost: translate("description.fairy.circle.boost"),
+    coins: 25000,
+    ingredients: {
+      "Wild Mushroom": new Decimal(20),
+    },
+    inventoryLimit: 1,
+  },
+  Macaw: {
+    description: translate("description.macaw"),
+    boost: translate("description.macaw.boost"),
+    coins: 10000,
+    ingredients: {
+      Apple: new Decimal(10),
+      Blueberry: new Decimal(10),
+      Orange: new Decimal(10),
+      Banana: new Decimal(10),
+      Tomato: new Decimal(10),
+      Lemon: new Decimal(10),
+    },
+    inventoryLimit: 1,
+  },
+  Butterfly: {
+    description: translate("description.butterfly"),
+    boost: translate("description.butterfly.boost"),
+    coins: 15000,
+    ingredients: {},
+    inventoryLimit: 1,
+  },
+  "Salt Sculpture": {
+    description: translate("description.saltSculpture"),
+    boost: translate("description.saltSculpture.boost"),
+    coins: 2000,
+    ingredients: {
+      "Refined Salt": new Decimal(30),
+    },
+    inventoryLimit: 1,
+  },
+};
+
+export const ARTEFACT_SHOP_KEYS: Record<Keys, CraftableCollectible> = {
+  "Treasure Key": {
+    ingredients: {
+      Sand: new Decimal(10),
+      Hieroglyph: new Decimal(3),
+    },
+    description: translate("description.treasure.key"),
+  },
+  "Rare Key": {
+    ingredients: {
+      Sand: new Decimal(30),
+      Hieroglyph: new Decimal(10),
+    },
+    description: translate("description.rare.key"),
+  },
+  "Luxury Key": {
+    ingredients: {
+      Sand: new Decimal(100),
+      Hieroglyph: new Decimal(30),
+    },
+    description: translate("description.luxury.key"),
+  },
+};
 
 export const TREASURE_COLLECTIBLE_ITEM: Record<
-  TreasureCollectibleItem,
+  TreasureCollectibleItem | Keys,
   CraftableCollectible
 > = {
   "Treasure Map": {
@@ -234,79 +394,146 @@ export const TREASURE_COLLECTIBLE_ITEM: Record<
       Sand: new Decimal(50),
       Hieroglyph: new Decimal(20),
     },
+    inventoryLimit: 1,
   },
   "Adrift Ark": {
     ingredients: {
       Sand: new Decimal(125),
     },
-    description:
-      "A sandcastle on the shore intricately crafted to resemble a capsized boat, complete with shell portholes and seaweed flags fluttering atop its sculpted hull.",
+    description: translate("description.adrift.ark"),
   },
   Castellan: {
     ingredients: {
       Sand: new Decimal(750),
     },
-    description:
-      "Castellan is a charming sandcastle figure adorned with colorful accessories, symbolizing playful spirit and creativity.",
+    description: translate("description.castellan"),
   },
   "Sunlit Citadel": {
     ingredients: {
       Sand: new Decimal(1500),
       Scarab: new Decimal(40),
     },
-    description: "A Castle to show your pride",
-    from: SEASONS["Pharaoh's Treasure"].startDate,
-    to: SEASONS["Pharaoh's Treasure"].endDate,
+    description: translate("description.sunlit.citadel"),
+    from: CHAPTERS["Pharaoh's Treasure"].startDate,
+    to: CHAPTERS["Pharaoh's Treasure"].endDate,
   },
   "Baobab Tree": {
     ingredients: {
       Scarab: new Decimal(35),
     },
-    description: "A nice looking tree!",
-    from: SEASONS["Pharaoh's Treasure"].startDate,
-    to: SEASONS["Pharaoh's Treasure"].endDate,
+    description: translate("description.baobab.tree"),
+    from: CHAPTERS["Pharaoh's Treasure"].startDate,
+    to: CHAPTERS["Pharaoh's Treasure"].endDate,
   },
   Camel: {
     ingredients: {
       Scarab: new Decimal(200),
     },
-    description: "A mean looking camel!",
-    from: SEASONS["Pharaoh's Treasure"].startDate,
-    to: SEASONS["Pharaoh's Treasure"].endDate,
+    description: translate("description.camel"),
+    from: CHAPTERS["Pharaoh's Treasure"].startDate,
+    to: CHAPTERS["Pharaoh's Treasure"].endDate,
   },
+  ...ARTEFACT_SHOP_KEYS,
 };
 
 export type PotionHouseItem = CraftableCollectible & {
-  name: PotionHouseItemName;
+  name: PotionHouseItemName | ExoticCropName;
 };
 
-export const POTION_HOUSE_ITEMS: Record<PotionHouseItemName, PotionHouseItem> =
-  {
-    "Lab Grown Carrot": {
-      name: "Lab Grown Carrot",
-      description: translate("description.lab.grown.carrot"),
-      coins: 0,
-      ingredients: {
-        "Potion Ticket": new Decimal(6000),
-      },
+export const POTION_HOUSE_ITEMS: Record<
+  PotionHouseItemName,
+  PotionHouseItem & { inventoryLimit: 1 }
+> = {
+  "Lab Grown Carrot": {
+    name: "Lab Grown Carrot",
+    description: translate("description.lab.grown.carrot"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(6000),
     },
-    "Lab Grown Radish": {
-      name: "Lab Grown Radish",
-      description: translate("description.lab.grown.radish"),
-      coins: 0,
-      ingredients: {
-        "Potion Ticket": new Decimal(8000),
-      },
+    inventoryLimit: 1,
+  },
+  "Lab Grown Radish": {
+    name: "Lab Grown Radish",
+    description: translate("description.lab.grown.radish"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(8000),
     },
-    "Lab Grown Pumpkin": {
-      name: "Lab Grown Pumpkin",
-      description: translate("description.lab.grow.pumpkin"),
-      coins: 0,
-      ingredients: {
-        "Potion Ticket": new Decimal(7000),
-      },
+    inventoryLimit: 1,
+  },
+  "Lab Grown Pumpkin": {
+    name: "Lab Grown Pumpkin",
+    description: translate("description.lab.grow.pumpkin"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(7000),
     },
-  };
+    inventoryLimit: 1,
+  },
+};
+
+export const POTION_HOUSE_EXOTIC_CROPS: Record<
+  Exclude<ExoticCropName, "Giant Orange" | "Giant Apple" | "Giant Banana">,
+  PotionHouseItem
+> = {
+  "Black Magic": {
+    name: "Black Magic",
+    description: translate("description.black.magic"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(8000),
+    },
+  },
+  "Golden Helios": {
+    name: "Golden Helios",
+    description: translate("description.golden.helios"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(4000),
+    },
+  },
+  Chiogga: {
+    name: "Chiogga",
+    description: translate("description.chiogga"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(2000),
+    },
+  },
+  "Purple Cauliflower": {
+    name: "Purple Cauliflower",
+    description: translate("description.purple.cauliflower"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(800),
+    },
+  },
+  "Adirondack Potato": {
+    name: "Adirondack Potato",
+    description: translate("description.adirondack.potato"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(600),
+    },
+  },
+  "Warty Goblin Pumpkin": {
+    name: "Warty Goblin Pumpkin",
+    description: translate("description.warty.goblin.pumpkin"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(400),
+    },
+  },
+  "White Carrot": {
+    name: "White Carrot",
+    description: translate("description.white.carrot"),
+    coins: 0,
+    ingredients: {
+      "Potion Ticket": new Decimal(200),
+    },
+  },
+};
 
 export type Purchasable = CraftableCollectible & {
   usd: number;

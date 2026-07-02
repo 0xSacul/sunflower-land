@@ -8,14 +8,24 @@ import codex from "assets/icons/codex.webp";
 import { Codex } from "./Codex";
 import { hasNewOrders } from "features/island/delivery/lib/delivery";
 import { Context } from "features/game/GameProvider";
-import { MachineState } from "features/game/lib/gameMachine";
-import { getBumpkinLevel } from "features/game/lib/level";
+import type { MachineState } from "features/game/lib/gameMachine";
+import {
+  getAscensionLevel,
+  meetsLevelRequirement,
+} from "features/game/lib/level";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { useSelector } from "@xstate/react";
+import { RoundButton } from "components/ui/RoundButton";
 
 const _delivery = (state: MachineState) => state.context.state.delivery;
-const _level = (state: MachineState) =>
-  getBumpkinLevel(state.context.state.bumpkin?.experience ?? 0);
+const _hasDeliveryLevel = (state: MachineState) =>
+  meetsLevelRequirement(
+    getAscensionLevel({
+      experience: state.context.state.bumpkin.experience ?? 0,
+      ascensionLevel: state.context.state.island.ascensionLevel ?? 0,
+    }),
+    { ascension: 0, level: 2 },
+  );
 
 export const CodexButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,44 +33,46 @@ export const CodexButton: React.FC = () => {
   const { gameService } = useContext(Context);
 
   const deliveries = useSelector(gameService, _delivery);
-  const level = useSelector(gameService, _level);
+  const hasDeliveryLevel = useSelector(gameService, _hasDeliveryLevel);
 
   const hasDeliveries =
     // Show if any new orders has popped up (but not for new players)
-    (hasNewOrders(deliveries) && level >= 2) ||
+    (hasNewOrders(deliveries) && hasDeliveryLevel) ||
     // For new players, always show until they fulfill a delivery
-    (level >= 2 && deliveries.fulfilledCount === 0);
+    (hasDeliveryLevel && deliveries.fulfilledCount === 0);
 
   const { t } = useAppTranslation();
 
   return (
-    <div className="relative">
-      <div
-        className="relative flex cursor-pointer hover:img-highlight"
-        style={{
-          width: `${PIXEL_SCALE * 22}px`,
-          height: `${PIXEL_SCALE * 22}px`,
-        }}
+    <div
+      className="absolute"
+      style={{
+        top: `${PIXEL_SCALE * 29}px`,
+        left: `${PIXEL_SCALE * 28}px`,
+      }}
+    >
+      <RoundButton
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
           setIsOpen(true);
         }}
+        buttonSize={18}
       >
-        <img
-          src={SUNNYSIDE.ui.round_button}
-          className="absolute"
-          style={{
-            width: `${PIXEL_SCALE * 22}px`,
-          }}
-        />
-        <img
-          src={codex}
+        <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
-            width: `${PIXEL_SCALE * 14.5}px`,
+            width: `${PIXEL_SCALE * 12}px`,
           }}
-        />
+        >
+          <img
+            src={codex}
+            className="group-active:translate-y-[2px]"
+            style={{
+              width: `${PIXEL_SCALE * 12}px`,
+            }}
+          />
+        </div>
 
         {hasDeliveries && (
           <>
@@ -68,7 +80,7 @@ export const CodexButton: React.FC = () => {
               className="absolute hidden sm:block"
               style={{
                 width: `${PIXEL_SCALE * 68}px`,
-                left: `${PIXEL_SCALE * 13}px`,
+                left: `${PIXEL_SCALE * 10}px`,
                 top: `${PIXEL_SCALE * 5}px`,
               }}
             >
@@ -137,8 +149,7 @@ export const CodexButton: React.FC = () => {
             />
           </>
         )}
-      </div>
-
+      </RoundButton>
       <Codex show={isOpen} onHide={() => setIsOpen(false)} />
     </div>
   );

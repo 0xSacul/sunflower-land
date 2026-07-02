@@ -1,23 +1,23 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { type ChangeEvent, useState } from "react";
 
 import { SUNNYSIDE } from "assets/sunnyside";
 import { Button } from "components/ui/Button";
 import { ITEM_DETAILS } from "features/game/types/images";
 
 import { PIXEL_SCALE } from "features/game/lib/constants";
-import { Auction } from "features/game/lib/auctionMachine";
+import type { Auction } from "features/game/lib/auctionMachine";
 
-import sflIcon from "assets/icons/sfl.webp";
-import { getKeys } from "features/game/types/craftables";
-import { GameState } from "features/game/types/game";
+import sflIcon from "assets/icons/flower_token.webp";
+import { getKeys } from "lib/object";
+import type { GameState } from "features/game/types/game";
 import classNames from "classnames";
 import { useCountdown } from "lib/utils/hooks/useCountdown";
 import { TimerDisplay } from "./AuctionDetails";
-import {
-  INPUT_MAX_CHAR,
-  VALID_NUMBER,
-} from "features/island/hud/components/AddSFL";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { getAuctionItemType } from "./lib/getAuctionItemType";
+
+const VALID_NUMBER = new RegExp(/^\d*\.?\d*$/);
+const INPUT_MAX_CHAR = 10;
 
 /**
  * If they have enough resources, default the bid to 5 tickets
@@ -78,14 +78,14 @@ export const DraftBid: React.FC<Props> = ({
   const getInputErrorMessage = () => {
     if (tickets < minTickets) {
       if (isSFLAuction) {
-        return `Minimum bid is ${minTickets} SFL`;
+        return `Minimum bid is ${minTickets} FLOWER`;
       }
 
-      return `Minimum bid is ${minTickets} ${ingredient}'s`;
+      return `Minimum bid is ${minTickets} ${ingredient}s`;
     }
 
     if (isSFLAuction && gameState.balance.lt(tickets)) {
-      return `You don't have enough SFL`;
+      return `You don't have enough FLOWER`;
     }
 
     if (gameState.inventory[ingredient]?.lt(tickets)) {
@@ -157,6 +157,8 @@ export const DraftBid: React.FC<Props> = ({
     );
   }
 
+  const item = getAuctionItemType(auction);
+
   return (
     <>
       <div className="p-2 relative">
@@ -178,7 +180,7 @@ export const DraftBid: React.FC<Props> = ({
           })}
         </div>
 
-        {/* If there are more than one ingredient inc SFL */}
+        {/* If there are more than one ingredient inc FLOWER */}
         {isMultiIngredientAuction && (
           <div className="flex items-center justify-center mb-1">
             <Button
@@ -250,7 +252,7 @@ export const DraftBid: React.FC<Props> = ({
           </div>
         )}
 
-        {/* If there is only one ingredient/SFL */}
+        {/* If there is only one ingredient/FLOWER */}
         {!isMultiIngredientAuction && (
           <div className="relative flex flex-col items-center mb-[14px]">
             <div className="relative inline-block">
@@ -298,7 +300,7 @@ export const DraftBid: React.FC<Props> = ({
 
         <div className="text-xxs text-center underline mb-3  hover:text-blue-500">
           <a
-            href="https://docs.sunflower-land.com/player-guides/auctions"
+            href="https://docs.sunflower-land.com/support/terms-of-service"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xxs text-center underline mb-3  hover:text-blue-500"
@@ -312,11 +314,7 @@ export const DraftBid: React.FC<Props> = ({
           <p className="text-sm mb-2">
             {`At the end of the auction, the top ${
               auction.supply
-            } bids will mint the ${
-              auction.type === "collectible"
-                ? auction.collectible
-                : auction.wearable
-            }.`}
+            } bids will mint the ${item}.`}
           </p>
         </div>
 
@@ -330,7 +328,7 @@ export const DraftBid: React.FC<Props> = ({
         </div>
         <div>
           <a
-            href="https://docs.sunflower-land.com/player-guides/auctions"
+            href="https://docs.sunflower-land.com/support/terms-of-service"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xxs text-center underline mb-3  hover:text-blue-500"

@@ -1,4 +1,4 @@
-import { InventoryItemName, Wardrobe } from "features/game/types/game";
+import type { InventoryItemName, Wardrobe } from "features/game/types/game";
 import { CONFIG } from "lib/config";
 import { ERRORS } from "lib/errors";
 
@@ -22,6 +22,11 @@ export async function reset(request: Request) {
       "X-Transaction-ID": request.transactionId,
     },
   });
+
+  if (response.status === 409) {
+    const { error } = await response.json();
+    throw new Error(error);
+  }
 
   if (response.status >= 400) {
     throw new Error(ERRORS.RESET_SERVER_ERROR);

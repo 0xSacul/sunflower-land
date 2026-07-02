@@ -1,5 +1,7 @@
 import React, { useContext, useState } from "react";
 import { useActor } from "@xstate/react";
+import { useConnection } from "wagmi";
+import { ronin, saigon } from "@wagmi/core/chains";
 import { isAddress } from "web3-utils";
 
 import farmImg from "assets/brand/nft.png";
@@ -12,6 +14,14 @@ import { SUNNYSIDE } from "assets/sunnyside";
 import { wallet } from "lib/blockchain/wallet";
 import { Context } from "features/game/GameProvider";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { GameWallet } from "features/wallet/Wallet";
+import { isFaceVerified } from "features/retreat/components/personhood/lib/faceRecognition";
+import { FaceRecognition } from "features/retreat/components/personhood/FaceRecognition";
+import { CONFIG } from "lib/config";
+import { isWaypointWalletDisabled } from "lib/flags";
+import { RoninMigration } from "./RoninMigration";
+
+const RONIN_CHAIN_ID = CONFIG.NETWORK === "mainnet" ? ronin.id : saigon.id;
 
 const transferring = SUNNYSIDE.npcs.minting;
 export const TransferAccount: React.FC = () => {
@@ -20,6 +30,8 @@ export const TransferAccount: React.FC = () => {
   const { authService } = useContext(AuthProvider.Context);
   const { gameService } = useContext(Context);
   const [authState] = useActor(authService);
+
+  const { chainId } = useConnection();
 
   const [receiver, setReceiver] = useState({ address: "" });
   const [state, setState] = useState<"idle" | "loading" | "error" | "success">(
@@ -31,10 +43,10 @@ export const TransferAccount: React.FC = () => {
     try {
       await transferAccount({
         receiver: receiver.address,
-        farmId: gameService.state.context.farmId,
+        farmId: gameService.getSnapshot().context.farmId,
         token: authState.context.user.rawToken as string,
-        account: wallet.myAccount as string,
-        nftId: gameService.state.context.nftId!,
+        account: wallet.getConnection() as string,
+        nftId: gameService.getSnapshot().context.nftId!,
       });
       setState("success");
     } catch {
@@ -47,6 +59,14 @@ export const TransferAccount: React.FC = () => {
     window.location.href = window.location.pathname;
   };
 
+  if (!isFaceVerified({ game: gameService.getSnapshot().context.state })) {
+    return <FaceRecognition />;
+  }
+
+  if (chainId === RONIN_CHAIN_ID && !isWaypointWalletDisabled()) {
+    return <RoninMigration />;
+  }
+
   if (state === "success") {
     return (
       <div className="flex flex-col items-center">
@@ -55,14 +75,9 @@ export const TransferAccount: React.FC = () => {
           className="w-64 md-mt-2"
           alt="Sunflower-Land Farm Account NFT Image"
         />
-        <span
-          style={{
-            wordBreak: "break-word",
-          }}
-          className="text-center mb-2"
-        >
+        <span style={{ wordBreak: "break-word" }} className="text-center mb-2">
           {t("transfer.Account", {
-            farmID: gameService.state.context.farmId,
+            farmID: gameService.getSnapshot().context.farmId,
             receivingAddress: receiver.address,
           })}
         </span>
@@ -89,7 +104,7 @@ export const TransferAccount: React.FC = () => {
 
   return (
     <div className="p-2">
-      <p>{t("transfer.Taccount")}</p>
+      <p>{t("transfer.account")}</p>
       <p className="text-xs mt-2">{t("transfer.address")}</p>
       <input
         type="text"
@@ -103,7 +118,7 @@ export const TransferAccount: React.FC = () => {
           src={SUNNYSIDE.icons.expression_alerted}
           className="h-6 pt-2 pr-2"
         />
-        <span className="text-xs mt-2">{t("transfer.sure.adress")}</span>
+        <span className="text-xs mt-2">{t("transfer.sure.address")}</span>
       </div>
       <Button
         className="mt-2"
@@ -113,7 +128,7 @@ export const TransferAccount: React.FC = () => {
         {t("transfer")}
       </Button>
       <a
-        href="https://docs.sunflower-land.com/support/faq#how-can-i-send-my-account-to-a-new-wallet"
+        href="https://docs.sunflower-land.com/getting-started/how-to-start"
         className="underline text-xxs"
         target="_blank"
         rel="noopener noreferrer"
@@ -123,3 +138,9 @@ export const TransferAccount: React.FC = () => {
     </div>
   );
 };
+
+export const TransferAccountWrapper: React.FC = () => (
+  <GameWallet action={"transfer"}>
+    <TransferAccount />
+  </GameWallet>
+);

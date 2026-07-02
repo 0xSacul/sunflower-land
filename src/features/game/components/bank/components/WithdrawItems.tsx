@@ -1,29 +1,47 @@
-import { useActor } from "@xstate/react";
-import React, { useContext, useEffect, useState } from "react";
+import { useSelector } from "@xstate/react";
+import React, { useContext, useState } from "react";
 import Decimal from "decimal.js-light";
 
-import { Inventory, InventoryItemName } from "features/game/types/game";
-import { ITEM_DETAILS } from "features/game/types/images";
-import { shortAddress } from "lib/utils/shortAddress";
+import type {
+  BoostName,
+  Inventory,
+  InventoryItemName,
+} from "features/game/types/game";
+import {
+  getTranslatedItemName,
+  ITEM_DETAILS,
+} from "features/game/types/images";
 import { KNOWN_IDS } from "features/game/types";
 import { getItemUnit } from "features/game/lib/conversion";
-
-import { Button } from "components/ui/Button";
-import { Box } from "components/ui/Box";
 
 import { toWei } from "web3-utils";
 import { wallet } from "lib/blockchain/wallet";
 
-import { getKeys } from "features/game/types/craftables";
-import { getBankItems } from "features/goblins/storageHouse/lib/storageItems";
+import { getKeys } from "lib/object";
 import { SUNNYSIDE } from "assets/sunnyside";
-import { WITHDRAWABLES } from "features/game/types/withdrawables";
+import { INVENTORY_RELEASES } from "features/game/types/withdrawables";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { useNow } from "lib/utils/hooks/useNow";
 import { Context } from "features/game/GameProvider";
+import type { MachineState } from "features/game/lib/gameMachine";
+import { getChestItemCount } from "features/island/hud/components/inventory/utils/inventory";
+import { hasReputation, Reputation } from "features/game/lib/reputation";
+import { RequiredReputation } from "features/island/hud/components/reputation/Reputation";
+import { isFaceVerified } from "features/retreat/components/personhood/lib/faceRecognition";
+import { FaceRecognition } from "features/retreat/components/personhood/FaceRecognition";
+import { hasBoostRestriction } from "features/game/types/withdrawRestrictions";
+import { secondsToString } from "lib/utils/time";
+import { COLLECTIBLE_BUFF_LABELS } from "features/game/types/collectibleItemBuffs";
+import { MAX_MINT_AMOUNT } from "lib/blockchain/Withdrawals";
+import chest from "assets/icons/chest.png";
+
+import { WithdrawCollection } from "./withdraw/WithdrawCollection";
+import type { WithdrawEntry } from "./withdraw/types";
 
 interface Props {
   onWithdraw: (ids: number[], amounts: string[]) => void;
-  allowLongpressWithdrawal?: boolean;
+  onBack: () => void;
+  withdrawDisabled?: boolean;
 }
 
 export function transferInventoryItem(
@@ -56,23 +74,39 @@ export function transferInventoryItem(
   }));
 }
 
+const _state = (state: MachineState) => state.context.state;
+
 export const WithdrawItems: React.FC<Props> = ({
   onWithdraw,
-  allowLongpressWithdrawal = true,
+  onBack,
+  withdrawDisabled,
 }) => {
   const { t } = useAppTranslation();
+  const now = useNow();
 
   const { gameService } = useContext(Context);
-  const [gameState] = useActor(gameService);
+  const state = useSelector(gameService, _state);
 
-  const [inventory, setInventory] = useState<Inventory>({});
+  // Cap selectable counts at `previousInventory + MAX_MINT_AMOUNT` so the
+  // UI matches the backend's per-call mint cap. The backend mints any
+  // shortfall up to `MAX_MINT_AMOUNT` per item per call; players with more
+  // off-chain than the cap can withdraw the rest in subsequent calls.
+  const capToWithdrawableLimit = (items: Inventory): Inventory =>
+    getKeys(items).reduce((acc, name) => {
+      const count = items[name] ?? new Decimal(0);
+      const onChain = state.previousInventory[name] ?? new Decimal(0);
+      const ceiling = onChain.add(MAX_MINT_AMOUNT);
+      acc[name] = count.gt(ceiling) ? ceiling : count;
+      return acc;
+    }, {} as Inventory);
+
+  // Placed collectibles can now be withdrawn (the backend trims placed
+  // instances to the inventory count on save), so the ceiling is the full
+  // inventory rather than the unplaced "chest" count.
+  const [inventory, setInventory] = useState<Inventory>(() =>
+    capToWithdrawableLimit(state.inventory),
+  );
   const [selected, setSelected] = useState<Inventory>({});
-
-  useEffect(() => {
-    const bankItems = getBankItems(gameState.context.state);
-    setInventory(bankItems);
-    setSelected({});
-  }, []);
 
   const withdraw = () => {
     const ids = getKeys(selected).map((item) => KNOWN_IDS[item]);
@@ -93,125 +127,178 @@ export const WithdrawItems: React.FC<Props> = ({
     transferInventoryItem(itemName, setSelected, setInventory);
   };
 
-  const makeItemDetails = (itemName: InventoryItemName) => {
-    const details = ITEM_DETAILS[itemName];
-
-    return {
-      mintedAt: 0,
-      image: details.image,
-    };
+  // Translate a target quantity from the stepper into the existing
+  // one-at-a-time transfer model so all clamping logic is preserved.
+  const onSetQty = (entry: WithdrawEntry, qty: number) => {
+    const itemName = entry.key as InventoryItemName;
+    let diff = qty - (selected[itemName]?.toNumber() ?? 0);
+    while (diff > 0) {
+      onAdd(itemName);
+      diff--;
+    }
+    while (diff < 0) {
+      onRemove(itemName);
+      diff++;
+    }
   };
 
-  const isCurrentObsession = (itemName: InventoryItemName) => {
-    const obsessionCompletedAt =
-      gameState.context.state.npcs?.bert?.questCompletedAt;
-    const currentObsession = gameState.context.state.bertObsession;
+  const getRestrictionStatus = (itemName: BoostName) => {
+    const { isRestricted, cooldownTimeLeft } = hasBoostRestriction({
+      boostUsedAt: state.boostsUsedAt,
+      item: itemName,
+    });
+    return { isRestricted, cooldownTimeLeft };
+  };
 
-    if (!obsessionCompletedAt || !currentObsession) return false;
-    if (currentObsession.name !== itemName) return false;
+  const withdrawableItemCache = getKeys(inventory).reduce(
+    (cache, itemName) => {
+      const { cooldownTimeLeft } = getRestrictionStatus(itemName);
+      const isOnCooldown = cooldownTimeLeft > 0;
+      const hasBuff = !!COLLECTIBLE_BUFF_LABELS[itemName]?.(state)?.length;
 
-    return (
-      obsessionCompletedAt >= currentObsession.startDate &&
-      obsessionCompletedAt <= currentObsession.endDate
-    );
+      cache[itemName] = {
+        cooldownMs: cooldownTimeLeft,
+        isOnCooldown,
+        hasBuff,
+      };
+      return cache;
+    },
+    {} as {
+      [key in InventoryItemName]?: {
+        cooldownMs: number;
+        isOnCooldown: boolean;
+        hasBuff: boolean;
+      };
+    },
+  );
+
+  const sortWithdrawableItems = (
+    itemA: InventoryItemName,
+    itemB: InventoryItemName,
+  ) => {
+    const a = withdrawableItemCache[itemA];
+    const b = withdrawableItemCache[itemB];
+
+    // Handle undefined cases first
+    if (!a && !b) return 0;
+    if (!a) return 1;
+    if (!b) return -1;
+
+    // 1. Items on cooldown come first, sorted by most cooldown time left
+    if (a.isOnCooldown && b.isOnCooldown) {
+      return b.cooldownMs - a.cooldownMs;
+    }
+    if (a.isOnCooldown !== b.isOnCooldown) {
+      return a.isOnCooldown ? -1 : 1;
+    }
+
+    // 2. Boosted items come before non-boosted items
+    if (a.hasBuff !== b.hasBuff) {
+      return a.hasBuff ? -1 : 1;
+    }
+
+    // 3. Otherwise, sort by item IDs
+    return KNOWN_IDS[itemA] - KNOWN_IDS[itemB];
   };
 
   const withdrawableItems = getKeys(inventory)
-    .filter(
-      (itemName) => WITHDRAWABLES[itemName]() && !isCurrentObsession(itemName),
-    )
-    .sort((a, b) => KNOWN_IDS[a] - KNOWN_IDS[b]);
+    .filter((itemName) => {
+      const withdrawAt = INVENTORY_RELEASES[itemName]?.withdrawAt;
+      return !!withdrawAt && withdrawAt <= new Date(now);
+    })
+    .filter((itemName) => inventory[itemName]?.gt(0))
+    .sort((a, b) => sortWithdrawableItems(a, b) as number);
 
-  const selectedItems = getKeys(selected)
-    .filter((item) => selected[item]?.gt(0))
-    .sort((a, b) => KNOWN_IDS[a] - KNOWN_IDS[b]);
+  const selectedItems = getKeys(selected).filter((item) =>
+    selected[item]?.gt(0),
+  );
+
+  const hasAccess = hasReputation({
+    game: state,
+    reputation: Reputation.Seedling,
+    now,
+  });
+
+  if (!hasAccess) {
+    return <RequiredReputation reputation={Reputation.Seedling} />;
+  }
+
+  if (!isFaceVerified({ game: state })) {
+    return <FaceRecognition />;
+  }
+
+  // Keep fully-selected items visible in the grid alongside the still
+  // available ones so the Direction C grid never drops an item the player
+  // has added to the cart.
+  const entryNames = [
+    ...withdrawableItems,
+    ...selectedItems.filter((name) => !withdrawableItems.includes(name)),
+  ];
+
+  const entries: WithdrawEntry[] = entryNames.map((itemName) => {
+    const inventoryCount = inventory[itemName]?.toNumber() ?? 0;
+    const selectedCount = selected[itemName]?.toNumber() ?? 0;
+    const { isRestricted, cooldownTimeLeft } = getRestrictionStatus(itemName);
+    const buffs = COLLECTIBLE_BUFF_LABELS[itemName]?.(state);
+
+    const cooldownText = secondsToString(cooldownTimeLeft / 1000, {
+      length: "medium",
+      isShortFormat: true,
+      removeTrailingZeros: true,
+    });
+
+    // Unplaced (chest) count — withdrawing beyond this removes placed copies.
+    const safeWithdrawCount = getChestItemCount(state, itemName).toNumber();
+    const placedCount =
+      (state.inventory[itemName]?.toNumber() ?? 0) - safeWithdrawCount;
+
+    return {
+      key: itemName,
+      id: KNOWN_IDS[itemName],
+      name: getTranslatedItemName(itemName),
+      image: ITEM_DETAILS[itemName].image,
+      total: inventoryCount + selectedCount,
+      safeWithdrawCount,
+      inUseWarning: placedCount > 0 ? t("withdraw.placed.warning") : undefined,
+      locked: isRestricted,
+      lockReason: isRestricted
+        ? t("withdraw.boostedItem.timeLeft", { time: cooldownText })
+        : undefined,
+      status: isRestricted
+        ? {
+            type: "warning" as const,
+            icon: SUNNYSIDE.icons.timer,
+            text: t("withdraw.status.cooldown", { time: cooldownText }),
+          }
+        : {
+            type: "success" as const,
+            text: t("withdraw.status.withdrawable"),
+          },
+      description: ITEM_DETAILS[itemName].description,
+      buffs: buffs?.length ? buffs : undefined,
+    };
+  });
+
+  const selectedMap = selectedItems.reduce(
+    (acc, itemName) => {
+      acc[itemName] = selected[itemName]?.toNumber() ?? 0;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return (
-    <>
-      <div className="mt-3">
-        <div className="flex items-center border-2 rounded-md border-black p-2 bg-green-background mb-3">
-          <span className="text-xs">{t("withdraw.restricted")}</span>
-        </div>
-        <h2 className="mb-3">{t("withdraw.select.item")}</h2>
-        <div className="flex flex-wrap h-fit -ml-1.5">
-          {withdrawableItems.map((itemName) => {
-            const details = makeItemDetails(itemName);
-
-            // The inventory amount that is not placed
-            const inventoryCount = inventory[itemName] ?? new Decimal(0);
-
-            return (
-              <Box
-                count={inventoryCount}
-                key={itemName}
-                disabled={inventoryCount.lessThanOrEqualTo(0)}
-                onClick={() => onAdd(itemName)}
-                image={details.image}
-                canBeLongPressed={allowLongpressWithdrawal}
-              />
-            );
-          })}
-          {/* Pad with empty boxes */}
-          {withdrawableItems.length < 4 &&
-            new Array(4 - withdrawableItems.length)
-              .fill(null)
-              .map((_, index) => <Box disabled key={index} />)}
-        </div>
-
-        <div className="mt-2">
-          <h2 className="">{t("selected")}</h2>
-          <div className="flex flex-wrap h-fit mt-2 -ml-1.5">
-            {selectedItems.map((itemName) => {
-              return (
-                <Box
-                  count={selected[itemName]}
-                  key={itemName}
-                  onClick={() => onRemove(itemName)}
-                  canBeLongPressed={allowLongpressWithdrawal}
-                  image={ITEM_DETAILS[itemName].image}
-                />
-              );
-            })}
-            {/* Pad with empty boxes */}
-            {selectedItems.length < 4 &&
-              new Array(4 - selectedItems.length)
-                .fill(null)
-                .map((_, index) => <Box disabled key={index} />)}
-          </div>
-        </div>
-
-        <div className="border-white border-t-2 w-full my-3" />
-        <div className="flex items-center mt-2 mb-2  border-white">
-          <img src={SUNNYSIDE.icons.player} className="h-8 mr-2" />
-          <div>
-            <p className="text-sm">{t("withdraw.send.wallet")}</p>
-            <p className="text-sm font-secondary">
-              {shortAddress(wallet.myAccount || "XXXX")}
-            </p>
-          </div>
-        </div>
-
-        <span className="text-sm mb-4">
-          {t("withdraw.opensea")}{" "}
-          <a
-            className="underline hover:text-blue-500"
-            href="https://docs.sunflower-land.com/fundamentals/withdrawing"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t("read.more")}
-          </a>
-          {"."}
-        </span>
-      </div>
-
-      <Button
-        className="mt-3"
-        onClick={withdraw}
-        disabled={selectedItems.length <= 0}
-      >
-        {t("withdraw")}
-      </Button>
-    </>
+    <WithdrawCollection
+      title={t("collectibles")}
+      icon={chest}
+      entries={entries}
+      selected={selectedMap}
+      onSetQty={onSetQty}
+      onWithdraw={withdraw}
+      withdrawDisabled={withdrawDisabled}
+      walletAddress={wallet.getConnection() || "XXXX"}
+      onBack={onBack}
+      intro={t("withdraw.restricted.description")}
+    />
   );
 };

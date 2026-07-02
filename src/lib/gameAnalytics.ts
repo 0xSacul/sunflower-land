@@ -1,8 +1,10 @@
 import { GameAnalytics } from "gameanalytics";
 import { CONFIG } from "./config";
-import { Currency, InventoryItemName } from "features/game/types/game";
-import { BumpkinItem } from "features/game/types/bumpkin";
-import { DigAnalytics } from "features/world/scenes/BeachScene";
+import type { Currency, InventoryItemName } from "features/game/types/game";
+import type { BumpkinItem } from "features/game/types/bumpkin";
+import type { DigAnalytics } from "features/world/scenes/BeachScene";
+import type { VipBundle } from "features/game/lib/vipAccess";
+import type { ChapterTask } from "features/game/types/tracks";
 
 // Their type definition has some issues, extract to here
 enum EGAResourceFlowType {
@@ -21,7 +23,7 @@ enum EGAResourceFlowType {
 class GameAnalyticTracker {
   private executed: Record<string, boolean> = {};
 
-  public async initialise(id: number) {
+  public async initialise({ id }: { id: number }) {
     try {
       if (!id) {
         throw new Error("Missing User ID for analytics");
@@ -36,7 +38,8 @@ class GameAnalyticTracker {
       GameAnalytics.configureAvailableResourceCurrencies([
         "SFL",
         "BlockBuck",
-        "SeasonalTicket",
+        "Gem",
+        "ChapterTicket",
         // TODO add future seasonal tickets
       ]);
 
@@ -110,7 +113,20 @@ class GameAnalyticTracker {
     currency: Currency;
     amount: number;
     type: "Consumable" | "Fee" | "Wearable" | "Collectible" | "Web3";
-    item: InventoryItemName | BumpkinItem | "Stock" | "Trade" | "DesertDigs";
+    item:
+      | InventoryItemName
+      | BumpkinItem
+      | VipBundle
+      | "Stock"
+      | "Trade"
+      | "DesertDigs"
+      | "FishingReels"
+      | "Instant Expand"
+      | "Instant Build"
+      | "Instant Cook"
+      | "Skills Reset"
+      | "Username Change"
+      | "Instant Craft";
   }) {
     const { currency, amount, type, item } = event;
 
@@ -126,7 +142,7 @@ class GameAnalyticTracker {
   /**
    * Tracks one off milestone events
    * Useful for tracking tutorial progress and achievements
-   * Game Analytics follows a hierachy event structure - [category]:[sub_category]:[outcome]
+   * Game Analytics follows a hierarchy event structure - [category]:[sub_category]:[outcome]
    * https://docs.gameanalytics.com/event-types/design-events
    */
   public trackMilestone(milestone: { event: string }) {
@@ -155,6 +171,173 @@ class GameAnalyticTracker {
     );
 
     GameAnalytics.addDesignEvent("Beach:Digging:OutputCoins", outputCoins);
+  }
+
+  /**
+   * Tracks the time taken for a player to return and claim a daily reward.
+   * Reports are grouped by day number (D1, D2, D3, etc) with the value as days since last claim (ceiled).
+   */
+  public trackDailyRewardReturn({
+    totalClaimed,
+    daysSinceLastClaim,
+  }: {
+    totalClaimed: number;
+    daysSinceLastClaim: number;
+  }) {
+    if (totalClaimed < 1) return;
+
+    GameAnalytics.addDesignEvent(
+      `DailyReward:Return:Box${totalClaimed}`,
+      Math.max(0, daysSinceLastClaim),
+    );
+  }
+
+  public trackTracksViewed({
+    chapter,
+    hasVip,
+  }: {
+    chapter: string;
+    hasVip: boolean;
+  }) {
+    try {
+      GameAnalytics.addDesignEvent(`Tracks:Viewed:${chapter}`, hasVip ? 1 : 0);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksReturn({
+    chapter,
+    lastTier,
+    inactiveDays,
+  }: {
+    chapter: string;
+    lastTier: number;
+    inactiveDays: number;
+  }) {
+    try {
+      GameAnalytics.addDesignEvent(
+        `Tracks:Return:${chapter}:LastTier${lastTier}`,
+        inactiveDays,
+      );
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksPremiumUpsellOpened({ chapter }: { chapter: string }) {
+    try {
+      GameAnalytics.addDesignEvent(`Tracks:Premium:UpsellOpened:${chapter}`);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksPremiumActivated({ chapter }: { chapter: string }) {
+    try {
+      GameAnalytics.addDesignEvent(`Tracks:Premium:Activated:${chapter}`, 1);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksActivated({
+    chapter,
+    source,
+  }: {
+    chapter: string;
+    source: ChapterTask;
+  }) {
+    try {
+      GameAnalytics.addDesignEvent(`Tracks:Activated:${chapter}:${source}`);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksPoints({
+    chapter,
+    source,
+    points,
+  }: {
+    chapter: string;
+    source: ChapterTask;
+    points: number;
+  }) {
+    try {
+      GameAnalytics.addDesignEvent(
+        `Tracks:Points:${chapter}:${source}`,
+        points,
+      );
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksMilestoneReached({
+    chapter,
+    milestone,
+    daysSinceStart,
+  }: {
+    chapter: string;
+    milestone: number;
+    daysSinceStart: number;
+  }) {
+    try {
+      GameAnalytics.addDesignEvent(
+        `Tracks:Milestone:Reached:${chapter}:M${milestone}`,
+        daysSinceStart,
+      );
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksMilestoneClaimed({
+    chapter,
+    track,
+    milestone,
+    daysSinceStart,
+  }: {
+    chapter: string;
+    track: "free" | "premium";
+    milestone: number;
+    daysSinceStart: number;
+  }) {
+    try {
+      GameAnalytics.addDesignEvent(
+        `Tracks:Milestone:Claimed:${chapter}:${track}:M${milestone}`,
+        daysSinceStart,
+      );
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
+  }
+
+  public trackTracksComplete({
+    chapter,
+    daysSinceStart,
+  }: {
+    chapter: string;
+    daysSinceStart: number;
+  }) {
+    try {
+      GameAnalytics.addDesignEvent(
+        `Tracks:Complete:${chapter}`,
+        daysSinceStart,
+      );
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(`Game analytics error: `, e);
+    }
   }
 }
 

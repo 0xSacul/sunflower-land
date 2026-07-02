@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Spritesheet, {
-  SpriteSheetInstance,
+  type SpriteSheetInstance,
 } from "components/animation/SpriteAnimator";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 
@@ -14,7 +14,7 @@ interface Props {
 
 export const Maturing = ({ paused }: Props) => {
   const { scale } = useContext(ZoomContext);
-  const spritesheetRef = useRef<SpriteSheetInstance>();
+  const spritesheetRef = useRef<SpriteSheetInstance>(undefined);
   const [fps] = useState<number[]>(
     calculateFPS(
       [

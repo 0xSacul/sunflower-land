@@ -2,15 +2,27 @@ import React, { useContext, useState } from "react";
 
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import { Context } from "features/game/GameProvider";
-import { FRUIT, FRUIT_SEEDS, FruitName } from "features/game/types/fruits";
-import { FRUIT_LIFECYCLE } from "./fruits";
+import {
+  PATCH_FRUIT,
+  PATCH_FRUIT_SEEDS,
+  type PatchFruitName,
+} from "features/game/types/fruits";
+import { PATCH_FRUIT_LIFECYCLE } from "./fruits";
 import { ProgressBar } from "components/ui/ProgressBar";
 import { TimerPopover } from "../common/TimerPopover";
 import { ITEM_DETAILS } from "features/game/types/images";
+import type { GameState } from "features/game/types/game";
+import { getCurrentBiome } from "../biomes/biomes";
+import { SUNNYSIDE } from "assets/sunnyside";
 
 interface Props {
-  fruitName: FruitName;
+  island: GameState["island"];
+  patchFruitName: PatchFruitName;
   timeLeft: number;
+  /** Cycle length (s) — progress denominator; defaults to base plant time. */
+  totalSeconds?: number;
+  /** Current effective grow speed; shows a lightning when > 1. */
+  speed?: number;
 }
 
 const getFruitImage = (imageSource: string) => {
@@ -28,30 +40,40 @@ const getFruitImage = (imageSource: string) => {
   );
 };
 
-export const FruitSeedling: React.FC<Props> = ({ fruitName, timeLeft }) => {
+export const FruitSeedling: React.FC<Props> = ({
+  patchFruitName,
+  island,
+  timeLeft,
+  totalSeconds,
+  speed,
+}) => {
   const { showTimers } = useContext(Context);
   const [showPopover, setShowPopover] = useState(false);
-  const { seed } = FRUIT()[fruitName];
-  const { plantSeconds } = FRUIT_SEEDS()[seed];
-  const lifecycle = FRUIT_LIFECYCLE[fruitName];
+  const { seed } = PATCH_FRUIT[patchFruitName];
+  const { plantSeconds } = PATCH_FRUIT_SEEDS[seed];
+  const biome = getCurrentBiome(island);
+  const lifecycle = PATCH_FRUIT_LIFECYCLE[biome][patchFruitName];
 
-  const growPercentage = 100 - (timeLeft / plantSeconds) * 100;
+  const cycleSeconds = totalSeconds ?? plantSeconds;
+  const isBoosted = speed !== undefined && speed > 1;
+  const growPercentage =
+    cycleSeconds > 0 ? 100 - (timeLeft / cycleSeconds) * 100 : 0;
   const isAlmostReady = growPercentage >= 50;
   const isHalfway = growPercentage >= 25 && !isAlmostReady;
 
   let description: string;
 
-  switch (fruitName) {
+  switch (patchFruitName) {
     case "Banana":
     case "Tomato":
     case "Lemon":
-      description = `${fruitName} Plant Growing`;
+      description = `${patchFruitName} Plant Growing`;
       break;
     case "Blueberry":
       description = "Blueberry Bush Growing";
       break;
     default:
-      description = `${fruitName} Tree Growing`;
+      description = `${patchFruitName} Tree Growing`;
   }
   const lifecycleStage = isAlmostReady
     ? lifecycle.almost
@@ -67,6 +89,21 @@ export const FruitSeedling: React.FC<Props> = ({ fruitName, timeLeft }) => {
     >
       {/* Seedling */}
       {getFruitImage(lifecycleStage)}
+
+      {/* Active speed boost indicator */}
+      {isBoosted && (
+        <img
+          src={SUNNYSIDE.icons.lightning}
+          alt=""
+          aria-hidden
+          className="absolute z-20 pointer-events-none animate-pulse"
+          style={{
+            width: `${PIXEL_SCALE * 7}px`,
+            top: `${PIXEL_SCALE * 2}px`,
+            right: `${PIXEL_SCALE * 2}px`,
+          }}
+        />
+      )}
 
       {/* Progress bar */}
       {showTimers && (
@@ -96,9 +133,10 @@ export const FruitSeedling: React.FC<Props> = ({ fruitName, timeLeft }) => {
       >
         <TimerPopover
           showPopover={showPopover}
-          image={ITEM_DETAILS[fruitName].image}
+          image={ITEM_DETAILS[patchFruitName].image}
           description={description}
           timeLeft={timeLeft}
+          speed={speed}
         />
       </div>
     </div>

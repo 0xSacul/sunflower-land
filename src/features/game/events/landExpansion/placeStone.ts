@@ -1,20 +1,26 @@
-import cloneDeep from "lodash.clonedeep";
-
-import { GameState } from "features/game/types/game";
+import type { GameState, Rock } from "features/game/types/game";
 import {
-  ResourceName,
-  RESOURCE_DIMENSIONS,
+  ADVANCED_RESOURCES,
+  type UpgradedResourceName,
+  type StoneRockName,
+  RESOURCE_MULTIPLIER,
 } from "features/game/types/resources";
-import Decimal from "decimal.js-light";
+import { produce } from "immer";
+import {
+  findExistingUnplacedNode,
+  getAvailableNodes,
+} from "features/game/lib/resourceNodes";
+import {
+  getMineBoostWindows,
+  pauseWindowedTimer,
+} from "features/game/lib/boostWindows";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
 
 export type PlaceStoneAction = {
   type: "stone.placed";
-  name: ResourceName;
+  name: StoneRockName;
   id: string;
-  coordinates: {
-    x: number;
-    y: number;
-  };
+  coordinates: Coordinates;
 };
 
 type Options = {
@@ -28,29 +34,62 @@ export function placeStone({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const game = cloneDeep(state) as GameState;
+  return produce(state, (game) => {
+    const available = getAvailableNodes(game, "stones");
 
-  const available = (game.inventory["Stone Rock"] || new Decimal(0)).minus(
-    Object.keys(game.stones).length,
-  );
+    if (available.lt(1)) {
+      throw new Error("No stone available");
+    }
 
-  if (available.lt(1)) {
-    throw new Error("No stone available");
-  }
+    const nodeStateAccessor = game.stones;
 
-  game.stones = {
-    ...game.stones,
-    [action.id as unknown as number]: {
-      createdAt: createdAt,
+    const existingStone = findExistingUnplacedNode({
+      nodeStateAccessor,
+      nodeToFind: action.name,
+    });
+
+    if (existingStone) {
+      const [id, stone] = existingStone;
+      const updatedStone = {
+        ...stone,
+        x: action.coordinates.x,
+        y: action.coordinates.y,
+      };
+
+      if (updatedStone.stone && updatedStone.removedAt) {
+        // Pause recovery across the lift (windowed banking or legacy back-date).
+        updatedStone.stone.minedAt = pauseWindowedTimer({
+          timer: updatedStone.stone,
+          startedAt: updatedStone.stone.minedAt,
+          removedAt: updatedStone.removedAt,
+          createdAt,
+          windows: getMineBoostWindows(game, action.name),
+        });
+      }
+      delete updatedStone.removedAt;
+
+      game.stones[id] = updatedStone;
+
+      return game;
+    }
+
+    const newStone: Rock = {
+      createdAt,
       x: action.coordinates.x,
       y: action.coordinates.y,
-      ...RESOURCE_DIMENSIONS["Stone Rock"],
       stone: {
-        amount: 0,
         minedAt: 0,
       },
-    },
-  };
+      tier: ADVANCED_RESOURCES[action.name as UpgradedResourceName]?.tier ?? 1,
+      name: action.name,
+      multiplier: RESOURCE_MULTIPLIER[action.name],
+    };
 
-  return game;
+    game.stones = {
+      ...game.stones,
+      [action.id]: newStone,
+    };
+
+    return game;
+  });
 }

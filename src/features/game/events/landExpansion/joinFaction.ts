@@ -1,11 +1,11 @@
 import Decimal from "decimal.js-light";
-import {
+import type {
   FactionBanner,
   FactionEmblem,
   FactionName,
   GameState,
 } from "features/game/types/game";
-import cloneDeep from "lodash.clonedeep";
+import { produce } from "immer";
 
 export const FACTIONS: FactionName[] = [
   "bumpkins",
@@ -41,45 +41,58 @@ export const FACTION_EMBLEMS: Record<FactionName, FactionEmblem> = {
 };
 
 export const SFL_COST = [5, 10, 30, 50];
+export const FACTION_BOOST_COOLDOWN = 42 * 24 * 60 * 60 * 1000; // 6 weeks
 
 export function joinFaction({
   state,
   action,
   createdAt = Date.now(),
 }: Options) {
-  const stateCopy: GameState = cloneDeep(state);
+  return produce(state, (stateCopy) => {
+    if (!FACTIONS.includes(action.faction)) {
+      throw new Error("Invalid faction");
+    }
 
-  if (!FACTIONS.includes(action.faction)) {
-    throw new Error("Invalid faction");
-  }
+    if (stateCopy.faction && stateCopy.faction.pledgedAt) {
+      throw new Error("You already pledged a faction");
+    }
 
-  if (stateCopy.faction && stateCopy.faction.pledgedAt) {
-    throw new Error("You already pledged a faction");
-  }
+    if (!SFL_COST.includes(action.sfl)) {
+      throw new Error("Not a valid fee");
+    }
 
-  if (!SFL_COST.includes(action.sfl)) {
-    throw new Error("Not a valid fee");
-  }
+    // not enough SFL
+    if (stateCopy.balance.lt(action.sfl)) {
+      throw new Error("Not enough SFL");
+    }
 
-  // not enough SFL
-  if (stateCopy.balance.lt(action.sfl)) {
-    throw new Error("Not enough SFL");
-  }
+    const isSwitchingDifferentFaction =
+      stateCopy.previousFaction?.name !== action.faction &&
+      stateCopy.previousFaction?.leftAt;
 
-  stateCopy.faction = {
-    name: action.faction,
-    pledgedAt: createdAt,
-    points: 0,
-    history: {},
-  };
+    stateCopy.faction = {
+      name: action.faction,
+      pledgedAt: createdAt,
+      points: 0,
+      history: {},
+      boostCooldownUntil: isSwitchingDifferentFaction
+        ? (stateCopy.previousFaction?.leftAt ?? createdAt) +
+          FACTION_BOOST_COOLDOWN
+        : undefined, // Only add cooldown if switching to a different faction
+    };
 
-  stateCopy.balance = state.balance.sub(action.sfl);
+    if (stateCopy.previousFaction) {
+      delete stateCopy.previousFaction;
+    }
 
-  const banner = FACTION_BANNERS[action.faction];
+    stateCopy.balance = state.balance.sub(action.sfl);
 
-  stateCopy.inventory[banner] = (
-    stateCopy.inventory[banner] ?? new Decimal(0)
-  ).add(1);
+    const banner = FACTION_BANNERS[action.faction];
 
-  return stateCopy;
+    stateCopy.inventory[banner] = (
+      stateCopy.inventory[banner] ?? new Decimal(0)
+    ).add(1);
+
+    return stateCopy;
+  });
 }

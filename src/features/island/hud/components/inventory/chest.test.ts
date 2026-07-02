@@ -1,6 +1,6 @@
 import Decimal from "decimal.js-light";
 import { TEST_FARM } from "features/game/lib/constants";
-import { GameState } from "features/game/types/game";
+import type { GameState } from "features/game/types/game";
 import { getChestItems } from "./utils/inventory";
 
 const GAME_STATE: GameState = TEST_FARM;
@@ -58,6 +58,7 @@ describe("chest", () => {
 
     expect(chest).toEqual({
       "Foreman Beaver": new Decimal(1),
+      "Fire Pit": new Decimal(0),
     });
   });
 
@@ -96,6 +97,8 @@ describe("chest", () => {
     expect(chest).toEqual({
       "Foreman Beaver": new Decimal(1),
       "Abandoned Bear": new Decimal(1),
+      "Fire Pit": new Decimal(0),
+      Scarecrow: new Decimal(0),
     });
   });
 });

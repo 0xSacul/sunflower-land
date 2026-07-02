@@ -1,6 +1,6 @@
 import { CONFIG } from "lib/config";
 import { ERRORS } from "lib/errors";
-import { BumpkinParts, tokenUriBuilder } from "lib/utils/tokenUriBuilder";
+import { type BumpkinParts, tokenUriBuilder } from "lib/utils/tokenUriBuilder";
 
 const API_URL = CONFIG.API_URL ?? "https://api-dev.sunflower-land.com";
 
@@ -10,6 +10,13 @@ type Request = {
 
 type Response = {
   image: string;
+};
+
+export const getBumpkinImageURL = (bumpkin: Request) => {
+  const size = 100;
+  const tokenUri = tokenUriBuilder(bumpkin.parts);
+
+  return `${CONFIG.ANIMATION_URL}/bumpkin_image/0_v1_${tokenUri}/${size}`;
 };
 
 export async function buildImageRequest({ fileName }: { fileName: string }) {

@@ -1,7 +1,6 @@
-import "lib/__mocks__/configMock";
 import Decimal from "decimal.js-light";
 import { TEST_FARM } from "features/game/lib/constants";
-import { GameState } from "features/game/types/game";
+import type { GameState } from "features/game/types/game";
 import { MOVE_COLLECTIBLE_ERRORS, moveCollectible } from "./moveCollectible";
 
 const GAME_STATE: GameState = {
@@ -13,8 +12,6 @@ const GAME_STATE: GameState = {
 };
 
 describe("moveCollectible", () => {
-  const dateNow = Date.now();
-
   it("does not move non-existent building ", () => {
     expect(() =>
       moveCollectible({
@@ -164,7 +161,6 @@ describe("moveCollectible", () => {
         coordinates: { x: 2, y: 2 },
         location: "farm",
       },
-      createdAt: dateNow,
     });
 
     expect(gameState.collectibles["Nancy"]).toEqual([
@@ -192,39 +188,147 @@ describe("moveCollectible", () => {
     ]);
   });
 
-  it("throws when trying to move Bale with chickens fed", () => {
-    const dateNow = Date.now();
+  it("moves a collectible placed in the interior (ground)", () => {
+    const gameState = moveCollectible({
+      state: {
+        ...GAME_STATE,
+        interior: {
+          ground: {
+            collectibles: {
+              "Abandoned Bear": [
+                {
+                  id: "ground-1",
+                  coordinates: { x: 0, y: 0 },
+                  createdAt: 0,
+                  readyAt: 0,
+                },
+                {
+                  id: "ground-2",
+                  coordinates: { x: 3, y: 4 },
+                  createdAt: 0,
+                  readyAt: 0,
+                },
+              ],
+            },
+          },
+        },
+      },
+      action: {
+        type: "collectible.moved",
+        name: "Abandoned Bear",
+        id: "ground-1",
+        coordinates: { x: 5, y: 6 },
+        location: "interior",
+      },
+    });
 
+    expect(gameState.interior.ground.collectibles["Abandoned Bear"]).toEqual([
+      {
+        id: "ground-1",
+        coordinates: { x: 5, y: 6 },
+        createdAt: 0,
+        readyAt: 0,
+      },
+      {
+        id: "ground-2",
+        coordinates: { x: 3, y: 4 },
+        createdAt: 0,
+        readyAt: 0,
+      },
+    ]);
+  });
+
+  it("does not move an interior collectible with an unknown id", () => {
     expect(() =>
       moveCollectible({
         state: {
           ...GAME_STATE,
-          chickens: {
-            0: {
-              fedAt: dateNow,
-              multiplier: 1,
-            },
-          },
-          collectibles: {
-            Bale: [
-              {
-                id: "123",
-                coordinates: { x: 1, y: 1 },
-                createdAt: 0,
-                readyAt: 0,
+          interior: {
+            ground: {
+              collectibles: {
+                "Abandoned Bear": [
+                  {
+                    id: "ground-1",
+                    coordinates: { x: 0, y: 0 },
+                    createdAt: 0,
+                    readyAt: 0,
+                  },
+                ],
               },
-            ],
+            },
           },
         },
         action: {
           type: "collectible.moved",
-          name: "Bale",
-          id: "123",
-          coordinates: { x: 2, y: 2 },
-          location: "farm",
+          name: "Abandoned Bear",
+          id: "missing",
+          coordinates: { x: 1, y: 1 },
+          location: "interior",
         },
-        createdAt: dateNow,
       }),
-    ).toThrow("Chickens are fed");
+    ).toThrow(MOVE_COLLECTIBLE_ERRORS.COLLECTIBLE_NOT_PLACED);
+  });
+
+  it("moves a collectible placed in level_one", () => {
+    const gameState = moveCollectible({
+      state: {
+        ...GAME_STATE,
+        interior: {
+          ground: { collectibles: {} },
+          expansion: "level-one-start",
+          level_one: {
+            collectibles: {
+              "Abandoned Bear": [
+                {
+                  id: "lo-1",
+                  coordinates: { x: 0, y: 0 },
+                  createdAt: 0,
+                  readyAt: 0,
+                },
+              ],
+            },
+          },
+        },
+      },
+      action: {
+        type: "collectible.moved",
+        name: "Abandoned Bear",
+        id: "lo-1",
+        coordinates: { x: 7, y: 8 },
+        location: "level_one",
+      },
+    });
+
+    expect(
+      gameState.interior.level_one!.collectibles["Abandoned Bear"],
+    ).toEqual([
+      {
+        id: "lo-1",
+        coordinates: { x: 7, y: 8 },
+        createdAt: 0,
+        readyAt: 0,
+      },
+    ]);
+  });
+
+  it("rejects moving on level_one before the upgrade has been bought", () => {
+    expect(() =>
+      moveCollectible({
+        state: {
+          ...GAME_STATE,
+          interior: {
+            ground: { collectibles: {} },
+            // level_one purposely missing
+          },
+        },
+        action: {
+          type: "collectible.moved",
+          name: "Abandoned Bear",
+          id: "lo-1",
+          coordinates: { x: 7, y: 8 },
+          location: "level_one",
+        },
+      }),
+    ).toThrow("Level one floor has not been unlocked");
   });
 });

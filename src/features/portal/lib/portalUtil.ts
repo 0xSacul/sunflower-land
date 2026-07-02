@@ -1,4 +1,4 @@
-import { InventoryItemName } from "features/game/types/game";
+import type { InventoryItemName } from "features/game/types/game";
 import { CONFIG } from "lib/config";
 
 const isInIframe = window.self !== window.top;
@@ -15,7 +15,7 @@ export function claimPrize() {
 }
 
 /**
- * Exit the portal
+ * Exits the portal
  */
 export function goHome() {
   if (isInIframe) {
@@ -26,7 +26,7 @@ export function goHome() {
 }
 
 /**
- * Allow a player to spend SFL or items in your game
+ * Allow a player to spend FLOWER or items in your game
  */
 export function purchase({
   sfl,
@@ -72,13 +72,24 @@ export function donate({ matic, address }: { matic: number; address: string }) {
 }
 
 /**
- * When to want to store the score
+ * Starts a minigame attempt
  */
-export function played({ score }: { score: number }) {
+export function startAttempt() {
+  if (!isInIframe) {
+    alert(`Sunflower Land running in test mode - attempt started`);
+  } else {
+    window.parent.postMessage({ event: "attemptStarted" }, "*");
+  }
+}
+
+/**
+ * Submits a minigame score
+ */
+export function submitScore({ score }: { score: number }) {
   if (!isInIframe) {
     alert(`Sunflower Land running in test mode - score submitted`);
   } else {
-    window.parent.postMessage({ event: "played", score }, "*");
+    window.parent.postMessage({ event: "scoreSubmitted", score }, "*");
   }
 }
 
@@ -91,6 +102,11 @@ export function authorisePortal() {
 }
 
 export function isValidRedirect(url: string) {
+  // On localhost, accept any redirect URL for development
+  if (window.location.hostname === "localhost") {
+    return true;
+  }
+
   // Define a regular expression for localhost URLs
   const localhostRegex = /^http:\/\/localhost:\d+/;
 

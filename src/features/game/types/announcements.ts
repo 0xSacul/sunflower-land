@@ -1,11 +1,12 @@
-import { InventoryItemName } from "./game";
-import { NPCName } from "lib/npcs";
+import type { InventoryItemName } from "./game";
+import type { NPCName } from "lib/npcs";
 
 export type ConversationName = string;
 
 export type Message = {
   headline: string;
   announceAt?: number;
+  expiresAt?: number;
   content: {
     text: string;
     image?: string;

@@ -1,20 +1,20 @@
-import { Context, GameProvider } from "features/game/GameProvider";
+import { Context } from "features/game/GameProvider";
 import { ModalProvider } from "features/game/components/modal/ModalProvider";
-import React, { useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { PhaserComponent } from "./Phaser";
 import { useActor, useInterpret, useSelector } from "@xstate/react";
-import { MachineState } from "features/game/lib/gameMachine";
+import type { MachineState } from "features/game/lib/gameMachine";
 import { Modal } from "components/ui/Modal";
 import { Panel } from "components/ui/Panel";
-import { useNavigate, useParams } from "react-router-dom";
-import { SceneId } from "./mmoMachine";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router";
+import type { SceneId } from "./mmoMachine";
 import { SUNNYSIDE } from "assets/sunnyside";
 import PubSub from "pubsub-js";
 
 import {
-  MachineInterpreter as MMOMachineInterpreter,
+  type MachineInterpreter as MMOMachineInterpreter,
   mmoMachine,
-  MachineState as MMOMachineState,
+  type MachineState as MMOMachineState,
 } from "./mmoMachine";
 import * as AuthProvider from "features/auth/lib/Provider";
 import { Ocean } from "./ui/Ocean";
@@ -23,31 +23,56 @@ import { PIXEL_SCALE } from "features/game/lib/constants";
 import { WorldIntroduction } from "./ui/WorldIntroduction";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
 import { GameWrapper } from "features/game/expansion/Game";
-import { WorldHud } from "features/island/hud/WorldHud";
+
 import { Loading } from "features/auth/components";
-import { GameState } from "features/game/types/game";
+import type { GameState } from "features/game/types/game";
 import { Forbidden } from "features/auth/components/Forbidden";
+import {
+  getAscensionLevel,
+  meetsLevelRequirement,
+} from "features/game/lib/level";
+import { getActiveFloatingIsland } from "features/game/types/floatingIsland";
+import { adminFeatureFlag } from "lib/flags";
+import { useVisiting } from "lib/utils/visitUtils";
+import { useNow } from "lib/utils/hooks/useNow";
 
 interface Props {
   isCommunity?: boolean;
 }
+
+export const WorldContext = createContext<{ isCommunity: boolean }>({
+  isCommunity: false,
+});
+
 export const World: React.FC<Props> = ({ isCommunity = false }) => {
   return (
-    <GameProvider>
-      <ModalProvider>
-        <Explore isCommunity={isCommunity} />
-      </ModalProvider>
-    </GameProvider>
+    <ModalProvider>
+      <WorldContext.Provider value={{ isCommunity }}>
+        <Explore />
+        <div
+          aria-label="World"
+          className="fixed inset-safe-area pointer-events-none inset-safe-area"
+          style={{ zIndex: 11 }}
+        >
+          <div
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+            className="pointer-events-auto"
+          >
+            <Outlet />
+          </div>
+        </div>
+      </WorldContext.Provider>
+    </ModalProvider>
   );
 };
 
 const _isLoading = (state: MachineState) => state.matches("loading");
 
 // MMO Machine
-const _isConnecting = (state: MMOMachineState) => state.matches("connecting");
 const _isConnected = (state: MMOMachineState) => state.matches("connected");
-const _isJoining = (state: MMOMachineState) => state.matches("joining");
-const _isJoined = (state: MMOMachineState) => state.matches("joined");
 const _isKicked = (state: MMOMachineState) => state.matches("kicked");
 const _isMMOInitialising = (state: MMOMachineState) =>
   state.matches("initialising");
@@ -56,11 +81,30 @@ const _isIntroducing = (state: MMOMachineState) =>
 
 type MMOProps = { isCommunity: boolean };
 
-const SCENE_ACCESS: Partial<Record<SceneId, (game: GameState) => boolean>> = {
+const hasWorldLevel = (game: GameState, level: number) =>
+  meetsLevelRequirement(
+    getAscensionLevel({
+      experience: game.bumpkin.experience ?? 0,
+      ascensionLevel: game.island.ascensionLevel ?? 0,
+    }),
+    { ascension: 0, level },
+  );
+
+const SCENE_ACCESS: Partial<
+  Record<SceneId, (game: GameState, now: number) => boolean>
+> = {
   goblin_house: (game) => game.faction?.name === "goblins",
   sunflorian_house: (game) => game.faction?.name === "sunflorians",
   bumpkin_house: (game) => game.faction?.name === "bumpkins",
   nightshade_house: (game) => game.faction?.name === "nightshades",
+  love_island: (game) =>
+    !!getActiveFloatingIsland({ state: game }) || !!adminFeatureFlag(game),
+  infernos: (game) => hasWorldLevel(game, 30),
+  plaza: (game) => hasWorldLevel(game, 2),
+  kingdom: (game) => hasWorldLevel(game, 7),
+  beach: (game) => hasWorldLevel(game, 4),
+  woodlands: (game) => hasWorldLevel(game, 6),
+  retreat: (game) => hasWorldLevel(game, 5),
 };
 
 export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
@@ -72,14 +116,18 @@ export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
 
   const { name } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isVisiting } = useVisiting();
+  const now = useNow();
 
   const mmoService = useInterpret(mmoMachine, {
     context: {
       jwt: authState.context.user.rawToken,
       farmId: gameState.context.farmId,
       bumpkin: gameState.context.state.bumpkin,
+      pets: gameState.context.state.pets,
       faction: gameState.context.state.faction?.name,
-      sceneId: name as SceneId,
+      sceneId: (name ?? "plaza") as SceneId,
       experience: gameState.context.state.bumpkin?.experience ?? 0,
       isCommunity,
       moderation: gameState.context.moderation,
@@ -87,17 +135,35 @@ export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
     },
   }) as unknown as MMOMachineInterpreter;
   const [mmoState] = useActor(mmoService);
+  mmoService.onStop(() => mmoState.context.server?.leave());
 
   useEffect(() => {
-    navigate(`/world/${mmoState.context.sceneId}`);
+    if (
+      mmoState.context.sceneId &&
+      !location.pathname.includes("marketplace") &&
+      !location.pathname.includes("chapter")
+    ) {
+      navigate(`/world/${mmoState.context.sceneId}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mmoState.context.sceneId]);
+
+  // If we're in visiting state but not on a visit route, redirect
+  useEffect(() => {
+    if (isVisiting && !location.pathname.includes("/visit/")) {
+      navigate(`/visit/${gameState.context.farmId}`);
+    }
+  }, [isVisiting, location.pathname, navigate, gameState.context.farmId]);
 
   // We need to listen to events outside of MMO scope (Settings Panel)
   useEffect(() => {
     // Subscribe to the event
-    const eventSubscription = PubSub.subscribe("CHANGE_SERVER", () => {
-      mmoService.send("CHANGE_SERVER");
-    });
+    const eventSubscription = PubSub.subscribe(
+      "CHANGE_SERVER",
+      (message: string, data?: any) => {
+        mmoService.send("CHANGE_SERVER", { serverId: data.serverId });
+      },
+    );
 
     return () => {
       PubSub.unsubscribe(eventSubscription);
@@ -105,15 +171,10 @@ export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
   }, []);
 
   const isInitialising = useSelector(mmoService, _isMMOInitialising);
-  const isConnecting = useSelector(mmoService, _isConnecting);
-  const isConnected = useSelector(mmoService, _isConnected);
-  const isJoining = useSelector(mmoService, _isJoining);
   const isKicked = useSelector(mmoService, _isKicked);
-  const isIntroducting = useSelector(mmoService, _isIntroducing);
-
-  // If state is x, y or z then return Travel Screen
-  const isTraveling =
-    isInitialising || isConnecting || isConnected || isKicked || isJoining;
+  const isConnected = useSelector(mmoService, _isConnected);
+  const isIntroducing = useSelector(mmoService, _isIntroducing);
+  const isTraveling = isInitialising || isConnected || isKicked;
 
   if (isTraveling) {
     return <TravelScreen mmoService={mmoService} />;
@@ -121,7 +182,7 @@ export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
 
   if (
     SCENE_ACCESS[name as SceneId] &&
-    !SCENE_ACCESS[name as SceneId]?.(gameState.context.state)
+    !SCENE_ACCESS[name as SceneId]?.(gameState.context.state, now)
   ) {
     return (
       <Panel>
@@ -134,11 +195,11 @@ export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
     );
   }
 
-  if (!mmoService.state) {
-    return null;
+  if (!mmoService.getSnapshot()) {
+    return <></>;
   }
 
-  // Otherwsie if connected, return Plaza Screen
+  // Otherwise if connected, return Plaza Screen
   return (
     <>
       <PhaserComponent
@@ -148,12 +209,12 @@ export const MMO: React.FC<MMOProps> = ({ isCommunity }) => {
         route={name as SceneId}
       />
 
-      <Modal show={isIntroducting}>
+      <Modal show={isIntroducing}>
         <WorldIntroduction
-          onClose={() => {
-            mmoService.send("CONTINUE");
+          onClose={(username: string) => {
+            mmoService.send("CONTINUE", { username });
             // BUG - need to call twice?
-            mmoService.send("CONTINUE");
+            mmoService.send("CONTINUE", { username });
           }}
         />
       </Modal>
@@ -205,8 +266,9 @@ export const TravelScreen: React.FC<TravelProps> = ({ mmoService }) => {
   );
 };
 
-export const Explore: React.FC<Props> = ({ isCommunity = false }) => {
+export const Explore: React.FC = () => {
   const { gameService } = useContext(Context);
+  const { isCommunity } = useContext(WorldContext);
   const isLoading = useSelector(gameService, _isLoading);
 
   return (
@@ -220,7 +282,6 @@ export const Explore: React.FC<Props> = ({ isCommunity = false }) => {
     >
       <GameWrapper>
         {!isLoading && <MMO isCommunity={isCommunity} />}
-        <WorldHud />
       </GameWrapper>
     </div>
   );

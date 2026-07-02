@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { InnerPanel } from "components/ui/Panel";
 import { createPortal } from "react-dom";
 import { ITEM_DETAILS } from "../../game/types/images";
-import { InventoryItemName } from "../../game/types/game";
+import type { InventoryItemName } from "../../game/types/game";
 import { translate } from "lib/i18n/translate";
 
 const PIXEL_SCALE = 2.625;
@@ -43,8 +43,12 @@ export const communityToastManager = new CommunityToastManager();
 export const CommunityToasts: React.FC = () => {
   const [toasts, setToasts] = useState<CommunityToast[]>([]);
 
+  const hideToast = (toast: CommunityToast) => {
+    setToasts((prevToasts) => prevToasts.filter((t) => t !== toast));
+  };
+
   useEffect(() => {
-    communityToastManager.listen((toast, isShown) => {
+    communityToastManager.listen((toast) => {
       if (!toast.text) {
         // eslint-disable-next-line no-console
         return console.warn(translate("community.toast"));
@@ -69,10 +73,6 @@ export const CommunityToasts: React.FC = () => {
       }, 5000);
     });
   }, []);
-
-  const hideToast = (toast: CommunityToast) => {
-    setToasts((prevToasts) => prevToasts.filter((t) => t !== toast));
-  };
 
   return (
     <>

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useInterpret } from "@xstate/react";
-import { MachineInterpreter, portalMachine } from "./portalMachine";
+import { type MachineInterpreter, portalMachine } from "./portalMachine";
 
 interface PortalContext {
   portalService: MachineInterpreter;
@@ -10,7 +10,9 @@ export const PortalContext = React.createContext<PortalContext>(
   {} as PortalContext,
 );
 
-export const PortalProvider: React.FC = ({ children }) => {
+export const PortalProvider: React.FC<React.PropsWithChildren> = ({
+  children,
+}) => {
   const portalService = useInterpret(
     portalMachine,
   ) as unknown as MachineInterpreter;

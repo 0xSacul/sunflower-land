@@ -11,7 +11,9 @@ import { Context as GameContext } from "features/game/GameProvider";
 export const Share: React.FC = () => {
   const { t } = useAppTranslation();
   const { gameService } = useContext(GameContext);
-  const farmId = gameService.state?.context?.farmId.toString() as string;
+  const farmId = gameService
+    .getSnapshot()
+    ?.context?.farmId.toString() as string;
   const farmUrl =
     CONFIG.NETWORK === "amoy"
       ? `https://sunflower-land.com/testnet/#/visit/${farmId}`
@@ -43,7 +45,9 @@ export const Share: React.FC = () => {
             />
           </div>
         </div>
-        <CopyField text={farmUrl} copyFieldMessage={t("share.CopyFarmURL")} />
+        <div className="flex flex-col gap-2 mb-4">
+          <CopyField text={farmUrl} copyFieldMessage={t("share.CopyFarmURL")} />
+        </div>
       </div>
       <div className="flex space-x-1 text-sm">
         <Button onClick={handleTweetClick}>{t("share.Tweet")}</Button>

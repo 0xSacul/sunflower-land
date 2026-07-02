@@ -6,45 +6,91 @@ import { Modal } from "components/ui/Modal";
 import { SUNNYSIDE } from "assets/sunnyside";
 import { SquareIcon } from "components/ui/SquareIcon";
 
-// Section Icons
-import { Fish } from "./pages/Fish";
-import { CodexCategory } from "features/game/types/codex";
+import type {
+  CodexCategory,
+  CodexCategoryName,
+} from "features/game/types/codex";
 import { MilestoneReached } from "./components/MilestoneReached";
-import { MilestoneName } from "features/game/types/milestones";
+import type { MilestoneName } from "features/game/types/milestones";
+import { Fish } from "./pages/Fish";
 import { Flowers } from "./pages/Flowers";
+import { Deliveries } from "./pages/Deliveries";
+import { ChoreBoard } from "./pages/ChoreBoard";
+import { FactionLeaderboard } from "./pages/FactionLeaderboard";
+import { LeagueLeaderboard } from "./pages/LeaguesLeaderboard";
+import { ChapterCollections } from "./pages/ChapterCollections";
 import { ITEM_DETAILS } from "features/game/types/images";
 import { Context } from "features/game/GameProvider";
-import { useActor } from "@xstate/react";
+import { useSelector } from "@xstate/react";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
-import { Deliveries } from "./pages/Deliveries";
-import { Chores } from "./pages/Chores";
 import { Label } from "components/ui/Label";
 import classNames from "classnames";
 import { useSound } from "lib/utils/hooks/useSound";
 
-import trophy from "assets/icons/trophy.png";
 import factions from "assets/icons/factions.webp";
 import chores from "assets/icons/chores.webp";
-import { TicketsLeaderboard } from "./pages/TicketsLeaderboard";
-import { Leaderboards } from "features/game/expansion/components/leaderboard/actions/cache";
+import type { Leaderboards } from "features/game/expansion/components/leaderboard/actions/cache";
 import { fetchLeaderboardData } from "features/game/expansion/components/leaderboard/actions/leaderboard";
-import { FactionLeaderboard } from "./pages/FactionLeaderboard";
+import { getChapterTicket } from "features/game/types/chapters";
+import { ANIMALS } from "features/game/types/animals";
+import type { BountyRequest } from "features/game/types/game";
+import { CompetitionDetails } from "features/competition/CompetitionBoard";
+import type { MachineState } from "features/game/lib/gameMachine";
+import { Checklist, checklistCount } from "components/ui/CheckList";
+import { getAscensionLevel } from "features/game/lib/level";
+import trophyIcon from "assets/icons/trophy.png";
+import { hasFeatureAccess } from "lib/flags";
+import type { AuthMachineState } from "features/auth/lib/authMachine";
+import * as AuthProvider from "features/auth/lib/Provider";
+import { useNow } from "lib/utils/hooks/useNow";
+import { ChapterBounties } from "./pages/ChapterBounties";
+import deliveryIcon from "assets/icons/delivery.webp";
 
 interface Props {
   show: boolean;
   onHide: () => void;
 }
 
+const _farmId = (state: MachineState) => state.context.farmId;
+const _state = (state: MachineState) => state.context.state;
+const _token = (state: AuthMachineState) =>
+  state.context.user.rawToken as string;
+
+/**
+ * Codex bounties tab: mega board (all non-animal requests) + animal ticket rows
+ * only. Animal coin and gem deals are omitted from the count; mega bounties
+ * are not filtered by reward type.
+ */
+function shouldCountIncompleteBountyForCodex(
+  deal: BountyRequest,
+  now: number,
+): boolean {
+  if (deal.name in ANIMALS) {
+    const ticket = getChapterTicket(now);
+    return (deal.items?.[ticket] ?? 0) > 0;
+  }
+
+  return true;
+}
+
 export const Codex: React.FC<Props> = ({ show, onHide }) => {
   const { t } = useAppTranslation();
   const { gameService } = useContext(Context);
-  const [
-    {
-      context: { state, farmId },
-    },
-  ] = useActor(gameService);
+  const { authService } = useContext(AuthProvider.Context);
+  const farmId = useSelector(gameService, _farmId);
+  const state = useSelector(gameService, _state);
+  const token = useSelector(authService, _token);
+  const now = useNow();
+  const chapterTicket = getChapterTicket(now);
 
-  const [currentTab, setCurrentTab] = useState<number>(0);
+  const ascension = getAscensionLevel({
+    experience: state.bumpkin.experience ?? 0,
+    ascensionLevel: state.island.ascensionLevel ?? 0,
+  });
+
+  const { username, bounties, delivery, choreBoard, faction } = state;
+
+  const [currentTab, setCurrentTab] = useState<CodexCategoryName>("Deliveries");
   const [showMilestoneReached, setShowMilestoneReached] = useState(false);
   const [milestoneName, setMilestoneName] = useState<MilestoneName>();
 
@@ -58,7 +104,7 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
 
     const fetchLeaderboards = async () => {
       try {
-        const data = await fetchLeaderboardData(farmId);
+        const data = await fetchLeaderboardData(farmId, token);
         setData(data);
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -71,13 +117,9 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
     fetchLeaderboards();
   }, [show]);
 
-  const handleTabClick = (index: number) => {
+  const handleTabClick = (index: CodexCategoryName) => {
     tab.play();
     setCurrentTab(index);
-  };
-
-  const handleHide = () => {
-    onHide();
   };
 
   const handleMilestoneReached = (milestoneName: MilestoneName) => {
@@ -90,33 +132,47 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
     setMilestoneName(undefined);
   };
 
-  const id =
-    gameService.state?.context?.state?.username ??
-    String(gameService?.state?.context?.farmId);
+  const completedBountyIds = new Set(bounties.completed.map((r) => r.id));
+  const incompleteBountiesCount = bounties.requests.filter(
+    (deal) =>
+      shouldCountIncompleteBountyForCodex(deal, now) &&
+      !completedBountyIds.has(deal.id),
+  ).length;
 
-  const incompleteDeliveries = state.delivery.orders.filter(
+  const incompleteDeliveries = delivery.orders.filter(
     (order) => !order.completedAt,
   ).length;
 
-  const incompleteChores = Object.values(state.chores?.chores ?? {}).filter(
+  const incompleteChores = Object.values(choreBoard?.chores ?? {}).filter(
     (chore) => !chore.completedAt,
   ).length;
 
-  const inCompleteKingdomChores =
-    state.kingdomChores?.chores.filter(
-      (chore) => chore.startedAt && !chore.completedAt && !chore.skippedAt,
-    ).length ?? 0;
+  // Pre-calculate checklist count once
+  const checklistCountValue = checklistCount(state, ascension, now);
+  const hasLeagues =
+    hasFeatureAccess(state, "LEAGUES") && state.prototypes?.leagues;
 
+  // Build categories array more efficiently
   const categories: CodexCategory[] = [
     {
       name: "Deliveries",
-      icon: SUNNYSIDE.icons.player,
+      icon: deliveryIcon,
       count: incompleteDeliveries,
     },
     {
-      name: "Chores",
+      name: "Chore Board",
       icon: chores,
-      count: incompleteChores + inCompleteKingdomChores,
+      count: incompleteChores,
+    },
+    {
+      name: "Leaderboard",
+      icon: ITEM_DETAILS[chapterTicket].image,
+      count: incompleteBountiesCount,
+    },
+    {
+      name: "Checklist",
+      icon: SUNNYSIDE.ui.board,
+      count: checklistCountValue,
     },
     {
       name: "Fish",
@@ -128,13 +184,12 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
       icon: ITEM_DETAILS["Red Pansy"].image,
       count: 0,
     },
-
     {
-      name: "Leaderboard" as const,
-      icon: trophy,
+      name: "Collections" as const,
+      icon: SUNNYSIDE.icons.treasure,
       count: 0,
     },
-    ...(state.faction
+    ...(faction
       ? [
           {
             name: "Marks" as const,
@@ -143,11 +198,20 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
           },
         ]
       : []),
+    ...(hasLeagues
+      ? [
+          {
+            name: "Leagues" as const,
+            icon: trophyIcon,
+            count: 0,
+          },
+        ]
+      : []),
   ];
 
   return (
     // TODO feat/marks-leaderboard ADD SHOW
-    <Modal show={show} onHide={handleHide} dialogClassName="md:max-w-3xl">
+    <Modal show={show} onHide={onHide} dialogClassName="md:max-w-3xl">
       <div className="h-[500px] relative">
         {/* Header */}
         <OuterPanel className="flex flex-col h-full">
@@ -159,7 +223,7 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
             <img
               src={SUNNYSIDE.icons.close}
               className="float-right cursor-pointer z-20 ml-3"
-              onClick={handleHide}
+              onClick={onHide}
               style={{
                 width: `${PIXEL_SCALE * 11}px`,
               }}
@@ -175,15 +239,16 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
             {/* Tabs */}
             <div className="absolute top-1.5 left-0">
               <div className="flex flex-col">
-                {categories.map((tab, index) => (
+                {categories.map((tab) => (
                   <OuterPanel
-                    key={`${tab}-${index}`}
+                    key={tab.name}
                     className={classNames(
                       "flex items-center relative p-0.5 mb-1 cursor-pointer",
                     )}
-                    onClick={() => handleTabClick(index)}
+                    onClick={() => handleTabClick(tab.name)}
                     style={{
-                      background: currentTab === index ? "#ead4aa" : undefined,
+                      background:
+                        currentTab === tab.name ? "#ead4aa" : undefined,
                     }}
                   >
                     {!!tab.count && (
@@ -191,8 +256,7 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
                         type="default"
                         className="absolute -top-3 left-3 z-10"
                         style={{
-                          paddingLeft: "2.5px",
-                          paddingRight: "1.5px",
+                          padding: "0 2.5",
                           height: "24px",
                         }}
                       >
@@ -205,41 +269,55 @@ export const Codex: React.FC<Props> = ({ show, onHide }) => {
                 ))}
               </div>
             </div>
-            {/* Content */}
-            {/* <InnerPanel
-              className={classNames("flex flex-col h-full overflow-hidden", {
-                "overflow-y-auto scrollable": currentTab !== 5,
-              })}
-            > */}
-            {currentTab === 0 && <Deliveries onClose={onHide} />}
-            {currentTab === 1 && <Chores farmId={farmId} />}
-            {currentTab === 2 && (
-              <Fish onMilestoneReached={handleMilestoneReached} />
+            {currentTab === "Deliveries" && (
+              <Deliveries onClose={onHide} state={state} />
             )}
-            {currentTab === 3 && (
-              <Flowers onMilestoneReached={handleMilestoneReached} />
+            {currentTab === "Chore Board" && <ChoreBoard state={state} />}
+            {currentTab === "Leaderboard" && <ChapterBounties />}
+            {currentTab === "Checklist" && <Checklist />}
+            {currentTab === "Fish" && (
+              <Fish onMilestoneReached={handleMilestoneReached} state={state} />
             )}
-            {currentTab === 4 && (
-              <InnerPanel
+            {currentTab === "Flowers" && (
+              <Flowers
+                onMilestoneReached={handleMilestoneReached}
+                state={state}
+              />
+            )}
+            {currentTab === "Collections" && (
+              <ChapterCollections state={state} onClose={onHide} />
+            )}
+            {currentTab === "Marks" && faction && (
+              <FactionLeaderboard
+                leaderboard={data?.kingdom ?? null}
+                isLoading={data?.kingdom === undefined}
+                faction={faction.name}
+              />
+            )}
+            {currentTab === "Competition" && (
+              <div
                 className={classNames(
                   "flex flex-col h-full overflow-hidden overflow-y-auto scrollable",
                 )}
               >
-                <TicketsLeaderboard
-                  id={id}
-                  isLoading={data?.tickets === undefined}
-                  data={data?.tickets ?? null}
+                <CompetitionDetails
+                  competitionName="BUILDING_FRIENDSHIPS"
+                  state={state}
+                  hideLeaderboard={
+                    now < new Date("2025-10-20T00:00:00Z").getTime()
+                  }
+                />
+              </div>
+            )}
+            {currentTab === "Leagues" && state.prototypes?.leagues && (
+              <InnerPanel>
+                <LeagueLeaderboard
+                  data={data?.leagues ?? null}
+                  isLoading={data === undefined}
+                  username={username}
+                  farmId={farmId}
                 />
               </InnerPanel>
-            )}
-
-            {currentTab === 5 && state.faction && (
-              <FactionLeaderboard
-                leaderboard={data?.kingdom ?? null}
-                isLoading={data?.kingdom === undefined}
-                playerId={id}
-                faction={state.faction.name}
-              />
             )}
           </div>
         </OuterPanel>

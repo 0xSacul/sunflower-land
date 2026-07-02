@@ -2,49 +2,72 @@
  * Classic seeds can be found in crops.ts
  */
 
-import { getKeys } from "./craftables";
+import { getKeys } from "lib/object";
 import { translate } from "lib/i18n/translate";
-import { ResourceName } from "./resources";
+import type { ResourceName } from "./resources";
+import type { SeedName } from "./seeds";
+import type { LevelRequirement } from "features/game/lib/level";
 
-export type FruitName =
+export type PatchFruitName =
   | "Apple"
   | "Blueberry"
   | "Orange"
   | "Banana"
   | "Tomato"
-  | "Lemon";
+  | "Lemon"
+  | "Celestine"
+  | "Lunara"
+  | "Duskberry";
 
 export type GreenHouseFruitName = "Grape";
 export type GreenHouseFruitSeedName = "Grape Seed";
 
-export type FruitSeedName =
+export type FullMoonFruit = Extract<
+  PatchFruitName,
+  "Celestine" | "Lunara" | "Duskberry"
+>;
+
+export const FULL_MOON_FRUITS: FullMoonFruit[] = [
+  "Celestine",
+  "Lunara",
+  "Duskberry",
+];
+
+export function isFullMoonFruit(fruit: PatchFruitName): fruit is FullMoonFruit {
+  return FULL_MOON_FRUITS.includes(fruit as FullMoonFruit);
+}
+
+export type PatchFruitSeedName =
   | "Apple Seed"
   | "Blueberry Seed"
   | "Orange Seed"
   | "Banana Plant"
   | "Tomato Seed"
-  | "Lemon Seed";
+  | "Lemon Seed"
+  | "Celestine Seed"
+  | "Lunara Seed"
+  | "Duskberry Seed";
 
-export type FruitSeed = {
+export type PatchFruitSeed = {
   price: number;
   description: string;
   plantSeconds: number;
-  bumpkinLevel: number;
-  yield: FruitName;
+  bumpkinLevel: LevelRequirement;
+  yield: PatchFruitName;
   plantingSpot: ResourceName | "Greenhouse";
   disabled?: boolean;
 };
 
-export function isFruitSeed(seed: FruitSeedName) {
-  return getKeys(FRUIT_SEEDS()).includes(seed);
+export function isPatchFruitSeed(seed: SeedName) {
+  return getKeys(PATCH_FRUIT_SEEDS).includes(seed as PatchFruitSeedName);
 }
 
-export const FRUIT_SEEDS: () => Record<FruitSeedName, FruitSeed> = () => ({
+export const PATCH_FRUIT_SEEDS: Record<PatchFruitSeedName, PatchFruitSeed> = {
   "Tomato Seed": {
     price: 5,
     description: "Rich in Lycopene",
     plantSeconds: 2 * 60 * 60,
-    bumpkinLevel: 13,
+    bumpkinLevel: { ascension: 0, level: 13 },
     yield: "Tomato",
     plantingSpot: "Fruit Patch",
   },
@@ -52,7 +75,7 @@ export const FRUIT_SEEDS: () => Record<FruitSeedName, FruitSeed> = () => ({
     price: 15,
     description: "Because sometimes, you just can't squeeze an orange!",
     plantSeconds: 4 * 60 * 60,
-    bumpkinLevel: 12,
+    bumpkinLevel: { ascension: 0, level: 12 },
     yield: "Lemon",
     plantingSpot: "Fruit Patch",
   },
@@ -60,7 +83,7 @@ export const FRUIT_SEEDS: () => Record<FruitSeedName, FruitSeed> = () => ({
     price: 30,
     description: translate("description.blueberry"),
     plantSeconds: 6 * 60 * 60,
-    bumpkinLevel: 13,
+    bumpkinLevel: { ascension: 0, level: 13 },
     yield: "Blueberry",
     plantingSpot: "Fruit Patch",
   },
@@ -68,7 +91,7 @@ export const FRUIT_SEEDS: () => Record<FruitSeedName, FruitSeed> = () => ({
     price: 50,
     description: translate("description.orange"),
     plantSeconds: 8 * 60 * 60,
-    bumpkinLevel: 14,
+    bumpkinLevel: { ascension: 0, level: 14 },
     yield: "Orange",
     plantingSpot: "Fruit Patch",
   },
@@ -76,7 +99,7 @@ export const FRUIT_SEEDS: () => Record<FruitSeedName, FruitSeed> = () => ({
     price: 70,
     description: translate("description.apple"),
     plantSeconds: 12 * 60 * 60,
-    bumpkinLevel: 15,
+    bumpkinLevel: { ascension: 0, level: 15 },
     yield: "Apple",
     plantingSpot: "Fruit Patch",
   },
@@ -84,38 +107,58 @@ export const FRUIT_SEEDS: () => Record<FruitSeedName, FruitSeed> = () => ({
     price: 70,
     description: translate("description.banana"),
     plantSeconds: 12 * 60 * 60,
-    bumpkinLevel: 16,
+    bumpkinLevel: { ascension: 0, level: 16 },
     yield: "Banana",
     plantingSpot: "Fruit Patch",
   },
-});
+  "Celestine Seed": {
+    price: 300,
+    description: translate("description.celestine"),
+    plantSeconds: 6 * 60 * 60,
+    bumpkinLevel: { ascension: 0, level: 12 },
+    yield: "Celestine",
+    plantingSpot: "Fruit Patch",
+  },
+  "Lunara Seed": {
+    price: 750,
+    description: translate("description.lunara"),
+    plantSeconds: 12 * 60 * 60,
+    bumpkinLevel: { ascension: 0, level: 12 },
+    yield: "Lunara",
+    plantingSpot: "Fruit Patch",
+  },
+  "Duskberry Seed": {
+    price: 1250,
+    description: translate("description.duskberry"),
+    plantSeconds: 24 * 60 * 60,
+    bumpkinLevel: { ascension: 0, level: 12 },
+    yield: "Duskberry",
+    plantingSpot: "Fruit Patch",
+  },
+};
 
-export type Fruit = {
+export type PatchFruit = {
   description: string;
-  name: FruitName;
+  name: PatchFruitName;
   isBush?: boolean;
   sellPrice: number;
-  seed: FruitSeedName;
-  bumpkinLevel: number;
+  seed: PatchFruitSeedName;
   disabled?: boolean;
 };
 
-export const FRUIT: () => Record<FruitName, Fruit> = () => ({
+export const PATCH_FRUIT: Record<PatchFruitName, PatchFruit> = {
   Tomato: {
     description: "Rich in Lycopene",
     name: "Tomato",
     sellPrice: 2,
     seed: "Tomato Seed",
     isBush: true,
-    bumpkinLevel: 10,
   },
   Lemon: {
     description: "Because sometimes, you just can't squeeze an orange!",
     name: "Lemon",
     sellPrice: 6,
     seed: "Lemon Seed",
-    isBush: true,
-    bumpkinLevel: 12,
   },
   Blueberry: {
     description: translate("description.blueberry"),
@@ -123,21 +166,18 @@ export const FRUIT: () => Record<FruitName, Fruit> = () => ({
     sellPrice: 12,
     isBush: true,
     seed: "Blueberry Seed",
-    bumpkinLevel: 13,
   },
   Orange: {
     description: translate("description.orange"),
     name: "Orange",
     sellPrice: 18,
     seed: "Orange Seed",
-    bumpkinLevel: 14,
   },
   Apple: {
     description: translate("description.apple"),
     name: "Apple",
     sellPrice: 25,
     seed: "Apple Seed",
-    bumpkinLevel: 15,
   },
   Banana: {
     description: translate("description.banana"),
@@ -145,33 +185,53 @@ export const FRUIT: () => Record<FruitName, Fruit> = () => ({
     sellPrice: 25,
     isBush: true,
     seed: "Banana Plant",
-    bumpkinLevel: 16,
   },
-});
+  Celestine: {
+    description: translate("description.celestine"),
+    name: "Celestine",
+    sellPrice: 200,
+    seed: "Celestine Seed",
+    isBush: true,
+  },
+  Lunara: {
+    description: translate("description.lunara"),
+    name: "Lunara",
+    sellPrice: 500,
+    seed: "Lunara Seed",
+    isBush: true,
+  },
+  Duskberry: {
+    description: translate("description.duskberry"),
+    name: "Duskberry",
+    sellPrice: 1000,
+    seed: "Duskberry Seed",
+    isBush: true,
+  },
+};
 
 export type GreenhouseFruitSeed = {
   price: number;
   description: string;
   plantSeconds: number;
-  bumpkinLevel: number;
+  bumpkinLevel: LevelRequirement;
   yield: GreenHouseFruitName;
   disabled?: boolean;
   plantingSpot: ResourceName | "Greenhouse";
 };
 
-export const GREENHOUSE_FRUIT_SEEDS: () => Record<
+export const GREENHOUSE_FRUIT_SEEDS: Record<
   GreenHouseFruitSeedName,
   GreenhouseFruitSeed
-> = () => ({
+> = {
   "Grape Seed": {
     price: 160,
     description: "A bunch of grapes",
     plantSeconds: 12 * 60 * 60,
-    bumpkinLevel: 40,
+    bumpkinLevel: { ascension: 0, level: 40 },
     yield: "Grape",
     plantingSpot: "Greenhouse",
   },
-});
+};
 
 export type GreenHouseFruit = {
   description: string;
@@ -179,18 +239,15 @@ export type GreenHouseFruit = {
   isBush?: boolean;
   sellPrice: number;
   seed: GreenHouseFruitSeedName;
-  bumpkinLevel: number;
+  bumpkinLevel: LevelRequirement;
 };
 
-export const GREENHOUSE_FRUIT: () => Record<
-  GreenHouseFruitName,
-  GreenHouseFruit
-> = () => ({
+export const GREENHOUSE_FRUIT: Record<GreenHouseFruitName, GreenHouseFruit> = {
   Grape: {
     description: "A bunch of grapes",
     name: "Grape",
     sellPrice: 240,
     seed: "Grape Seed",
-    bumpkinLevel: 40,
+    bumpkinLevel: { ascension: 0, level: 40 },
   },
-});
+};

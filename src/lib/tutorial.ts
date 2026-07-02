@@ -1,4 +1,4 @@
-import { BuildingName } from "features/game/types/buildings";
+import type { BuildingName } from "features/game/types/buildings";
 
 const TUTORIAL_ACKNOWLEDGEMENT_KEY = "sunflower_isles_tutorials";
 
@@ -11,6 +11,7 @@ type TutorialName =
   | "Treasure Detector"
   | "Pirate Quest"
   | "Garbage Collector"
+  | "Incinerator"
   | "Chore Master";
 
 export function acknowledgeTutorial(tutorialName: TutorialName) {

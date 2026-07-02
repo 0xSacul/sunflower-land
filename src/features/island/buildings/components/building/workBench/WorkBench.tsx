@@ -1,52 +1,39 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import { WorkbenchModal } from "./components/WorkbenchModal";
 import { BuildingImageWrapper } from "../BuildingImageWrapper";
-import { BuildingProps } from "../Building";
-import { Modal } from "components/ui/Modal";
-import { loadAudio, shopAudio } from "lib/utils/sfx";
+import type { BuildingProps } from "../Building";
 import { SUNNYSIDE } from "assets/sunnyside";
-import { Context } from "features/game/GameProvider";
-import { MachineState } from "features/game/lib/gameMachine";
-import { useSelector } from "@xstate/react";
 import { WORKBENCH_VARIANTS } from "features/island/lib/alternateArt";
 import shadow from "assets/npcs/shadow.png";
-const needsHelp = (state: MachineState) => {
-  const missingScarecrow =
-    !state.context.state.inventory["Basic Scarecrow"] &&
-    (state.context.state.bumpkin?.activity?.["Sunflower Planted"] ?? 0) >= 6 &&
-    !state.context.state.inventory["Sunflower Seed"]?.gt(0);
+import { useSound } from "lib/utils/hooks/useSound";
+import { getCurrentBiome } from "features/island/biomes/biomes";
+import { Context } from "features/game/GameProvider";
+import { useSelector } from "@xstate/react";
+import type { MachineState } from "features/game/lib/gameMachine";
+import { needsBasicScarecrow, needsWaterWell } from "./lib/onboarding";
 
-  if (missingScarecrow) {
-    return true;
-  }
+const _needsWell = (state: MachineState) => needsWaterWell(state.context.state);
+const _needsScarecrow = (state: MachineState) =>
+  needsBasicScarecrow(state.context.state);
 
-  return false;
-};
-
-export const WorkBench: React.FC<BuildingProps> = ({
-  isBuilt,
-  onRemove,
-  island,
-}) => {
-  const { gameService } = useContext(Context);
+export const WorkBench: React.FC<BuildingProps> = ({ isBuilt, island }) => {
+  // TODO: feat/crafting-box - remove this
   const [isOpen, setIsOpen] = useState(false);
-  const showHelper = useSelector(gameService, needsHelp);
 
-  useEffect(() => {
-    loadAudio([shopAudio]);
-  }, []);
+  const { gameService } = useContext(Context);
+
+  const { play: shopAudio } = useSound("shop");
+
+  const needsWell = useSelector(gameService, _needsWell);
+  const needsScarecrow = useSelector(gameService, _needsScarecrow);
+  const showHelper = isBuilt && (needsWell || needsScarecrow);
 
   const handleClick = () => {
-    if (onRemove) {
-      onRemove();
-      return;
-    }
-
     if (isBuilt) {
       // Add future on click actions here
-      shopAudio.play();
+      shopAudio();
       setIsOpen(true);
       return;
     }
@@ -60,7 +47,7 @@ export const WorkBench: React.FC<BuildingProps> = ({
     <>
       <BuildingImageWrapper name="Workbench" onClick={handleClick}>
         <img
-          src={WORKBENCH_VARIANTS[island]}
+          src={WORKBENCH_VARIANTS[getCurrentBiome(island)]}
           className="absolute bottom-0 pointer-events-none"
           style={{
             width: `${PIXEL_SCALE * 47}px`,
@@ -98,9 +85,9 @@ export const WorkBench: React.FC<BuildingProps> = ({
           />
         )}
       </BuildingImageWrapper>
-      <Modal show={isOpen} onHide={handleClose}>
-        <WorkbenchModal onClose={handleClose} />
-      </Modal>
+      {/* Mount only while open so the modal re-evaluates its default tab each
+          time it is opened, without an effect-driven state reset. */}
+      {isOpen && <WorkbenchModal onClose={handleClose} show />}
     </>
   );
 };

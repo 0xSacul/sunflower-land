@@ -1,19 +1,34 @@
 import Decimal from "decimal.js-light";
-import { Crop, CropName, CROPS, GREENHOUSE_CROPS } from "../../types/crops";
-import { GameState } from "../../types/game";
-import cloneDeep from "lodash.clonedeep";
+import {
+  type Crop,
+  type CropName,
+  CROPS,
+  GREENHOUSE_CROPS,
+  type GreenHouseCrop,
+} from "../../types/crops";
+import type { GameState } from "../../types/game";
 import { getSellPrice } from "features/game/expansion/lib/boosts";
-import { trackActivity } from "features/game/types/bumpkinActivity";
+import { trackFarmActivity } from "features/game/types/farmActivity";
 import { setPrecision } from "lib/utils/formatNumber";
 import {
-  Fruit,
-  FRUIT,
-  FruitName,
   GREENHOUSE_FRUIT,
+  type GreenHouseFruit,
+  PATCH_FRUIT,
+  type PatchFruit,
+  type PatchFruitName,
 } from "features/game/types/fruits";
+import { produce } from "immer";
+import type { ExoticCrop } from "features/game/types/beans";
+import { getCountAndType } from "features/island/hud/components/inventory/utils/inventory";
+import { updateBoostUsed } from "features/game/types/updateBoostUsed";
 
-export type SellableName = CropName | FruitName;
-export type SellableItem = Crop | Fruit;
+export type SellableName = CropName | PatchFruitName;
+export type SellableItem =
+  | Crop
+  | PatchFruit
+  | ExoticCrop
+  | GreenHouseFruit
+  | GreenHouseCrop;
 
 export type SellCropAction = {
   type: "crop.sold";
@@ -23,9 +38,9 @@ export type SellCropAction = {
 
 export const SELLABLE = {
   ...CROPS,
-  ...FRUIT(),
+  ...PATCH_FRUIT,
   ...GREENHOUSE_CROPS,
-  ...GREENHOUSE_FRUIT(),
+  ...GREENHOUSE_FRUIT,
 };
 
 type Options = {
@@ -39,51 +54,59 @@ export function sellCrop({
   action,
   createdAt = Date.now(),
 }: Options): GameState {
-  const game = cloneDeep(state);
+  return produce(state, (game) => {
+    const { bumpkin } = game;
 
-  const { bumpkin } = game;
+    if (bumpkin === undefined) {
+      throw new Error("You do not have a Bumpkin!");
+    }
 
-  if (bumpkin === undefined) {
-    throw new Error("You do not have a Bumpkin!");
-  }
+    if (!(action.crop in SELLABLE)) {
+      throw new Error("Not for sale");
+    }
 
-  if (!(action.crop in SELLABLE)) {
-    throw new Error("Not for sale");
-  }
+    const amount = new Decimal(action.amount);
+    if (amount.lessThanOrEqualTo(0)) {
+      throw new Error("Invalid amount");
+    }
 
-  const amount = new Decimal(action.amount);
-  if (amount.lessThanOrEqualTo(0)) {
-    throw new Error("Invalid amount");
-  }
+    const sellables = SELLABLE[action.crop];
 
-  const sellables = SELLABLE[action.crop];
+    const { count } = getCountAndType(game, action.crop);
 
-  const count = game.inventory[action.crop] || new Decimal(0);
+    if (count.lessThan(action.amount)) {
+      throw new Error("Insufficient quantity to sell");
+    }
 
-  if (count.lessThan(action.amount)) {
-    throw new Error("Insufficient quantity to sell");
-  }
+    const { price, boostsUsed } = getSellPrice({
+      item: sellables,
+      game,
+      now: new Date(createdAt),
+    });
 
-  const price = getSellPrice({
-    item: sellables,
-    game,
-    now: new Date(createdAt),
+    const coinsEarned = price * action.amount;
+    game.farmActivity = trackFarmActivity(
+      "Coins Earned",
+      game.farmActivity,
+      new Decimal(coinsEarned),
+    );
+    game.farmActivity = trackFarmActivity(
+      `${action.crop} Sold`,
+      game.farmActivity,
+      new Decimal(amount),
+    );
+
+    game.coins = game.coins + coinsEarned;
+    game.inventory[action.crop] = setPrecision(
+      (game.inventory[action.crop] ?? new Decimal(0)).sub(amount),
+    );
+
+    game.boostsUsedAt = updateBoostUsed({
+      game,
+      boostNames: boostsUsed,
+      createdAt,
+    });
+
+    return game;
   });
-
-  const coinsEarned = price * action.amount;
-  bumpkin.activity = trackActivity(
-    "Coins Earned",
-    bumpkin.activity,
-    new Decimal(coinsEarned),
-  );
-  bumpkin.activity = trackActivity(
-    `${action.crop} Sold`,
-    bumpkin?.activity,
-    new Decimal(amount),
-  );
-
-  game.coins = game.coins + coinsEarned;
-  game.inventory[action.crop] = setPrecision(count.sub(amount));
-
-  return game;
 }

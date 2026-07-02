@@ -1,6 +1,6 @@
-import { InventoryItemName } from "./game";
-import Decimal from "decimal.js-light";
-import { BumpkinItem } from "./bumpkin";
+import type { InventoryItemName } from "./game";
+import type Decimal from "decimal.js-light";
+import type { BumpkinItem } from "./bumpkin";
 
 export type StylistWearable = {
   coins: number;
@@ -72,13 +72,13 @@ export const BASIC_WEARABLES: ShopWearables = {
     coins: 3200,
     ingredients: {},
   },
-  "Streamer Helmet": {
-    coins: 3200,
-    ingredients: {
-      "Sunflower Supporter": new Decimal(50),
-    },
-    disabled: true,
-  },
+  // "Streamer Helmet": {
+  //   coins: 3200,
+  //   ingredients: {
+  //     "Sunflower Supporter": new Decimal(50),
+  //   },
+  //   disabled: true,
+  // },
   "Birthday Hat": {
     coins: 8000,
     ingredients: {},

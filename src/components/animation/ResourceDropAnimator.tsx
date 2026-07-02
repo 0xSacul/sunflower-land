@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { InventoryItemName } from "features/game/types/game";
+import type { InventoryItemName } from "features/game/types/game";
 import { ITEM_DETAILS } from "features/game/types/images";
 import { setImageWidth } from "lib/images";
 import { formatNumber } from "lib/utils/formatNumber";
@@ -14,8 +14,8 @@ interface Props {
 export const ResourceDropAnimatorComponent: React.FC<Props> = ({
   resourceName,
   resourceAmount,
-}: Props) => {
-  const { current: direction } = useRef<"left" | "right">(
+}) => {
+  const [direction] = useState<"left" | "right">(
     randomInt(0, 2) === 0 ? "left" : "right",
   );
   const textRef = useRef<HTMLSpanElement>(null);

@@ -69,8 +69,13 @@ export type Token = {
     landExpansion?: boolean;
     verified?: boolean;
   };
-  discordId?: string;
   farmId?: number;
+  /** SSO provider this session was issued for (e.g. "google"). Absent for wallet sessions. */
+  provider?: string;
+  sub?: string;
+  email?: string;
+  /** JWT "issued at" (epoch seconds) — usable as a proxy for "last signed in on this device". */
+  iat?: number;
 };
 
 export function decodeToken(token: string): Token {
@@ -92,8 +97,8 @@ export function decodeToken(token: string): Token {
 const TOKEN_BUFFER_MS = 1000 * 60 * 60 * 4;
 
 export function hasValidSession(): boolean {
-  const address = wallet.myAccount as string;
-  const session = getSession(address);
+  const address = wallet.getConnection();
+  const session = getSession(address as string);
 
   if (session) {
     const token = decodeToken(session.token);

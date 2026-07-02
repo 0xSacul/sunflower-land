@@ -1,16 +1,38 @@
-import { Coordinates } from "features/game/expansion/components/MapPlacement";
-import { SceneId } from "../mmoMachine";
-import { CONFIG } from "lib/config";
+import type { Coordinates } from "features/game/expansion/components/MapPlacement";
+import type { SceneId } from "../mmoMachine";
+
+// `"default"` is a sentinel WorldMap callers use to mean "always use the
+// scene's `default` spawn", overriding the auto-derived previous scene.
+// `"digging"` is a non-scene shortcut that maps to a specific beach spawn.
+export type SpawnFromId = SceneId | "digging" | "default";
 
 export type SpawnLocation = Record<
   SceneId,
-  { default: Coordinates } & Partial<Record<SceneId, Coordinates>>
+  { default: Coordinates } & Partial<Record<SpawnFromId, Coordinates>>
 >;
 
 const randomXOffset = Math.random() * 60;
 const randomYOffset = Math.random() * 20;
 
 export const SPAWNS: () => SpawnLocation = () => ({
+  love_island: {
+    default: {
+      x: 608,
+      y: 770,
+    },
+  },
+  stream: {
+    default: {
+      x: 240,
+      y: 180,
+    },
+  },
+  infernos: {
+    default: {
+      x: 318,
+      y: 412,
+    },
+  },
   portal_example: {
     default: {
       x: 400 + randomXOffset,
@@ -116,20 +138,15 @@ export const SPAWNS: () => SpawnLocation = () => ({
     },
   },
   beach: {
-    default:
-      CONFIG.NETWORK === "amoy"
-        ? {
-            // // For artefact area
-            x: 256,
-            y: 159,
-            // x: 528,
-            // y: 736,
-          }
-        : {
-            x: 528,
-            y: 736,
-          },
+    default: {
+      x: 528,
+      y: 736,
+    },
     kingdom: {
+      x: 532,
+      y: 257,
+    },
+    digging: {
       x: 532,
       y: 257,
     },

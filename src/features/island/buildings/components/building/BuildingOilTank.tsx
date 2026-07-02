@@ -8,7 +8,7 @@ import { PIXEL_SCALE } from "features/game/lib/constants";
 import oilBarrel from "assets/icons/oil_barrel.webp";
 import { ITEM_DETAILS } from "features/game/types/images";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
-import {
+import type {
   BuildingName,
   CookingBuildingName,
 } from "features/game/types/buildings";
@@ -16,9 +16,7 @@ import { BUILDING_DAILY_OIL_CAPACITY } from "features/game/events/landExpansion/
 import {
   BUILDING_DAILY_OIL_CONSUMPTION,
   BUILDING_OIL_BOOSTS,
-  isCookingBuilding,
 } from "features/game/events/landExpansion/cook";
-import { CookableName } from "features/game/types/consumables";
 import { Context } from "features/game/GameProvider";
 import { ModalOverlay } from "components/ui/ModalOverlay";
 import { InnerPanel } from "components/ui/Panel";
@@ -27,24 +25,23 @@ import { formatNumber } from "lib/utils/formatNumber";
 import Decimal from "decimal.js-light";
 import { Box } from "components/ui/Box";
 import useUiRefresher from "lib/utils/hooks/useUiRefresher";
+import { isCookingBuilding } from "features/game/events/landExpansion/isCookingBuilding";
 
 interface OilTankProps {
-  currentlyCooking: CookableName | undefined;
   buildingName: BuildingName;
   buildingId: string;
 }
 
 const OIL_INCREMENT_AMOUNT = 1;
 
-export const BuildingOilTank = ({
-  currentlyCooking,
+export const BuildingOilTank: React.FC<OilTankProps> = ({
   buildingName,
   buildingId,
-}: OilTankProps) => {
+}) => {
   const { gameService } = useContext(Context);
   const [showAddOilModal, setShowAddOilModal] = useState<boolean>(false);
   const { t } = useAppTranslation();
-  const game = gameService.state.context.state;
+  const game = gameService.getSnapshot().context.state;
 
   const [totalOilToAdd, setTotalOilToAdd] = useState(0);
 
@@ -52,7 +49,7 @@ export const BuildingOilTank = ({
     (building) => building.id === buildingId,
   );
 
-  const oilRemainingInBuilding = building?.oil || 0;
+  const oilRemainingInBuilding = building?.oil ?? 0;
 
   const incrementOil = () => {
     setTotalOilToAdd((prev) => prev + OIL_INCREMENT_AMOUNT);
@@ -60,6 +57,13 @@ export const BuildingOilTank = ({
 
   const decrementOil = () => {
     setTotalOilToAdd((prev) => Math.max(prev - OIL_INCREMENT_AMOUNT, 0));
+  };
+
+  const amountToFull =
+    BUILDING_DAILY_OIL_CAPACITY[buildingName as CookingBuildingName] -
+    oilRemainingInBuilding;
+  const incrementMaxOil = () => {
+    setTotalOilToAdd(amountToFull);
   };
 
   function getOilTimeInMillis(oil: number): number {
@@ -141,17 +145,19 @@ export const BuildingOilTank = ({
   const oilInTank = calculatePercentageFull(buildingName);
   const runtime = calculateOilTimeRemaining();
   const boostPercentage =
-    BUILDING_OIL_BOOSTS[buildingName as CookingBuildingName] * 100;
+    BUILDING_OIL_BOOSTS(game.bumpkin.skills)[
+      buildingName as CookingBuildingName
+    ] * 100;
 
   useUiRefresher();
 
   return (
     <>
-      <div className="relative w-full">
+      <div className="relative w-full mb-1">
         {runtime === 0 ? (
           <Label
             type={"default"}
-            className="ml-1.5 mt-2.5 cursor-pointer"
+            className="ml-1.5 cursor-pointer"
             icon={ITEM_DETAILS.Oil.image}
             secondaryIcon={SUNNYSIDE.ui.add_button}
             onClick={() => setShowAddOilModal(true)}
@@ -162,7 +168,7 @@ export const BuildingOilTank = ({
           <div>
             <Label
               type={"default"}
-              className="ml-1.5 mt-2.5"
+              className="ml-1.5"
               icon={ITEM_DETAILS.Oil.image}
               secondaryIcon={SUNNYSIDE.ui.add_button}
               onClick={() => setShowAddOilModal(true)}
@@ -179,16 +185,13 @@ export const BuildingOilTank = ({
                   <ResizableBar
                     percentage={oilInTank}
                     type={oilInTank < 10 ? "error" : "quantity"}
-                    outerDimensions={{
-                      width: 40,
-                      height: 8,
-                    }}
+                    outerDimensions={{ width: 40, height: 8 }}
                   />
                   <div className="flex">
                     <div className="text-xs">
                       {t("cooking.building.runtime", {
                         time: secondsToString(runtime, {
-                          length: "short",
+                          length: "medium",
                           isShortFormat: true,
                           removeTrailingZeros: true,
                         }),
@@ -263,7 +266,9 @@ export const BuildingOilTank = ({
                 <div className="flex w-full justify-between">
                   <div className="flex flex-col justify-center text-xs space-y-1">
                     <span>
-                      {t("cropMachine.oilToAdd", { amount: totalOilToAdd })}
+                      {t("cropMachine.oilToAdd", {
+                        amount: formatNumber(totalOilToAdd),
+                      })}
                     </span>
                     <span>
                       {t("cropMachine.totalRuntime", {
@@ -289,6 +294,9 @@ export const BuildingOilTank = ({
                       onClick={incrementOil}
                       disabled={!canIncrementOil()}
                     >{`+${OIL_INCREMENT_AMOUNT}`}</Button>
+                    <Button className="w-auto" onClick={incrementMaxOil}>
+                      {t("max")}
+                    </Button>
                   </div>
                 </div>
               </div>

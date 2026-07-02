@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import { Label } from "components/ui/Label";
 import { Button } from "components/ui/Button";
 
-import {
+import type {
   AuctionResults,
   MachineInterpreter,
 } from "features/game/lib/auctionMachine";
@@ -56,7 +56,7 @@ export const TieBreaker: React.FC<Props> = ({
       </p>
       <a
         className="underline hover:text-blue-500 text-xxs text-center"
-        href="https://docs.sunflower-land.com/player-guides/auctions#tie-breaker"
+        href="https://docs.sunflower-land.com/getting-started/crypto-and-digital-collectibles"
         target="_blank"
         rel="noreferrer"
       >

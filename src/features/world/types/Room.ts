@@ -1,9 +1,10 @@
-import { Schema, MapSchema, ArraySchema } from "@colyseus/schema";
-import { NPCName } from "lib/npcs";
-import { BumpkinParts } from "lib/utils/tokenUriBuilder";
-import { SceneId } from "../mmoMachine";
-import { Moderation } from "features/game/lib/gameMachine";
-import { FactionName } from "features/game/types/game";
+import type { Schema, MapSchema, ArraySchema } from "@colyseus/schema";
+import type { NPCName } from "lib/npcs";
+import type { BumpkinParts } from "lib/utils/tokenUriBuilder";
+import type { SceneId } from "../mmoMachine";
+import type { Moderation } from "features/game/lib/gameMachine";
+import type { FactionName } from "features/game/types/game";
+import type { PetNFTType } from "features/game/types/pets";
 
 export interface InputData {
   x: number;
@@ -19,6 +20,9 @@ export interface Player extends Schema {
   x: number;
   y: number;
   experience: number;
+  // Ascension band — needed to read `experience` as a level. Optional until the MMO
+  // server syncs it; consumers default to 0 (legacy pre-ascension reading) meanwhile.
+  ascensionLevel?: number;
   tick: number;
   clothing: BumpkinParts & { updatedAt: number };
   npc: NPCName;
@@ -36,17 +40,21 @@ export interface Bud extends Schema {
   sceneId: SceneId;
 }
 
-export interface Bud extends Schema {
+export interface Pet extends Schema {
+  sessionId: string;
   farmId: number;
   x: number;
   y: number;
-  sceneId: SceneId;
   id: number;
+  name: string;
+  type: PetNFTType;
+  sceneId: SceneId;
 }
 
 export interface Message extends Schema {
   text: string;
   farmId?: number;
+  username?: string;
   sessionId: string;
   sceneId: SceneId;
   sentAt: number;
@@ -79,15 +87,51 @@ export interface Trade extends Schema {
   tradeId: string;
 }
 
+export interface MicroInteraction extends Schema {
+  type:
+    | "wave"
+    | "wave_ack"
+    | "wave_cancel"
+    | "cheer"
+    | "cheer_ack"
+    | "cheer_cancel";
+  receiverId: number;
+  senderId: number;
+  sentAt: number;
+  sceneId: SceneId;
+}
+
+export interface Dog extends Schema {
+  id: 1 | 2;
+  x: number;
+  y: number;
+  isWalking: boolean;
+}
+
+export type PetalState = "active" | "inactive" | "solved" | "overloaded";
+
+export interface GiantFlower extends Schema {
+  puzzleSolvedAt?: number;
+  leftPetal?: PetalState;
+  rightPetal?: PetalState;
+  topPetal?: PetalState;
+  bottomPetal?: PetalState;
+}
+
 export interface PlazaRoomState extends Schema {
   mapWidth: number;
   mapHeight: number;
 
   players: MapSchema<Player>;
   buds: MapSchema<Bud>;
+  pets: MapSchema<Pet>;
 
   messages: ArraySchema<Message>;
   reactions: ArraySchema<Reaction>;
   trades: ArraySchema<Trade>;
+  microInteractions: ArraySchema<MicroInteraction>;
   actions: ArraySchema<Action>;
+
+  dogs: MapSchema<Dog>;
+  giantFlower: GiantFlower;
 }

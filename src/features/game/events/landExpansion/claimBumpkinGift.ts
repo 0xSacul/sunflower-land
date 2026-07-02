@@ -1,9 +1,13 @@
-import cloneDeep from "lodash.clonedeep";
-import { GameState } from "features/game/types/game";
-import { NPCName } from "lib/npcs";
-import { BUMPKIN_GIFTS, BumpkinGift } from "features/game/types/gifts";
-import { getKeys } from "features/game/types/craftables";
+import type { GameState } from "features/game/types/game";
+import type { NPCName } from "lib/npcs";
+import { BUMPKIN_GIFTS, type BumpkinGift } from "features/game/types/gifts";
+import { getKeys } from "lib/object";
 import Decimal from "decimal.js-light";
+import { produce } from "immer";
+import {
+  type RecipeCollectibleName,
+  RECIPES,
+} from "features/game/lib/crafting";
 
 export type ClaimGiftAction = {
   type: "gift.claimed";
@@ -48,51 +52,97 @@ export function getNextGift({
   return nextGift;
 }
 
-export function claimGift({ state, action, createdAt = Date.now() }: Options) {
-  const game = cloneDeep(state) as GameState;
+/*
+  Recipes a Bumpkin will reveal at certain friendship points
+*/
+export function getBumpkinRecipes({
+  game,
+  npc,
+}: {
+  game: GameState;
+  npc: NPCName;
+}): RecipeCollectibleName[] {
+  const bumpkin = BUMPKIN_GIFTS[npc];
 
-  if (!game.npcs?.[action.bumpkin]) {
-    throw new Error("Bumpkin does not exist");
-  }
-
-  const bumpkin = BUMPKIN_GIFTS[action.bumpkin];
   if (!bumpkin) {
-    throw new Error("Bumpkin does not provide gifts");
+    return [];
   }
 
-  const friendship = game.npcs[action.bumpkin]?.friendship;
+  const friendship = game.npcs?.[npc]?.friendship;
 
   if (!friendship) {
-    throw new Error("Friendship is not strong enough");
+    return [];
   }
 
   const points = friendship?.points ?? 0;
 
-  const nextGift = getNextGift({ game, npc: action.bumpkin });
+  // Grab recipes where player has more points than the gift (in case recipe introduced later)
+  const missingRecipes = bumpkin.planned
+    ?.filter((gift) => gift.recipe && points >= gift.friendshipPoints)
+    // Ensure they don't already have the recipe
+    .filter((gift) => !game.craftingBox.recipes[gift.recipe!])
+    .map((gift) => gift.recipe!);
 
-  if (!nextGift) {
-    throw new Error("No gift available");
-  }
+  return missingRecipes;
+}
 
-  if (nextGift.friendshipPoints > points) {
-    throw new Error("Friendship is not strong enough");
-  }
+export function claimGift({ state, action, createdAt = Date.now() }: Options) {
+  return produce(state, (game) => {
+    if (!game.npcs?.[action.bumpkin]) {
+      throw new Error("Bumpkin does not exist");
+    }
 
-  friendship.giftClaimedAtPoints = nextGift.friendshipPoints;
+    const bumpkin = BUMPKIN_GIFTS[action.bumpkin];
+    if (!bumpkin) {
+      throw new Error("Bumpkin does not provide gifts");
+    }
 
-  // Provide items
-  getKeys(nextGift.items).forEach((name) => {
-    const previous = game.inventory[name] ?? new Decimal(0);
-    game.inventory[name] = previous.add(nextGift.items[name] ?? 0);
+    const friendship = game.npcs[action.bumpkin]?.friendship;
+
+    if (!friendship) {
+      throw new Error("Friendship is not strong enough");
+    }
+
+    const points = friendship?.points ?? 0;
+
+    const nextGift = getNextGift({ game, npc: action.bumpkin });
+
+    if (!nextGift) {
+      throw new Error("No gift available");
+    }
+
+    if (nextGift.friendshipPoints > points) {
+      throw new Error("Friendship is not strong enough");
+    }
+
+    friendship.giftClaimedAtPoints = nextGift.friendshipPoints;
+
+    // Provide items
+    getKeys(nextGift.items).forEach((name) => {
+      const previous = game.inventory[name] ?? new Decimal(0);
+      game.inventory[name] = previous.add(nextGift.items[name] ?? 0);
+    });
+
+    // Provide wearables
+    getKeys(nextGift.wearables).forEach((name) => {
+      const previous = game.wardrobe[name] ?? 0;
+      game.wardrobe[name] = previous + (nextGift.wearables[name] ?? 0);
+    });
+
+    // Provide missing recipes
+    // Grab recipes where player has more points than the gift (in case recipe introduced later)
+    const missingRecipes = getBumpkinRecipes({ game, npc: action.bumpkin });
+
+    if (missingRecipes.length) {
+      missingRecipes.forEach((recipe) => {
+        if (recipe && RECIPES[recipe]) {
+          game.craftingBox.recipes[recipe] = RECIPES[recipe];
+        }
+      });
+    }
+
+    game.coins = game.coins + nextGift.coins;
+
+    return game;
   });
-
-  // Provide wearables
-  getKeys(nextGift.wearables).forEach((name) => {
-    const previous = game.wardrobe[name] ?? 0;
-    game.wardrobe[name] = previous + (nextGift.wearables[name] ?? 0);
-  });
-
-  game.coins = game.coins + nextGift.coins;
-
-  return game;
 }

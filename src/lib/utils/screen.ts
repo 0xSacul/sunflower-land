@@ -1,4 +1,4 @@
-import { MachineInterpreter } from "features/auth/lib/authMachine";
+import type { MachineInterpreter } from "features/auth/lib/authMachine";
 import { isMobile } from "mobile-device-detect";
 
 type Vector = {
@@ -37,7 +37,7 @@ class ScreenTracker {
 
   private clicks: number[] = [];
 
-  private clicked(event: MouseEvent) {
+  private clicked() {
     this.clicks.push(Date.now());
 
     // Only store clicks in the last second

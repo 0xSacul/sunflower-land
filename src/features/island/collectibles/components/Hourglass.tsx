@@ -24,19 +24,27 @@ import fisherHourglassDone from "assets/factions/boosts/fish_boost_done.webp";
 import shadow from "assets/npcs/shadow.png";
 
 import { PIXEL_SCALE } from "features/game/lib/constants";
-import { CollectibleProps } from "../Collectible";
+import type { CollectibleProps } from "../Collectible";
 import { SUNNYSIDE } from "assets/sunnyside";
-import { LiveProgressBar } from "components/ui/ProgressBar";
-import { Modal } from "components/ui/Modal";
-import { Button } from "components/ui/Button";
+import { ProgressBar } from "components/ui/ProgressBar";
 import { Context } from "features/game/GameProvider";
-import { CloseButtonPanel } from "features/game/components/CloseablePanel";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
-import useUiRefresher from "lib/utils/hooks/useUiRefresher";
 import { Label } from "components/ui/Label";
 import { secondsToString } from "lib/utils/time";
-import { COLLECTIBLE_BUFF_LABELS } from "features/game/types/collectibleItemBuffs";
-import { InventoryItemName } from "features/game/types/game";
+import type { MachineState } from "features/game/lib/gameMachine";
+import {
+  SFTDetailPopoverBuffs,
+  SFTDetailPopoverLabel,
+  SFTDetailPopoverInnerPanel,
+} from "components/ui/SFTDetailPopover";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import classNames from "classnames";
+import { useCountdown } from "lib/utils/hooks/useCountdown";
+import { useSelector } from "@xstate/react";
+import { useVisiting } from "lib/utils/visitUtils";
+import { RenewCollectible } from "features/game/components/RenewCollectible";
+import Decimal from "decimal.js-light";
+import { getChestItems } from "features/island/hud/components/inventory/utils/inventory";
 
 export type HourglassType =
   | "Gourmet Hourglass"
@@ -46,73 +54,6 @@ export type HourglassType =
   | "Blossom Hourglass"
   | "Fisher's Hourglass"
   | "Ore Hourglass";
-
-type InformationModalProps = {
-  boostEndAt: number;
-  show: boolean;
-  expiresAt: number;
-  hasExpired: boolean;
-  name: string;
-  onClose: () => void;
-  onRemove: () => void;
-};
-
-const HourglassInfoModal: React.FC<InformationModalProps> = ({
-  show,
-  name,
-  boostEndAt,
-  hasExpired,
-  onClose,
-  onRemove,
-}) => {
-  const { t } = useAppTranslation();
-
-  const remainingSeconds = (boostEndAt - Date.now()) / 1000;
-  const boostDescription = COLLECTIBLE_BUFF_LABELS[name as InventoryItemName]
-    ?.shortDescription as string;
-
-  return (
-    <Modal show={show}>
-      <CloseButtonPanel>
-        {hasExpired && (
-          <>
-            <div className="p-2">
-              <Label type="danger" icon={SUNNYSIDE.icons.stopwatch}>
-                {t("expired")}
-              </Label>
-              <p className="text-sm my-2">
-                {t("description.hourglass.expired", { hourglass: name })}
-              </p>
-            </div>
-            <Button onClick={onRemove}>{t("remove")}</Button>
-          </>
-        )}
-        {!hasExpired && (
-          <>
-            <div className="p-2">
-              <Label type="info" icon={SUNNYSIDE.icons.stopwatch}>
-                {t("time.remaining", {
-                  time: secondsToString(remainingSeconds, {
-                    length: "medium",
-                    isShortFormat: true,
-                    removeTrailingZeros: true,
-                  }),
-                })}
-              </Label>
-              <p className="text-sm my-2">
-                {t("description.hourglass.running", {
-                  boost: boostDescription,
-                  hourglass: name,
-                })}
-              </p>
-            </div>
-            <Button onClick={onClose}>{t("gotIt")}</Button>
-          </>
-        )}
-      </CloseButtonPanel>
-    </Modal>
-  );
-};
 
 type HourglassDetail = {
   fullImage: string;
@@ -170,27 +111,34 @@ interface HourglassProps extends CollectibleProps {
   hourglass: HourglassType;
 }
 
+const _gameState = (state: MachineState) => state.context.state;
+
 export const Hourglass: React.FC<HourglassProps> = ({
   createdAt,
   id,
   location,
   hourglass,
 }) => {
-  const { gameService, showTimers } = useContext(Context);
-  const [_, setRender] = useState(0);
-  const [showModal, setShowModal] = useState(false);
+  const { gameService, showTimers, showAnimations } = useContext(Context);
+  const { t } = useAppTranslation();
+  const { isVisiting } = useVisiting();
+  const gameState = useSelector(gameService, _gameState);
+  const [showRenewModal, setShowRenewModal] = useState(false);
+  const chestItems = getChestItems(gameState);
 
   const expiresAt = createdAt + HOURGLASS_DETAILS[hourglass].boostMillis;
-  const hasExpired = Date.now() > expiresAt;
-
-  useUiRefresher({ active: !hasExpired });
+  const { totalSeconds: secondsToExpire } = useCountdown(expiresAt);
+  const durationSeconds = HOURGLASS_DETAILS[hourglass].boostMillis / 1000;
+  const percentage = 100 - (secondsToExpire / durationSeconds) * 100;
+  const hasExpired = secondsToExpire <= 0;
+  const hasReplacement = (chestItems[hourglass] ?? new Decimal(0)).gt(0);
 
   const getHourglassImage = () => {
     if (hasExpired) {
       return HOURGLASS_DETAILS[hourglass].doneImage;
     }
 
-    if (Date.now() - createdAt < HOURGLASS_DETAILS[hourglass].boostMillis / 2) {
+    if (secondsToExpire < durationSeconds / 2) {
       return HOURGLASS_DETAILS[hourglass].halfImage;
     }
 
@@ -205,60 +153,143 @@ export const Hourglass: React.FC<HourglassProps> = ({
     });
   };
 
-  return (
-    <>
-      <HourglassInfoModal
-        show={showModal}
-        name={hourglass}
-        hasExpired={hasExpired}
-        expiresAt={expiresAt}
-        boostEndAt={createdAt + HOURGLASS_DETAILS[hourglass].boostMillis}
-        onClose={() => setShowModal(false)}
-        onRemove={handleRemove}
-      />
-      {hasExpired && (
-        <img
-          className="absolute cursor-pointer group-hover:img-highlight z-30"
-          src={SUNNYSIDE.icons.dig_icon}
-          style={{
-            width: `${PIXEL_SCALE * 18}px`,
-            right: `${PIXEL_SCALE * -8}px`,
-            top: `${PIXEL_SCALE * -8}px`,
-          }}
-          onClick={() => setShowModal(true)}
-        />
-      )}
-      {showTimers && (
-        <div className="absolute bottom-0 left-0">
-          <LiveProgressBar
-            startAt={createdAt}
-            endAt={expiresAt}
-            formatLength="medium"
-            type="buff"
-            onComplete={() => setRender((r) => r + 1)}
+  if (hasExpired) {
+    return (
+      <>
+        <div
+          onClick={
+            isVisiting
+              ? undefined
+              : hasReplacement
+                ? () => setShowRenewModal(true)
+                : handleRemove
+          }
+        >
+          {showTimers && (
+            <div className="absolute bottom-0 left-0">
+              <ProgressBar
+                seconds={secondsToExpire}
+                formatLength="medium"
+                type="error"
+                percentage={percentage}
+              />
+            </div>
+          )}
+
+          {!hasReplacement && (
+            <img
+              className={classNames(
+                "absolute cursor-pointer group-hover:img-highlight z-30 animate-pulsate",
+              )}
+              src={SUNNYSIDE.icons.dig_icon}
+              style={{
+                width: `${PIXEL_SCALE * 18}px`,
+                right: `${PIXEL_SCALE * -8}px`,
+                top: `${PIXEL_SCALE * -8}px`,
+              }}
+            />
+          )}
+
+          {hasReplacement && (
+            <div
+              className="flex justify-center absolute w-full pointer-events-none z-30"
+              style={{
+                top: `${PIXEL_SCALE * -12}px`,
+              }}
+            >
+              <img
+                src={SUNNYSIDE.icons.expression_alerted}
+                className={showAnimations ? "ready" : ""}
+                style={{
+                  width: `${PIXEL_SCALE * 4}px`,
+                }}
+              />
+            </div>
+          )}
+
+          <img
+            src={shadow}
+            alt="shadow"
+            style={{
+              width: `${PIXEL_SCALE * 12}px`,
+              bottom: `-${PIXEL_SCALE * 1.6}px`,
+            }}
+            className="absolute cursor-pointer left-1/2 -translate-x-1/2 hover:img-highlight"
+          />
+          <img
+            src={getHourglassImage()}
+            style={{
+              width: `${PIXEL_SCALE * 11}px`,
+              bottom: `${PIXEL_SCALE * 0}px`,
+              filter: "grayscale(100%)",
+            }}
+            className="absolute cursor-pointer left-1/2 -translate-x-1/2 hover:img-highlight"
+            alt={hourglass}
           />
         </div>
-      )}
 
-      <img
-        src={shadow}
-        alt="shadow"
-        style={{
-          width: `${PIXEL_SCALE * 12}px`,
-          bottom: `-${PIXEL_SCALE * 1.6}px`,
-        }}
-        className="absolute cursor-pointer left-1/2 -translate-x-1/2 hover:img-highlight"
-      />
-      <img
-        src={getHourglassImage()}
-        style={{
-          width: `${PIXEL_SCALE * 11}px`,
-          bottom: `${PIXEL_SCALE * 0}px`,
-        }}
-        className="absolute cursor-pointer left-1/2 -translate-x-1/2 hover:img-highlight"
-        alt={hourglass}
-        onClick={() => setShowModal(true)}
-      />
-    </>
+        <RenewCollectible
+          show={showRenewModal}
+          onHide={() => setShowRenewModal(false)}
+          name={hourglass}
+          id={id}
+          location={location}
+        />
+      </>
+    );
+  }
+
+  return (
+    <Popover>
+      <PopoverButton as="div">
+        {showTimers && (
+          <div className="absolute bottom-0 left-0">
+            <ProgressBar
+              seconds={secondsToExpire}
+              formatLength="medium"
+              type="buff"
+              percentage={percentage}
+            />
+          </div>
+        )}
+
+        <img
+          src={shadow}
+          alt="shadow"
+          style={{
+            width: `${PIXEL_SCALE * 12}px`,
+            bottom: `-${PIXEL_SCALE * 1.6}px`,
+          }}
+          className="absolute cursor-pointer left-1/2 -translate-x-1/2 hover:img-highlight"
+        />
+        <img
+          src={getHourglassImage()}
+          style={{
+            width: `${PIXEL_SCALE * 11}px`,
+            bottom: `${PIXEL_SCALE * 0}px`,
+          }}
+          className="absolute cursor-pointer left-1/2 -translate-x-1/2 hover:img-highlight"
+          alt={hourglass}
+        />
+      </PopoverButton>
+
+      <PopoverPanel anchor={{ to: "left" }} className="flex">
+        <SFTDetailPopoverInnerPanel>
+          <SFTDetailPopoverLabel name={hourglass} />
+          <Label type="info" className="mt-2 mb-2">
+            <span className="text-xs">
+              {t("time.remaining", {
+                time: secondsToString(secondsToExpire, {
+                  length: "medium",
+                  isShortFormat: true,
+                  removeTrailingZeros: true,
+                }),
+              })}
+            </span>
+          </Label>
+          <SFTDetailPopoverBuffs name={hourglass} />
+        </SFTDetailPopoverInnerPanel>
+      </PopoverPanel>
+    </Popover>
   );
 };

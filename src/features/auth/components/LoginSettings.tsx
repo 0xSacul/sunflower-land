@@ -8,15 +8,15 @@ import settingsIcon from "assets/icons/settings_disc.png";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import { createPortal } from "react-dom";
 import {
-  SettingMenuId,
-  settingMenus,
+  type SettingMenuId,
+  SETTING_MENUS,
 } from "features/island/hud/components/settings-menu/GameOptions";
 
 export const LoginSettings: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentMenu, setMenu] = useState<SettingMenuId | "login">("login");
 
-  const buttons: SettingMenuId[] = ["changeLanguage", "appearance"];
+  const buttons: SettingMenuId[] = ["changeLanguage", "preferences"];
 
   const { t } = useAppTranslation();
 
@@ -26,7 +26,7 @@ export const LoginSettings: React.FC = () => {
   };
 
   const SelectedMenu =
-    currentMenu !== "login" && settingMenus[currentMenu].content;
+    currentMenu !== "login" && SETTING_MENUS[currentMenu].content;
 
   return (
     <>
@@ -34,17 +34,11 @@ export const LoginSettings: React.FC = () => {
         <CloseButtonPanel
           title={
             currentMenu !== "login"
-              ? settingMenus[currentMenu].title
+              ? SETTING_MENUS[currentMenu].title
               : t("gameOptions.generalSettings")
           }
           onClose={close}
-          onBack={
-            currentMenu === "font"
-              ? () => setMenu("appearance")
-              : currentMenu !== "login"
-                ? () => setMenu("login")
-                : undefined
-          }
+          onBack={() => setMenu("login")}
         >
           {currentMenu === "login" && (
             <>
@@ -54,7 +48,7 @@ export const LoginSettings: React.FC = () => {
                   className="mb-1"
                   onClick={() => setMenu(button)}
                 >
-                  {settingMenus[button].title}
+                  {SETTING_MENUS[button].title}
                 </Button>
               ))}
             </>
@@ -68,7 +62,7 @@ export const LoginSettings: React.FC = () => {
       {createPortal(
         <img
           onClick={() => setShowModal(true)}
-          className="absolute bottom-2 right-2 z-[10000] cursor-pointer"
+          className="absolute bottom-2 right-2 z-[50] cursor-pointer"
           src={settingsIcon}
           style={{
             width: `${PIXEL_SCALE * 24}px`,

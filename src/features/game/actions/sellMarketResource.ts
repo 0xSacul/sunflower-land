@@ -1,6 +1,6 @@
 import { CONFIG } from "lib/config";
 import { ERRORS } from "lib/errors";
-import { GameState, InventoryItemName } from "../types/game";
+import type { GameState, InventoryItemName } from "../types/game";
 import { makeGame } from "../lib/transforms";
 
 const API_URL = CONFIG.API_URL;
@@ -12,6 +12,7 @@ export type TradeableName = Extract<
   | "Pumpkin"
   | "Carrot"
   | "Cabbage"
+  | "Soybean"
   | "Beetroot"
   | "Cauliflower"
   | "Parsnip"
@@ -20,6 +21,12 @@ export type TradeableName = Extract<
   | "Radish"
   | "Wheat"
   | "Kale"
+  | "Barley"
+  | "Grape"
+  | "Rice"
+  | "Olive"
+  | "Tomato"
+  | "Lemon"
   | "Blueberry"
   | "Orange"
   | "Apple"
@@ -28,8 +35,14 @@ export type TradeableName = Extract<
   | "Stone"
   | "Iron"
   | "Gold"
+  | "Crimstone"
+  | "Honey"
   | "Egg"
-  | "Soybean"
+  | "Feather"
+  | "Leather"
+  | "Milk"
+  | "Wool"
+  | "Merino Wool"
 >;
 
 type Request = {

@@ -1,8 +1,9 @@
 import Decimal from "decimal.js-light";
-import { expansionRequirements, getRewards, revealLand } from "./revealLand";
+import { getRewards, revealLand } from "./revealLand";
 import {
   CRIMSTONE_RECOVERY_TIME,
   GOLD_RECOVERY_TIME,
+  INITIAL_FARM,
   IRON_RECOVERY_TIME,
   STONE_RECOVERY_TIME,
   TEST_FARM,
@@ -11,43 +12,12 @@ import {
 import {
   EXPANSION_REQUIREMENTS,
   SPRING_LAYOUTS,
+  TOTAL_EXPANSION_NODES,
   getBasicLand,
 } from "features/game/types/expansions";
-import {
-  Nodes,
-  TOTAL_EXPANSION_NODES,
-} from "features/game/expansion/lib/expansionNodes";
-
-describe("expansionRequirements", () => {
-  it("returns normal expansion requirements", () => {
-    const requirements = expansionRequirements({ game: TEST_FARM });
-
-    expect(requirements?.resources).toEqual({
-      Wood: 3,
-    });
-  });
-  it("returns discounted expansion requirements with Grinx Hammer", () => {
-    const requirements = expansionRequirements({
-      game: {
-        ...TEST_FARM,
-        collectibles: {
-          "Grinx's Hammer": [
-            {
-              coordinates: { x: 1, y: 1 },
-              createdAt: Date.now(),
-              id: "123",
-              readyAt: Date.now(),
-            },
-          ],
-        },
-      },
-    });
-
-    expect(requirements?.resources).toEqual({
-      Wood: 1.5,
-    });
-  });
-});
+import type { Nodes } from "features/game/expansion/lib/expansionNodes";
+import { BB_TO_GEM_RATIO, type FiniteResource } from "features/game/types/game";
+import { OIL_RESERVE_RECOVERY_TIME } from "./drillOilReserve";
 
 describe("getRewards", () => {
   it("returns rewards for previously built expansions", () => {
@@ -95,6 +65,15 @@ describe("getRewards", () => {
         ...TEST_FARM,
         inventory: {
           "Basic Land": new Decimal(5),
+          // Hold the full expected nodes so nothing is reported as missing
+          "Crop Plot": new Decimal(33),
+          "Fruit Patch": new Decimal(3),
+          "Gold Rock": new Decimal(3),
+          "Iron Rock": new Decimal(5),
+          "Stone Rock": new Decimal(9),
+          Tree: new Decimal(11),
+          // Spring island owes 1 A0 Ascension Crystal (back-pay).
+          "Ascension Crystal": new Decimal(1),
         },
         island: {
           type: "spring",
@@ -143,11 +122,13 @@ describe("totalExpansions", () => {
       Beehive: 0,
       Tree: 3,
       "Oil Reserve": 0,
+      "Lava Pit": 0,
+      "Ascension Crystal": 0,
     };
 
     let expansion = 4;
-    while (expansion <= 9 && getBasicLand({ id: 1, expansion })) {
-      const layout = getBasicLand({ id: 1, expansion });
+    while (expansion <= 9 && getBasicLand({ expansion })) {
+      const layout = getBasicLand({ expansion });
 
       if (layout) {
         nodes.Beehive += layout.beehives?.length ?? 0;
@@ -202,7 +183,7 @@ describe("revealLand", () => {
         action: {
           type: "land.revealed",
         },
-        farmId: 1,
+
         state: {
           ...TEST_FARM,
           expansionConstruction: { createdAt: 0, readyAt: 0 },
@@ -218,7 +199,7 @@ describe("revealLand", () => {
         action: {
           type: "land.revealed",
         },
-        farmId: 1,
+
         state: {
           ...TEST_FARM,
           inventory: { "Basic Land": new Decimal(1000) },
@@ -232,13 +213,13 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
           "Basic Land": new Decimal(3),
           Stone: new Decimal(5),
-          "Block Buck": new Decimal(3),
+          Gem: new Decimal(3 * BB_TO_GEM_RATIO),
           Wood: new Decimal(1),
         },
         expansionConstruction: { createdAt: 0, readyAt: 0 },
@@ -254,14 +235,14 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       createdAt: now,
       state: {
         ...TEST_FARM,
         inventory: {
           "Basic Land": new Decimal(3),
           Stone: new Decimal(5),
-          "Block Buck": new Decimal(3),
+          Gem: new Decimal(3 * BB_TO_GEM_RATIO),
           Wood: new Decimal(1),
         },
         expansionConstruction: { createdAt: 0, readyAt: 0 },
@@ -276,7 +257,7 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
@@ -296,7 +277,7 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
@@ -316,7 +297,7 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
@@ -336,7 +317,7 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
@@ -356,7 +337,7 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
@@ -376,11 +357,11 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
-          "Basic Land": new Decimal(17),
+          "Basic Land": new Decimal(12),
           "Sunstone Rock": new Decimal(1),
         },
         island: {
@@ -392,11 +373,8 @@ describe("revealLand", () => {
           "1": {
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
             minesLeft: 3,
             stone: {
-              amount: 1,
               minedAt: 0,
             },
           },
@@ -413,7 +391,7 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
@@ -429,12 +407,9 @@ describe("revealLand", () => {
           "123": {
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
             createdAt: 0,
             drilled: 1,
             oil: {
-              amount: 1,
               drilledAt: 0,
             },
           },
@@ -451,16 +426,16 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 1,
+
       state: {
         ...TEST_FARM,
         inventory: {
-          "Basic Land": new Decimal(17),
+          "Basic Land": new Decimal(12),
           "Sunstone Rock": new Decimal(1),
         },
         island: {
           type: "spring",
-          sunstones: 3,
+          sunstones: 2,
         },
         expansionConstruction: { createdAt: 0, readyAt: 0 },
 
@@ -468,11 +443,8 @@ describe("revealLand", () => {
           "1": {
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
             minesLeft: 3,
             stone: {
-              amount: 1,
               minedAt: 0,
             },
           },
@@ -490,19 +462,16 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 3,
+
       state: {
         ...TEST_FARM,
         trees: {
           "1": {
             wood: {
-              amount: 2,
               choppedAt: now - 2 * 60 * 1000,
             },
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
           },
         },
         inventory: {
@@ -513,7 +482,7 @@ describe("revealLand", () => {
       createdAt: now,
     });
 
-    expect(state.trees[1].wood.choppedAt).toBeLessThan(
+    expect(state.trees[1].wood.choppedAt).toEqual(
       now - TREE_RECOVERY_TIME * 1000,
     );
   });
@@ -524,19 +493,16 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 3,
+
       state: {
         ...TEST_FARM,
         stones: {
           "1": {
             stone: {
-              amount: 2,
               minedAt: now - 2 * 60 * 1000,
             },
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
           },
         },
         inventory: {
@@ -547,7 +513,7 @@ describe("revealLand", () => {
       createdAt: now,
     });
 
-    expect(state.stones[1].stone.minedAt).toBeLessThan(
+    expect(state.stones[1].stone.minedAt).toEqual(
       now - STONE_RECOVERY_TIME * 1000,
     );
   });
@@ -558,19 +524,16 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 3,
+
       state: {
         ...TEST_FARM,
         iron: {
           "1": {
             stone: {
-              amount: 2,
               minedAt: now - 2 * 60 * 1000,
             },
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
           },
         },
         inventory: {
@@ -581,7 +544,7 @@ describe("revealLand", () => {
       createdAt: now,
     });
 
-    expect(state.iron[1].stone.minedAt).toBeLessThan(
+    expect(state.iron[1].stone.minedAt).toEqual(
       now - IRON_RECOVERY_TIME * 1000,
     );
   });
@@ -592,19 +555,16 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 3,
+
       state: {
         ...TEST_FARM,
         gold: {
           "1": {
             stone: {
-              amount: 2,
               minedAt: now - 2 * 60 * 1000,
             },
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
           },
         },
         inventory: {
@@ -615,7 +575,7 @@ describe("revealLand", () => {
       createdAt: now,
     });
 
-    expect(state.gold[1].stone.minedAt).toBeLessThan(
+    expect(state.gold[1].stone.minedAt).toEqual(
       now - GOLD_RECOVERY_TIME * 1000,
     );
   });
@@ -626,20 +586,19 @@ describe("revealLand", () => {
       action: {
         type: "land.revealed",
       },
-      farmId: 3,
+
       state: {
-        ...TEST_FARM,
+        ...INITIAL_FARM,
         crimstones: {
           "1": {
-            minesLeft: 10,
+            createdAt: 0,
+            minesLeft: 1,
             stone: {
-              amount: 2,
               minedAt: now - 2 * 60 * 1000,
+              criticalHit: { Native: 1 },
             },
             x: -3,
             y: 3,
-            height: 2,
-            width: 2,
           },
         },
         inventory: {
@@ -650,8 +609,323 @@ describe("revealLand", () => {
       createdAt: now,
     });
 
-    expect(state.crimstones[1].stone.minedAt).toBeLessThanOrEqual(
-      now - CRIMSTONE_RECOVERY_TIME * 1000,
+    expect(state.crimstones[1]).toEqual<FiniteResource>({
+      minesLeft: 1,
+      stone: {
+        minedAt: now - CRIMSTONE_RECOVERY_TIME * 1000,
+        criticalHit: { Native: 1 },
+      },
+      createdAt: 0,
+      x: -3,
+      y: 3,
+    });
+  });
+
+  it("sets the mineAt for removed crimstones", () => {
+    const now = Date.now();
+    const state = revealLand({
+      action: {
+        type: "land.revealed",
+      },
+
+      state: {
+        ...INITIAL_FARM,
+        crimstones: {
+          "1": {
+            createdAt: 0,
+            minesLeft: 1,
+            stone: {
+              minedAt: now - 2 * 60 * 1000,
+              criticalHit: { Native: 1 },
+            },
+            removedAt: now - 2 * 60 * 1000,
+          },
+        },
+        inventory: {
+          "Basic Land": new Decimal(4),
+        },
+        expansionConstruction: { createdAt: 0, readyAt: 0 },
+      },
+      createdAt: now,
+    });
+
+    expect(state.crimstones[1]).toEqual<FiniteResource>({
+      minesLeft: 1,
+      stone: {
+        minedAt: now - 2 * 60 * 1000 - CRIMSTONE_RECOVERY_TIME * 1000,
+        criticalHit: { Native: 1 },
+      },
+      removedAt: now - 2 * 60 * 1000,
+      createdAt: 0,
+    });
+  });
+
+  it("replenishes oilReserves", () => {
+    const now = Date.now();
+    const state = revealLand({
+      action: {
+        type: "land.revealed",
+      },
+
+      state: {
+        ...TEST_FARM,
+        oilReserves: {
+          "1": {
+            createdAt: 0,
+            oil: {
+              drilledAt: now - 2 * 60 * 1000,
+            },
+            drilled: 1,
+            x: -3,
+            y: 3,
+          },
+        },
+        inventory: {
+          "Basic Land": new Decimal(4),
+        },
+        expansionConstruction: { createdAt: 0, readyAt: 0 },
+      },
+      createdAt: now,
+    });
+
+    expect(state.oilReserves[1].oil.drilledAt).toEqual(
+      now - OIL_RESERVE_RECOVERY_TIME * 1000,
     );
+  });
+
+  it("ensures that the trees are not more than removedAt if replenished in inventory", () => {
+    const now = Date.now();
+
+    const INITIAL_STATE = {
+      ...TEST_FARM,
+      trees: {
+        "1": {
+          createdAt: 100000000,
+          wood: {
+            choppedAt: now - 8 * 60 * 60 * 1000,
+          },
+          removedAt: now - 6 * 60 * 60 * 1000,
+        },
+      },
+      inventory: {
+        "Basic Land": new Decimal(4),
+      },
+      expansionConstruction: { createdAt: 0, readyAt: 0 },
+    };
+
+    const state = revealLand({
+      action: {
+        type: "land.revealed",
+      },
+
+      state: INITIAL_STATE,
+      createdAt: now,
+    });
+
+    expect(state.trees[1].wood.choppedAt).toBeLessThan(
+      state.trees[1].removedAt!,
+    );
+  });
+
+  // A player who expands onto an island with sunstones but was never granted
+  // them (and never mined any) should be airdropped the missing rocks.
+  const revealMissingSunstones = (sunstoneMined?: number) =>
+    revealLand({
+      action: {
+        type: "land.revealed",
+      },
+
+      state: {
+        ...INITIAL_FARM,
+        island: {
+          type: "volcano",
+        },
+        inventory: {
+          "Basic Land": new Decimal(5),
+          "Sunstone Rock": new Decimal(0), // Never received any sunstones
+        },
+        farmActivity:
+          sunstoneMined === undefined
+            ? {}
+            : { "Sunstone Mined": sunstoneMined },
+        expansionConstruction: { createdAt: 0, readyAt: 0 },
+      },
+      createdAt: Date.now(),
+    });
+
+  const missingSunstoneAirdrop = (sunstoneMined?: number) =>
+    revealMissingSunstones(sunstoneMined).airdrops?.find((a) =>
+      a.id.startsWith("missing-resources"),
+    )?.items["Sunstone Rock"] ?? 0;
+
+  it("airdrops missing sunstones for a player who has never mined", () => {
+    // Previously sunstones were never airdropped at all (bug); now they are.
+    expect(missingSunstoneAirdrop()).toBeGreaterThan(0);
+  });
+
+  it("only airdrops sunstones the player has not mined to depletion", () => {
+    const baseline = missingSunstoneAirdrop(); // never mined
+
+    // Mining 20 times depletes 2 rocks (10 mines each), so 2 fewer are granted.
+    expect(missingSunstoneAirdrop(20)).toBe(baseline - 2);
+    // A partial rock (fewer than 10 mines) does not reduce the grant.
+    expect(missingSunstoneAirdrop(9)).toBe(baseline);
+  });
+
+  // Regression: a player who expanded the desert before sunstones existed there
+  // is owed the full desert sunstone total once they expand again. Desert
+  // expects 6 sunstones by expansion 25.
+  it("airdrops missing desert sunstones (expansion 24 -> 25)", () => {
+    const state = revealLand({
+      action: {
+        type: "land.revealed",
+      },
+
+      state: {
+        ...INITIAL_FARM,
+        island: {
+          type: "desert",
+        },
+        inventory: {
+          "Basic Land": new Decimal(24),
+          "Sunstone Rock": new Decimal(0),
+        },
+        farmActivity: {},
+        expansionConstruction: { createdAt: 0, readyAt: 0 },
+      },
+      createdAt: Date.now(),
+    });
+
+    const airdrop = state.airdrops?.find((a) =>
+      a.id.startsWith("missing-resources"),
+    );
+
+    expect(airdrop?.items["Sunstone Rock"]).toBe(
+      TOTAL_EXPANSION_NODES.desert[25]["Sunstone Rock"],
+    );
+  });
+
+  const sunstonesGranted = (airdrops: ReturnType<typeof getRewards>) =>
+    airdrops
+      .filter((a) => a.id.startsWith("missing-resources"))
+      .reduce((total, a) => total + (a.items["Sunstone Rock"] ?? 0), 0);
+
+  it("does not count partially mined live rocks as depletions", () => {
+    const grant = (sunstones: Record<string, FiniteResource>, mined: number) =>
+      sunstonesGranted(
+        getRewards({
+          game: {
+            ...INITIAL_FARM,
+            island: { type: "volcano" },
+            inventory: {
+              "Basic Land": new Decimal(6),
+              "Sunstone Rock": new Decimal(0),
+            },
+            sunstones,
+            farmActivity: { "Sunstone Mined": mined },
+          },
+          createdAt: Date.now(),
+        }),
+      );
+
+    const baseline = grant({}, 0);
+    expect(baseline).toBe(TOTAL_EXPANSION_NODES.volcano[6]["Sunstone Rock"]);
+
+    // 10 lifetime mines with no live rocks => one rock was mined to depletion.
+    expect(grant({}, 10)).toBe(baseline - 1);
+
+    // 10 lifetime mines spread across 2 live rocks (none depleted) => no
+    // depletion, so the full missing amount is still granted.
+    expect(
+      grant(
+        {
+          "1": { stone: { minedAt: 0 }, minesLeft: 5, createdAt: 0 },
+          "2": { stone: { minedAt: 0 }, minesLeft: 5, createdAt: 0 },
+        },
+        10,
+      ),
+    ).toBe(baseline);
+  });
+
+  it("does not re-grant resources promised by a pending missing-resources airdrop", () => {
+    // With no pending airdrop, the missing sunstones are reported.
+    const granted = sunstonesGranted(
+      getRewards({
+        game: {
+          ...INITIAL_FARM,
+          island: { type: "volcano" },
+          inventory: {
+            "Basic Land": new Decimal(6),
+            "Sunstone Rock": new Decimal(0),
+          },
+          farmActivity: {},
+        },
+        createdAt: Date.now(),
+      }),
+    );
+    expect(granted).toBe(TOTAL_EXPANSION_NODES.volcano[6]["Sunstone Rock"]);
+
+    // The same sunstones already sit in an unclaimed airdrop, so they must not
+    // be reported missing (and re-granted) a second time.
+    const withPending = sunstonesGranted(
+      getRewards({
+        game: {
+          ...INITIAL_FARM,
+          island: { type: "volcano" },
+          inventory: {
+            "Basic Land": new Decimal(6),
+            "Sunstone Rock": new Decimal(0),
+          },
+          farmActivity: {},
+          airdrops: [
+            {
+              id: "missing-resources-6",
+              createdAt: 0,
+              items: { "Sunstone Rock": granted },
+              wearables: {},
+              sfl: 0,
+              coins: 0,
+            },
+          ],
+        },
+        createdAt: Date.now(),
+      }),
+    );
+    expect(withPending).toBe(0);
+  });
+
+  // The sunstone depletion and pending-airdrop changes must not alter how
+  // forged/upgraded nodes (e.g. Ancient Tree) are granted.
+  it("grants forged nodes and dedups them against pending airdrops", () => {
+    const ancientTreesGranted = (airdrops?: ReturnType<typeof getRewards>) =>
+      getRewards({
+        game: {
+          ...INITIAL_FARM,
+          island: { type: "spring" },
+          inventory: { "Basic Land": new Decimal(7) },
+          farmActivity: { "Ancient Tree Upgrade": 1 },
+          ...(airdrops ? { airdrops } : {}),
+        },
+        createdAt: Date.now(),
+      })
+        .filter((a) => a.id.startsWith("missing-resources"))
+        .reduce((total, a) => total + (a.items["Ancient Tree"] ?? 0), 0);
+
+    // A forged Ancient Tree the player no longer holds is still granted.
+    expect(ancientTreesGranted()).toBe(1);
+
+    // ...but it is not re-granted while it sits in an unclaimed airdrop.
+    expect(
+      ancientTreesGranted([
+        {
+          id: "missing-resources-7",
+          createdAt: 0,
+          items: { "Ancient Tree": 1 },
+          wearables: {},
+          sfl: 0,
+          coins: 0,
+        },
+      ]),
+    ).toBe(0);
   });
 });

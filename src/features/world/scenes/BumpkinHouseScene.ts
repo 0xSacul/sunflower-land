@@ -1,7 +1,7 @@
 import mapJSON from "assets/map/bumpkin_house.json";
 
-import { SceneId } from "../mmoMachine";
-import { NPCBumpkin } from "./BaseScene";
+import type { SceneId } from "../mmoMachine";
+import type { NPCBumpkin } from "./BaseScene";
 import { FactionHouseScene } from "./FactionHouseScene";
 
 export const BUMPKIN_HOUSE_NPCS: NPCBumpkin[] = [
@@ -10,12 +10,6 @@ export const BUMPKIN_HOUSE_NPCS: NPCBumpkin[] = [
     y: 199,
     npc: "haymitch",
     direction: "left",
-  },
-  {
-    x: 182,
-    y: 160,
-    npc: "buttercup",
-    direction: "right",
   },
   {
     x: 389,
@@ -45,10 +39,11 @@ export class BumpkinHouseScene extends FactionHouseScene {
   }
 
   create() {
-    super.create();
     this.map = this.make.tilemap({
       key: "faction_house",
     });
+
+    super.create();
 
     this.initialiseNPCs(BUMPKIN_HOUSE_NPCS);
 

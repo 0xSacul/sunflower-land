@@ -1,7 +1,7 @@
 import Decimal from "decimal.js-light";
 import { WORKBENCH_TOOLS } from "features/game/types/tools";
 import { TEST_FARM } from "../../lib/constants";
-import { GameState } from "../../types/game";
+import type { GameState } from "../../types/game";
 import { craftTool } from "./craftTool";
 
 const GAME_STATE: GameState = TEST_FARM;
@@ -116,7 +116,7 @@ describe("craftTool", () => {
       },
     });
 
-    expect(state.bumpkin?.activity?.["Axe Crafted"]).toBe(1);
+    expect(state.farmActivity["Axe Crafted"]).toBe(1);
   });
 
   it("increments Coins spent when axe is crafted", () => {
@@ -132,7 +132,7 @@ describe("craftTool", () => {
       },
     });
 
-    expect(state.bumpkin?.activity?.["Coins Spent"]).toEqual(20);
+    expect(state.farmActivity["Coins Spent"]).toEqual(20);
   });
 
   it("does not craft a tool that has a required island expansion that the player has not reached", () => {
@@ -149,5 +149,346 @@ describe("craftTool", () => {
         },
       }),
     ).toThrow("You do not have the required island expansion");
+  });
+
+  it("Axes cost 20% less coins with Feller's Discount skill", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: {},
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Feller's Discount": 1,
+          },
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Axe",
+      },
+    });
+
+    expect(state.coins).toEqual(84);
+  });
+  it("pickaxe cost 20% less coins with  skill", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: {
+          Wood: new Decimal(3),
+        },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Frugal Miner": 1,
+          },
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Pickaxe",
+      },
+    });
+
+    expect(state.coins).toEqual(84);
+  });
+  it("stone pickaxe cost 20% less coins with  skill", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: {
+          Wood: new Decimal(3),
+          Stone: new Decimal(5),
+        },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Frugal Miner": 1,
+          },
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Stone Pickaxe",
+      },
+    });
+
+    expect(state.coins).toEqual(84);
+  });
+  it("iron pickaxe cost 20% less coins with  skill", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: {
+          Wood: new Decimal(3),
+          Iron: new Decimal(5),
+        },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Frugal Miner": 1,
+          },
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Iron Pickaxe",
+      },
+    });
+
+    expect(state.coins).toEqual(36);
+  });
+  it("gold pickaxe cost 20% less coins with  skill", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: {
+          Wood: new Decimal(3),
+          Gold: new Decimal(3),
+        },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Frugal Miner": 1,
+          },
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Gold Pickaxe",
+      },
+    });
+
+    expect(state.coins).toEqual(20);
+  });
+
+  it("costs 20 wool instead of leather to craft oil drill with oil rig skill", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: {
+          Wool: new Decimal(20),
+          Wood: new Decimal(20),
+          Iron: new Decimal(9),
+          Leather: new Decimal(10),
+        },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Oil Rig": 1,
+          },
+        },
+        island: {
+          type: "desert",
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Oil Drill",
+      },
+    });
+
+    expect(state.inventory["Wool"]).toEqual(new Decimal(0));
+    expect(state.inventory["Leather"]).toEqual(new Decimal(10));
+    expect(state.inventory["Oil Drill"]).toEqual(new Decimal(1));
+  });
+
+  it("does not craft a tool if the bumpkin level is below the required level", () => {
+    expect(() =>
+      craftTool({
+        state: {
+          ...GAME_STATE,
+          coins: 1000,
+          inventory: {
+            Feather: new Decimal(5),
+            Wool: new Decimal(3),
+          },
+          bumpkin: {
+            ...GAME_STATE.bumpkin,
+            experience: 40154, // Level 17, below required level 18
+          },
+        },
+        action: {
+          type: "tool.crafted",
+          tool: "Crab Pot",
+        },
+      }),
+    ).toThrow("You do not have the required level");
+  });
+
+  it("crafts a tool when the bumpkin level meets the required level", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 1000,
+        inventory: {
+          Feather: new Decimal(5),
+          Wool: new Decimal(3),
+        },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          experience: 47405, // Level 18, meets required level 18
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Crab Pot",
+      },
+    });
+
+    expect(state.inventory["Crab Pot"]).toEqual(new Decimal(1));
+  });
+
+  it("crafts a tool when the bumpkin level exceeds the required level", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 1000,
+        inventory: {
+          Feather: new Decimal(10),
+          "Merino Wool": new Decimal(10),
+        },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          experience: 109155, // Level 24, meets required level 24
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Mariner Pot",
+      },
+    });
+
+    expect(state.inventory["Mariner Pot"]).toEqual(new Decimal(1));
+  });
+
+  it("Salt Rakes cost 20% less coins with Cheap Rakes skill", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: { Wood: new Decimal(10) },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Cheap Rakes": 1,
+          },
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Salt Rake",
+      },
+    });
+
+    expect(state.coins).toEqual(84);
+  });
+
+  it("Salt Rakes cost 10% less with Salt Sculpture level 4", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: { Wood: new Decimal(10) },
+        sculptures: { "Salt Sculpture": { level: 4 } },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Salt Rake",
+      },
+    });
+
+    expect(state.coins).toEqual(82);
+  });
+
+  it("stacks Cheap Rakes + Salt Sculpture level 4 discount", () => {
+    const state = craftTool({
+      state: {
+        ...GAME_STATE,
+        coins: 100,
+        inventory: { Wood: new Decimal(10) },
+        sculptures: { "Salt Sculpture": { level: 4 } },
+        bumpkin: {
+          ...GAME_STATE.bumpkin,
+          skills: {
+            "Cheap Rakes": 1,
+          },
+        },
+      },
+      action: {
+        type: "tool.crafted",
+        tool: "Salt Rake",
+      },
+    });
+
+    expect(state.coins).toEqual(100 - 20 * 0.8 * 0.9);
+  });
+
+  describe("weather items", () => {
+    it("crafts a weather item when the player does not own one", () => {
+      const state = craftTool({
+        state: {
+          ...GAME_STATE,
+          coins: 1000,
+          inventory: {
+            Wood: new Decimal(100),
+            Leather: new Decimal(100),
+          },
+        },
+        action: {
+          type: "tool.crafted",
+          tool: "Tornado Pinwheel",
+        },
+      });
+
+      expect(state.inventory["Tornado Pinwheel"]).toStrictEqual(new Decimal(1));
+    });
+
+    it("does not craft a weather item if the player already owns one", () => {
+      expect(() =>
+        craftTool({
+          state: {
+            ...GAME_STATE,
+            coins: 1000,
+            inventory: {
+              Wood: new Decimal(100),
+              Leather: new Decimal(100),
+              "Tornado Pinwheel": new Decimal(1),
+            },
+          },
+          action: {
+            type: "tool.crafted",
+            tool: "Tornado Pinwheel",
+          },
+        }),
+      ).toThrow("You can only have one of this weather item");
+    });
+
+    it("does not allow crafting two weather items at once", () => {
+      expect(() =>
+        craftTool({
+          state: {
+            ...GAME_STATE,
+            coins: 1000,
+            inventory: {
+              Wood: new Decimal(100),
+              Leather: new Decimal(100),
+            },
+          },
+          action: {
+            type: "tool.crafted",
+            tool: "Tornado Pinwheel",
+            amount: 2,
+          },
+        }),
+      ).toThrow("You can only have one of this weather item");
+    });
   });
 });

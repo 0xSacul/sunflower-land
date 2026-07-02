@@ -9,6 +9,35 @@ import { useActor } from "@xstate/react";
 import { CONFIG } from "lib/config";
 import { createErrorLogger } from "lib/errorLogger";
 import { useAppTranslation } from "lib/i18n/useAppTranslations";
+import { SystemMessageWidget } from "features/announcements/SystemMessageWidget";
+import { useNow } from "lib/utils/hooks/useNow";
+
+function getFirstTsFileName(stackTrace: string) {
+  try {
+    const lines = stackTrace.split("\n");
+    const tsFileRegex = /(\b\S+\.ts\S+)/;
+
+    for (const line of lines) {
+      const match = line.match(tsFileRegex);
+      if (match) {
+        try {
+          // Extract and return only the filename portion
+          const url = new URL(match[1]);
+          return url.pathname.split("/").pop();
+        } catch (e) {
+          // Handle cases where URL parsing fails
+          return match[1].split("/").pop();
+        }
+      }
+    }
+  } catch (e) {
+    // Handle any unexpected errors
+    // eslint-disable-next-line no-console
+    console.error("Error processing stack trace:", e);
+  }
+
+  return null; // Return null if no .ts* file is found
+}
 
 interface BoundaryErrorProps {
   farmId?: number;
@@ -29,8 +58,9 @@ export const BoundaryError: React.FC<BoundaryErrorProps> = ({
   onAcknowledge,
   stack,
 }) => {
-  const [date] = useState(new Date().toISOString());
-  const [showStackTrace, setShowStackTrace] = useState(false);
+  const [showGetHelp, setShowGetHelp] = useState(false);
+  const now = useNow();
+  const [date] = useState(new Date(now).toISOString());
   const { t } = useAppTranslation();
 
   useEffect(() => {
@@ -41,14 +71,9 @@ export const BoundaryError: React.FC<BoundaryErrorProps> = ({
   if (error?.includes("Returned values aren't valid")) {
     return (
       <>
-        <div className="p-2">
-          <h1 className="mb-1 text-lg text-center">{t("error.ClientRPC")}</h1>
-          <div className="w-full mb-1 flex justify-center">
-            <img src={SUNNYSIDE.npcs.humanDeath} className="h-20" />
-          </div>
-          <div className="space-y-3 text-sm mb-3">
-            <p>{t("error.polygonRPC")}</p>
-          </div>
+        <div className="p-2 py-1 space-y-2 mb-2">
+          <h1 className="text-base text-center">{t("error.ClientRPC")}</h1>
+          <p>{t("error.polygonRPC")}</p>
         </div>
         {onAcknowledge && (
           <Button onClick={onAcknowledge}>{t("refresh")}</Button>
@@ -57,83 +82,125 @@ export const BoundaryError: React.FC<BoundaryErrorProps> = ({
     );
   }
 
-  return (
-    <>
-      <div className="p-2">
-        <h1 className="mb-1 text-lg text-center">{t("error.wentWrong")}</h1>
-        <div className="w-full mb-1 flex justify-center">
-          <img src={SUNNYSIDE.npcs.humanDeath} className="h-20" />
-        </div>
-        <div className="space-y-3 text-sm mb-3">
-          <p>{t("error.connection.one")}</p>
-          <p>{t("error.connection.two")}</p>
-          <p>{t("error.connection.three")}</p>
-          <p>
-            {t("error.connection.four")}{" "}
-            <a
-              className="underline"
-              href="https://sunflowerland.freshdesk.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t("somethingWentWrong.supportTeam")}{" "}
-            </a>
-            {t("somethingWentWrong.jumpingOver")}{" "}
-            <a
-              className="underline"
-              target="_blank"
-              href="https://discord.gg/sunflowerland"
-              rel="noreferrer"
-            >
-              {"discord"}
-            </a>{" "}
-            {t("somethingWentWrong.askingCommunity")}
-          </p>
-        </div>
-        <div className="flex flex-col w-full text-left mb-2 text-xs overflow-hidden">
+  const handleAskOnDiscord = () => {
+    window.open(
+      "https://discord.gg/sunflowerland",
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
+  const tsFileName = stack ? getFirstTsFileName(stack) : null;
+
+  return showGetHelp ? (
+    <div className="relative">
+      <img
+        src={SUNNYSIDE.icons.arrow_left}
+        className="h-6 mr-2 cursor-pointer absolute top-1 left-1"
+        onClick={() => setShowGetHelp(false)}
+      />
+      <div className="p-2 py-1 space-y-2 mb-2">
+        <h1 className="text-base text-center">{t("error.getHelp")}</h1>
+        <p>{t("error.connection.three")}</p>
+        <div className="flex flex-col w-full mb-2 text-xs overflow-hidden space-y-1">
           {farmId && (
-            <p className="leading-3">
+            <p className="select-all">
               {t("farm")}
               {": "}
               {farmId}
             </p>
           )}
           {error && (
-            <p className="leading-3 whitespace-nowrap">
+            <p className="select-all">
               {t("error")}
               {": "}
               {error}
             </p>
           )}
-          {transactionId && (
-            <p className="leading-3">
-              {t("transaction.id")} {transactionId}
-            </p>
-          )}
-          <p className="leading-3">
+          <p className="select-all">
             {t("date")}
             {": "}
             {date}
           </p>
-          <p className="leading-3 font-secondary">
+          {transactionId && (
+            <p>
+              <span className="select-all">
+                {t("transaction.id")} {transactionId}
+              </span>
+            </p>
+          )}
+          {tsFileName && (
+            <p>
+              {t("error.file")}
+              {": "}
+              {tsFileName}
+            </p>
+          )}
+          <p>
             {t("version")}
             {": "}
             {CONFIG.RELEASE_VERSION}
           </p>
-          {stack && showStackTrace && (
-            <>
-              <p className="leading-3">{t("details")}</p>
-              <pre className="leading-3 whitespace-pre-wrap text-[10px]">{`${stack}`}</pre>
-            </>
-          )}
         </div>
       </div>
-      {stack && !showStackTrace && (
-        <Button onClick={() => setShowStackTrace(true)}>
-          {t("error.diagnostic.info")}
-        </Button>
-      )}
+      <Button onClick={handleAskOnDiscord}>{t("error.askOnDiscord")}</Button>
+    </div>
+  ) : (
+    <>
+      <div className="p-2 py-1 space-y-2 mb-2">
+        <h1 className="mb-1 text-base text-center">{t("error.wentWrong")}</h1>
+        <p>{t("error.connection.one")}</p>
+
+        <div className="flex flex-col w-full mb-2 text-xs overflow-hidden space-y-1 ">
+          {farmId && (
+            <p className="select-all">
+              {t("farm")}
+              {": "}
+              {farmId}
+            </p>
+          )}
+          {error && (
+            <p className="select-all">
+              {t("error")}
+              {": "}
+              {error}
+            </p>
+          )}
+          <p className="select-all">
+            {t("date")}
+            {": "}
+            {date}
+          </p>
+          {transactionId && (
+            <p>
+              <span className="select-all">
+                {t("transaction.id")} {transactionId}
+              </span>
+            </p>
+          )}
+          {tsFileName && (
+            <p>
+              {t("error.file")}
+              {": "}
+              {tsFileName}
+            </p>
+          )}
+          <p>
+            {t("version")}
+            {": "}
+            {CONFIG.RELEASE_VERSION}
+          </p>
+        </div>
+        <p
+          onClick={() => setShowGetHelp(true)}
+          className="underline text-xs cursor-pointer"
+        >
+          {t("error.connection.two")}
+        </p>
+      </div>
       {onAcknowledge && <Button onClick={onAcknowledge}>{t("refresh")}</Button>}
+
+      <SystemMessageWidget />
     </>
   );
 };
@@ -144,7 +211,7 @@ export const SomethingWentWrong: React.FC = () => {
 
   // If we get a connecting error before the game has loaded then try to connect again via the authService
   const service = gameService ?? authService;
-  const id = service.state.context?.farmId;
+  const id = service.state?.context?.farmId;
 
   const [
     {
@@ -153,6 +220,7 @@ export const SomethingWentWrong: React.FC = () => {
   ] = useActor(service);
 
   const onAcknowledge = () => {
+    window.history.pushState({}, "", window.location.pathname);
     service.send("REFRESH");
   };
 

@@ -1,10 +1,15 @@
 import Decimal from "decimal.js-light";
-import { trackActivity } from "features/game/types/bumpkinActivity";
-import { ComposterName } from "features/game/types/composters";
-import { getKeys } from "features/game/types/craftables";
-import { CompostBuilding, GameState } from "features/game/types/game";
-import cloneDeep from "lodash.clonedeep";
+import { trackFarmActivity } from "features/game/types/farmActivity";
+import {
+  type ComposterName,
+  composterDetails,
+} from "features/game/types/composters";
+import { getKeys } from "lib/object";
+import type { CompostBuilding, GameState } from "features/game/types/game";
+import { produce } from "immer";
 import { translate } from "lib/i18n/translate";
+import { rollWormAmount } from "./composterBait";
+import { updateBoostUsed } from "features/game/types/updateBoostUsed";
 
 export type collectCompostAction = {
   type: "compost.collected";
@@ -16,54 +21,87 @@ type Options = {
   state: Readonly<GameState>;
   action: collectCompostAction;
   createdAt?: number;
+  farmId: number;
 };
 
 export function collectCompost({
   state,
   action,
   createdAt = Date.now(),
+  farmId,
 }: Options): GameState {
-  const stateCopy = cloneDeep(state);
-  const { bumpkin } = stateCopy;
+  return produce(state, (stateCopy) => {
+    const { bumpkin } = stateCopy;
 
-  const building = stateCopy.buildings[action.building]?.find(
-    (b) => b.id === action.buildingId,
-  ) as CompostBuilding;
+    const building = stateCopy.buildings[action.building]?.find(
+      (b) => b.id === action.buildingId,
+    ) as CompostBuilding;
 
-  if (!building) {
-    throw new Error(translate("error.composterNotExist"));
-  }
+    if (!building) {
+      throw new Error(translate("error.composterNotExist"));
+    }
 
-  if (!bumpkin) {
-    throw new Error("You do not have a Bumpkin!");
-  }
+    if (!bumpkin) {
+      throw new Error("You do not have a Bumpkin!");
+    }
 
-  const compost = building.producing;
-  if (!compost) {
-    throw new Error(translate("error.noprod.composter"));
-  }
+    const compost = building.producing;
+    if (!compost) {
+      throw new Error(translate("error.noprod.composter"));
+    }
 
-  if (createdAt < compost.readyAt) {
-    throw new Error(translate("error.no.ready"));
-    ("Compost is not ready");
-  }
+    if (createdAt < compost.readyAt) {
+      throw new Error("Compost is not ready");
+    }
 
-  getKeys(compost.items ?? {}).forEach((name) => {
-    const previousCount = stateCopy.inventory[name] || new Decimal(0);
-    stateCopy.inventory[name] = previousCount.add(compost.items[name] ?? 0);
+    const { worm } = composterDetails[action.building];
+    const counter = stateCopy.farmActivity[`${worm} Collected`] ?? 0;
+    const { worms, boostsUsed: wormBoostsUsed } = rollWormAmount({
+      state: stateCopy,
+      building: action.building,
+      farmId,
+      counter,
+    });
+
+    getKeys(compost.items ?? {}).forEach((name) => {
+      // Legacy composters started before roll-on-collect was introduced
+      // still store a pre-rolled worm amount here; ignore it so the new
+      // seeded roll below is the single source of truth.
+      if (name === worm) return;
+      const previousCount = stateCopy.inventory[name] || new Decimal(0);
+      stateCopy.inventory[name] = previousCount.add(compost.items[name] ?? 0);
+    });
+
+    if (worms > 0) {
+      const previousWorms = stateCopy.inventory[worm] || new Decimal(0);
+      stateCopy.inventory[worm] = previousWorms.add(worms);
+    }
+
+    stateCopy.farmActivity = trackFarmActivity(
+      `${action.building} Collected`,
+      stateCopy.farmActivity,
+    );
+    stateCopy.farmActivity = trackFarmActivity(
+      `${worm} Collected`,
+      stateCopy.farmActivity,
+    );
+
+    if (wormBoostsUsed.length > 0) {
+      stateCopy.boostsUsedAt = updateBoostUsed({
+        game: stateCopy,
+        boostNames: wormBoostsUsed,
+        createdAt,
+      });
+    }
+
+    if (building.requires) {
+      delete building.requires;
+    }
+
+    delete building.producing;
+
+    delete building.boost;
+
+    return stateCopy;
   });
-
-  bumpkin.activity = trackActivity(
-    `${action.building} Collected`,
-    bumpkin?.activity,
-  );
-
-  // Set on backend
-  delete building.requires;
-
-  delete building.producing;
-
-  delete building.boost;
-
-  return stateCopy;
 }

@@ -1,25 +1,26 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import classNames from "classnames";
-import Decimal from "decimal.js-light";
+import type Decimal from "decimal.js-light";
 
-import { Label, LabelType } from "./Label";
+import type { LabelType } from "./Label";
 import { useLongPress } from "lib/utils/hooks/useLongPress";
-import { setPrecision, shortenCount } from "lib/utils/formatNumber";
+import { setPrecision } from "lib/utils/formatNumber";
 import { isMobile } from "mobile-device-detect";
 import { pixelDarkBorderStyle } from "features/game/lib/style";
 import { PIXEL_SCALE } from "features/game/lib/constants";
 import { SquareIcon } from "./SquareIcon";
 import { SUNNYSIDE } from "assets/sunnyside";
-import { ProgressType, ResizableBar } from "./ProgressBar";
+import { type ProgressType, ResizableBar } from "./ProgressBar";
+import { CountLabel } from "./CountLabel";
 
 const LABEL_RIGHT_SHIFT_PX = -5 * PIXEL_SCALE;
 const LABEL_TOP_SHIFT_PX = -5 * PIXEL_SCALE;
-const INNER_CANVAS_WIDTH = 14;
+const INNER_CANVAS_WIDTH = 13.7;
 
 export interface BoxProps {
   hideCount?: boolean;
-  image?: any;
-  secondaryImage?: any;
+  image?: string;
+  secondaryImage?: string;
   isSelected?: boolean;
   count?: Decimal;
   countLabelType?: LabelType;
@@ -47,7 +48,7 @@ export interface BoxProps {
    * Only need to set if div is scrollable.
    * Otherwise leave this unset so the shifting is done if the label is outside the viewport.
    */
-  parentDivRef?: React.RefObject<HTMLElement>;
+  parentDivRef?: React.RefObject<HTMLElement | null>;
   /**
    * progress bar for the box, replaces the bottom left and bottom right
    */
@@ -56,6 +57,15 @@ export interface BoxProps {
     percentage: number;
     type: ProgressType;
   };
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onPointerDown?: (e: React.PointerEvent<HTMLDivElement>) => void;
+  style?: React.CSSProperties;
+  /**
+   * Custom content to show inside the box (e.g. Bumpkin).
+   * When provided, this is shown instead of the image.
+   */
+  children?: React.ReactNode;
 }
 
 export const Box: React.FC<BoxProps> = ({
@@ -77,21 +87,15 @@ export const Box: React.FC<BoxProps> = ({
   parentDivRef,
   alternateIcon,
   progress,
+  onDragOver,
+  onDrop,
+  onPointerDown,
+  style,
+  children,
 }) => {
   const [isHover, setIsHover] = useState(false);
-  const [showHiddenCountLabel, setShowHiddenCountLabel] = useState(false);
-  const [shortCount, setShortCount] = useState("");
-
-  const labelRef = useRef<HTMLDivElement>(null);
-  const labelCheckerRef = useRef<HTMLDivElement>(null);
 
   const precisionCount = setPrecision(count ?? 0, 2);
-
-  // re-execute function on count change
-  useEffect(
-    () => setShortCount(shortenCount(precisionCount)),
-    [precisionCount],
-  );
 
   const canClick = !locked && !disabled && !!onClick;
 
@@ -110,58 +114,13 @@ export const Box: React.FC<BoxProps> = ({
 
   const showCountLabel = !locked && !hideCount && precisionCount.greaterThan(0);
 
-  // shift count label position to right if out of parent div or viewport bounds on hover
-  // restore count label position when not on hover
-  // hidden count label is needed to prevent flickering of the visible count label on hover
-  useEffect(() => {
-    setShowHiddenCountLabel(false);
-
-    // restore count label position when not on hover
-    if (!isHover && labelRef.current) {
-      labelRef.current.style.right = `${LABEL_RIGHT_SHIFT_PX}px`;
-      return;
-    }
-
-    // null check
-    if (!labelRef.current || !labelCheckerRef.current) {
-      return;
-    }
-
-    // get hidden count label and parent div/viewport bounding
-    const hiddenCountLabelBounding =
-      labelCheckerRef.current.getBoundingClientRect();
-    const parentDivBounding = parentDivRef?.current?.getBoundingClientRect();
-
-    // if parent div is defined,
-    // shift count label to the right so left most bounds for count label touches that of the parent div
-    if (
-      parentDivBounding &&
-      hiddenCountLabelBounding.left < parentDivBounding.left
-    ) {
-      labelRef.current.style.right = `${
-        LABEL_RIGHT_SHIFT_PX +
-        hiddenCountLabelBounding.left -
-        parentDivBounding.left
-      }px`;
-      return;
-    }
-
-    // else shift count label to the right so left most bounds for count label touches that of the viewport
-    if (hiddenCountLabelBounding?.left < 0) {
-      labelRef.current.style.right = `${
-        LABEL_RIGHT_SHIFT_PX + hiddenCountLabelBounding.left
-      }px`;
-    }
-  }, [isHover]);
-
   return (
     <div
       className={`relative ${className}`}
-      onMouseEnter={() => {
-        setShowHiddenCountLabel(true);
-        setIsHover(true);
-      }}
+      onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
+      onPointerDown={onPointerDown}
+      style={style}
     >
       <div
         className={classNames("bg-brown-600 relative", {
@@ -178,6 +137,8 @@ export const Box: React.FC<BoxProps> = ({
           marginRight: `${PIXEL_SCALE * 3}px`,
           ...pixelDarkBorderStyle,
         }}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
       >
         <div
           className={classNames(
@@ -187,11 +148,14 @@ export const Box: React.FC<BoxProps> = ({
             },
           )}
         >
-          <SquareIcon
-            icon={image}
-            width={INNER_CANVAS_WIDTH}
-            className={iconClassName}
-          />
+          {children ??
+            (image && (
+              <SquareIcon
+                icon={image}
+                width={INNER_CANVAS_WIDTH}
+                className={iconClassName}
+              />
+            ))}
           {secondaryImage && (
             <img
               src={secondaryImage}
@@ -237,78 +201,26 @@ export const Box: React.FC<BoxProps> = ({
 
         {/* Count label */}
         {showCountLabel && (
-          <div
-            ref={labelRef}
-            className={classNames("absolute", {
-              "z-10": !isHover,
-              "z-20": isHover,
-            })}
-            style={{
-              right: `${LABEL_RIGHT_SHIFT_PX}px`,
-              top: `${LABEL_TOP_SHIFT_PX}px`,
-              pointerEvents: "none",
-            }}
-          >
-            <Label
-              type={countLabelType}
-              style={{
-                paddingLeft: "2.5px",
-                paddingRight: "1.5px",
-                height: "24px",
-              }}
-            >
-              {isHover && !showHiddenCountLabel
-                ? precisionCount.toString()
-                : shortCount}
-            </Label>
-          </div>
-        )}
-
-        {/* Transparent long count label to adjust the visible count label position on hover */}
-        {showCountLabel && showHiddenCountLabel && (
-          <div
-            ref={labelCheckerRef}
-            className="absolute opacity-0"
-            style={{
-              right: `${LABEL_RIGHT_SHIFT_PX}px`,
-              top: `${LABEL_TOP_SHIFT_PX}px`,
-              pointerEvents: "none",
-            }}
-          >
-            <Label
-              type="default"
-              className="px-0.5"
-              style={{
-                paddingLeft: "2.5px",
-                paddingRight: "1.5px",
-                height: "24px",
-              }}
-            >
-              {precisionCount.toString()}
-            </Label>
-          </div>
+          <CountLabel
+            isHover={isHover}
+            count={precisionCount}
+            labelType={countLabelType}
+            rightShiftPx={LABEL_RIGHT_SHIFT_PX}
+            topShiftPx={LABEL_TOP_SHIFT_PX}
+            parentDivRef={parentDivRef}
+          />
         )}
 
         {/** Show alternate Icon */}
         {!showCountLabel && alternateIcon && (
-          <div
-            ref={labelRef}
-            className={classNames("absolute", {
-              "z-10": !isHover,
-              "z-20": isHover,
-            })}
-            style={{
-              right: `${LABEL_RIGHT_SHIFT_PX}px`,
-              top: `${LABEL_TOP_SHIFT_PX}px`,
-              pointerEvents: "none",
-            }}
-          >
-            <SquareIcon
-              icon={alternateIcon}
-              width={INNER_CANVAS_WIDTH}
-              className={iconClassName}
-            />
-          </div>
+          <CountLabel
+            isHover={isHover}
+            count={precisionCount}
+            labelType={countLabelType}
+            rightShiftPx={LABEL_RIGHT_SHIFT_PX}
+            topShiftPx={LABEL_TOP_SHIFT_PX}
+            parentDivRef={parentDivRef}
+          />
         )}
 
         {/** Overlay icon */}
